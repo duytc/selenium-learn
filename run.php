@@ -168,7 +168,7 @@ foreach($filterOptions as $option) {
 
     $emailField
         ->clear()
-        ->sendKeys('greg@tagcade.com')
+        ->sendKeys(REPORT_EMAIL)
         ->submit()
     ;
 }

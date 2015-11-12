@@ -1,4 +1,5 @@
 .idea
 vendor
 data
+config.php
 config.credentials.php
