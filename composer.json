@@ -1,0 +1,6 @@
+{
+    "name": "tagcade-report-automation",
+    "require": {
+        "facebook/webdriver": "~1.0"
+    }
+}
