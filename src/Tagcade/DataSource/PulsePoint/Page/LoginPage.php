@@ -5,7 +5,7 @@ namespace Tagcade\DataSource\PulsePoint\Page;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
-class loginPage extends AbstractPage
+class LoginPage extends AbstractPage
 {
     const URL = 'https://exchange.pulsepoint.com/AccountMgmt/Login.aspx';
 

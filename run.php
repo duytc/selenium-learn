@@ -12,8 +12,8 @@ use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Tagcade\DataSource\PulsePoint as PulsePoint;
 
-$log = new Logger('main');
-$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+$logger = new Logger('main');
+$logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
 $options = getopt('', ['session-id:']);
 
@@ -65,43 +65,21 @@ if ($sessionId) {
     file_put_contents(SESSION_FILE, $sessionId);
 }
 
-$webDriverTimeouts = $driver->manage()->timeouts();
-
-$webDriverTimeouts->implicitlyWait(3);
-$webDriverTimeouts->pageLoadTimeout(10);
-
-$reportSelectorWidget = new PulsePoint\Widget\ReportSelectorWidget(
-    $driver,
-    new PulsePoint\Widget\ReportTypeWidget($driver),
-    new PulsePoint\Widget\DateRangeWidget($driver),
-    new PulsePoint\Widget\RunButtonWidget($driver)
-);
-
-$exportButtonWidget = new PulsePoint\Widget\ExportButtonWidget($driver);
-
-$managerPage = new PulsePoint\Page\ManagerPage($driver, $reportSelectorWidget, $exportButtonWidget);
-$managerPage->setLogger($log);
-$loginPage = new PulsePoint\Page\LoginPage($driver);
-$loginPage->setLogger($log);
-
-if (!$managerPage->isCurrentUrl()) {
-    $managerPage->navigate();
-
-    if ($loginPage->isCurrentUrl()) {
-        $loginPage->login(PULSEPOINT_USERNAME, PULSEPOINT_PASSWORD);
-    }
-
-    $managerPage->waitForData();
-}
-
-$reportDate = new DateTime('yesterday');
-
-// temporary for developing
-//$managerPage->enableReceiveReportsByEmail(false);
-
-$managerPage
-    ->setEmailAddress(REPORT_EMAIL)
-    ->getAccountManagementReport($reportDate)
-    ->getDailyStatsReport($reportDate)
-    ->getImpressionDomainsReports($reportDate)
+$driver->manage()
+    ->timeouts()
+    ->implicitlyWait(3)
+    ->pageLoadTimeout(10)
 ;
+
+$params = (new PulsePoint\TaskParams())
+    ->setUsername(PULSEPOINT_USERNAME)
+    ->setPassword(PULSEPOINT_PASSWORD)
+    ->setEmailAddress(REPORT_EMAIL)
+    ->setReportDate(new DateTime('yesterday'))
+;
+
+$params->setReceiveReportsByEmail(false); // for development purposes
+
+PulsePoint\TaskFactory::getAllData($driver, $params, $logger);
+
+$logger->info('Application finished');

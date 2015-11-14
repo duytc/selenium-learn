@@ -11,7 +11,6 @@ use Facebook\WebDriver\WebDriverSelect;
 use Tagcade\DataSource\PulsePoint\Exception\InvalidDateRangeException;
 use Tagcade\DataSource\PulsePoint\Widget\ReportSelectorWidget;
 use Tagcade\DataSource\PulsePoint\Widget\ExportButtonWidget;
-use Psr\Log\LoggerInterface;
 
 class ManagerPage extends AbstractPage
 {
@@ -137,11 +136,15 @@ class ManagerPage extends AbstractPage
         $adTagFilter = new WebDriverSelect($adTagFilterElement);
         $filterOptions = $adTagFilter->getOptions();
 
-        foreach($filterOptions as $option) {
+        $numberOfReports = count($filterOptions);
+
+        foreach($filterOptions as $index => $option) {
+            $currentReportNumber = $index + 1;
+
             $optionText = $option->getText();
 
             if ($this->hasLogger()) {
-                $this->logger->info(sprintf('Started to process Impression Domain report for %s', $optionText));
+                $this->logger->info(sprintf('Started to process Impression Domain report for %s (%d/%d)', $optionText, $currentReportNumber, $numberOfReports));
             }
 
             $this->driver->wait()->until(WebDriverExpectedCondition::refreshed(
