@@ -36,7 +36,13 @@ class DateSelectWidget extends AbstractWidget
      */
     public function setDate(DateTime $date)
     {
-        $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#%s + .datepick-trigger', $this->fieldId)))
+        $dateButtonSel = WebDriverBy::cssSelector(sprintf('#%s + .datepick-trigger', $this->fieldId));
+
+        $this->driver->wait()->until(WebDriverExpectedCondition::refreshed(
+            WebDriverExpectedCondition::elementToBeClickable($dateButtonSel)
+        ));
+
+        $this->driver->findElement($dateButtonSel)
             ->click()
         ;
 

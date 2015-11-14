@@ -13,7 +13,7 @@ use Monolog\Handler\StreamHandler;
 use Tagcade\DataSource\PulsePoint as PulsePoint;
 
 $log = new Logger('main');
-$log->pushHandler(new StreamHandler('php://stdout', Logger::INFO));
+$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
 $options = getopt('', ['session-id:']);
 
@@ -48,9 +48,9 @@ if ($sessionId) {
     }
 } else {
     $chromeOptions = new ChromeOptions();
-    $chromeOptions->addArguments([sprintf("user-data-dir=%s/chrome/profile", DATA_PATH)]);
+    $chromeOptions->addArguments([sprintf('user-data-dir=%s/chrome/profile', DATA_PATH)]);
     $chromeOptions->setExperimentalOption('prefs', [
-       "download.default_directory" => "/home/greg/Tagcade/report-automation/data/downloads",
+       'download.default_directory' => DATA_PATH . '/downloads',
     ]);
 
     $capabilities = DesiredCapabilities::chrome();
@@ -67,7 +67,7 @@ if ($sessionId) {
 
 $webDriverTimeouts = $driver->manage()->timeouts();
 
-$webDriverTimeouts->implicitlyWait(10);
+$webDriverTimeouts->implicitlyWait(3);
 $webDriverTimeouts->pageLoadTimeout(10);
 
 $reportSelectorWidget = new PulsePoint\Widget\ReportSelectorWidget(
@@ -90,12 +90,14 @@ if (!$managerPage->isCurrentUrl()) {
     if ($loginPage->isCurrentUrl()) {
         $loginPage->login(PULSEPOINT_USERNAME, PULSEPOINT_PASSWORD);
     }
+
+    $managerPage->waitForData();
 }
 
 $reportDate = new DateTime('yesterday');
 
 // temporary for developing
-$managerPage->enableReceiveReportsByEmail(false);
+//$managerPage->enableReceiveReportsByEmail(false);
 
 $managerPage
     ->setEmailAddress(REPORT_EMAIL)

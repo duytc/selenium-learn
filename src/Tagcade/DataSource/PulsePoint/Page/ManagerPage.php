@@ -133,7 +133,8 @@ class ManagerPage extends AbstractPage
             ->selectImpressionDomains()
         ;
 
-        $adTagFilter = new WebDriverSelect($this->driver->findElement(WebDriverBy::id('ddlAdTagGroupAndAdTags')));
+        $adTagFilterElement = $this->driver->findElement(WebDriverBy::id('ddlAdTagGroupAndAdTags'));
+        $adTagFilter = new WebDriverSelect($adTagFilterElement);
         $filterOptions = $adTagFilter->getOptions();
 
         foreach($filterOptions as $option) {
@@ -142,6 +143,10 @@ class ManagerPage extends AbstractPage
             if ($this->hasLogger()) {
                 $this->logger->info(sprintf('Started to process Impression Domain report for %s', $optionText));
             }
+
+            $this->driver->wait()->until(WebDriverExpectedCondition::refreshed(
+                WebDriverExpectedCondition::visibilityOf($adTagFilterElement)
+            ));
 
             $adTagFilter->selectByValue($option->getAttribute('value'));
             try {
@@ -157,6 +162,8 @@ class ManagerPage extends AbstractPage
                     $this->logger->alert(sprintf('Impression Domain report for %s was not retrieved', $optionText));
                 }
             }
+
+            $this->sleep(1);
         }
 
         return $this;
@@ -214,11 +221,14 @@ class ManagerPage extends AbstractPage
      */
     protected function exportReport()
     {
-        $this->waitForAjax();
+        $this->waitForData();
 
         try {
             $noDataMessage = $this->driver->findElement(WebDriverBy::cssSelector('.reportData .noImpressionDomainsDataContainer'));
             if ($noDataMessage->isDisplayed()) {
+                if ($this->hasLogger()) {
+                    $this->logger->info('There is no report data');
+                }
                 return false;
             }
         } catch (NoSuchElementException $e) {}
@@ -227,12 +237,16 @@ class ManagerPage extends AbstractPage
             $exportButton = $this->getExportButtonWidget();
             if ($exportButton->getElement()->isDisplayed()) {
                 $exportButton->clickButton();
+                if ($this->hasLogger()) {
+                    $this->logger->info('Downloading report data');
+                }
                 return true;
             }
         } catch (NoSuchElementException $e) {}
 
         try {
             $emailField = $this->driver->findElement(WebDriverBy::name('txtEmail'));
+            $submitButton = $this->driver->findElement(WebDriverBy::cssSelector('div.sendButton a.button'));
         } catch (NoSuchElementException $e) {
             return false;
         }
@@ -248,8 +262,19 @@ class ManagerPage extends AbstractPage
             ->sendKeys($this->emailAddress)
         ;
 
+        $this->sleep(1);
+
         if ($this->enableReceiveReportsByEmail) {
-            $emailField->submit();
+            if ($this->hasLogger()) {
+                $this->logger->info(sprintf('Sending report via email to %s', $this->emailAddress));
+            }
+
+            $submitButton->click();
+
+        } else {
+            if ($this->hasLogger()) {
+                $this->logger->info('Skipping form submit');
+            }
         }
 
         return true;

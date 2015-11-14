@@ -2,6 +2,7 @@
 
 namespace Tagcade\DataSource\PulsePoint\Page;
 
+use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -59,7 +60,15 @@ abstract class AbstractPage
         return $this->logger instanceof LoggerInterface;
     }
 
-    protected function waitForAjax()
+    /**
+     * PulsePoint uses a lot of ajax, this function will wait for ajax calls and also for the overlay div
+     * to be removed before proceeding
+     *
+     * @throws NoSuchElementException
+     * @throws \Exception
+     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     */
+    public function waitForData()
     {
         if ($this->hasLogger()) {
             $this->logger->info('Waiting for ajax to load');
@@ -69,12 +78,39 @@ abstract class AbstractPage
             return $driver->executeScript("return !!window.jQuery && window.jQuery.active == 0");
         });
 
-        if ($this->hasLogger()) {
-            $this->logger->info('Waiting for overlay to disappear');
+        $this->sleep(2);
+
+        $overlayPresent = $this->driver->executeScript("return !!document.querySelector('div.blockUI.blockOverlay')");
+
+        if ($overlayPresent) {
+            if ($this->hasLogger()) {
+                $this->logger->info('Waiting for overlay to disappear');
+            }
+
+            $overlaySel = WebDriverBy::cssSelector('div.blockUI.blockOverlay');
+            $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated($overlaySel));
         }
 
-        $this->driver->wait(30, 2500)->until(
-            WebDriverExpectedCondition::not(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('div.blockUI')))
-        );
+        if ($this->hasLogger()) {
+            $this->logger->info('Overlay has disappeared');
+        }
+    }
+
+    /**
+     * @param double $seconds seconds to sleep for
+     */
+    public function sleep($seconds)
+    {
+        $seconds = (double) $seconds;
+
+        if ($seconds <= 0) {
+            return;
+        }
+
+        if ($this->hasLogger()) {
+            $this->logger->debug(sprintf('Waiting for %.1f seconds', $seconds));
+        }
+
+        usleep($seconds * 1000 * 1000);
     }
 }

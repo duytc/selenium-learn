@@ -3,6 +3,7 @@
 namespace Tagcade\DataSource\PulsePoint\Page;
 
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class loginPage extends AbstractPage
 {
@@ -28,9 +29,11 @@ class loginPage extends AbstractPage
         ;
 
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
-        $this->driver->findElement(WebDriverBy::cssSelector('.tab.manager'))->click();
 
-        $this->waitForAjax();
+        $tabSel = WebDriverBy::cssSelector('.tab.manager');
+
+        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($tabSel));
+        $this->driver->findElement($tabSel)->click();
 
         return $this;
     }
