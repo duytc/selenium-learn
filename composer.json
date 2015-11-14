@@ -1,7 +1,8 @@
 {
     "name": "tagcade-report-automation",
     "require": {
-        "facebook/webdriver": "~1.0"
+        "facebook/webdriver": "~1.0",
+        "monolog/monolog": "^1.17"
     },
     "autoload": {
         "psr-0": {

@@ -3,17 +3,15 @@
 namespace Tagcade\DataSource\PulsePoint\Widget;
 
 use DateTime;
+use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
+use Tagcade\DataSource\PulsePoint\Exception\InvalidDateRangeException;
 
-class DateSelectWidget
+class DateSelectWidget extends AbstractWidget
 {
-    /**
-     * @var RemoteWebDriver
-     */
-    private $driver;
     /**
      * @var string
      */
@@ -25,7 +23,7 @@ class DateSelectWidget
      */
     public function __construct(RemoteWebDriver $driver, $fieldId)
     {
-        $this->driver = $driver;
+        parent::__construct($driver);
         $this->fieldId = $fieldId;
     }
 
@@ -35,7 +33,6 @@ class DateSelectWidget
      * @throws \Exception
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws \Facebook\WebDriver\Exception\TimeOutException
-     * @throws null
      */
     public function setDate(DateTime $date)
     {
@@ -53,9 +50,12 @@ class DateSelectWidget
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOf($yearSelectElement)
         );
-        (new WebDriverSelect($yearSelectElement))
-            ->selectByValue(static::getYearOption($date))
-        ;
+        try {
+            (new WebDriverSelect($yearSelectElement))
+                ->selectByValue(static::getYearOption($date));
+        } catch (NoSuchElementException $e) {
+            throw new InvalidDateRangeException('Cannot select the years');
+        }
 
         $monthSelectElement = $this->driver->findElement(
             WebDriverBy::cssSelector('#datepick-div .datepick-new-month')
@@ -63,17 +63,31 @@ class DateSelectWidget
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOf($monthSelectElement)
         );
-        (new WebDriverSelect($monthSelectElement))
-            ->selectByValue(static::getMonthOption($date));
+        try {
+            (new WebDriverSelect($monthSelectElement))
+                ->selectByValue(static::getMonthOption($date));
+        } catch (NoSuchElementException $e) {
+            throw new InvalidDateRangeException('Cannot select the month');
+        }
 
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#datepick-div table.datepick tbody'))
         );
-        $this->driver->findElement(WebDriverBy::linkText(static::getDayOption($date)))
-            ->click()
-        ;
+        try {
+            $this->driver->findElement(WebDriverBy::linkText(static::getDayOption($date)))
+                ->click()
+            ;
+        } catch (NoSuchElementException $e) {
+            throw new InvalidDateRangeException('Cannot select the day');
+        }
 
         return $this;
+    }
+
+    public function getDate()
+    {
+        $rawDate = $this->driver->findElement(WebDriverBy::id($this->fieldId))->getAttribute('value');
+        return DateTime::createFromFormat('m/d/Y', $rawDate);
     }
 
     public static function getYearOption(Datetime $date)

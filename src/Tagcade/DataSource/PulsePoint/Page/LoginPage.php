@@ -30,6 +30,8 @@ class loginPage extends AbstractPage
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
         $this->driver->findElement(WebDriverBy::cssSelector('.tab.manager'))->click();
 
+        $this->waitForAjax();
+
         return $this;
     }
 }

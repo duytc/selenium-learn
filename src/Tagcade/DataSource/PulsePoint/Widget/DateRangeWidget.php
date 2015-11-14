@@ -3,24 +3,11 @@
 namespace Tagcade\DataSource\PulsePoint\Widget;
 
 use DateTime;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use InvalidArgumentException;
 
-class DateRangeWidget
+class DateRangeWidget extends AbstractWidget
 {
-    /**
-     * @var RemoteWebDriver
-     */
-    private $driver;
-
-    /**
-     * @param RemoteWebDriver $driver
-     */
-    public function __construct(RemoteWebDriver $driver)
-    {
-        $this->driver = $driver;
-    }
-
     /**
      * @param DateTime $startDate
      * @param DateTime $endDate
@@ -30,16 +17,34 @@ class DateRangeWidget
     {
         $endDate = $endDate ?: $startDate;
 
+        if ($startDate > $endDate || $endDate < $startDate) {
+            throw new InvalidArgumentException('The date range supplied is invalid');
+        }
+
         $this->driver->findElement(WebDriverBy::id('rbCustomDates'))->click();
 
-        (new DateSelectWidget($this->driver, 'txtStartDate'))
-            ->setDate($startDate)
-        ;
+        $startDateWidget = new DateSelectWidget($this->driver, 'txtStartDate');
+        $endDateWidget = new DateSelectWidget($this->driver, 'txtEndDate');
 
-        (new DateSelectWidget($this->driver, 'txtEndDate'))
-            ->setDate($endDate)
-        ;
+        if ($startDate > $endDateWidget->getDate()) {
+            $endDateWidget->setDate($endDate);
+            $startDateWidget->setDate($startDate);
+        } else {
+            $startDateWidget->setDate($startDate);
+            $endDateWidget->setDate($endDate);
+        }
 
         return $this;
+    }
+
+    /**
+     * @param $fieldId
+     * @param DateTime $date
+     */
+    protected function setDate($fieldId, DateTime $date)
+    {
+        (new DateSelectWidget($this->driver, $fieldId))
+            ->setDate($date)
+        ;
     }
 }

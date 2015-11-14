@@ -8,11 +8,12 @@ use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Exception\UnknownServerException;
-use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverSelect;
-
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use Tagcade\DataSource\PulsePoint as PulsePoint;
+
+$log = new Logger('main');
+$log->pushHandler(new StreamHandler('php://stdout', Logger::INFO));
 
 $options = getopt('', ['session-id:']);
 
@@ -69,105 +70,36 @@ $webDriverTimeouts = $driver->manage()->timeouts();
 $webDriverTimeouts->implicitlyWait(10);
 $webDriverTimeouts->pageLoadTimeout(10);
 
-const EXPORT_BUTTON_SEL = 'a.exportButton.button';
-const REPORT_TYPE_ACCOUNT_MANAGEMENT = '0';
-const REPORT_TYPE_IMPRESSION_DOMAINS = '7';
-const REPORT_TYPE_DAILY_STATS = '18';
-
-$dateRangeWidget = new PulsePoint\Widget\DateRangeWidget($driver);
-
-$managerPage = new PulsePoint\Page\ManagerPage($driver, $dateRangeWidget);
-$loginPage = new PulsePoint\Page\LoginPage($driver);
-
-$managerPage->navigate();
-
-if ($loginPage->isCurrentUrl()) {
-    $loginPage->login(PULSEPOINT_USERNAME, PULSEPOINT_PASSWORD);
-}
-
-$driver->wait()->until(PulsePoint\WebDriver\WebDriverExpectedCondition::jQueryInactive());
-
-$driver->wait(30, 1000)->until(
-    WebDriverExpectedCondition::not(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('div.blockUI')))
+$reportSelectorWidget = new PulsePoint\Widget\ReportSelectorWidget(
+    $driver,
+    new PulsePoint\Widget\ReportTypeWidget($driver),
+    new PulsePoint\Widget\DateRangeWidget($driver),
+    new PulsePoint\Widget\RunButtonWidget($driver)
 );
 
-$startDate = new DateTime('2014-05-05');
+$exportButtonWidget = new PulsePoint\Widget\ExportButtonWidget($driver);
 
-$managerPage->getDateRangeWidget()->setDateRange($startDate);
+$managerPage = new PulsePoint\Page\ManagerPage($driver, $reportSelectorWidget, $exportButtonWidget);
+$managerPage->setLogger($log);
+$loginPage = new PulsePoint\Page\LoginPage($driver);
+$loginPage->setLogger($log);
 
-//$reportTypeSelect = new WebDriverSelect($driver->findElement(WebDriverBy::id('ddlReportTypes')));
-//$runReportButton = $driver->findElement(WebDriverBy::cssSelector('.runReportButton a'));
-//
-////////////////
-//
-//$reportTypeSelect->selectByValue(REPORT_TYPE_ACCOUNT_MANAGEMENT);
-//$runReportButton->click();
-//sleep(2);
-//$driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector(EXPORT_BUTTON_SEL)));
-//echo "Downloading account management report\n";
-//$driver->findElement(WebDriverBy::cssSelector(EXPORT_BUTTON_SEL))->click();
-//sleep(1);
-//
-//////////////////
-//
-//$reportTypeSelect->selectByValue(REPORT_TYPE_DAILY_STATS);
-//$runReportButton->click();
-//sleep(2);
-//$driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector(EXPORT_BUTTON_SEL)));
-//echo "Downloading daily stats report\n";
-//$driver->findElement(WebDriverBy::cssSelector(EXPORT_BUTTON_SEL))->click();
-//sleep(1);
-//
-////////////////
-//
-//$reportTypeSelect->selectByValue(REPORT_TYPE_IMPRESSION_DOMAINS);
-//
-//$adTagFilter = new WebDriverSelect($driver->findElement(WebDriverBy::id('ddlAdTagGroupAndAdTags')));
-//$filterOptions = $adTagFilter->getOptions();
-//
-//foreach($filterOptions as $option) {
-//    sleep(1);
-//
-//    $optionText = $option->getText();
-//    $adTagFilter->selectByValue($option->getAttribute('value'));
-//    $runReportButton->click();
-//
-//    sleep(2);
-//
-//    $driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('.blockUI')));
-//
-//    try {
-//        $noDataMessage = $driver->findElement(WebDriverBy::cssSelector('.reportData .noImpressionDomainsDataContainer'));
-//        if ($noDataMessage->isDisplayed()) {
-//            echo sprintf("No impression data report for: %s\n", $optionText);
-//            continue;
-//        }
-//    } catch (NoSuchElementException $e) {}
-//
-//    try {
-//        $exportButton = $driver->findElement(WebDriverBy::cssSelector(EXPORT_BUTTON_SEL));
-//        if ($exportButton->isDisplayed()) {
-//            $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector(EXPORT_BUTTON_SEL)));
-//            echo sprintf("Downloading impression domains report for: %s\n", $optionText);
-//            $exportButton->click();
-//            continue;
-//        }
-//    } catch (NoSuchElementException $e) {}
-//
-//    try {
-//        $emailField = $driver->findElement(WebDriverBy::name('txtEmail'));
-//    } catch (NoSuchElementException $e) {
-//        echo sprintf("Skipping impression domains report for: %s\n", $optionText);
-//        continue;
-//    }
-//
-//    $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.sendButton a.button')));
-//
-//    echo sprintf("Emailing impression domains report for: %s\n", $optionText);
-//
-//    $emailField
-//        ->clear()
-//        ->sendKeys(REPORT_EMAIL)
-//        ->submit()
-//    ;
-//}
+if (!$managerPage->isCurrentUrl()) {
+    $managerPage->navigate();
+
+    if ($loginPage->isCurrentUrl()) {
+        $loginPage->login(PULSEPOINT_USERNAME, PULSEPOINT_PASSWORD);
+    }
+}
+
+$reportDate = new DateTime('yesterday');
+
+// temporary for developing
+$managerPage->enableReceiveReportsByEmail(false);
+
+$managerPage
+    ->setEmailAddress(REPORT_EMAIL)
+    ->getAccountManagementReport($reportDate)
+    ->getDailyStatsReport($reportDate)
+    ->getImpressionDomainsReports($reportDate)
+;
