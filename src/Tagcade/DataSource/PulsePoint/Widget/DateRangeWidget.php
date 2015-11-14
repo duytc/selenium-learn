@@ -5,8 +5,6 @@ namespace Tagcade\DataSource\PulsePoint\Widget;
 use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverSelect;
 
 class DateRangeWidget
 {
@@ -23,6 +21,11 @@ class DateRangeWidget
         $this->driver = $driver;
     }
 
+    /**
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @return $this
+     */
     public function setDateRange(DateTime $startDate, DateTime $endDate = null)
     {
         $endDate = $endDate ?: $startDate;
@@ -36,5 +39,7 @@ class DateRangeWidget
         (new DateSelectWidget($this->driver, 'txtEndDate'))
             ->setDate($endDate)
         ;
+
+        return $this;
     }
 }

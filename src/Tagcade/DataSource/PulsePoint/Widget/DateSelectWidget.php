@@ -29,6 +29,14 @@ class DateSelectWidget
         $this->fieldId = $fieldId;
     }
 
+    /**
+     * @param DateTime $date
+     * @return $this
+     * @throws \Exception
+     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws null
+     */
     public function setDate(DateTime $date)
     {
         $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#%s + .datepick-trigger', $this->fieldId)))
@@ -64,6 +72,8 @@ class DateSelectWidget
         $this->driver->findElement(WebDriverBy::linkText(static::getDayOption($date)))
             ->click()
         ;
+
+        return $this;
     }
 
     public static function getYearOption(Datetime $date)
