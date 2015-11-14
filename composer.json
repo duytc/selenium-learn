@@ -2,5 +2,10 @@
     "name": "tagcade-report-automation",
     "require": {
         "facebook/webdriver": "~1.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Tagcade\\": "src/"
+        }
     }
 }
