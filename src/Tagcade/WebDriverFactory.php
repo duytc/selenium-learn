@@ -59,7 +59,7 @@ class WebDriverFactory
             $driver->getWindowHandles();
         } catch (UnknownServerException $e) {
             if ($logger) {
-                $logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it?", $sessionId));
+                $logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it? You can run tools/clear-all-sessions.php to reset", $sessionId));
             }
 
             return false;
@@ -70,36 +70,43 @@ class WebDriverFactory
 
     public static function getWebDriver(array $options, LoggerInterface $logger = null)
     {
-        if ('dev' == $options['env']) {
-            $driver = static::getExistingSession($options, $logger);
-
-            if ($driver) {
-                return $driver;
-            }
-
-            unset($driver);
+        if ('dev' != $options['env']) {
+            return static::createWebDriver($options['data-path']);
         }
 
+        $driver = static::getExistingSession($options, $logger);
+
+        if ($driver) {
+            return $driver;
+        }
+
+        unset($driver);
+
+        $driver = static::createWebDriver($options['data-path']);
+
+        $sessionId = $driver->getSessionID();
+
+        if ($logger) {
+            $logger->info(sprintf("Session created: %s", $sessionId));
+        }
+
+        file_put_contents($options['session-file'], $sessionId);
+
+        return $driver;
+    }
+
+    public static function createWebDriver($dataPath)
+    {
         $chromeOptions = new ChromeOptions();
-        $chromeOptions->addArguments([sprintf('user-data-dir=%s/chrome/profile', $options['data-path'])]);
+        $chromeOptions->addArguments([sprintf('user-data-dir=%s/chrome/profile', $dataPath)]);
         $chromeOptions->setExperimentalOption('prefs', [
-            'download.default_directory' => $options['data-path'] . '/downloads',
+            'download.default_directory' => $dataPath . '/downloads',
         ]);
 
         $capabilities = DesiredCapabilities::chrome();
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
         $driver = RemoteWebDriver::create('http://localhost:4444/wd/hub', $capabilities);
-
-        if ('dev' == $options['env']) {
-            $sessionId = $driver->getSessionID();
-
-            if ($logger) {
-                $logger->info(sprintf("Session created: %s", $sessionId));
-            }
-
-            file_put_contents($options['session-file'], $sessionId);
-        }
 
         return $driver;
     }

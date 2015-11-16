@@ -11,16 +11,22 @@ use Tagcade\DataSource\PulsePoint as PulsePoint;
 $logger = new Logger('main');
 $logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
-$options = getopt('', ['env:', 'data-path:', 'session-id:']);
+$options = getopt('', ['env:', 'data-path:', 'session-id:', 'disable-email']);
 
 $options = array_merge([
-    'env'       => 'dev',
-    'data-path' => DATA_PATH,
-    'session-file' => rtrim(DATA_PATH, '/') . '/.session'
+    'env'           => 'dev',
+    'data-path'     => DATA_PATH,
+    'session-file'  => SESSION_FILE,
+    'disable-email' => null,
 ], $options);
 
 if (!is_writable($options['data-path'])) {
     $logger->critical('Cannot write to data path');
+    exit(1);
+}
+
+if (!is_writable(dirname($options['session-file']))) {
+    $logger->critical('Cannot write to session file directory');
     exit(1);
 }
 
@@ -39,7 +45,10 @@ $params = (new PulsePoint\TaskParams())
     ->setReportDate(new DateTime('yesterday'))
 ;
 
-$params->setReceiveReportsByEmail(false); // for development purposes
+if ($options['disable-email'] === false) {
+    $logger->info('Disabling email');
+    $params->setReceiveReportsByEmail(false);
+};
 
 PulsePoint\TaskFactory::getAllData($driver, $params, $logger);
 
