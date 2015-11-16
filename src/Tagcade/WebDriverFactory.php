@@ -13,30 +13,13 @@ class WebDriverFactory
     const SESSION_FILE = '.session';
 
     /**
-     * @param array $options
+     * @param string $sessionId
      * @param LoggerInterface $logger
      * @return bool|RemoteWebDriver
      */
-    public static function getExistingSession(array $options, LoggerInterface $logger = null)
+    public static function getExistingSession($sessionId, LoggerInterface $logger = null)
     {
-        $sessionId = null;
-        $sessionFile = $options['session-file'];
-
-        if (isset($options['session-id'])) {
-            $sessionId = $options['session-id'];
-
-            if ($logger) {
-                $logger->info(sprintf("Using existing session: %s", $sessionId));
-            }
-        } else if (file_exists($sessionFile)) {
-            $sessionId = file_get_contents($sessionFile);
-
-            if ($logger) {
-                $logger->info(sprintf("Using existing session from saved file: %s", $sessionId));
-            }
-        }
-
-        if (!$sessionId) {
+        if (!is_string($sessionId)) {
             return false;
         }
 
@@ -68,29 +51,20 @@ class WebDriverFactory
         return $driver;
     }
 
-    public static function getWebDriver(array $options, LoggerInterface $logger = null)
+    /**
+     * @param String $dataPath
+     * @param LoggerInterface $logger
+     * @return bool|RemoteWebDriver
+     */
+    public static function getWebDriver($dataPath, LoggerInterface $logger = null)
     {
-        if ('dev' != $options['env']) {
-            return static::createWebDriver($options['data-path']);
-        }
-
-        $driver = static::getExistingSession($options, $logger);
-
-        if ($driver) {
-            return $driver;
-        }
-
-        unset($driver);
-
-        $driver = static::createWebDriver($options['data-path']);
+        $driver = static::createWebDriver($dataPath);
 
         $sessionId = $driver->getSessionID();
 
         if ($logger) {
             $logger->info(sprintf("Session created: %s", $sessionId));
         }
-
-        file_put_contents($options['session-file'], $sessionId);
 
         return $driver;
     }
