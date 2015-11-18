@@ -1,9 +1,17 @@
 {
     "name": "tagcade-report-automation",
+    "repositories":
+    [
+        {
+            "type": "vcs",
+            "url": "https://github.com/gfreeau/php-curl"
+        }
+    ],
     "require": {
         "facebook/webdriver": "~1.0",
         "monolog/monolog": "^1.17",
-        "ulrichsg/getopt-php": "^2.3"
+        "ulrichsg/getopt-php": "^2.3",
+        "anlutro/curl": "dev-master"
     },
     "autoload": {
         "psr-0": {
