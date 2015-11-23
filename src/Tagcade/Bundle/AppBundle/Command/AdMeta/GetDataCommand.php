@@ -107,8 +107,46 @@ class GetDataCommand extends ContainerAwareCommand {
         // todo use symfony DI
         $api = new Api($config['username'], $config['password'], $curl, $this->logger);
 
-        // todo configurable date
-        // todo directory structure and file name needs to be unique
-        file_put_contents(sprintf('%s/reports', $this->defaultDataPath), $api->getReports());
+        $dataFile = $this->getUniqueFilePath(sprintf('%s/reports.xml', $this->defaultDataPath));
+        touch($dataFile);
+        file_put_contents($dataFile, $api->getReports());
+    }
+
+    /**
+     * When this tool is run multiple tools we want to avoid overwriting existing files
+     * If the file "reports.xml" exists, this function will return "reports (1).xml"
+     *
+     * @param $filePath
+     * @return string
+     */
+    protected function getUniqueFilePath($filePath)
+    {
+        if (!file_exists($filePath)) {
+            return $filePath;
+        }
+
+        $dotPosition = strrpos($filePath, '.');
+        $ext = null;
+
+        if ($dotPosition) {
+            $name = substr($filePath, 0, $dotPosition);
+            $ext = substr($filePath, $dotPosition);
+        } else {
+            $name = $filePath;
+        }
+
+        $counter = 1;
+
+        do {
+            $newName = sprintf('%s (%d)', $name, $counter);
+
+            if ($ext) {
+                $newName .= sprintf('.%s', $ext);
+            }
+
+            $counter++;
+        } while (file_exists($newName));
+
+        return $newName;
     }
 }
