@@ -16,7 +16,7 @@ class GetDataCommand extends ContainerAwareCommand {
                 'config-file',
                 'c',
                 InputOption::VALUE_REQUIRED,
-                'Path to the config file'
+                'Path to the config file. See ./config/pulsepoint.yml.dist for an example'
             )
         ;
     }
