@@ -1,4 +1,6 @@
 cli-tool-bootstrap
 ==================
 
-A Symfony project created on November 23, 2015, 2:26 pm.
+When we need to make standalone command line tools, we can use the symfony framework.
+
+This way, separate code bases are familiar.
