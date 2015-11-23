@@ -157,6 +157,8 @@ class GetDataCommand extends ContainerAwareCommand
 
         $this->logger->info('Finished getting pulsepoint data');
 
+        // todo check that chrome finished downloading all files before finishing
+
         if ($input->getOption('quit-web-driver-after-run')) {
             $driver->quit();
         }
