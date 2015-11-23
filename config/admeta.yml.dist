@@ -1,0 +1,6 @@
+# Admeta API username
+username: 'username'
+# Admeta API password
+password: 'password'
+# Tagcade publisher id
+publisher_id: 1
