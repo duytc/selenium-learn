@@ -1,5 +1,5 @@
 {
-    "name": "greg/cli.tool.bootstrap",
+    "name": "tagcade-unified-report-fetcher",
     "license": "proprietary",
     "type": "project",
     "autoload": {
