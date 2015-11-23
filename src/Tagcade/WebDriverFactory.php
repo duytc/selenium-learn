@@ -72,7 +72,7 @@ class WebDriverFactory
     public static function createWebDriver($dataPath)
     {
         $chromeOptions = new ChromeOptions();
-        $chromeOptions->addArguments([sprintf('user-data-dir=%s/chrome/profile', $dataPath)]);
+        $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile', $dataPath)]);
         $chromeOptions->setExperimentalOption('prefs', [
             'download.default_directory' => $dataPath . '/downloads',
         ]);
