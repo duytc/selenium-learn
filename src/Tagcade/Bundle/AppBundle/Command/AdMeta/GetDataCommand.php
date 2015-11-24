@@ -135,14 +135,18 @@ class GetDataCommand extends ContainerAwareCommand {
             return $filePath;
         }
 
-        $dotPosition = strrpos($filePath, '.');
+        $pathParts = pathinfo($filePath);
+        $dirName = $pathParts['dirname'];
+        $fileName = $pathParts['basename'];
+
+        $dotPosition = strrpos($fileName, '.');
         $ext = null;
 
         if ($dotPosition) {
-            $name = substr($filePath, 0, $dotPosition);
-            $ext = substr($filePath, $dotPosition);
+            $name = substr($fileName, 0, $dotPosition);
+            $ext = substr($fileName, $dotPosition);
         } else {
-            $name = $filePath;
+            $name = $fileName;
         }
 
         $counter = 1;
@@ -154,9 +158,11 @@ class GetDataCommand extends ContainerAwareCommand {
                 $newName .= sprintf('.%s', $ext);
             }
 
-            $counter++;
-        } while (file_exists($newName));
+            $newFilePath = $dirName . DIRECTORY_SEPARATOR . $newName;
 
-        return $newName;
+            $counter++;
+        } while (file_exists($newFilePath));
+
+        return $newFilePath;
     }
 }
