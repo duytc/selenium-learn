@@ -4,7 +4,6 @@ namespace Tagcade\DataSource\PulsePoint;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\WebDriverFactoryInterface;
-use Tagcade\DataSource\PulsePoint\TaskParams;
 use DateTime;
 
 interface TaskFactoryInterface
