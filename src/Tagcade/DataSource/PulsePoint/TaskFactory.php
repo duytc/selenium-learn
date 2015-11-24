@@ -13,10 +13,31 @@ use Tagcade\DataSource\PulsePoint\Widget\ReportSelectorWidget;
 use Tagcade\DataSource\PulsePoint\Widget\ReportTypeWidget;
 use Tagcade\DataSource\PulsePoint\Widget\DateRangeWidget;
 use Tagcade\DataSource\PulsePoint\Widget\RunButtonWidget;
+use Tagcade\WebDriverFactoryInterface;
 
-class TaskFactory
+class TaskFactory implements TaskFactoryInterface
 {
-    public static function getAllData(RemoteWebDriver $driver, TaskParams $params, LoggerInterface $logger = null)
+    /**
+     * @var WebDriverFactoryInterface
+     */
+    private $webDriverFactory;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(WebDriverFactoryInterface $webDriverFactory, LoggerInterface $logger = null)
+    {
+        $this->webDriverFactory = $webDriverFactory;
+        $this->logger = $logger;
+    }
+
+    public function getWebDriverFactory()
+    {
+        return $this->webDriverFactory;
+    }
+
+    public function getAllData(TaskParams $params,RemoteWebDriver $driver = null)
     {
         $reportSelectorWidget = new ReportSelectorWidget(
             $driver,
@@ -30,9 +51,9 @@ class TaskFactory
         $managerPage = new ManagerPage($driver, $reportSelectorWidget, $exportButtonWidget);
         $loginPage = new LoginPage($driver);
 
-        if ($logger) {
-            $managerPage->setLogger($logger);
-            $loginPage->setLogger($logger);
+        if ($this->logger) {
+            $managerPage->setLogger($this->logger);
+            $loginPage->setLogger($this->logger);
         }
 
         if (!$managerPage->isCurrentUrl()) {
@@ -54,6 +75,16 @@ class TaskFactory
             ->getAccountManagementReport($reportDate)
             ->getDailyStatsReport($reportDate)
             ->getImpressionDomainsReports($reportDate)
+        ;
+    }
+
+    public function createParams($username, $password, $email, DateTime $date)
+    {
+        return (new TaskParams())
+            ->setUsername($username)
+            ->setPassword($password)
+            ->setEmailAddress($email)
+            ->setReportDate($date)
         ;
     }
 }

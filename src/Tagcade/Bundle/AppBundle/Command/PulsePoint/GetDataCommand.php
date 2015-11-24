@@ -10,14 +10,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-use Tagcade\DataSource\PulsePoint\TaskFactory;
-use Tagcade\DataSource\PulsePoint\TaskParams;
-use Tagcade\WebDriverFactory;
+use Tagcade\DataSource\PulsePoint\TaskFactoryInterface;
 
 class GetDataCommand extends ContainerAwareCommand
 {
     private static $requiredConfigFields = ['username', 'password', 'email', 'publisher_id'];
 
+    /**
+     * @var TaskFactoryInterface
+     */
+    private $pulsepoint;
     /**
      * @var string
      */
@@ -32,12 +34,14 @@ class GetDataCommand extends ContainerAwareCommand
     private $logger;
 
     /**
+     * @param TaskFactoryInterface $pulsepoint
      * @param string $defaultDataPath
      * @param Yaml $yaml
      * @param LoggerInterface $logger
      */
-    public function __construct($defaultDataPath, Yaml $yaml, LoggerInterface $logger)
+    public function __construct(TaskFactoryInterface $pulsepoint, $defaultDataPath, Yaml $yaml, LoggerInterface $logger)
     {
+        $this->pulsepoint = $pulsepoint;
         // todo refactor common code to base class
         $this->defaultDataPath = $defaultDataPath;
         $this->yaml = $yaml;
@@ -117,13 +121,15 @@ class GetDataCommand extends ContainerAwareCommand
             return 1;
         }
 
+        $webDriverFactory = $this->pulsepoint->getWebDriverFactory();
+
         $sessionId = $input->getOption('session-id');
 
         // todo we could refactor this so that these factories use symfony DI
         if ($input->getOption('session-id')) {
-            $driver = WebDriverFactory::getExistingSession($sessionId, $this->logger);
+            $driver = $webDriverFactory->getExistingSession($sessionId, $this->logger);
         } else {
-            $driver = WebDriverFactory::getWebDriver($dataPath, $this->logger);
+            $driver = $webDriverFactory->getWebDriver($dataPath, $this->logger);
         }
 
         if (!$driver) {
@@ -137,23 +143,22 @@ class GetDataCommand extends ContainerAwareCommand
             ->pageLoadTimeout(10)
         ;
 
-        $params = (new TaskParams())
-            ->setUsername($config['username'])
-            ->setPassword($config['password'])
-            ->setEmailAddress($config['email'])
+        $params = $this->pulsepoint->createParams(
+            $config['username'],
+            $config['password'],
+            $config['email'],
             /**
              * todo date should be configurable
              */
-            ->setReportDate(new DateTime('yesterday'))
-        ;
+            new DateTime('yesterday')
+        );
 
         if ($input->getOption('disable-email') === false) {
             $this->logger->info('Disabling email');
             $params->setReceiveReportsByEmail(false);
         };
 
-        // todo we could refactor this to use symfony di
-        TaskFactory::getAllData($driver, $params, $this->logger);
+        $this->pulsepoint->getAllData($params, $driver);
 
         $this->logger->info('Finished getting pulsepoint data');
 

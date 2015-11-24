@@ -8,16 +8,19 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 
-class WebDriverFactory
+class WebDriverFactory implements WebDriverFactoryInterface
 {
-    const SESSION_FILE = '.session';
-
     /**
-     * @param string $sessionId
-     * @param LoggerInterface $logger
-     * @return bool|RemoteWebDriver
+     * @var LoggerInterface
      */
-    public static function getExistingSession($sessionId, LoggerInterface $logger = null)
+    private $logger;
+
+    public function __construct(LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
+    }
+    
+    public function getExistingSession($sessionId)
     {
         if (!is_string($sessionId)) {
             return false;
@@ -28,8 +31,8 @@ class WebDriverFactory
         }, RemoteWebDriver::getAllSessions());
 
         if (!in_array($sessionId, $availableSessions)) {
-            if ($logger) {
-                $logger->error(sprintf("The supplied session id %s does not exist", $sessionId));
+            if ($this->logger) {
+                $this->logger->error(sprintf("The supplied session id %s does not exist", $sessionId));
             }
 
             return false;
@@ -41,8 +44,8 @@ class WebDriverFactory
             // do a check to see if the existing session has window handles
             $driver->getWindowHandles();
         } catch (UnknownServerException $e) {
-            if ($logger) {
-                $logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it? You can run tools/clear-all-sessions.php to reset", $sessionId));
+            if ($this->logger) {
+                $this->logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it? You can run tools/clear-all-sessions.php to reset", $sessionId));
             }
 
             return false;
@@ -51,25 +54,20 @@ class WebDriverFactory
         return $driver;
     }
 
-    /**
-     * @param String $dataPath
-     * @param LoggerInterface $logger
-     * @return bool|RemoteWebDriver
-     */
-    public static function getWebDriver($dataPath, LoggerInterface $logger = null)
+    public function getWebDriver($dataPath)
     {
-        $driver = static::createWebDriver($dataPath);
+        $driver = $this->createWebDriver($dataPath);
 
         $sessionId = $driver->getSessionID();
 
-        if ($logger) {
-            $logger->info(sprintf("Session created: %s", $sessionId));
+        if ($this->logger) {
+            $this->logger->info(sprintf("Session created: %s", $sessionId));
         }
 
         return $driver;
     }
 
-    public static function createWebDriver($dataPath)
+    public function createWebDriver($dataPath)
     {
         $chromeOptions = new ChromeOptions();
         $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile', $dataPath)]);

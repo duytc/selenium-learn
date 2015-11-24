@@ -2,6 +2,20 @@ services:
     yaml:
         class: Symfony\Component\Yaml\Yaml
 
+    tagcade.web_driver_factory:
+        class: Tagcade\WebDriverFactory
+        arguments: [@logger]
+
+    tagcade.data_source.pulsepoint.task_factory:
+        class: Tagcade\DataSource\PulsePoint\TaskFactory
+        arguments: [@tagcade.web_driver_factory, @logger]
+
+    tagcade.command.pulsepoint.get_data_command:
+        class: Tagcade\Bundle\AppBundle\Command\PulsePoint\GetDataCommand
+        arguments: [@tagcade.data_source.pulsepoint.task_factory, %tagcade.default_data_path%, @yaml, @logger]
+        tags:
+            -  { name: console.command }
+
     curl:
         class: anlutro\cURL\cURL
         scope: prototype
@@ -10,12 +24,6 @@ services:
         class: Tagcade\DataSource\AdMeta\Api
         arguments: [@curl, @logger]
         scope: prototype
-
-    tagcade.command.pulsepoint.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\PulsePoint\GetDataCommand
-        arguments: [%tagcade.default_data_path%, @yaml, @logger]
-        tags:
-            -  { name: console.command }
 
     tagcade.command.admeta.get_data_command:
         class: Tagcade\Bundle\AppBundle\Command\AdMeta\GetDataCommand
