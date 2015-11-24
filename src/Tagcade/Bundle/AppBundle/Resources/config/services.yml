@@ -2,14 +2,23 @@ services:
     yaml:
         class: Symfony\Component\Yaml\Yaml
 
+    curl:
+        class: anlutro\cURL\cURL
+        scope: prototype
+
+    tagcade.data_source.admeta.api:
+        class: Tagcade\DataSource\AdMeta\Api
+        arguments: [@curl, @logger]
+        scope: prototype
+
     tagcade.command.pulsepoint.get_data_command:
         class: Tagcade\Bundle\AppBundle\Command\PulsePoint\GetDataCommand
-        arguments: [%tagcade.default_data_path%, "@yaml", "@logger"]
+        arguments: [%tagcade.default_data_path%, @yaml, @logger]
         tags:
             -  { name: console.command }
 
     tagcade.command.admeta.get_data_command:
         class: Tagcade\Bundle\AppBundle\Command\AdMeta\GetDataCommand
-        arguments: [%tagcade.default_data_path%, "@yaml", "@logger"]
+        arguments: [@tagcade.data_source.admeta.api=, %tagcade.default_data_path%, @yaml, @logger]
         tags:
             -  { name: console.command }

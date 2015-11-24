@@ -9,12 +9,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-use anlutro\cURL\cURL;
 use Tagcade\DataSource\AdMeta\Api;
 
 class GetDataCommand extends ContainerAwareCommand {
     private static $requiredConfigFields = ['username', 'password', 'publisher_id'];
 
+    /**
+     * @var Api
+     */
+    private $adMetaApi;
     /**
      * @var string
      */
@@ -29,12 +32,14 @@ class GetDataCommand extends ContainerAwareCommand {
     private $logger;
 
     /**
+     * @param Api $adMetaApi
      * @param null|string $defaultDataPath
      * @param Yaml $yaml
      * @param LoggerInterface $logger
      */
-    public function __construct($defaultDataPath, Yaml $yaml, LoggerInterface $logger)
+    public function __construct(Api $adMetaApi, $defaultDataPath, Yaml $yaml, LoggerInterface $logger)
     {
+        $this->adMetaApi = $adMetaApi;
         $this->defaultDataPath = $defaultDataPath;
         $this->yaml = $yaml;
         $this->logger = $logger;
@@ -74,6 +79,11 @@ class GetDataCommand extends ContainerAwareCommand {
     {
         $configFile = $input->getOption('config-file');
 
+        if (!$configFile) {
+            $this->logger->error('config-file is a required option');
+            return 1;
+        }
+
         if (!file_exists($configFile)) {
             $this->logger->error(sprintf('config-file %s does not exist', $configFile));
             return 1;
@@ -93,23 +103,23 @@ class GetDataCommand extends ContainerAwareCommand {
             return 1;
         }
 
-        // todo use symfony DI
-        $curl = new cURL;
+        $this->adMetaApi
+            ->setUsername($config['username'])
+            ->setPassword($config['password'])
+        ;
 
         if ($input->getOption('proxy')) {
-            $curl->setDefaultOptions(
+            $this->adMetaApi->getCurl()->setDefaultOptions(
                 [
                     CURLOPT_PROXY => $input->getOption('proxy')
                 ]
             );
         }
 
-        // todo use symfony DI
-        $api = new Api($config['username'], $config['password'], $curl, $this->logger);
-
         $dataFile = $this->getUniqueFilePath(sprintf('%s/reports.xml', $this->defaultDataPath));
-        touch($dataFile);
-        file_put_contents($dataFile, $api->getReports());
+        touch($dataFile); // stop other processes from using this filename
+
+        file_put_contents($dataFile, $this->adMetaApi->getReports());
     }
 
     /**

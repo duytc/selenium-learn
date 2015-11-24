@@ -30,15 +30,11 @@ class Api
     private $logger;
 
     /**
-     * @param string $username
-     * @param string $password
      * @param cURL $curl
      * @param LoggerInterface $logger
      */
-    public function __construct($username, $password, cUrl $curl, LoggerInterface $logger = null)
+    public function __construct(cUrl $curl, LoggerInterface $logger = null)
     {
-        $this->username = $username;
-        $this->password = $password;
         $this->curl = $curl;
         $this->logger = $logger;
     }
@@ -230,5 +226,35 @@ class Api
         }
 
         return '<?xml version="1.0" encoding="utf-8"?>' . $data;
+    }
+
+    /**
+     * @return cURL
+     */
+    public function getCurl()
+    {
+        return $this->curl;
+    }
+
+    /**
+     * @param string $username
+     * @return $this
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @param string $password
+     * @return $this
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
     }
 }
