@@ -28,3 +28,5 @@ https://mestachs.wordpress.com/2012/08/13/selenium-best-practices/
 https://sites.google.com/a/chromium.org/chromedriver/capabilities
 http://selenium-tutorial.blogspot.ca/2014/03/webdriver-wait-for-page-load.html
 http://stackoverflow.com/questions/25695299/chromedriver-on-ubuntu-14-04-error-while-loading-shared-libraries-libui-base
+
+http://loige.co/write-a-console-application-using-symfony-and-pimple/

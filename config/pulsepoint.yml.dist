@@ -1,0 +1,8 @@
+# Pulsepoint UI username
+username: 'username'
+# Pulsepoint UI password
+password: 'password'
+# The email address that receives large reports
+email: 'reports@youremail.com'
+# Tagcade publisher id
+publisher_id: 1

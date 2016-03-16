@@ -1,17 +1,15 @@
 {
     "name": "tagcade-report-automation",
-    "repositories":
-    [
-        {
-            "type": "vcs",
-            "url": "https://github.com/gfreeau/php-curl"
-        }
-    ],
     "require": {
         "facebook/webdriver": "~1.0",
         "monolog/monolog": "^1.17",
         "ulrichsg/getopt-php": "^2.3",
-        "anlutro/curl": "dev-master"
+        "anlutro/curl": "~1.4",
+        "mnapoli/silly": "^1.1",
+        "mnapoli/silly-php-di": "^1.0",
+        "symfony/yaml": "^2.7",
+        "symfony/monolog-bridge": "^2.7",
+        "symfony/event-dispatcher": "^2.7"
     },
     "autoload": {
         "psr-0": {
