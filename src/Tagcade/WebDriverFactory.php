@@ -14,10 +14,15 @@ class WebDriverFactory implements WebDriverFactoryInterface
      * @var LoggerInterface
      */
     private $logger;
+    /**
+     * @var
+     */
+    private $seleniumServerUrl;
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct($seleniumServerUrl = 'http://localhost:4444/wd/hub', LoggerInterface $logger = null)
     {
         $this->logger = $logger;
+        $this->seleniumServerUrl = $seleniumServerUrl;
     }
     
     public function getExistingSession($sessionId)
@@ -54,9 +59,13 @@ class WebDriverFactory implements WebDriverFactoryInterface
         return $driver;
     }
 
-    public function getWebDriver($dataPath)
+    public function getWebDriver($identifier)
     {
-        $driver = $this->createWebDriver($dataPath);
+        if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {
+            return $this->getExistingSession($identifier);
+        }
+
+        $driver = $this->createWebDriver($identifier);
 
         $sessionId = $driver->getSessionID();
 
@@ -78,7 +87,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $capabilities = DesiredCapabilities::chrome();
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
-        $driver = RemoteWebDriver::create('http://localhost:4444/wd/hub', $capabilities);
+        $driver = RemoteWebDriver::create($this->seleniumServerUrl, $capabilities);
 
         return $driver;
     }

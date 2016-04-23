@@ -13,10 +13,10 @@ interface WebDriverFactoryInterface
     public function getExistingSession($sessionId);
 
     /**
-     * @param String $dataPath
+     * @param String $identifier session id or data path
      * @return bool|RemoteWebDriver
      */
-    public function getWebDriver($dataPath);
+    public function getWebDriver($identifier);
 
     /**
      * @param $dataPath

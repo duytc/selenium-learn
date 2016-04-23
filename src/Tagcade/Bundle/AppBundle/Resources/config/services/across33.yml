@@ -1,0 +1,12 @@
+services:
+#    tagcade.data_source.koomona.task_factory:
+#        class: Tagcade\DataSource\PulsePoint\TaskFactory
+#        arguments: [@tagcade.web_driver_factory, @logger]
+
+    tagcade.command.across33.get_data_command:
+        class: Tagcade\Bundle\AppBundle\Command\Across33\GetDataCommand
+        tags:
+            -  { name: console.command }
+
+    tagcade.data_source.fetcher.across33:
+        class: Tagcade\DataSource\Across33\Across33Fetcher

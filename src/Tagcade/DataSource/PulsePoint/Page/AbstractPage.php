@@ -40,11 +40,12 @@ abstract class AbstractPage
     }
 
     /**
+     * @param bool $strict
      * @return bool
      */
-    public function isCurrentUrl()
+    public function isCurrentUrl($strict = true)
     {
-        return strpos($this->driver->getCurrentURL(), static::URL) === 0;
+        return $strict ? $this->driver->getCurrentURL() === static::URL : strpos($this->driver->getCurrentURL(), static::URL) === 0;
     }
 
     public function setLogger(LoggerInterface $logger)

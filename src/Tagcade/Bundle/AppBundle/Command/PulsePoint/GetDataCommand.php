@@ -127,9 +127,9 @@ class GetDataCommand extends ContainerAwareCommand
 
         // todo we could refactor this so that these factories use symfony DI
         if ($input->getOption('session-id')) {
-            $driver = $webDriverFactory->getExistingSession($sessionId, $this->logger);
+            $driver = $webDriverFactory->getExistingSession($sessionId);
         } else {
-            $driver = $webDriverFactory->getWebDriver($dataPath, $this->logger);
+            $driver = $webDriverFactory->getWebDriver($dataPath);
         }
 
         if (!$driver) {

@@ -1,10 +1,19 @@
+imports:
+    - { resource: services/komoona.yml }
+    - { resource: services/yellow.hammer.yml }
+    - { resource: services/defy.media.yml }
+    - { resource: services/across33.yml }
+    - { resource: services/sovrn.yml }
+
 services:
     yaml:
         class: Symfony\Component\Yaml\Yaml
 
     tagcade.web_driver_factory:
         class: Tagcade\WebDriverFactory
-        arguments: [@logger]
+        arguments:
+            - %selenium_server_url%
+            - @logger
 
     tagcade.data_source.pulsepoint.task_factory:
         class: Tagcade\DataSource\PulsePoint\TaskFactory

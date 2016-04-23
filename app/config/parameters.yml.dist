@@ -6,3 +6,4 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+    selenium_server_url: 'http://localhost:4444/wd/hub'
