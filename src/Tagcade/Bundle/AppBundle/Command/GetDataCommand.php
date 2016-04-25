@@ -147,10 +147,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $this->fetcher->getAllData($params, $driver);
 
-        $driver->wait()->until(function (RemoteWebDriver $driver) {
-                return $driver->executeScript("return !!window.jQuery && window.jQuery.active == 0");
-            });
-
         $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
 
         sleep(10); // sleep 10 seconds, to assume that the download is complete.
