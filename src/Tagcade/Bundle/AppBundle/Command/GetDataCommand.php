@@ -120,7 +120,12 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $endDate = $input->getOption('end-date');
         $endDate = $endDate != null ? \DateTime::createFromFormat('Ymd', $endDate) : $startDate;
 
+        $params = $this->createParams($config, $startDate, $endDate);
+
         $webDriverFactory = $this->getContainer()->get('tagcade.web_driver_factory');
+        $webDriverFactory->setConfig($config);
+        $webDriverFactory->setParams($params);
+
         $forceNewSession = $input->getOption('force-new-session');
         $sessionId = null;
         if ($forceNewSession == false) {
@@ -143,7 +148,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
             ->pageLoadTimeout(10)
         ;
 
-        $params = $this->createParams($config, $startDate, $endDate);
 
         $this->fetcher->getAllData($params, $driver);
 

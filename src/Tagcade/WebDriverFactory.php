@@ -7,6 +7,7 @@ use Facebook\WebDriver\Exception\UnknownServerException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
+use Tagcade\DataSource\PartnerParamInterface;
 
 class WebDriverFactory implements WebDriverFactoryInterface
 {
@@ -19,12 +20,43 @@ class WebDriverFactory implements WebDriverFactoryInterface
      */
     private $seleniumServerUrl;
 
+    /**
+     * @var PartnerParamInterface
+     */
+    private $params;
+    /**
+     * @var array
+     */
+    private $config;
+
     public function __construct($seleniumServerUrl = 'http://localhost:4444/wd/hub', LoggerInterface $logger = null)
     {
         $this->logger = $logger;
         $this->seleniumServerUrl = $seleniumServerUrl;
     }
-    
+
+    /**
+     * @param array $config
+     * @throws \Exception
+     */
+    public function setConfig(array $config)
+    {
+        if (!array_key_exists('publisher_id', $config) || !array_key_exists('partner_cname', $config)) {
+            throw new \Exception('Missing configuration for either publisher id or partner canonical name');
+        }
+
+        $this->config = $config;
+    }
+
+    /**
+     * @param PartnerParamInterface $params
+     */
+    public function setParams($params)
+    {
+        $this->params = $params;
+    }
+
+
     public function getExistingSession($sessionId)
     {
         if (!is_string($sessionId)) {
@@ -88,8 +120,18 @@ class WebDriverFactory implements WebDriverFactoryInterface
     {
         $chromeOptions = new ChromeOptions();
         $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile', $dataPath)]);
+        $executionDate = new \DateTime('today');
+
         $chromeOptions->setExperimentalOption('prefs', [
-            'download.default_directory' => $dataPath . '/downloads',
+            'download.default_directory' => sprintf(
+                '%s/%d/%s/%s-%s-%s',
+                $dataPath,
+                $this->config['publisher_id'],
+                $this->config['partner_cname'],
+                $executionDate->format('Ymd'),
+                $this->params->getStartDate()->format('Ymd'),
+                $this->params->getEndDate()->format('Ymd')
+            ),
         ]);
 
         $capabilities = DesiredCapabilities::chrome();

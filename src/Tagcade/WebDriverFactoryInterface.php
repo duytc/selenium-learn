@@ -23,4 +23,10 @@ interface WebDriverFactoryInterface
      * @return RemoteWebDriver
      */
     public function createWebDriver($dataPath);
+
+    /**
+     * @param array $config
+     * @throws \Exception
+     */
+    public function setConfig(array $config);
 }
