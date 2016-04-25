@@ -106,6 +106,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         }
 
+        $symfonyAppDir = $this->getContainer()->getParameter('kernel.root_dir');
+        $dataPath = sprintf('%s/%s', rtrim($symfonyAppDir, '/app'), ltrim($dataPath, './'));
         if (!is_writable($dataPath)) {
             $this->logger->error(sprintf('Cannot write to data-path %s', $dataPath));
             return 1;
@@ -119,8 +121,11 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $webDriverFactory = $this->getContainer()->get('tagcade.web_driver_factory');
         $sessionId = $input->getOption('session-id');
+
         $identifier = $sessionId != null ? $sessionId : $dataPath;
+
         $driver = $webDriverFactory->getWebDriver($identifier);
+        $this->logger->info(sprintf('Session ID: %s', $driver->getSessionID()));
 
         if (!$driver) {
             $this->logger->critical('Cannot proceed without web driver');
