@@ -124,7 +124,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
         $chromeOptions->setExperimentalOption('prefs', [
             'download.default_directory' => sprintf(
-                '%s/%d/%s/%s-%s-%s',
+                '%s/publishers/%d/%s/%s-%s-%s',
                 $dataPath,
                 $this->config['publisher_id'],
                 $this->config['partner_cname'],
