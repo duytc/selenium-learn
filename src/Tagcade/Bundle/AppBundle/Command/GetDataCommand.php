@@ -108,7 +108,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         $symfonyAppDir = $this->getContainer()->getParameter('kernel.root_dir');
-        $dataPath = sprintf('%s/%s', rtrim($symfonyAppDir, '/app'), ltrim($dataPath, './'));
+        $isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
+        $dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($symfonyAppDir, '/app'), ltrim($dataPath, './')) : $dataPath;
         if (!is_writable($dataPath)) {
             $this->logger->error(sprintf('Cannot write to data-path %s', $dataPath));
             return 1;
