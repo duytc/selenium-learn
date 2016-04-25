@@ -59,6 +59,14 @@ class WebDriverFactory implements WebDriverFactoryInterface
         return $driver;
     }
 
+    public function getLastSessionId()
+    {
+        $allSessions = RemoteWebDriver::getAllSessions();
+        $lastSession = count($allSessions) < 1 ? [] : current($allSessions);
+
+        return array_key_exists('id', $lastSession) ? $lastSession['id'] : null;
+    }
+
     public function getWebDriver($identifier)
     {
         if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {

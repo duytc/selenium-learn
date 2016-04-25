@@ -2,6 +2,7 @@
 
 namespace Tagcade\Bundle\AppBundle\Command;
 
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -52,10 +53,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 'Path to the directory that will store downloaded files'
             )
             ->addOption(
-                'session-id',
+                'force-new-session',
                 null,
-                InputOption::VALUE_REQUIRED,
-                'This allows you to reuse an existing selenium session. This is useful for development. Otherwise a new one is created every time.'
+                InputOption::VALUE_NONE,
+                'New session will always be created if this is set. Otherwise, the tool will automatically decide new session or using existing session'
             )
 //            ->addOption(
 //                'disable-email',
@@ -67,7 +68,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 'quit-web-driver-after-run',
                 null,
                 InputOption::VALUE_NONE,
-                'If set, webdriver will quit after each run'
+                'If set, webdriver will quit after each run. The session will be clear as well.'
             )
         ;
     }
@@ -120,7 +121,11 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $endDate = $endDate != null ? \DateTime::createFromFormat('Ymd', $endDate) : $startDate;
 
         $webDriverFactory = $this->getContainer()->get('tagcade.web_driver_factory');
-        $sessionId = $input->getOption('session-id');
+        $forceNewSession = $input->getOption('force-new-session');
+        $sessionId = null;
+        if ($forceNewSession == false) {
+            $sessionId = $webDriverFactory->getLastSessionId();
+        }
 
         $identifier = $sessionId != null ? $sessionId : $dataPath;
 
@@ -142,8 +147,13 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $this->fetcher->getAllData($params, $driver);
 
+        $driver->wait()->until(function (RemoteWebDriver $driver) {
+                return $driver->executeScript("return !!window.jQuery && window.jQuery.active == 0");
+            });
+
         $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
 
+        sleep(10); // sleep 10 seconds, to assume that the download is complete.
         // todo check that chrome finished downloading all files before finishing
         if ($input->getOption('quit-web-driver-after-run')) {
             $driver->quit();
