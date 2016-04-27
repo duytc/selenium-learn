@@ -14,7 +14,7 @@ use Tagcade\DataSource\PulsePoint\Widget\ExportButtonWidget;
 
 class ManagerPage extends AbstractPage
 {
-    const URL = 'http://exchange.pulsepoint.com/Publisher/PMRMainJT.aspx';
+    const URL = 'https://exchange.pulsepoint.com/Publisher/Reports.aspx#/Reports';
     /**
      * @var ReportSelectorWidget
      */

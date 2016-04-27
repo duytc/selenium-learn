@@ -6,3 +6,4 @@ password: 'password'
 email: 'pub-1@tagcadereports.com'
 # Tagcade publisher id
 publisher_id: 1
+partner_cname: '33Across'

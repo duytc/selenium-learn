@@ -2,6 +2,7 @@
 
 namespace Tagcade\DataSource\PulsePoint\Page;
 
+use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
@@ -16,6 +17,10 @@ class LoginPage extends AbstractPage
      */
     public function login($username, $password)
     {
+        if ($this->isLoggedIn()) {
+            return $this;
+        }
+
         $this->driver
             ->findElement(WebDriverBy::id('UserName'))
             ->clear()
@@ -29,12 +34,24 @@ class LoginPage extends AbstractPage
         ;
 
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
-
-        $tabSel = WebDriverBy::cssSelector('.tab.manager');
-
-        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($tabSel));
-        $this->driver->findElement($tabSel)->click();
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('menubar')));
 
         return $this;
+    }
+
+    public function isLoggedIn()
+    {
+        try {
+            $this->driver
+                ->findElement(WebDriverBy::cssSelector('.userName'))
+            ;
+
+            return true;
+        }
+        catch (NoSuchElementException $ne) {
+
+        }
+
+        return false;
     }
 }
