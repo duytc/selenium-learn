@@ -9,6 +9,8 @@ use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
 class GetDataCommand extends BaseGetDataCommand
 {
 
+    const DEFAULT_CANONICAL_NAME = 'sovrn';
+
     protected function configure()
     {
         $this

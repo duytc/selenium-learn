@@ -88,8 +88,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $partnerCName = static::DEFAULT_CANONICAL_NAME;
         }
 
-
-
         // todo we need to write to unique directories per publisher
         $dataPath = $input->getOption('data-path');
         if ($dataPath == null) {
@@ -117,7 +115,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         foreach($configs as $config) {
             $params = $this->createParams($config, $startDate, $endDate);
 
-            $publisherId = intval($config['publisherId']);
+            $publisherId = intval($config['publisher_id']);
             $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
         }
 

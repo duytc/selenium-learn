@@ -9,6 +9,8 @@ use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
 class GetDataCommand extends BaseGetDataCommand
 {
 
+    const DEFAULT_CANONICAL_NAME = 'defymedia';
+
     protected function configure()
     {
         $this

@@ -9,6 +9,8 @@ use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
 class GetAccountDataCommand extends BaseGetDataCommand
 {
 
+    const DEFAULT_CANONICAL_NAME = 'pulsepoint';
+
     protected function configure()
     {
         $this
