@@ -69,7 +69,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         ];
 
         $publishers = $this->curl->executeQuery(
-            $this->getListPublisherUrl,
+            str_replace($this->getListPublisherUrl, $partnerCName, '{cname}'),
             'POST',
             $header,
             $data

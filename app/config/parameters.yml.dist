@@ -11,4 +11,4 @@ parameters:
     tagcade_user_name: admin
     tagcade_user_password: '123456'
     tagcade_get_token_url: 'http://api.tagcade.dev/app_debug.php/api/v1/getToken'
-    tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/partners/{partner_id}/tctags'
+    tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'

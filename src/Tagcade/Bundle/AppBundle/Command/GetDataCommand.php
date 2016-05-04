@@ -115,7 +115,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         foreach($configs as $config) {
             $params = $this->createParams($config, $startDate, $endDate);
 
-            $publisherId = intval($config['publisher_id']);
+            $publisherId = intval($config['publisher']['id']);
             $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
         }
 
