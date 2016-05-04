@@ -2,6 +2,7 @@
 
 namespace Tagcade\Bundle\AppBundle\Command;
 
+use Crypto;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -12,9 +13,12 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\DataSource\PartnerParams;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
 
 abstract class GetDataCommand extends ContainerAwareCommand
 {
+    const DEFAULT_CANONICAL_NAME = null;
+
     /**
      * @var Yaml
      */
@@ -58,12 +62,12 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 InputOption::VALUE_NONE,
                 'New session will always be created if this is set. Otherwise, the tool will automatically decide new session or using existing session'
             )
-//            ->addOption(
-//                'disable-email',
-//                null,
-//                InputOption::VALUE_NONE,
-//                'If set, no reports will be emailed, this will be skipped'
-//            )
+            ->addOption(
+                'partner-cname',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'The default canonical name for the current partner '
+            )
             ->addOption(
                 'quit-web-driver-after-run',
                 null,
@@ -76,35 +80,20 @@ abstract class GetDataCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->createLogger();
-        $this->createYamlParser();
         $this->createFetcher();
 
-        $configFile = $input->getOption('config-file');
+        $partnerCName = $input->getOption('partner-cname');
 
-        if (!file_exists($configFile)) {
-            $this->logger->error(sprintf('config-file %s does not exist', $configFile));
-            return 1;
+        if ($partnerCName === null) {
+            $partnerCName = static::DEFAULT_CANONICAL_NAME;
         }
 
-        try {
-            $config = $this->yaml->parse(file_get_contents($configFile));
-        } catch (ParseException $e) {
-            $this->logger->error('Unable to parse the YAML string: %s', $e->getMessage());
-            return 1;
-        }
 
-        $missingConfigKeys = array_diff_key(array_flip(static::$REQUIRED_CONFIG_FIELDS), $config);
-
-        if (count($missingConfigKeys) > 0) {
-            $this->logger->error('Please check that your config has all of the required keys. See ./config/pulsepoint.yml.dist for an example');
-            return 1;
-        }
 
         // todo we need to write to unique directories per publisher
         $dataPath = $input->getOption('data-path');
         if ($dataPath == null) {
             $dataPath = $this->getDefaultDataPath();
-
         }
 
         $symfonyAppDir = $this->getContainer()->getParameter('kernel.root_dir');
@@ -121,7 +110,23 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $endDate = $input->getOption('end-date');
         $endDate = $endDate != null ? \DateTime::createFromFormat('Ymd', $endDate) : $startDate;
 
-        $params = $this->createParams($config, $startDate, $endDate);
+        /** @var TagcadeRestClientInterface $restClient */
+        $restClient = $this->getContainer()->get('tagcade_app.rest_client');
+        $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
+
+        foreach($configs as $config) {
+            $params = $this->createParams($config, $startDate, $endDate);
+
+            $publisherId = intval($config['publisherId']);
+            $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
+        }
+
+        return 0;
+    }
+
+    protected function getDataForPublisher(InputInterface $input, $publisherId, PartnerParams $params, array $config, $dataPath)
+    {
+        $config['publisher_id'] = $publisherId;
 
         $webDriverFactory = $this->getContainer()->get('tagcade.web_driver_factory');
         $webDriverFactory->setConfig($config);
@@ -149,7 +154,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
             ->pageLoadTimeout(10)
         ;
 
-
         $this->fetcher->getAllData($params, $driver);
 
         $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
@@ -159,8 +163,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
         if ($input->getOption('quit-web-driver-after-run')) {
             $driver->quit();
         }
-
-        return 0;
     }
 
     /**
@@ -211,12 +213,16 @@ abstract class GetDataCommand extends ContainerAwareCommand
         if ($startDate > $endDate) {
             throw new \InvalidargumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
         }
+
+        // decrypt the hashed password
+        $password = Crypto::decrypt($config['password'], $config['uuid']);
+
         /**
          * todo date should be configurable
          */
         return (new PartnerParams())
             ->setUsername($config['username'])
-            ->setPassword($config['password'])
+            ->setPassword($password)
             ->setStartDate($startDate)
             ->setEndDate($endDate)
         ;

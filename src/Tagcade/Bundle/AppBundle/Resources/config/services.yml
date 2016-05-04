@@ -31,3 +31,18 @@ services:
         arguments: [@tagcade.data_source.admeta.api=, %tagcade.default_data_path%, @yaml, @logger]
         tags:
             -  { name: console.command }
+
+    ### rest client
+    rest.client:
+        class: RestClient\CurlRestClient
+        public: false
+
+    tagcade_app.rest_client:
+        class: Tagcade\Service\Core\TagcadeRestClient
+        arguments:
+            - @rest.client
+            - %tagcade_user_name%
+            - %tagcade_user_password%
+            - %tagcade_get_token_url%
+            - %tagcade_get_list_publisher_url%
+
