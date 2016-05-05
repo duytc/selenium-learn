@@ -138,24 +138,33 @@ abstract class GetDataCommand extends ContainerAwareCommand
             /** @var TagcadeRestClientInterface $restClient */
             $restClient = $this->getContainer()->get('tagcade_app.rest_client');
 
-            $this->logger->info('Getting list of publishers that have module unified-report enabled');
+            $this->logger->info('Getting list of publishers and their configuration for this partner');
             $configs = $restClient->getPartnerConfigurationForAllPublishers($partnerCName);
+
+            $this->logger->info(sprintf('Found %d publishers associated to this partner', count($configs)));
         }
 
         $processedPublisherPartner = [];
         foreach($configs as $config) {
+            try {
+                $params = $this->createParams($config, $startDate, $endDate);
+                $publisherId = intval($config['publisher']['id']);
+                if (array_key_exists($publisherId, $processedPublisherPartner)) {
+                    $this->logger->info(sprintf('The publisher %d has been processed.', $publisherId));
+                    continue;
+                }
 
-            $params = $this->createParams($config, $startDate, $endDate);
-            $publisherId = intval($config['publisher']['id']);
-            if (array_key_exists($publisherId, $processedPublisherPartner)) {
-                $this->logger->info(sprintf('The publisher %d has been processed.', $publisherId));
-                continue;
+                $this->logger->info(sprintf('Getting report for publisher %d', $publisherId));
+
+                if (true) {
+                    return;
+                }
+                $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
+                $processedPublisherPartner[$publisherId] = true;
             }
-
-            $this->logger->info(sprintf('Getting report for publisher %d', $publisherId));
-
-            $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
-            $processedPublisherPartner[$publisherId] = true;
+            catch(\Exception $e) {
+                $this->logger->critical($e->getMessage());
+            }
         }
 
         return 0;
@@ -276,7 +285,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $base64EncryptedPassword = $config['base64EncryptedPassword'];
             $encryptedPassword = base64_decode($base64EncryptedPassword);
 
-            $password = Crypto::decrypt($encryptedPassword, $config['publisher']['uuid']);
+            $password = Crypto::decrypt($encryptedPassword, $this->getEncryptionKey($config['publisher']['uuid']));
         }
         else {
             $password = $config['password'];
@@ -291,5 +300,11 @@ abstract class GetDataCommand extends ContainerAwareCommand
             ->setStartDate($startDate)
             ->setEndDate($endDate)
         ;
+    }
+
+    protected function getEncryptionKey($uuid)
+    {
+        $uuid = preg_replace('[\-]', '', $uuid);
+        return substr($uuid, 0, 16);
     }
 } 
