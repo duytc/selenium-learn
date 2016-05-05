@@ -111,7 +111,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         /** @var TagcadeRestClientInterface $restClient */
         $restClient = $this->getContainer()->get('tagcade_app.rest_client');
         $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
-
+        
         foreach($configs as $config) {
             $params = $this->createParams($config, $startDate, $endDate);
 
@@ -213,7 +213,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         // decrypt the hashed password
-        $password = Crypto::decrypt($config['password'], $config['uuid']);
+        $password = Crypto::decrypt($config['password'], $config['publisher']['uuid']);
 
         /**
          * todo date should be configurable
