@@ -41,14 +41,14 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 'start-date',
                 'f',
                 InputOption::VALUE_OPTIONAL,
-                'Start date (YYYYMMDD) to get report.',
-                (new \DateTime('yesterday'))->format('Ymd')
+                'Start date (YYYY-MM-DD) to get report.',
+                (new \DateTime('yesterday'))->format('Y-m-d')
             )
             ->addOption(
                 'end-date',
                 't',
                 InputOption::VALUE_OPTIONAL,
-                'End date (YYYYMMDD) to get report.'
+                'End date (YYYY-MM-DD) to get report.'
             )
             ->addOption(
                 'data-path',
@@ -103,10 +103,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         $startDate = $input->getOption('start-date');
-        $startDate = $startDate != null ? \DateTime::createFromFormat('Ymd', $startDate) : new \DateTime('yesterday');
+        $startDate = $startDate != null ? \DateTime::createFromFormat('Y-m-d', $startDate) : new \DateTime('yesterday');
 
         $endDate = $input->getOption('end-date');
-        $endDate = $endDate != null ? \DateTime::createFromFormat('Ymd', $endDate) : $startDate;
+        $endDate = $endDate != null ? \DateTime::createFromFormat('Y-m-d', $endDate) : $startDate;
 
         /** @var TagcadeRestClientInterface $restClient */
         $restClient = $this->getContainer()->get('tagcade_app.rest_client');
@@ -161,6 +161,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
         if ($input->getOption('quit-web-driver-after-run')) {
             $driver->quit();
         }
+
+        return 0;
     }
 
     /**
