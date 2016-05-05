@@ -262,8 +262,13 @@ abstract class GetDataCommand extends ContainerAwareCommand
             throw new \InvalidargumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
         }
 
-        // decrypt the hashed password
-        $password = Crypto::decrypt($config['password'], $config['publisher']['uuid']);
+        if (isset($config['publisher']['uuid'])) {
+            // decrypt the hashed password
+            $password = Crypto::decrypt($config['password'], $config['publisher']['uuid']);
+        }
+        else {
+            $password = $config['password'];
+        }
 
         /**
          * todo date should be configurable
