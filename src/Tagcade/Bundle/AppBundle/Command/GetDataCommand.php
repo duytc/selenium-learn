@@ -289,7 +289,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $base64EncryptedPassword = $config['base64EncryptedPassword'];
             $encryptedPassword = base64_decode($base64EncryptedPassword);
 
-            $password = Crypto::decrypt($encryptedPassword, $this->getEncryptionKey($config['publisher']['uuid']));
+            $decryptKey = $this->getEncryptionKey($config['publisher']['uuid']);
+            $password = Crypto::decrypt($encryptedPassword, $decryptKey);
         }
         else {
             $password = $config['password'];
