@@ -131,6 +131,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 $this->logger->error('Please check that your config has all of the required keys. See ./config/pulsepoint.yml.dist for an example');
                 return 1;
             }
+
+            $configs[] = $config;
         } else {
             /** @var TagcadeRestClientInterface $restClient */
             $restClient = $this->getContainer()->get('tagcade_app.rest_client');
