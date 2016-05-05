@@ -5,14 +5,15 @@ namespace Tagcade\DataSource\DefyMedia;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\DataSource\DefyMedia\Page\HomePage;
 use Tagcade\DataSource\DefyMedia\Page\ReportingPage;
+use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class DefyMediaFetcher implements DefyMediaFetcherInterface
+class DefyMediaFetcher extends PartnerFetcherAbstract implements DefyMediaFetcherInterface
 {
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
-        $homePage = new HomePage($driver);
+        $homePage = new HomePage($driver, $this->logger);
         if (!$homePage->isCurrentUrl()) {
             $homePage->navigate();
         }
@@ -21,7 +22,7 @@ class DefyMediaFetcher implements DefyMediaFetcherInterface
 
         usleep(10);
 
-        $reportingPage = new ReportingPage($driver);
+        $reportingPage = new ReportingPage($driver, $this->logger);
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
         }

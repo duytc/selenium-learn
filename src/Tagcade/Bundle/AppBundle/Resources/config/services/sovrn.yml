@@ -10,3 +10,5 @@ services:
 
     tagcade.data_source.fetcher.sovrn:
         class: Tagcade\DataSource\Sovrn\SovrnFetcher
+        calls:
+            - [setLogger, [@logger]]

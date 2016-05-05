@@ -19,9 +19,10 @@ abstract class AbstractPage
      */
     protected $logger;
 
-    public function __construct(RemoteWebDriver $driver)
+    public function __construct(RemoteWebDriver $driver, $logger = null)
     {
         $this->driver = $driver;
+        $this->logger = $logger;
     }
 
     /**
@@ -113,5 +114,28 @@ abstract class AbstractPage
         }
 
         usleep($seconds * 1000 * 1000);
+    }
+
+    public function info($message)
+    {
+        if ($this->hasLogger()) {
+            $this->logger->info($message);
+        }
+
+        return $this;
+    }
+
+    public function critical($message)
+    {
+        if ($this->hasLogger()) {
+            $this->logger->critical($message);
+        }
+
+        return $this;
+    }
+
+    public function getPageUrl()
+    {
+        return static::URL;
     }
 }

@@ -10,3 +10,5 @@ services:
 
     tagcade.data_source.fetcher.yellow_hammer:
         class: Tagcade\DataSource\YellowHammer\YellowHammerFetcher
+        calls:
+            - [setLogger, [@logger]]

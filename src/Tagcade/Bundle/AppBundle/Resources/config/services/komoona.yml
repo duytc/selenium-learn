@@ -10,3 +10,5 @@ services:
 
     tagcade.data_source.fetcher.komoona:
         class: Tagcade\DataSource\Komoona\KomoonaFetcher
+        calls:
+            - [setLogger, [@logger]]

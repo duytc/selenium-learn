@@ -15,3 +15,5 @@ services:
 
     tagcade.data_source.fetcher.pulse_point:
         class: Tagcade\DataSource\PulsePoint\PulsePointFetcher
+        calls:
+            - [setLogger, [@logger]]

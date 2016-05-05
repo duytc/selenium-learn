@@ -3,17 +3,18 @@
 namespace Tagcade\DataSource\Sovrn;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\Sovrn\Page\EarningPage;
 use Tagcade\DataSource\Sovrn\Page\HomePage;
 use Tagcade\DataSource\DefyMedia\Page\ReportingPage;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class SovrnFetcher implements SovrnFetcherInterface
+class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterface
 {
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
-        $homePage = new HomePage($driver);
+        $homePage = new HomePage($driver, $this->logger);
         if (!$homePage->isCurrentUrl()) {
             $homePage->navigate();
         }
@@ -22,7 +23,7 @@ class SovrnFetcher implements SovrnFetcherInterface
 
         usleep(10);
 
-        $earningPage = new EarningPage($driver);
+        $earningPage = new EarningPage($driver, $this->logger);
         if (!$earningPage->isCurrentUrl()) {
             $earningPage->navigate();
         }

@@ -6,14 +6,15 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\DataSource\Across33\Page\DeliveryReportPage;
 use Tagcade\DataSource\Across33\Page\HomePage;
+use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class Across33Fetcher implements Across33FetcherInterface
+class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherInterface
 {
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
-        $homePage = new HomePage($driver);
+        $homePage = new HomePage($driver, $this->logger);
         if (!$homePage->isCurrentUrl()) {
             $homePage->navigate();
         }
@@ -22,8 +23,7 @@ class Across33Fetcher implements Across33FetcherInterface
 
         usleep(10);
 
-
-        $deliveryReportPage = new DeliveryReportPage($driver);
+        $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
         }
@@ -33,14 +33,6 @@ class Across33Fetcher implements Across33FetcherInterface
         );
 
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-
-//        $reportingPage = new ReportingPage($driver);
-//        if (!$reportingPage->isCurrentUrl()) {
-//            $reportingPage->navigate();
-//        }
-//
-//        $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-
     }
 
     /**

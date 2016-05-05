@@ -6,16 +6,17 @@ namespace Tagcade\DataSource\YellowHammer;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 use Tagcade\DataSource\YellowHammer\Page\HomePage;
 use Tagcade\DataSource\YellowHammer\Page\ReportingPage;
 
-class YellowHammerFetcher implements YellowHammerFetcherInterface
+class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammerFetcherInterface
 {
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
-        $homePage = new HomePage($driver);
+        $homePage = new HomePage($driver, $this->logger);
         if (!$homePage->isCurrentUrl()) {
             $homePage->navigate();
         }
@@ -24,7 +25,7 @@ class YellowHammerFetcher implements YellowHammerFetcherInterface
 
         $driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('metrics_legend')));
         // Step 2: view report
-        $reportingPage = new ReportingPage($driver);
+        $reportingPage = new ReportingPage($driver, $this->logger);
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
         }

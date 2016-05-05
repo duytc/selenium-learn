@@ -110,12 +110,17 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         /** @var TagcadeRestClientInterface $restClient */
         $restClient = $this->getContainer()->get('tagcade_app.rest_client');
+
+        $this->logger->info('Getting list of publishers that have module unified-report enabled');
         $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
 
         foreach($configs as $config) {
             $params = $this->createParams($config, $startDate, $endDate);
 
             $publisherId = intval($config['publisher']['id']);
+
+            $this->logger->info(sprintf('Getting report for publisher %d', $publisherId));
+
             $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
         }
 
@@ -138,6 +143,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $identifier = $sessionId != null ? $sessionId : $dataPath;
 
+        $this->logger->info(sprintf('Creating web driver with identifier param %s', $identifier));
         $driver = $webDriverFactory->getWebDriver($identifier);
         $this->logger->info(sprintf('Session ID: %s', $driver->getSessionID()));
 
@@ -152,6 +158,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
             ->pageLoadTimeout(10)
         ;
 
+        $this->logger->info('Fetcher starts to get data');
         $this->fetcher->getAllData($params, $driver);
 
         $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));

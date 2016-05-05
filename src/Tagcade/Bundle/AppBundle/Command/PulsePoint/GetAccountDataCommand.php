@@ -14,7 +14,7 @@ class GetAccountDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName('tc:pp:get-data')
+            ->setName('tc:pulse-point:get-data')
             ->addOption(
                 'config-file',
                 'c',

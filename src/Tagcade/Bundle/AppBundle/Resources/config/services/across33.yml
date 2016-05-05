@@ -10,3 +10,5 @@ services:
 
     tagcade.data_source.fetcher.across33:
         class: Tagcade\DataSource\Across33\Across33Fetcher
+        calls:
+            - [setLogger, [@logger]]
