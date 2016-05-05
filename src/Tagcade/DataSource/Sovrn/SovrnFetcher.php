@@ -14,6 +14,7 @@ class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterfa
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
+        $this->logger->info('entering login page');
         $homePage = new HomePage($driver, $this->logger);
         if (!$homePage->isCurrentUrl()) {
             $homePage->navigate();
@@ -23,13 +24,15 @@ class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterfa
 
         usleep(10);
 
+        $this->logger->info('entering download report page');
         $earningPage = new EarningPage($driver, $this->logger);
         if (!$earningPage->isCurrentUrl()) {
             $earningPage->navigate();
         }
 
+        $this->logger->info('start downloading reports');
         $earningPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-
+        $this->logger->info('finish downloading reports');
     }
 
     /**

@@ -15,13 +15,6 @@ class GetDataCommand extends BaseGetDataCommand
     {
         $this
             ->setName('tc:sovrn:get-data')
-            ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/sovrn.yml.dist for an example',
-                './config/sovrn.yml'
-            )
         ;
 
         parent::configure();

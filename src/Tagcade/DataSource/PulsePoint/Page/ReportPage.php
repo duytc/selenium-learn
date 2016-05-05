@@ -14,6 +14,7 @@ class ReportPage extends AbstractPage
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate = null)
     {
         // Step 1. Select date range
+        $this->info('select date range');
         $this->driver->findElement(WebDriverBy::id('dateFrom'))
             ->clear()
             ->sendKeys($startDate->format('m/d/Y'))
@@ -33,9 +34,9 @@ class ReportPage extends AbstractPage
         $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
 
         // click export to excel
+        $this->info('start downloading reports');
         $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'))
             ->click()
         ;
-
     }
 } 

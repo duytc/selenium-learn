@@ -16,6 +16,7 @@ class DeliveryReportPage extends AbstractPage
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
         // step 0. select filter
+        $this->info('select filter');
         $links = $this->driver->findElements(WebDriverBy::cssSelector('#overview-stats a'));
         $reportLinks = [];
         foreach ($links as $link) {
@@ -40,7 +41,7 @@ class DeliveryReportPage extends AbstractPage
             );
 
             usleep(500);
-
+            $this->info(sprintf('downloading report for domain %s', $domain));
             $this->getAllTagReportsForSingleDomain();
             usleep(500);
         }

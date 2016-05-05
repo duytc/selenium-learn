@@ -15,13 +15,6 @@ class GetDataCommand extends BaseGetDataCommand
     {
         $this
             ->setName('tc:defy-media:get-data')
-            ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/defymedia.yml.dist for an example',
-                './config/defymedia.yml'
-            )
         ;
 
         parent::configure();

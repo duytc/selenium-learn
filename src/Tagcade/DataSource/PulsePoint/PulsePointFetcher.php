@@ -25,6 +25,7 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
 
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        $this->logger->info('enter login page');
         $loginPage = new LoginPage($driver, $this->logger);
         if (!$loginPage->isCurrentUrl() && !$loginPage->isLoggedIn()) {
             $loginPage->navigate();
@@ -35,6 +36,7 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
         $loginPage->login($params->getUsername(), $params->getPassword());
         sleep(5);
 
+        $this->logger->info('enter download report page');
         $reportPage = new ReportPage($driver, $this->logger);
         if (!$reportPage->isCurrentUrl()) {
             $reportPage->navigate();
@@ -42,8 +44,9 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
 
         $driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('reportDDLContainer')));
 
+        $this->logger->info('start downloading reports');
         $reportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-
+        $this->logger->info('finish downloading reports');
     }
 
     /**

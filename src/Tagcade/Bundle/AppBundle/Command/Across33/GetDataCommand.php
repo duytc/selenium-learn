@@ -15,13 +15,6 @@ class GetDataCommand extends BaseGetDataCommand
     {
         $this
             ->setName('tc:across33:get-data')
-            ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/across33.yml.dist for an example',
-                './config/across33.yml'
-            )
         ;
 
         parent::configure();

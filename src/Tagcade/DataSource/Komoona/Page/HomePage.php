@@ -15,6 +15,7 @@ class HomePage extends AbstractPage
     public function doLogin($username, $password)
     {
         try {
+            $this->info('filling credentials');
             $this->driver
                 ->findElement(WebDriverBy::id('login'))
                 ->click()

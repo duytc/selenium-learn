@@ -19,7 +19,7 @@ class HomePage extends AbstractPage
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
-
+        $this->info('filling credentials');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('signin_login')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('signin_password')));
 
@@ -35,6 +35,7 @@ class HomePage extends AbstractPage
             ->sendKeys($password)
         ;
 
+        $this->info('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.create-account-form-submit'))->click();
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('site_rollups')));
     }

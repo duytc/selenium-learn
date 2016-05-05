@@ -15,13 +15,6 @@ class GetDataCommand extends BaseGetDataCommand
     {
         $this
             ->setName('tc:komoona:get-data')
-            ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/komoona.yml.dist for an example',
-                './config/komoona.yml'
-            )
         ;
 
         parent::configure();

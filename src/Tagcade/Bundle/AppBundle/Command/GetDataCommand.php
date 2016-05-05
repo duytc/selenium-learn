@@ -8,6 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\DataSource\PartnerParams;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
@@ -15,6 +17,11 @@ use Tagcade\Service\Core\TagcadeRestClientInterface;
 abstract class GetDataCommand extends ContainerAwareCommand
 {
     const DEFAULT_CANONICAL_NAME = null;
+
+    /**
+     * @var Yaml
+     */
+    protected $yaml;
     /**
      * @var LoggerInterface
      */
@@ -58,7 +65,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 'partner-cname',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'The default canonical name for the current partner '
+                'The default canonical name for the current partner ',
+                static::DEFAULT_CANONICAL_NAME
             )
             ->addOption(
                 'quit-web-driver-after-run',
@@ -66,19 +74,22 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 InputOption::VALUE_NONE,
                 'If set, webdriver will quit after each run. The session will be clear as well.'
             )
+            ->addOption(
+                'config-file',
+                'c',
+                InputOption::VALUE_OPTIONAL,
+                'Path to the config file. See ./config/across33.yml.dist for an example'
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->createLogger();
+        $this->createYamlParser();
         $this->createFetcher();
 
         $partnerCName = $input->getOption('partner-cname');
-
-        if ($partnerCName === null) {
-            $partnerCName = static::DEFAULT_CANONICAL_NAME;
-        }
 
         // todo we need to write to unique directories per publisher
         $dataPath = $input->getOption('data-path');
@@ -100,12 +111,34 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $endDate = $input->getOption('end-date');
         $endDate = $endDate != null ? \DateTime::createFromFormat('Y-m-d', $endDate) : $startDate;
 
-        /** @var TagcadeRestClientInterface $restClient */
-        $restClient = $this->getContainer()->get('tagcade_app.rest_client');
+        $configFile = $input->getOption('config-file');
+        $configs = [];
+        if ($configFile !== null) {
+            if (!file_exists($configFile)) {
+                $this->logger->error(sprintf('config-file %s does not exist', $configFile));
+                return 1;
+            }
 
-        $this->logger->info('Getting list of publishers that have module unified-report enabled');
-        $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
-        
+            try {
+                $config = $this->yaml->parse(file_get_contents($configFile));
+            } catch (ParseException $e) {
+                $this->logger->error('Unable to parse the YAML string: %s', $e->getMessage());
+                return 1;
+            }
+
+            $missingConfigKeys = array_diff_key(array_flip(static::$REQUIRED_CONFIG_FIELDS), $config);
+            if (count($missingConfigKeys) > 0) {
+                $this->logger->error('Please check that your config has all of the required keys. See ./config/pulsepoint.yml.dist for an example');
+                return 1;
+            }
+        } else {
+            /** @var TagcadeRestClientInterface $restClient */
+            $restClient = $this->getContainer()->get('tagcade_app.rest_client');
+
+            $this->logger->info('Getting list of publishers that have module unified-report enabled');
+            $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
+        }
+
         foreach($configs as $config) {
             $params = $this->createParams($config, $startDate, $endDate);
 
@@ -188,6 +221,17 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         return $this->logger;
+    }
+
+    /**
+     * @return Yaml
+     */
+    protected function createYamlParser()
+    {
+        if ($this->yaml == null) {
+            $this->yaml = $this->getContainer()->get('yaml');
+        }
+        return $this->yaml;
     }
 
     protected function getDefaultDataPath()

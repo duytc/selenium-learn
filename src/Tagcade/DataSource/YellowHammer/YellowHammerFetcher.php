@@ -16,6 +16,7 @@ class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammer
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
+        $this->logger->info('entering login page');
         $homePage = new HomePage($driver, $this->logger);
         if (!$homePage->isCurrentUrl()) {
             $homePage->navigate();
@@ -25,6 +26,7 @@ class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammer
 
         $driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('metrics_legend')));
         // Step 2: view report
+        $this->logger->info('entering download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
@@ -32,7 +34,9 @@ class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammer
 
         $driver->wait()->until(WebDriverExpectedCondition::titleContains('Reporting'));
 
+        $this->logger->info('start downloading reports');
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
+        $this->logger->info('finishing downloading reports');
     }
 
     /**

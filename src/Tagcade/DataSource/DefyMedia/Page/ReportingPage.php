@@ -13,7 +13,6 @@ class ReportingPage extends AbstractPage
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
-
         // step 0. select filter
         $this->driver->findElement(WebDriverBy::id('js-filter-row'))
             ->click()
@@ -36,7 +35,6 @@ class ReportingPage extends AbstractPage
         $this->driver->findElement(WebDriverBy::id('report-export'))
             ->click()
         ;
-
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)

@@ -16,6 +16,7 @@ class ReportingPage extends AbstractPage
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
+        $this->info('select date range');
         $timePeriodElement = $this->driver
             ->findElement(WebDriverBy::id('s2id_time_period'));
 
@@ -68,6 +69,7 @@ class ReportingPage extends AbstractPage
             ->click()
         ;
 
+        $this->info('exporting reports');
         $exportActions = $this->driver->findElements(WebDriverBy::cssSelector('#builder .dropdown-menu a'));
         $exportCSV = null;
         foreach($exportActions as $link) {

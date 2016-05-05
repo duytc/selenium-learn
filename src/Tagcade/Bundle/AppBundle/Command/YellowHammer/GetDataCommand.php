@@ -15,13 +15,6 @@ class GetDataCommand extends BaseGetDataCommand
     {
         $this
             ->setName('tc:yellow-hammer:get-data')
-            ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/yellow.hammer.yml.dist for an example',
-                './config/yellow.hammer.yml'
-            )
         ;
 
         parent::configure();

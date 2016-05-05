@@ -54,12 +54,6 @@ class GetDataCommand extends ContainerAwareCommand {
         $this
             ->setName('tagcade:admeta:get-data')
             ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_REQUIRED,
-                'Path to the config file. See ./config/pulsepoint.yml.dist for an example'
-            )
-            ->addOption(
                 'data-path',
                 null,
                 InputOption::VALUE_REQUIRED,

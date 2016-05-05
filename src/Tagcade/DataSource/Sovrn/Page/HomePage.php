@@ -21,6 +21,7 @@ class HomePage extends AbstractPage
             $this->navigate();
         }
 
+        $this->info('filling credentials');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login_username')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login_password')));
 
@@ -36,6 +37,7 @@ class HomePage extends AbstractPage
             ->sendKeys($password)
         ;
 
+        $this->info('click login button');
         $this->driver->findElement(WebDriverBy::id('landing-login'))->click();
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.user-username')));
     }

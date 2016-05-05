@@ -15,13 +15,6 @@ class GetAccountDataCommand extends BaseGetDataCommand
     {
         $this
             ->setName('tc:pulse-point:get-data')
-            ->addOption(
-                'config-file',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/komoona.yml.dist for an example',
-                './config/pulsepoint.yml'
-            )
         ;
 
         parent::configure();
