@@ -139,17 +139,23 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $restClient = $this->getContainer()->get('tagcade_app.rest_client');
 
             $this->logger->info('Getting list of publishers that have module unified-report enabled');
-            $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
+            $configs = $restClient->getPartnerConfigurationForAllPublishers($partnerCName);
         }
 
+        $processedPublisherPartner = [];
         foreach($configs as $config) {
-            $params = $this->createParams($config, $startDate, $endDate);
 
+            $params = $this->createParams($config, $startDate, $endDate);
             $publisherId = intval($config['publisher']['id']);
+            if (array_key_exists($publisherId, $processedPublisherPartner)) {
+                $this->logger->info(sprintf('The publisher %d has been processed.', $publisherId));
+                continue;
+            }
 
             $this->logger->info(sprintf('Getting report for publisher %d', $publisherId));
 
             $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
+            $processedPublisherPartner[$publisherId] = true;
         }
 
         return 0;

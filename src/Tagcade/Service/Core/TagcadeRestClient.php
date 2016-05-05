@@ -61,7 +61,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         return $this->token;
     }
 
-    public function getListPublisherWorkWithPartner($partnerCName)
+    public function getPartnerConfigurationForAllPublishers($partnerCName)
     {
         $header = array('Authorization: Bearer ' . $this->getToken());
 

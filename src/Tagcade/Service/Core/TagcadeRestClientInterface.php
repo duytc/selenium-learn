@@ -8,5 +8,5 @@ interface TagcadeRestClientInterface {
      */
     public function getToken($force = false);
 
-    public function getListPublisherWorkWithPartner($partnerCName);
+    public function getPartnerConfigurationForAllPublishers($partnerCName);
 }
