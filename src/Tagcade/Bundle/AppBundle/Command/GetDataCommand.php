@@ -155,6 +155,13 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 }
 
                 $this->logger->info(sprintf('Getting report for publisher %d', $publisherId));
+                if (!array_key_exists('publisher_id', $config)) {
+                    $config['publisher_id'] = $publisherId;
+                }
+
+                if (!array_key_exists('partner_cname', $config)) {
+                    $config['partner_cname'] = $partnerCName;
+                }
 
                 $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
                 $processedPublisherPartner[$publisherId] = true;
