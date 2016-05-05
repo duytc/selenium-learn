@@ -3,14 +3,11 @@
 namespace Tagcade\Bundle\AppBundle\Command;
 
 use Crypto;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\DataSource\PartnerParams;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
@@ -18,11 +15,6 @@ use Tagcade\Service\Core\TagcadeRestClientInterface;
 abstract class GetDataCommand extends ContainerAwareCommand
 {
     const DEFAULT_CANONICAL_NAME = null;
-
-    /**
-     * @var Yaml
-     */
-    protected $yaml;
     /**
      * @var LoggerInterface
      */
@@ -113,7 +105,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $this->logger->info('Getting list of publishers that have module unified-report enabled');
         $configs = $restClient->getListPublisherWorkWithPartner($partnerCName);
-
+        
         foreach($configs as $config) {
             $params = $this->createParams($config, $startDate, $endDate);
 
@@ -198,18 +190,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
         return $this->logger;
     }
 
-    /**
-     * @return Yaml
-     */
-    protected function createYamlParser()
-    {
-        if ($this->yaml == null) {
-            $this->yaml = $this->getContainer()->get('yaml');
-        }
-
-        return $this->yaml;
-    }
-
     protected function getDefaultDataPath()
     {
         return  $this->getContainer()->getParameter('tagcade.default_data_path');
@@ -222,7 +202,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         // decrypt the hashed password
-        $password = Crypto::decrypt($config['password'], $config['uuid']);
+        $password = Crypto::decrypt($config['password'], $config['publisher']['uuid']);
 
         /**
          * todo date should be configurable

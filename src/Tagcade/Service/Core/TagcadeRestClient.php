@@ -64,15 +64,11 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     public function getListPublisherWorkWithPartner($partnerCName)
     {
         $header = array('Authorization: Bearer ' . $this->getToken());
-        $data = [
-            'partnerCName' => $partnerCName,
-        ];
 
         $publishers = $this->curl->executeQuery(
-            str_replace($this->getListPublisherUrl, $partnerCName, '{cname}'),
-            'POST',
-            $header,
-            $data
+            str_replace('{cname}', $partnerCName, $this->getListPublisherUrl),
+            'GET',
+            $header
         );
 
         $this->curl->close();
