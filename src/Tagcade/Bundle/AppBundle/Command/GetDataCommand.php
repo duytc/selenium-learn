@@ -255,6 +255,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
      * @return PartnerParamInterface
      * @throws \CannotPerformOperationException
      * @throws \InvalidCiphertextException
+     * @throws \Exception
      */
     protected function createParams(array $config, \DateTime $startDate, \DateTime $endDate)
     {
@@ -262,9 +263,20 @@ abstract class GetDataCommand extends ContainerAwareCommand
             throw new \InvalidargumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
         }
 
-        if (isset($config['publisher']['uuid'])) {
+        if (!array_key_exists('base64EncryptedPassword', $config) && !array_key_exists('password', $config)) {
+            throw new \Exception('Invalid configuration. Not found password or base64EncryptedPassword in the configuration');
+        }
+
+        if (array_key_exists('base64EncryptedPassword', $config) && !isset($config['publisher']['uuid'])) {
+            throw new \Exception('Missing key to decrypt publisher password');
+        }
+
+        if (array_key_exists('base64EncryptedPassword', $config)) {
             // decrypt the hashed password
-            $password = Crypto::decrypt($config['password'], $config['publisher']['uuid']);
+            $base64EncryptedPassword = $config['base64EncryptedPassword'];
+            $encryptedPassword = base64_decode($base64EncryptedPassword);
+
+            $password = Crypto::decrypt($encryptedPassword, $config['publisher']['uuid']);
         }
         else {
             $password = $config['password'];
