@@ -31,12 +31,16 @@ class ReportPage extends AbstractPage
             ->click()
         ;
 
+        $this->driver->wait(30, 1000)->until(
+            WebDriverExpectedCondition::not(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('div.blockUI')))
+        );
+
         $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
+        $exportButton = $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'));
+
 
         // click export to excel
         $this->info('start downloading reports');
-        $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'))
-            ->click()
-        ;
+        $exportButton->click();
     }
 } 
