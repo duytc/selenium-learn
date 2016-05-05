@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use Tagcade\DataSource\PartnerFetcherInterface;
+use Tagcade\DataSource\PartnerParamInterface;
 use Tagcade\DataSource\PartnerParams;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
 
@@ -154,7 +155,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         return 0;
     }
 
-    protected function getDataForPublisher(InputInterface $input, $publisherId, PartnerParams $params, array $config, $dataPath)
+    protected function getDataForPublisher(InputInterface $input, $publisherId, PartnerParamInterface $params, array $config, $dataPath)
     {
         $config['publisher_id'] = $publisherId;
 
@@ -241,6 +242,14 @@ abstract class GetDataCommand extends ContainerAwareCommand
         return  $this->getContainer()->getParameter('tagcade.default_data_path');
     }
 
+    /**
+     * @param array $config
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return PartnerParamInterface
+     * @throws \CannotPerformOperationException
+     * @throws \InvalidCiphertextException
+     */
     protected function createParams(array $config, \DateTime $startDate, \DateTime $endDate)
     {
         if ($startDate > $endDate) {
