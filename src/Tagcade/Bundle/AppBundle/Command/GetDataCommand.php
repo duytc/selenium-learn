@@ -3,6 +3,7 @@
 namespace Tagcade\Bundle\AppBundle\Command;
 
 use Crypto;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -214,7 +215,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         ;
 
         $this->logger->info('Fetcher starts to get data');
-        $this->fetcher->getAllData($params, $driver);
+        $this->handleGetDataByDateRange($params, $driver);
 
         $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
 
@@ -237,6 +238,11 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         return $this->getFetcher();
+    }
+
+    protected function handleGetDataByDateRange(PartnerParamInterface $params, RemoteWebDriver $driver)
+    {
+        $this->fetcher->getAllData($params, $driver);
     }
 
     protected abstract function getFetcher();

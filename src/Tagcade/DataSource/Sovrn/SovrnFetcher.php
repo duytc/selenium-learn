@@ -16,10 +16,6 @@ class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterfa
         // Step 1: login
         $this->logger->info('entering login page');
         $homePage = new HomePage($driver, $this->logger);
-        if (!$homePage->isCurrentUrl()) {
-            $homePage->navigate();
-        }
-
         $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         usleep(10);
