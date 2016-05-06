@@ -197,11 +197,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $identifier = $sessionId != null ? $sessionId : $dataPath;
 
         $this->logger->info(sprintf('Creating web driver with identifier param %s', $identifier));
-        $driver = $webDriverFactory->getWebDriver($identifier);
-        $this->logger->info(sprintf('Session ID: %s', $driver->getSessionID()));
+        $driver = $webDriverFactory->getWebDriver($identifier, $dataPath);
 
         if (!$driver) {
-            $this->logger->critical('Cannot proceed without web driver');
+            $this->logger->critical('Failed to create web driver from sessio');
             return 1;
         }
 

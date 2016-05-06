@@ -99,10 +99,19 @@ class WebDriverFactory implements WebDriverFactoryInterface
         return array_key_exists('id', $lastSession) ? $lastSession['id'] : null;
     }
 
-    public function getWebDriver($identifier)
+    public function getWebDriver($identifier, $dataPath = null)
     {
         if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {
-            return $this->getExistingSession($identifier);
+            $driver = $this->getExistingSession($identifier);
+
+            if ($driver instanceof RemoteWebDriver) {
+                return $driver;
+            }
+
+            $this->logger->info(sprintf('Could not create web driver from session %s. Try to clear session and create a new one now', $identifier));
+            $this->clearAllSessions();
+
+            $identifier = $dataPath;
         }
 
         $driver = $this->createWebDriver($identifier);
@@ -140,5 +149,16 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $driver = RemoteWebDriver::create($this->seleniumServerUrl, $capabilities);
 
         return $driver;
+    }
+
+    protected function clearAllSessions()
+    {
+        $sessions = RemoteWebDriver::getAllSessions();
+
+        foreach($sessions as $session) {
+            $driver = RemoteWebDriver::createBySessionID($session['id']);
+            $driver->quit();
+            $this->logger->info(sprintf("Cleared Session: %s\n", $session['id']));
+        }
     }
 }
