@@ -29,6 +29,7 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
+            ->setName('tc:unified-report-fetcher:get-data')
             ->addOption(
                 'start-date',
                 'f',
