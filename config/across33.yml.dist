@@ -2,8 +2,6 @@
 username: 'username'
 # Pulsepoint UI password
 password: 'password'
-# The email address that receives large reports
-email: 'pub-1@tagcadereports.com'
 # Tagcade publisher id
 publisher_id: 1
 partner_cname: '33Across'
