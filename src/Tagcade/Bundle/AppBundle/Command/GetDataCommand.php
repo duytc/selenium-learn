@@ -108,9 +108,15 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $startDate = $input->getOption('start-date');
         $startDate = $startDate != null ? \DateTime::createFromFormat('Y-m-d', $startDate) : new \DateTime('yesterday');
+        if (!$startDate instanceof \DateTime) {
+            throw new \Exception('Invalid start date format. Expect to be YYYY-mm-dd');
+        }
 
         $endDate = $input->getOption('end-date');
         $endDate = $endDate != null ? \DateTime::createFromFormat('Y-m-d', $endDate) : $startDate;
+        if (!$endDate instanceof \DateTime) {
+            throw new \Exception('Invalid end date format. Expect to be YYYY-mm-dd');
+        }
 
         $configFile = $input->getOption('config-file');
         $configs = [];
