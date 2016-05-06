@@ -79,7 +79,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 'config-file',
                 'c',
                 InputOption::VALUE_OPTIONAL,
-                'Path to the config file. See ./config/across33.yml.dist for an example'
+                sprintf('Path to the config file. See ./config/%s.yml.dist for an example', static::DEFAULT_CANONICAL_NAME)
             )
         ;
     }
