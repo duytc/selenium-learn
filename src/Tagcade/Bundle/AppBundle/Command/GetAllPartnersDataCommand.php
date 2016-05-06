@@ -17,6 +17,14 @@ use Tagcade\Service\Core\TagcadeRestClientInterface;
 
 class GetAllPartnersDataCommand extends ContainerAwareCommand
 {
+    static $SUPPORTED_PARTNERS = [
+        '33Across'      => 'tc:across33:get-data',
+        'defy-media'    => 'tc:defy-media:get-data',
+        'komoona'       => 'tc:komoona:get-data',
+        'pulse-point'   => 'tc:pulse-point:get-data',
+        'sovrn'         => 'tc:sovrn:get-data',
+        'yellow-hammer' => 'tc:yellow-hammer:get-data'
+    ];
 
     protected function configure()
     {
