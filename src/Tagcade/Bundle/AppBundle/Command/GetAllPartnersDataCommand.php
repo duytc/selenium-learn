@@ -65,9 +65,14 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $container = $this->getContainer();
+        $logger = $container->get('logger');
+
         //TODO getting reports for all partners
         // Step 1. Get all partner cnames
 
-        // Step 2. Get reports for each partner by invoking partner command
+        // Step 2. Validate in supported list. Print log if not
+
+        // Step 3. Get reports for each partner by invoking partner command
     }
 }
