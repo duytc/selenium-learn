@@ -17,6 +17,10 @@ class ReportingPage extends AbstractPage
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
         $this->info('select date range');
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('s2id_time_period'))
+        );
+        
         $timePeriodElement = $this->driver
             ->findElement(WebDriverBy::id('s2id_time_period'));
 

@@ -18,10 +18,6 @@ class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammer
         // Step 1: login
         $this->logger->info('entering login page');
         $homePage = new HomePage($driver, $this->logger);
-        if (!$homePage->isCurrentUrl()) {
-            $homePage->navigate();
-        }
-
         $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         $driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('metrics_legend')));
