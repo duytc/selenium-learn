@@ -2,9 +2,11 @@
 
 namespace Tagcade\Bundle\AppBundle\Command\Across33;
 
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Symfony\Component\Console\Input\InputOption;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
+use Tagcade\DataSource\PartnerParamInterface;
 
 class GetDataCommand extends BaseGetDataCommand
 {
@@ -18,6 +20,13 @@ class GetDataCommand extends BaseGetDataCommand
         ;
 
         parent::configure();
+    }
+
+    protected function handleGetDataByDateRange(PartnerParamInterface $params, RemoteWebDriver $driver)
+    {
+        $this->logger->info('We support getting Month to date report for Across33 only. Your date range would not be affected.');
+
+        parent::handleGetDataByDateRange($params, $driver);
     }
 
     /**
