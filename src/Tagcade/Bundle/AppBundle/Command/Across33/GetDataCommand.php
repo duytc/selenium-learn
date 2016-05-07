@@ -11,12 +11,12 @@ use Tagcade\DataSource\PartnerParamInterface;
 class GetDataCommand extends BaseGetDataCommand
 {
 
-    const DEFAULT_CANONICAL_NAME = '33across';
+    const DEFAULT_CANONICAL_NAME = '33Across';
 
     protected function configure()
     {
         $this
-            ->setName('tc:across33:get-data')
+            ->setName('tc:33Across:get-data')
         ;
 
         parent::configure();
@@ -24,7 +24,7 @@ class GetDataCommand extends BaseGetDataCommand
 
     protected function handleGetDataByDateRange(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        $this->logger->info('We support getting Month to date report for Across33 only. Your date range would not be affected.');
+        $this->logger->info('We support getting Month to date report for 33Across only. Your date range would not be affected.');
 
         parent::handleGetDataByDateRange($params, $driver);
     }
