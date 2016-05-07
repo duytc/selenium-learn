@@ -36,7 +36,7 @@ class DateSelectWidget extends AbstractWidget
 
     protected function selectDate(DateTime $date, $leftRight = '.left')
     {
-        $currentDate = $this->getCurrentDate();
+        $currentDate = $this->getCurrentDate($leftRight);
         $currentYear = $currentDate->format('Y');
         $expectYear = $date->format('Y');
         $yearCounter = $currentYear != $expectYear ? ($currentYear > $expectYear ? - 1 : 1) : 0;
@@ -47,7 +47,7 @@ class DateSelectWidget extends AbstractWidget
             ;
 
             usleep(10);
-            $currentDate = $this->getCurrentDate();
+            $currentDate = $this->getCurrentDate($leftRight);
             $currentYear = $currentDate->format('Y');
             usleep(10);
         }
@@ -62,7 +62,7 @@ class DateSelectWidget extends AbstractWidget
                 ->click()
             ;
             usleep(10);
-            $currentDate = $this->getCurrentDate();
+            $currentDate = $this->getCurrentDate($leftRight);
             $currentMonth = (int)$currentDate->format('m');
             usleep(10);
         }
@@ -81,9 +81,9 @@ class DateSelectWidget extends AbstractWidget
         return $this;
     }
 
-    protected function getCurrentDate()
+    protected function getCurrentDate($leftRight)
     {
-        $currentDate = $this->driver->findElement(WebDriverBy::cssSelector('.left th:nth-child(2)'))
+        $currentDate = $this->driver->findElement(WebDriverBy::cssSelector(sprintf('%s th:nth-child(2)', $leftRight)))
             ->getText()
         ;
 

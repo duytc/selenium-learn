@@ -10,3 +10,5 @@ services:
 
     tagcade.data_source.fetcher.defy_media:
         class: Tagcade\DataSource\DefyMedia\DefyMediaFetcher
+        calls:
+            - [setLogger, [@logger]]
