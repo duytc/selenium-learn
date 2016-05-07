@@ -41,7 +41,13 @@ class GetDataCommand extends BaseGetDataCommand
 
             $params->setStartDate($myStartDate);
             $params->setEndDate($newEndDate);
+
+            $this->logger->info(sprintf('Fetching report with start-date=%s, end-date=%s', $myStartDate->format('Y-m-d'), $newEndDate->format('Y-m-d')));
+
             $this->fetcher->getAllData($params, $driver);
+
+            $this->logger->info(sprintf('Finished fetching report with start-date=%s, end-date=%s', $myStartDate->format('Y-m-d'), $newEndDate->format('Y-m-d')));
+
 
             $processedStartDate = true;
         }
