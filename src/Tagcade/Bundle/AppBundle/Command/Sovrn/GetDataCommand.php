@@ -26,17 +26,24 @@ class GetDataCommand extends BaseGetDataCommand
     {
         $startDate = $params->getStartDate();
         $endDate = $params->getEndDate();
-        $myStartDate = clone $startDate;
-        do {
 
-            $newEndDate = $myStartDate->add(new \DateInterval('P30D'));
+        $newEndDate = clone $startDate;
+        $processedStartDate = false;
+        do {
+            $myStartDate = clone $newEndDate;
+            if ($processedStartDate == true) {
+                $myStartDate->add(new \DateInterval('P1D')); // avoid overlapping with previous end date data that has been downloaded.
+            }
+            $newEndDate->add(new \DateInterval('P30D'));
             if ($newEndDate > $endDate) {
                 $newEndDate = $endDate;
             }
 
+            $params->setStartDate($myStartDate);
             $params->setEndDate($newEndDate);
             $this->fetcher->getAllData($params, $driver);
 
+            $processedStartDate = true;
         }
         while($newEndDate < $endDate);
     }

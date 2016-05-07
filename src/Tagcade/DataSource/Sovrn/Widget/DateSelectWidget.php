@@ -36,7 +36,7 @@ class DateSelectWidget extends AbstractWidget
         $expectYear = $date->format('Y');
         $yearCounter = $currentYear != $expectYear ? ($currentYear > $expectYear ? - 1 : 1) : 0;
         while ($currentYear != $expectYear) {
-            $cssSelect = $yearCounter < 0 ? "k-btn-previous-month" : "k-btn-next-month";
+            $cssSelect = $yearCounter < 0 ? "#calendar_downloads_account-downloads-adstats .k-btn-previous-month" : "#calendar_downloads_account-downloads-adstats .k-btn-next-month";
             $this->driver->findElement(WebDriverBy::cssSelector($cssSelect))
                 ->click()
             ;
@@ -46,10 +46,10 @@ class DateSelectWidget extends AbstractWidget
         }
 
         $currentMonth = $this->getCurrentMonth();
-        $expectMonth = $date->format('m');
+        $expectMonth = (int)$date->format('m');
         $monthCounter = $currentMonth != $expectMonth ? ($currentMonth > $expectMonth ? - 1 : 1) : 0;
         while ($currentMonth != $expectMonth) {
-            $cssSelect = $monthCounter < 0 ? "k-btn-previous-month" : "k-btn-next-month";
+            $cssSelect = $monthCounter < 0 ? "#calendar_downloads_account-downloads-adstats .k-btn-previous-month" : "#calendar_downloads_account-downloads-adstats .k-btn-next-month";
             $this->driver->findElement(WebDriverBy::cssSelector($cssSelect))
                 ->click()
             ;
