@@ -14,30 +14,52 @@ class HomePage extends AbstractPage
 
     public function doLogin($username, $password)
     {
+        if ($this->isLoggedIn()) {
+            return;
+        }
+
+        if (!$this->isCurrentUrl()) {
+            $this->navigate();
+        }
+
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login')));
+
+        $this->info('filling credentials');
+        $this->driver
+            ->findElement(WebDriverBy::id('login'))
+            ->click()
+        ;
+
+        $this->driver
+            ->findElement(WebDriverBy::id('username'))
+            ->clear()
+            ->sendKeys($username)
+        ;
+
+        $this->driver
+            ->findElement(WebDriverBy::id('password'))
+            ->clear()
+            ->sendKeys($password)
+        ;
+
+        $this->driver->findElement(WebDriverBy::id('login-submit'))->click();
+        $this->driver->wait()->until(WebDriverExpectedCondition::titleContains('Control Panel'));
+
+    }
+
+    protected function isLoggedIn()
+    {
         try {
-            $this->info('filling credentials');
             $this->driver
-                ->findElement(WebDriverBy::id('login'))
-                ->click()
+                ->findElement(WebDriverBy::cssSelector('input[value=logout]'))
             ;
 
-            $this->driver
-                ->findElement(WebDriverBy::id('username'))
-                ->clear()
-                ->sendKeys($username)
-            ;
-
-            $this->driver
-                ->findElement(WebDriverBy::id('password'))
-                ->clear()
-                ->sendKeys($password)
-            ;
-
-            $this->driver->findElement(WebDriverBy::id('login-submit'))->click();
-            $this->driver->wait()->until(WebDriverExpectedCondition::titleContains('Control Panel'));
+            return true;
         }
         catch (NoSuchElementException $ne) {
 
         }
+
+        return false;
     }
 }
