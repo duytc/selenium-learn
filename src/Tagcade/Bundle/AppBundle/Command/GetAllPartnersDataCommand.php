@@ -99,15 +99,10 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $input = new ArrayInput($arguments);
 
         foreach(self::$SUPPORTED_PARTNERS as $partner=>$command) {
-
-                $logger->info(sprintf('Start run command %s',$command));
-                $runCommand = $this->getApplication()->find($command);
-                $result = $runCommand->run($input,$output);
-                if(0== $result) {
-                   $logger->info(sprintf('Run command %s successful',$command));
-                } else {
-                    $logger->error(sprintf('Run command %s fail, error code %d',$command, $result));
-                }
-         }
+            $logger->info(sprintf('Start run command %s',$command));
+            $runCommand = $this->getApplication()->find($command);
+            $result = $runCommand->run($input,$output);
+            $logger->info(sprintf('Finished Run command %s with exit code %s', $command, $result));
+        }
     }
 }
