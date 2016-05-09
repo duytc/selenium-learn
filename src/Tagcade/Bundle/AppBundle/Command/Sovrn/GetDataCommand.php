@@ -50,6 +50,8 @@ class GetDataCommand extends BaseGetDataCommand
 
 
             $processedStartDate = true;
+
+            sleep(10);
         }
         while($newEndDate < $endDate);
     }

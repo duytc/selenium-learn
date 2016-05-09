@@ -17,12 +17,12 @@ use Symfony\Component\Console\Input\ArrayInput;
 class GetAllPartnersDataCommand extends ContainerAwareCommand
 {
     static $SUPPORTED_PARTNERS = [
-        '33Across'      => GetDataCommand::COMMAND_GET_DATA_33ACROSS,
-        'defy-media'    => GetDataCommand::COMMAND_GET_DATA_DEFY_MEDIA,
-        'komoona'       => GetDataCommand::COMMAND_GET_DATA_KOMOONA,
-        'pulse-point'   => GetDataCommand::COMMAND_GET_DATA_PULSE_POINT,
+//        '33Across'      => GetDataCommand::COMMAND_GET_DATA_33ACROSS,
+//        'defy-media'    => GetDataCommand::COMMAND_GET_DATA_DEFY_MEDIA,
+//        'komoona'       => GetDataCommand::COMMAND_GET_DATA_KOMOONA,
+//        'pulse-point'   => GetDataCommand::COMMAND_GET_DATA_PULSE_POINT,
         'sovrn'         => GetDataCommand::COMMAND_GET_DATA_SOVRN,
-        'yellow-hammer' => GetDataCommand::COMMAND_GET_DATA_YELLOW_HAMMER
+//        'yellow-hammer' => GetDataCommand::COMMAND_GET_DATA_YELLOW_HAMMER
     ];
 
     protected function configure()
@@ -99,16 +99,10 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $input = new ArrayInput($arguments);
 
         foreach(self::$SUPPORTED_PARTNERS as $partner=>$command) {
-
-                $logger->info(sprintf('Start run command %s',$command));
-                $runCommand = $this->getApplication()->find($command);
-                $result = $runCommand->run($input,$output);
-
-                if(0 == $result) {
-                   $logger->info(sprintf('Run command %s successful',$command));
-                } else {
-                    $logger->error(sprintf('Run command %s fail, error code %d',$command, $result));
-                }
-         }
+           $logger->info(sprintf('Start run command %s',$command));
+           $runCommand = $this->getApplication()->find($command);
+           $result = $runCommand->run($input,$output);
+           $logger->info(sprintf('Run command %s finished with exit code %s', $command, $result));
+        }
     }
 }
