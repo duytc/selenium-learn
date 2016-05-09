@@ -14,7 +14,7 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName('tc:yellow-hammer:get-data')
+            ->setName(self::COMMAND_GET_DATA_YELLOW_HAMMER)
         ;
 
         parent::configure();

@@ -20,6 +20,13 @@ abstract class GetDataCommand extends ContainerAwareCommand
 {
     const DEFAULT_CANONICAL_NAME = null;
 
+    const COMMAND_GET_DATA_33ACROSS = 'tc:33Across:get-data';
+    const COMMAND_GET_DATA_DEFY_MEDIA = 'tc:defy-media:get-data';
+    const COMMAND_GET_DATA_PULSE_POINT = 'tc:pulse-point:get-data';
+    const COMMAND_GET_DATA_KOMOONA = 'tc:komoona:get-data';
+    const COMMAND_GET_DATA_SOVRN = 'tc:sovrn:get-data';
+    const COMMAND_GET_DATA_YELLOW_HAMMER = 'tc:yellow-hammer:get-data';
+
     /**
      * @var Yaml
      */

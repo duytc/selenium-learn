@@ -16,7 +16,7 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName('tc:33Across:get-data')
+            ->setName(self::COMMAND_GET_DATA_33ACROSS)
         ;
 
         parent::configure();
