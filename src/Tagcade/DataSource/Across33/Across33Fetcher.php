@@ -16,10 +16,6 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        if (!$homePage->isCurrentUrl()) {
-            $homePage->navigate();
-        }
-
         $this->logger->info('start logging in');
         $homePage->doLogin($params->getUsername(), $params->getPassword());
         $this->logger->info('end logging in');

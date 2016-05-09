@@ -45,26 +45,6 @@ class DeliveryReportPage extends AbstractPage
             $this->getAllTagReportsForSingleDomain();
             usleep(500);
         }
-
-//        $this->driver->wait()->until(
-//            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('report-date'))
-//        );
-//        // show report date selection
-//        $this->driver->findElement(WebDriverBy::id('report-date'))
-//            ->click()
-//        ;
-//
-//        $this->driver->wait()->until(
-//            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.daterangepicker'))
-//        );
-//
-//
-//        // Step 1. Select date range
-//        $this->selectDateRange($startDate, $endDate);
-//        $this->driver->findElement(WebDriverBy::id('report-export'))
-//            ->click()
-//        ;
-
     }
 
     protected function getAllTagReportsForSingleDomain()
