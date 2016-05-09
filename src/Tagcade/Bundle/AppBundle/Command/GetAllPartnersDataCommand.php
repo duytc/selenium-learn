@@ -25,6 +25,14 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         'yellow-hammer' => GetDataCommand::COMMAND_GET_DATA_YELLOW_HAMMER
     ];
 
+    function __construct(array $partners)
+    {
+        parent::__construct();
+
+        static::$SUPPORTED_PARTNERS = $partners;
+    }
+
+
     protected function configure()
     {
         $this
@@ -87,22 +95,26 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             return;
         }
 
-        $arguments = array(
-            '--start-date'=>$startDate,
-            '--end-date'=>$endDate,
-            '--data-path'=>$dataPath,
-            '--force-new-session'=>$newSession,
-            '--quit-web-driver-after-run'=>$quitWebDriver
-        );
+        foreach (self::$SUPPORTED_PARTNERS as $partner => $command) {
+           $logger->info(sprintf('Start run command %s', $command));
 
-        /** @var array $arguments */
-        $input = new ArrayInput($arguments);
-
-        foreach(self::$SUPPORTED_PARTNERS as $partner=>$command) {
-           $logger->info(sprintf('Start run command %s',$command));
-           $runCommand = $this->getApplication()->find($command);
-           $result = $runCommand->run($input,$output);
-           $logger->info(sprintf('Run command %s finished with exit code %s', $command, $result));
+            try {
+                $runCommand = $this->getApplication()->find($command);
+                $arguments = array(
+                    '--partner-cname' => $partner,
+                    '--start-date' => $startDate,
+                    '--end-date' => $endDate,
+                    '--data-path' => $dataPath,
+                    '--force-new-session' => $newSession,
+                    '--quit-web-driver-after-run' => $quitWebDriver
+                );
+                $input = new ArrayInput($arguments);
+                $result = $runCommand->run($input,$output);
+                $logger->info(sprintf('Run command %s finished with exit code %s', $command, $result));
+            }
+            catch(\Exception $e) {
+                $logger->info('Not found command %s', $command);
+            }
         }
     }
 }

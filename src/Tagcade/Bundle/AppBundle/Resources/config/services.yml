@@ -24,11 +24,18 @@ services:
         arguments: [@curl, @logger]
         scope: prototype
 
-    tagcade.command.admeta.get_data_command:
+    tagcade.command.admeta.get_data:
         class: Tagcade\Bundle\AppBundle\Command\AdMeta\GetDataCommand
         # notice the = sign at the end of the admeta api service, this disables strict checking
         # this is because we use a different scope
         arguments: [@tagcade.data_source.admeta.api=, %tagcade.default_data_path%, @yaml, @logger]
+        tags:
+            -  { name: console.command }
+
+    tagcade.command.get_all_partner_data:
+        class: Tagcade\Bundle\AppBundle\Command\GetAllPartnersDataCommand
+        arguments:
+            - %partners%
         tags:
             -  { name: console.command }
 
