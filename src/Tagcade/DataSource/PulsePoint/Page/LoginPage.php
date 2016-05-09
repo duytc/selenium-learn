@@ -21,6 +21,11 @@ class LoginPage extends AbstractPage
             return $this;
         }
 
+        if (!$this->isCurrentUrl()) {
+            $this->navigate();
+            $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('LoginButton')));
+        }
+
         $this->info('filling credentials');
         $this->driver
             ->findElement(WebDriverBy::id('UserName'))
