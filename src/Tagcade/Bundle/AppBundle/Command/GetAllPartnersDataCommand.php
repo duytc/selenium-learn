@@ -17,12 +17,12 @@ use Symfony\Component\Console\Input\ArrayInput;
 class GetAllPartnersDataCommand extends ContainerAwareCommand
 {
     static $SUPPORTED_PARTNERS = [
-//        '33Across'      => GetDataCommand::COMMAND_GET_DATA_33ACROSS,
-//        'defy-media'    => GetDataCommand::COMMAND_GET_DATA_DEFY_MEDIA,
-//        'komoona'       => GetDataCommand::COMMAND_GET_DATA_KOMOONA,
+        '33Across'      => GetDataCommand::COMMAND_GET_DATA_33ACROSS,
+        'defy-media'    => GetDataCommand::COMMAND_GET_DATA_DEFY_MEDIA,
+        'komoona'       => GetDataCommand::COMMAND_GET_DATA_KOMOONA,
         'pulse-point'   => GetDataCommand::COMMAND_GET_DATA_PULSE_POINT,
-//        'sovrn'         => GetDataCommand::COMMAND_GET_DATA_SOVRN,
-//        'yellow-hammer' => GetDataCommand::COMMAND_GET_DATA_YELLOW_HAMMER
+        'sovrn'         => GetDataCommand::COMMAND_GET_DATA_SOVRN,
+        'yellow-hammer' => GetDataCommand::COMMAND_GET_DATA_YELLOW_HAMMER
     ];
 
     protected function configure()
