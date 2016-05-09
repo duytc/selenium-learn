@@ -24,7 +24,7 @@ class GetDataCommand extends BaseGetDataCommand
 
     protected function handleGetDataByDateRange(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        $this->logger->info('We support getting Month to date report for 33Across only. Your date range would not be affected.');
+        $this->logger->info('We support getting all report data over last three months. Your date range will not be affected.');
 
         parent::handleGetDataByDateRange($params, $driver);
     }
