@@ -121,7 +121,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
 
         $endDate = $input->getOption('end-date');
-        $endDate = $endDate != null ? \DateTime::createFromFormat('Y-m-d', $endDate) : $startDate;
+        $endDate = $endDate != null ? \DateTime::createFromFormat('Y-m-d', $endDate) : clone $startDate;
         if (!$endDate instanceof \DateTime) {
             throw new \Exception('Invalid end date format. Expect to be YYYY-mm-dd');
         }
