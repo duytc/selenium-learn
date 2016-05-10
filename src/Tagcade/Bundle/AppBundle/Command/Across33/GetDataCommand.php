@@ -16,17 +16,10 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName('tc:33Across:get-data')
+            ->setName(self::COMMAND_GET_DATA_33ACROSS)
         ;
 
         parent::configure();
-    }
-
-    protected function handleGetDataByDateRange(PartnerParamInterface $params, RemoteWebDriver $driver)
-    {
-        $this->logger->info('We support getting Month to date report for 33Across only. Your date range would not be affected.');
-
-        parent::handleGetDataByDateRange($params, $driver);
     }
 
     /**

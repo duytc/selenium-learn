@@ -27,12 +27,6 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
     {
         $this->logger->info('enter login page');
         $loginPage = new LoginPage($driver, $this->logger);
-        if (!$loginPage->isCurrentUrl() && !$loginPage->isLoggedIn()) {
-            $loginPage->navigate();
-            $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('LoginButton')));
-        }
-
-
         $loginPage->login($params->getUsername(), $params->getPassword());
         sleep(5);
 
@@ -42,9 +36,7 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
             $reportPage->navigate();
         }
 
-        $driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('reportDDLContainer')));
-
-        $this->logger->info('start downloading reports');
+        $this->logger->info('start downloading reports for pulse-point');
         $reportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('finish downloading reports');
     }

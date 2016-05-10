@@ -12,3 +12,12 @@ parameters:
     tagcade_user_password: '123456'
     tagcade_get_token_url: 'http://api.tagcade.dev/app_debug.php/api/v1/getToken'
     tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'
+
+    # mapping canonical name in db to real partner import command
+    partners:
+        33across: 'tc:33across:get-data'
+        sovrn: 'tc:sovrn:get-data'
+        defy-media: 'tc:defy-media:get-data'
+        komoona: 'tc:komoona:get-data'
+        pulse-point: 'tc:pulse-point:get-data'
+        yellow-hammer: 'tc:yellow-hammer:get-data'

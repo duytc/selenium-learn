@@ -16,7 +16,7 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName('tc:sovrn:get-data')
+            ->setName(self::COMMAND_GET_DATA_SOVRN)
         ;
 
         parent::configure();
@@ -50,6 +50,8 @@ class GetDataCommand extends BaseGetDataCommand
 
 
             $processedStartDate = true;
+
+            sleep(10);
         }
         while($newEndDate < $endDate);
     }

@@ -141,6 +141,11 @@ class WebDriverFactory implements WebDriverFactoryInterface
                 $this->params->getStartDate()->format('Ymd'),
                 $this->params->getEndDate()->format('Ymd')
             ),
+            'download.prompt_for_download' => false,
+            //Turns off download prompt
+            'profile.default_content_settings.popups' => 0,
+            'profile.content_settings.pattern_pairs.*.multiple-automatic-downloads' => 1,
+
         ]);
 
         $capabilities = DesiredCapabilities::chrome();

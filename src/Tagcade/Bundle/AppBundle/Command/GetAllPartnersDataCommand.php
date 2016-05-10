@@ -17,13 +17,21 @@ use Symfony\Component\Console\Input\ArrayInput;
 class GetAllPartnersDataCommand extends ContainerAwareCommand
 {
     static $SUPPORTED_PARTNERS = [
-        '33Across'      => 'tc:across33:get-data',
-        'defy-media'    => 'tc:defy-media:get-data',
-        'komoona'       => 'tc:komoona:get-data',
-        'pulse-point'   => 'tc:pulse-point:get-data',
-        'sovrn'         => 'tc:sovrn:get-data',
-        'yellow-hammer' => 'tc:yellow-hammer:get-data'
+        '33Across'      => GetDataCommand::COMMAND_GET_DATA_33ACROSS,
+        'defy-media'    => GetDataCommand::COMMAND_GET_DATA_DEFY_MEDIA,
+        'komoona'       => GetDataCommand::COMMAND_GET_DATA_KOMOONA,
+        'pulse-point'   => GetDataCommand::COMMAND_GET_DATA_PULSE_POINT,
+        'sovrn'         => GetDataCommand::COMMAND_GET_DATA_SOVRN,
+        'yellow-hammer' => GetDataCommand::COMMAND_GET_DATA_YELLOW_HAMMER
     ];
+
+    function __construct(array $partners)
+    {
+        parent::__construct();
+
+        static::$SUPPORTED_PARTNERS = $partners;
+    }
+
 
     protected function configure()
     {
@@ -87,28 +95,26 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             return;
         }
 
-        $arguments = array(
-            '--start-date'=>$startDate,
-            '--end-date'=>$endDate,
-            '--data-path'=>$dataPath,
-            '--force-new-session'=>$newSession,
-            '--quit-web-driver-after-run'=>$quitWebDriver
-        );
+        foreach (self::$SUPPORTED_PARTNERS as $partner => $command) {
+           $logger->info(sprintf('Start run command %s', $command));
 
-        /** @var array $arguments */
-        $input = new ArrayInput($arguments);
-
-        foreach(self::$SUPPORTED_PARTNERS as $partner=>$command) {
-
-                $logger->info(sprintf('Start run command %s',$command));
+            try {
                 $runCommand = $this->getApplication()->find($command);
+                $arguments = array(
+                    '--partner-cname' => $partner,
+                    '--start-date' => $startDate,
+                    '--end-date' => $endDate,
+                    '--data-path' => $dataPath,
+                    '--force-new-session' => $newSession,
+                    '--quit-web-driver-after-run' => $quitWebDriver
+                );
+                $input = new ArrayInput($arguments);
                 $result = $runCommand->run($input,$output);
-
-                if(0 == $result) {
-                   $logger->info(sprintf('Run command %s successful',$command));
-                } else {
-                    $logger->error(sprintf('Run command %s fail, error code %d',$command, $result));
-                }
-         }
+                $logger->info(sprintf('Run command %s finished with exit code %s', $command, $result));
+            }
+            catch(\Exception $e) {
+                $logger->info('Not found command %s', $command);
+            }
+        }
     }
 }

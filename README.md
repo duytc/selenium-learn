@@ -23,6 +23,22 @@ ssh -fN -D localhost:8888 myusername@myserver.com
 
 Some commands allow you to proxy requests
 
+Fetch data command
+------------------
+
+For all network partners
+```
+php app/console tc:unified-report-fetcher:get-data --start-date=YYYY-mm-dd --end-date=YYYY-mm-dd
+```
+
+For each supported partner:
+
+```
+php app/console tc:{partner canonical name}:get-data --start-date=YYYY-mm-dd --end-date=YYYY-mm-dd
+```
+
+See help for more command options
+
 Resources
 ---------
 
