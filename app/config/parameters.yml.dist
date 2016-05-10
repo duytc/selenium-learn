@@ -15,7 +15,7 @@ parameters:
 
     # mapping canonical name in db to real partner import command
     partners:
-        33Across: 'tc:33Across:get-data'
+        33across: 'tc:33across:get-data'
         sovrn: 'tc:sovrn:get-data'
         defy-media: 'tc:defy-media:get-data'
         komoona: 'tc:komoona:get-data'
