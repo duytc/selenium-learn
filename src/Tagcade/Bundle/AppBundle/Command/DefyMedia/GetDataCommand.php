@@ -14,7 +14,7 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName(self::COMMAND_GET_DATA_DEFY_MEDIA)
+            ->setName('tc:defy-media:get-data')
         ;
 
         parent::configure();

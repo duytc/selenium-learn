@@ -16,7 +16,7 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName(self::COMMAND_GET_DATA_SOVRN)
+            ->setName('tc:sovrn:get-data')
         ;
 
         parent::configure();

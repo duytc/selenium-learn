@@ -11,12 +11,12 @@ use Tagcade\DataSource\PartnerParamInterface;
 class GetDataCommand extends BaseGetDataCommand
 {
 
-    const DEFAULT_CANONICAL_NAME = '33Across';
+    const DEFAULT_CANONICAL_NAME = '33across';
 
     protected function configure()
     {
         $this
-            ->setName(self::COMMAND_GET_DATA_33ACROSS)
+            ->setName('tc:33across:get-data')
         ;
 
         parent::configure();

@@ -14,7 +14,7 @@ class GetDataCommand extends BaseGetDataCommand
     protected function configure()
     {
         $this
-            ->setName(self::COMMAND_GET_DATA_KOMOONA)
+            ->setName('tc:komoona:get-data')
         ;
 
         parent::configure();
