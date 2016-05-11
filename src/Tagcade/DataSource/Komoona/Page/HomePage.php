@@ -3,6 +3,7 @@
 namespace Tagcade\DataSource\Komoona\Page;
 
 use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
@@ -21,6 +22,11 @@ class HomePage extends AbstractPage
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
+
+        if ($this->isLoggedIn()) {
+            return;
+        }
+
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login')));
 
@@ -55,7 +61,7 @@ class HomePage extends AbstractPage
                 ->findElement(WebDriverBy::id('logout'))
             ;
 
-            if ($logoutLink->getText() == 'LOGOUT') {
+            if (strtolower($logoutLink->getText()) == 'logout') {
                 return true;
             }
 

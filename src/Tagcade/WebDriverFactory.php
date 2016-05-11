@@ -159,9 +159,15 @@ class WebDriverFactory implements WebDriverFactoryInterface
     public function clearAllSessions()
     {
         $sessions = RemoteWebDriver::getAllSessions();
-
         foreach($sessions as $session) {
             $driver = RemoteWebDriver::createBySessionID($session['id']);
+            try {
+                $driver->manage()->deleteAllCookies();
+            }
+            catch(\Exception $e) {
+                $this->logger->info("Failed to delete cookies for browser");
+            }
+
             $driver->quit();
             $this->logger->info(sprintf("Cleared Session: %s\n", $session['id']));
         }
