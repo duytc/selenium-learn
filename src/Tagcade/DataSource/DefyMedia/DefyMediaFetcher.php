@@ -30,13 +30,4 @@ class DefyMediaFetcher extends PartnerFetcherAbstract implements DefyMediaFetche
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('finish downloading reports');
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'defymedia';
-    }
-
-} 
+}

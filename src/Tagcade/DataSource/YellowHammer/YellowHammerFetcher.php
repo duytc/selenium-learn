@@ -34,14 +34,4 @@ class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammer
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('finishing downloading reports');
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'yellow-hammer';
-    }
-
-
-} 
+}

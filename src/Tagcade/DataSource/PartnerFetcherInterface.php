@@ -13,4 +13,9 @@ interface PartnerFetcherInterface {
      * @return string
      */
     public function getName();
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name);
 }

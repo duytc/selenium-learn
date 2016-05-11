@@ -36,12 +36,4 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('finish downloading reports');
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'across33';
-    }
 }

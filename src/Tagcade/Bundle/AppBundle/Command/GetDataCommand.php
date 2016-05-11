@@ -89,9 +89,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
     {
         $this->createLogger();
         $this->createYamlParser();
-        $this->createFetcher();
 
         $partnerCName = $input->getOption('partner-cname');
+        $this->createFetcher($partnerCName);
+
 
         // todo we need to write to unique directories per publisher
         $dataPath = $input->getOption('data-path');
@@ -232,12 +233,14 @@ abstract class GetDataCommand extends ContainerAwareCommand
     }
 
     /**
+     * @param $partnerCName
      * @return PartnerFetcherInterface
      */
-    protected function createFetcher()
+    protected function createFetcher($partnerCName)
     {
         if (!$this->fetcher instanceof PartnerFetcherInterface) {
             $this->fetcher = $this->getFetcher();
+            $this->fetcher->setName($partnerCName);
         }
 
         return $this->getFetcher();

@@ -21,8 +21,6 @@ use Tagcade\DataSource\PulsePoint\Widget\RunButtonWidget;
 
 class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetcherInterface
 {
-    const NAME = 'pulse-point';
-
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         $this->logger->info('enter login page');
@@ -40,14 +38,4 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
         $reportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('finish downloading reports');
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return self::NAME;
-    }
-
-
-} 
+}

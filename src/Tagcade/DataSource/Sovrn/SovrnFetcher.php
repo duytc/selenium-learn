@@ -30,13 +30,4 @@ class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterfa
         $earningPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('finish downloading reports');
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'sovrn';
-    }
-
-} 
+}

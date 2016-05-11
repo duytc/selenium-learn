@@ -11,6 +11,8 @@ abstract class PartnerFetcherAbstract {
      */
     protected $logger;
 
+    protected $name;
+
     /**
      * @return LoggerInterface
      */
@@ -25,5 +27,21 @@ abstract class PartnerFetcherAbstract {
     public function setLogger($logger)
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 }

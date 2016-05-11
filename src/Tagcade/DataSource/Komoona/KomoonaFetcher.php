@@ -11,8 +11,6 @@ use Tagcade\DataSource\PartnerParamInterface;
 
 class KomoonaFetcher extends PartnerFetcherAbstract implements KomoonaFetcherInterface
 {
-    const NAME = 'komoona';
-
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
@@ -31,14 +29,4 @@ class KomoonaFetcher extends PartnerFetcherAbstract implements KomoonaFetcherInt
 
         $incomeReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return self::NAME;
-    }
-
-
-} 
+}
