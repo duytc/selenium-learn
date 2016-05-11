@@ -14,6 +14,8 @@ class HomePage extends AbstractPage
 
     public function doLogin($username, $password)
     {
+        $this->navigateToPartnerDomain();
+
         if ($this->isLoggedIn()) {
             return;
         }

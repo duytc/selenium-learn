@@ -18,7 +18,7 @@ class DefyMediaFetcher extends PartnerFetcherAbstract implements DefyMediaFetche
         $this->logger->info('start logging in');
         $homePage->doLogin($params->getUsername(), $params->getPassword());
         $this->logger->info('finish logging in');
-        usleep(10);
+        usleep(300);
 
         $this->logger->info('enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);

@@ -17,6 +17,8 @@ class LoginPage extends AbstractPage
      */
     public function login($username, $password)
     {
+        $this->navigateToPartnerDomain();
+
         if ($this->isLoggedIn()) {
             return $this;
         }
