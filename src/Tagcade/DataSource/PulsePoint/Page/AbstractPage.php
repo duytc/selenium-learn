@@ -138,4 +138,20 @@ abstract class AbstractPage
     {
         return static::URL;
     }
+
+    protected function navigateToPartnerDomain()
+    {
+        $domain = parse_url($this->driver->getCurrentURL());
+        $domain = $domain['host'];
+
+        if (strpos($domain, $this->getPageUrl()) > -1) {
+            return;
+        }
+
+        $this->navigate();
+
+        usleep(200);
+
+        return;
+    }
 }

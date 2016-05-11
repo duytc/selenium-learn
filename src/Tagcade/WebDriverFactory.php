@@ -82,7 +82,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $driver->getWindowHandles();
         } catch (UnknownServerException $e) {
             if ($this->logger) {
-                $this->logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it? You can run tools/clear-all-sessions.php to reset", $sessionId));
+                $this->logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it? We will try to create a new one instead", $sessionId));
             }
 
             return false;

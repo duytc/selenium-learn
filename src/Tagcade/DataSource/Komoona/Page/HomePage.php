@@ -15,18 +15,15 @@ class HomePage extends AbstractPage
 
     public function doLogin($username, $password)
     {
-        if ($this->isLoggedIn()) {
+        $this->navigateToPartnerDomain();
+
+        if ($this->isLoggedIn()) { // current page is another page that tell the user is already logged in
             return;
         }
 
-        if (!$this->isCurrentUrl()) {
+        if (!$this->isCurrentUrl()) { // redirect to current page if user is not logged in yet
             $this->navigate();
         }
-
-        if ($this->isLoggedIn()) {
-            return;
-        }
-
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login')));
 
@@ -55,6 +52,7 @@ class HomePage extends AbstractPage
 
     protected function isLoggedIn()
     {
+
         try {
 
             $logoutLink = $this->driver
@@ -64,7 +62,13 @@ class HomePage extends AbstractPage
             if (strtolower($logoutLink->getText()) == 'logout') {
                 return true;
             }
+            return true;
+        }
+        catch (NoSuchElementException $ne) {
 
+        }
+
+        try {
             $this->driver
                 ->findElement(WebDriverBy::cssSelector('input[value=logout]'))
             ;
