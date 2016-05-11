@@ -2,8 +2,11 @@
 
 namespace Tagcade\DataSource\Across33\Page;
 
+use DateTime;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverSelect;
 use Tagcade\DataSource\DefyMedia\Widget\DateSelectWidget;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
@@ -42,7 +45,9 @@ class DeliveryReportPage extends AbstractPage
 
             usleep(500);
             $this->info(sprintf('downloading report for domain %s', $domain));
-            $this->getAllTagReportsForSingleDomain();
+
+            $this->getAllTagReportsForSingleDomainByDate($startDate, $endDate);
+
             usleep(500);
         }
     }
@@ -61,7 +66,71 @@ class DeliveryReportPage extends AbstractPage
             ->click();
         ;
 
-        sleep(12); // download delay //TODO verify the location of downloaded file
+        sleep(20); // download delay //TODO verify the location of downloaded file
+    }
+
+    protected function getAllTagReportsForSingleDomainByOptions(array $optionToClicks, WebDriverSelect $selectElement )
+    {
+
+        /** @var WebDriverElement $optionToClick */
+        foreach($optionToClicks as $optionToClick) {
+
+            $selectElement->selectByValue($optionToClick->getAttribute('value'));
+
+            $this->driver->findElement(WebDriverBy::cssSelector('#filter_button+span'))
+                ->click();;
+
+            $this->driver->wait()->until(
+                WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('download_current'))
+            );
+
+            $this->driver->findElement(WebDriverBy::id('download_current'))
+                ->click();;
+
+            sleep(20); //wait for download data
+        }
+    }
+
+    protected function getAllTagReportsForSingleDomainByDate(\DateTime $startDate, \DateTime $endDate)
+    {
+       // get range date value
+        $selectElement =  new WebDriverSelect ($this->driver->findElement(WebDriverBy::id('begin_date')));
+        $selectedOptions = $selectElement->getOptions();
+
+        /** @var WebDriverElement[]  $optionToClicks */
+        $optionToClicks =[];
+        foreach ($selectedOptions as $selectedOption) {
+
+            $dateValue = $selectedOption->getAttribute('value');
+            $reportDate = DateTime::createFromFormat('Y-m-d', $dateValue);
+            if (!$reportDate instanceof \DateTime) {
+                $this->logger->info(sprintf('Not a valid date format. Expect Y-m-d, found %s', $dateValue));
+                continue;
+            }
+
+            $monthReportDate = $reportDate->format('n');
+            $monthStartDate = $startDate->format('n');
+
+            if ($monthReportDate >= $monthStartDate) {
+                $optionToClicks[] = $selectedOption;
+            }
+        }
+
+        if (count($optionToClicks) == 0) {
+            throw new \Exception('Invalidate started date');
+        }
+
+        $downloadAllData = false;
+        if (count($optionToClicks) === count($selectedOptions)) {
+            $downloadAllData = true;
+        }
+
+        if ($downloadAllData == true) {
+            $this->getAllTagReportsForSingleDomain();
+        } else {
+            $this->getAllTagReportsForSingleDomainByOptions($optionToClicks,$selectElement);
+        }
+
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
