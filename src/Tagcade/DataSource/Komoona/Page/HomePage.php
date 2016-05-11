@@ -50,6 +50,15 @@ class HomePage extends AbstractPage
     protected function isLoggedIn()
     {
         try {
+
+            $logoutLink = $this->driver
+                ->findElement(WebDriverBy::id('logout'))
+            ;
+
+            if ($logoutLink->getText() == 'LOGOUT') {
+                return true;
+            }
+
             $this->driver
                 ->findElement(WebDriverBy::cssSelector('input[value=logout]'))
             ;

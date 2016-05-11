@@ -29,4 +29,7 @@ interface WebDriverFactoryInterface
      * @throws \Exception
      */
     public function setConfig(array $config);
+
+    public function clearAllSessions();
+
 }

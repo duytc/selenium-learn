@@ -204,6 +204,9 @@ abstract class GetDataCommand extends ContainerAwareCommand
         if ($forceNewSession == false) {
             $sessionId = $webDriverFactory->getLastSessionId();
         }
+        else {
+            $webDriverFactory->clearAllSessions();
+        }
 
         $identifier = $sessionId != null ? $sessionId : $dataPath;
 

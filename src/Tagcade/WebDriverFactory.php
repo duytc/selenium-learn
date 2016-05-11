@@ -156,7 +156,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
         return $driver;
     }
 
-    protected function clearAllSessions()
+    public function clearAllSessions()
     {
         $sessions = RemoteWebDriver::getAllSessions();
 
