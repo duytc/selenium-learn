@@ -177,8 +177,12 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
                 $processedPublisherPartner[$publisherId] = true;
             }
+            catch(\CannotPerformOperationException $ce) {
+                $this->logger->critical('Decryption error. Please make sure you have mycrypt installed for defuse encryption and the credentials are correct');
+                $this->logger->critical($ce->getTraceAsString());
+            }
             catch(\Exception $e) {
-                $this->logger->critical($e->getMessage());
+                $this->logger->critical($e->getTraceAsString());
             }
         }
 
