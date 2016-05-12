@@ -52,4 +52,6 @@ services:
             - %tagcade_user_password%
             - %tagcade_get_token_url%
             - %tagcade_get_list_publisher_url%
+        calls:
+            - [setLogger, [@logger]]
 

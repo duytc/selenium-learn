@@ -89,7 +89,7 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         }
 
         foreach (self::$SUPPORTED_PARTNERS as $partner => $command) {
-           $logger->info(sprintf('Start run command %s', $command));
+           $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
 
             try {
                 $runCommand = $this->getApplication()->find($command);
