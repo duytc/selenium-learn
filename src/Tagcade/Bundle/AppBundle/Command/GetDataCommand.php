@@ -179,10 +179,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
             }
             catch(\CannotPerformOperationException $ce) {
                 $this->logger->critical('Decryption error. Please make sure you have mycrypt installed for defuse encryption and the credentials are correct');
-                $this->logger->critical($ce->getTraceAsString());
+                $this->logger->critical($ce->getMessage());
             }
             catch(\Exception $e) {
-                $this->logger->critical($e->getTraceAsString());
+                $this->logger->critical($e->getMessage());
             }
         }
 
@@ -232,7 +232,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
             sleep(10); // sleep 10 seconds, to assume that the download is complete.
         }
         catch (\Exception $e) {
-            $this->logger->error($e->getTraceAsString());
+            $this->logger->error($e->getMessage());
         }
 
         // todo check that chrome finished downloading all files before finishing
