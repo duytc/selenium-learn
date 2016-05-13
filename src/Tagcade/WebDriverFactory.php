@@ -131,16 +131,23 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile', $dataPath)]);
         $executionDate = new \DateTime('today');
 
+        $defaultDownloadPath = sprintf(
+            '%s/publishers/%d/%s/%s-%s-%s',
+            $dataPath,
+            $this->config['publisher_id'],
+            $this->config['partner_cname'],
+            $executionDate->format('Ymd'),
+            $this->params->getStartDate()->format('Ymd'),
+            $this->params->getEndDate()->format('Ymd')
+        );
+
+        if (!is_writable($defaultDownloadPath)) {
+            $this->logger->error(sprintf('Cannot write to data-path %s', $dataPath));
+            return 1;
+        }
+
         $chromeOptions->setExperimentalOption('prefs', [
-            'download.default_directory' => sprintf(
-                '%s/publishers/%d/%s/%s-%s-%s',
-                $dataPath,
-                $this->config['publisher_id'],
-                $this->config['partner_cname'],
-                $executionDate->format('Ymd'),
-                $this->params->getStartDate()->format('Ymd'),
-                $this->params->getEndDate()->format('Ymd')
-            ),
+            'download.default_directory' => $defaultDownloadPath,
             'download.prompt_for_download' => false,
             //Turns off download prompt
             'profile.default_content_settings.popups' => 0,
