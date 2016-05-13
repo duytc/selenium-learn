@@ -333,8 +333,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
         return (new PartnerParams())
             ->setUsername($config['username'])
             ->setPassword($password)
-            ->setStartDate($startDate)
-            ->setEndDate($endDate)
+            ->setStartDate(clone $startDate)
+            ->setEndDate(clone $endDate)
         ;
     }
 
