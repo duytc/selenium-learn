@@ -182,7 +182,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 $this->logger->critical($ce->getMessage());
             }
             catch(\Exception $e) {
-                $this->logger->critical($e->getMessage());
+                $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
+                $this->logger->critical($message);
             }
         }
 
