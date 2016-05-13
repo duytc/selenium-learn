@@ -141,11 +141,6 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $this->params->getEndDate()->format('Ymd')
         );
 
-        if (!is_writable($defaultDownloadPath)) {
-            $this->logger->error(sprintf('Cannot write to data-path %s', $dataPath));
-            return 1;
-        }
-
         $chromeOptions->setExperimentalOption('prefs', [
             'download.default_directory' => $defaultDownloadPath,
             'download.prompt_for_download' => false,

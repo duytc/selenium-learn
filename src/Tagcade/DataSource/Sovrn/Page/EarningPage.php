@@ -23,6 +23,8 @@ class EarningPage extends AbstractPage
         foreach ($elements as $e) {
             $att = $e->getAttribute('data-rangetype');
             if ($att == 'start') {
+                $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOf($e));
+
                 $e->click();
                 break;
             }

@@ -144,7 +144,7 @@ abstract class AbstractPage
         $domain = parse_url($this->driver->getCurrentURL());
         $domain = $domain['host'];
 
-        if (strpos($domain, $this->getPageUrl()) > -1) {
+        if (strpos($this->getPageUrl(), $domain) > -1) {
             return;
         }
 
