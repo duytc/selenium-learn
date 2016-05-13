@@ -88,11 +88,16 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             return;
         }
 
-        foreach (self::$SUPPORTED_PARTNERS as $partner => $command) {
+        foreach (static::$SUPPORTED_PARTNERS as $partner => $command) {
            $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
 
             try {
                 $runCommand = $this->getApplication()->find($command);
+                if (!$runCommand instanceof GetDataCommand) {
+                    $logger->error(sprintf('Not found command %s', $command));
+                    continue;
+                }
+
                 $arguments = array(
                     '--partner-cname' => $partner,
                     '--start-date' => $startDate,
@@ -106,7 +111,7 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
                 $logger->info(sprintf('Run command %s finished with exit code %s', $command, $result));
             }
             catch(\Exception $e) {
-                $logger->info(sprintf('Not found command %s', $command));
+                $logger->error($e->getTraceAsString());
             }
         }
     }

@@ -165,7 +165,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
                     continue;
                 }
 
-                $this->logger->info(sprintf('Getting report for publisher %d', $publisherId));
+                $this->logger->info(sprintf('Getting report for publisher %d, using fetcher %s', $publisherId, $this->fetcher->getName()));
                 if (!array_key_exists('publisher_id', $config)) {
                     $config['publisher_id'] = $publisherId;
                 }
@@ -216,18 +216,25 @@ abstract class GetDataCommand extends ContainerAwareCommand
             return 1;
         }
 
-        $driver->manage()
-            ->timeouts()
-            ->implicitlyWait(3)
-            ->pageLoadTimeout(10)
-        ;
+        try {
 
-        $this->logger->info('Fetcher starts to get data');
-        $this->handleGetDataByDateRange($params, $driver);
+            $driver->manage()
+                ->timeouts()
+                ->implicitlyWait(3)
+                ->pageLoadTimeout(10)
+            ;
 
-        $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
+            $this->logger->info('Fetcher starts to get data');
+            $this->handleGetDataByDateRange($params, $driver);
 
-        sleep(10); // sleep 10 seconds, to assume that the download is complete.
+            $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
+
+            sleep(10); // sleep 10 seconds, to assume that the download is complete.
+        }
+        catch (\Exception $e) {
+            $this->logger->error($e->getTraceAsString());
+        }
+
         // todo check that chrome finished downloading all files before finishing
         if ($input->getOption('quit-web-driver-after-run')) {
             $driver->quit();
