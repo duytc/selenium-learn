@@ -78,7 +78,8 @@ class DeliveryReportPage extends AbstractPage
             $selectElement->selectByValue($optionToClick->getAttribute('value'));
 
             $this->driver->findElement(WebDriverBy::cssSelector('#filter_button+span'))
-                ->click();;
+                ->click()
+            ;
 
             $this->driver->wait()->until(
                 WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('download_current'))

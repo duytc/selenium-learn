@@ -65,7 +65,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
         $availableSessions = array_map(function(array $session) {
             return $session['id'];
-        }, RemoteWebDriver::getAllSessions());
+        }, RemoteWebDriver::getAllSessions($this->seleniumServerUrl));
 
         if (!in_array($sessionId, $availableSessions)) {
             if ($this->logger) {
@@ -75,7 +75,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             return false;
         }
 
-        $driver = RemoteWebDriver::createBySessionID($sessionId);
+        $driver = RemoteWebDriver::createBySessionID($sessionId, $this->seleniumServerUrl);
 
         try {
             // do a check to see if the existing session has window handles
@@ -93,7 +93,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
     public function getLastSessionId()
     {
-        $allSessions = RemoteWebDriver::getAllSessions();
+        $allSessions = RemoteWebDriver::getAllSessions($this->seleniumServerUrl);
         $lastSession = count($allSessions) < 1 ? [] : current($allSessions);
 
         return array_key_exists('id', $lastSession) ? $lastSession['id'] : null;
@@ -158,9 +158,9 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
     public function clearAllSessions()
     {
-        $sessions = RemoteWebDriver::getAllSessions();
+        $sessions = RemoteWebDriver::getAllSessions($this->seleniumServerUrl);
         foreach($sessions as $session) {
-            $driver = RemoteWebDriver::createBySessionID($session['id']);
+            $driver = RemoteWebDriver::createBySessionID($session['id'], $this->seleniumServerUrl);
             try {
                 $driver->manage()->deleteAllCookies();
             }
