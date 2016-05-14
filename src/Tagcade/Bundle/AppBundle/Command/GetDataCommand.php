@@ -232,6 +232,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 ->pageLoadTimeout(10)
             ;
 
+            $driver->manage()->window()->setPosition(new \Facebook\WebDriver\WebDriverPoint(0, 0));
+            // todo make this configurable
+            $driver->manage()->window()->setSize(new \Facebook\WebDriver\WebDriverDimension(1920, 1080));
+
             $this->logger->info('Fetcher starts to get data');
             $this->handleGetDataByDateRange($params, $driver);
 

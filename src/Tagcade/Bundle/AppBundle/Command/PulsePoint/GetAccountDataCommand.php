@@ -45,7 +45,7 @@ class GetAccountDataCommand extends BaseGetDataCommand
                 $this->logger->info(sprintf('Finished fetching report with start-date=%s, end-date=%s', $date->format('Y-m-d'), $date->format('Y-m-d')));
             }
             catch(\Exception $e) {
-               $this->logger->error(sprintf('Failed to fetch report with start-date=%s, end-date=%s', $date->format('Y-m-d'), $date->format('Y-m-d')));
+               $this->logger->error(sprintf('Failed to fetch report with start-date=%s, end-date=%s. Error was %s', $date->format('Y-m-d'), $date->format('Y-m-d'), $e->getMessage()));
             }
 
             usleep(300);

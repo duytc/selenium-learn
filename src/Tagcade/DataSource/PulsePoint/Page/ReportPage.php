@@ -17,13 +17,16 @@ class ReportPage extends AbstractPage
         $this->info('select date range');
         $reportDetailBox = $this->driver->findElement(WebDriverBy::id('reportDDLContainer'));
         if (!$reportDetailBox->isDisplayed()) {
+            $reportDetailsHeaderSel = WebDriverBy::cssSelector('.header-title');
+
+            $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($reportDetailsHeaderSel));
+
             // select
-            $this->driver->findElement(WebDriverBy::cssSelector('.header-title'))
+            $this->driver->findElement($reportDetailsHeaderSel)
                 ->click()
             ;
 
             $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('dateFrom')));
-
         }
 
         $this->info('filling start date data');

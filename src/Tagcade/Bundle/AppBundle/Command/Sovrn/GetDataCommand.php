@@ -51,7 +51,7 @@ class GetDataCommand extends BaseGetDataCommand
 
             }
             catch(\Exception $e) {
-                $this->logger->info(sprintf('Failed to fetch report with start-date=%s, end-date=%s', $myStartDate->format('Y-m-d'), $newEndDate->format('Y-m-d')));
+                $this->logger->error(sprintf('Failed to fetch report with start-date=%s, end-date=%s. Error was %s', $myStartDate->format('Y-m-d'), $newEndDate->format('Y-m-d'), $e->getMessage()));
             }
 
 
