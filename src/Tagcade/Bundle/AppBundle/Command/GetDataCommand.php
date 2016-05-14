@@ -158,8 +158,15 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 if (!array_key_exists('publisher_id', $config) && !isset($config['publisher']['id'])) {
                     throw new \Exception('Expect to have publisher_id or publisher object in the config');
                 }
-                $params = $this->createParams($config, $startDate, $endDate);
+
                 $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
+
+                if (empty($config['username']) || empty($config['base64EncryptedPassword'])) {
+                    $this->logger->info(sprintf('Invalid credentials for publisher %d, skipping', $publisherId));
+                    continue;
+                }
+
+                $params = $this->createParams($config, $startDate, $endDate);
                 if (array_key_exists($publisherId, $processedPublisherPartner)) {
                     $this->logger->info(sprintf('The publisher %d has been processed.', $publisherId));
                     continue;
