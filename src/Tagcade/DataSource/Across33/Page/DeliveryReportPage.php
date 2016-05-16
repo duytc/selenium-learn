@@ -46,6 +46,7 @@ class DeliveryReportPage extends AbstractPage
             usleep(500);
             $this->info(sprintf('downloading report for domain %s', $domain));
 
+
             $this->getAllTagReportsForSingleDomain();
 
             usleep(500);
@@ -54,14 +55,17 @@ class DeliveryReportPage extends AbstractPage
 
     protected function getAllTagReportsForSingleDomain()
     {
-        $this->driver->findElement(WebDriverBy::cssSelector('#filter_button+span'))
+        $this->logger->info('Clicking option to select download all data');
+        $this->driver->findElement(WebDriverBy::cssSelector('#filter_button+span > a'))
             ->click();
         ;
 
+        $this->logger->info('Wait for download all data menu appeared');
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('download_all_data'))
         );
 
+        $this->logger->info('click download all data');
         $this->driver->findElement(WebDriverBy::id('download_all_data'))
             ->click();
         ;

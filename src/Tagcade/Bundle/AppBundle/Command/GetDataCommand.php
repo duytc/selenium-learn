@@ -161,7 +161,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
                 $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
 
-                if (empty($config['username']) || empty($config['base64EncryptedPassword'])) {
+                if ($configFile == null && (empty($config['username']) || empty($config['base64EncryptedPassword']))) {
                     $this->logger->info(sprintf('Invalid credentials for publisher %d, skipping', $publisherId));
                     continue;
                 }
