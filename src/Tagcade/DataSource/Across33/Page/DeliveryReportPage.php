@@ -12,16 +12,17 @@ use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class DeliveryReportPage extends AbstractPage
 {
-    const URL = 'http://www.tynt.com/reports';
+    const URL = 'https://platform.33across.com/reports';
 
-    const URL_DELIVERY = 'http://www.tynt.com/reports/delivery';
+    const URL_DELIVERY = 'https://platform.33across.com/reports/delivery';
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
         // step 0. select filter
         $this->info('select filter');
-        $links = $this->driver->findElements(WebDriverBy::cssSelector('#overview-stats a'));
+        $links = $this->driver->findElements(WebDriverBy::cssSelector('td a'));
         $reportLinks = [];
+
         foreach ($links as $link) {
             $href = $link->getAttribute('href');
             $pos = strpos($href, '/reports?sws');
