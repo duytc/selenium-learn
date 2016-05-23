@@ -63,7 +63,8 @@ class EarningPage extends AbstractPage
         foreach($elements as $element) {
             $text = $element->getText();
             if ($text == 'Download') {
-                $element->click();
+                //$element->click();
+                $this->downloadThenWaitUntilComplete($element);
                 break;
             }
         }

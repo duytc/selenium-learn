@@ -33,9 +33,9 @@ class IncomeReportPage extends AbstractPage
 
         $this->info('downloading excel report');
 
-        $this->driver->findElement(WebDriverBy::id('tags-export-to-excel'))
-            ->click()
-        ;
+        $downloadElement = $this->driver->findElement(WebDriverBy::id('tags-export-to-excel'));
+
+        $this->downloadThenWaitUntilComplete($downloadElement);
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate = null)

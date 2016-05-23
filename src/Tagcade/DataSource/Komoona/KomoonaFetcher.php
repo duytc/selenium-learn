@@ -21,6 +21,7 @@ class KomoonaFetcher extends PartnerFetcherAbstract implements KomoonaFetcherInt
 
         // Step 2: view report
         $incomeReportPage = new IncomeReportPage($driver, $this->logger);
+        $incomeReportPage->setDownloadFileHelper($this->downloadFileHelper);
 
         $this->logger->info(sprintf('Navigating to report page %s', $incomeReportPage->getPageUrl()));
         $incomeReportPage->navigate();

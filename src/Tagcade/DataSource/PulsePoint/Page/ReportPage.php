@@ -65,7 +65,8 @@ class ReportPage extends AbstractPage
         $exportButton = $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'));
         // click export to excel
         $this->info('start downloading reports');
-        $exportButton->click();
+        //$exportButton->click();
+        $this->downloadThenWaitUntilComplete($exportButton);
         $this->info('Clicked downloading reports');
 
     }

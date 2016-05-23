@@ -17,3 +17,4 @@ services:
         class: Tagcade\DataSource\PulsePoint\PulsePointFetcher
         calls:
             - [setLogger, [@logger]]
+            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
