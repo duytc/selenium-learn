@@ -24,6 +24,7 @@ class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammer
         // Step 2: view report
         $this->logger->info('entering download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
+        $reportingPage->setDownloadFileHelper($this->downloadFileHelper);
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
         }

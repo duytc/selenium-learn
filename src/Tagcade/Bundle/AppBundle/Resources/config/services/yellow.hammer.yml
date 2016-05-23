@@ -12,3 +12,4 @@ services:
         class: Tagcade\DataSource\YellowHammer\YellowHammerFetcher
         calls:
             - [setLogger, [@logger]]
+            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
