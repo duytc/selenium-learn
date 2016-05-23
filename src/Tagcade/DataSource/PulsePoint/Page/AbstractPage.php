@@ -86,6 +86,7 @@ abstract class AbstractPage
     public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement)
     {
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
+            $this->logger->info("Instance Helper error");
             return $this;
         }
 

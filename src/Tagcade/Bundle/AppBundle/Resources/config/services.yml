@@ -5,6 +5,7 @@ imports:
     - { resource: services/across33.yml }
     - { resource: services/sovrn.yml }
     - { resource: services/pulse.point.yml }
+    - { resource: services/media.yml }
 
 services:
     yaml:
