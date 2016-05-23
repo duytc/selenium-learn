@@ -204,8 +204,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $webDriverFactory->setConfig($config);
         $webDriverFactory->setParams($params);
 
+
         $forceNewSession = $input->getOption('force-new-session');
         $sessionId = null;
+
         if ($forceNewSession == false) {
             $sessionId = $webDriverFactory->getLastSessionId();
         }
@@ -219,7 +221,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $driver = $webDriverFactory->getWebDriver($identifier, $dataPath);
 
         if (!$driver) {
-            $this->logger->critical('Failed to create web driver from sessio');
+            $this->logger->critical('Failed to create web driver from session');
             return 1;
         }
 
