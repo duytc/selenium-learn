@@ -93,7 +93,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
         $partnerCName = $input->getOption('partner-cname');
         $this->createFetcher($partnerCName);
 
-
         // todo we need to write to unique directories per publisher
         $dataPath = $input->getOption('data-path');
         if ($dataPath == null) {
@@ -237,6 +236,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $driver->manage()->window()->setSize(new \Facebook\WebDriver\WebDriverDimension(1920, 1080));
 
             $this->logger->info('Fetcher starts to get data');
+
             $this->handleGetDataByDateRange($params, $driver);
 
             $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));

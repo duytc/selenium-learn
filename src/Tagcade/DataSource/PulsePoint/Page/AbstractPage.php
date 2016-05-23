@@ -4,9 +4,12 @@ namespace Tagcade\DataSource\PulsePoint\Page;
 
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
+use Tagcade\Service\DownloadFileHelper;
+use Tagcade\Service\DownloadFileHelperInterface;
 
 abstract class AbstractPage
 {
@@ -19,10 +22,23 @@ abstract class AbstractPage
      */
     protected $logger;
 
+    /**
+     * @var DownloadFileHelperInterface
+     */
+    protected $downloadFileHelper;
+
     public function __construct(RemoteWebDriver $driver, $logger = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;
+    }
+
+    /**
+     * @param $downloadFileHelper
+     */
+    public function setDownloadFileHelper($downloadFileHelper)
+    {
+        $this->downloadFileHelper = $downloadFileHelper;
     }
 
     /**
@@ -60,6 +76,36 @@ abstract class AbstractPage
     protected function hasLogger()
     {
         return $this->logger instanceof LoggerInterface;
+    }
+
+
+    /**
+     * @param RemoteWebElement $removeWebElement
+     * @return $this
+     */
+    public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement)
+    {
+        if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
+            return $this;
+        }
+
+        $this->downloadFileHelper->downloadThenWaitUntilComplete($removeWebElement);
+
+        return $this;
+    }
+
+
+    /**
+     * @return $this|mixed
+     */
+    public  function deleteFilesByExtension() {
+
+        if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
+            return $this;
+        }
+
+        return $this->downloadFileHelper->deleteFilesByExtension();
+
     }
 
     /**

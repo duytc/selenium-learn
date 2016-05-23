@@ -24,6 +24,9 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
 
         $this->logger->info('enter download report page');
         $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
+        $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
+
+
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
         }

@@ -39,6 +39,13 @@ services:
         tags:
             -  { name: console.command }
 
+    tagcade.data_source.fetcher.helper:
+        class: Tagcade\Service\DownloadFileHelper
+        arguments:
+            - %tagcade.default_data_path%
+            - %tagcade_download_time_out%
+            - @logger
+
     ### rest client
     rest.client:
         class: RestClient\CurlRestClient

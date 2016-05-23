@@ -3,6 +3,7 @@
 namespace Tagcade\DataSource\Across33\Page;
 
 use DateTime;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -46,10 +47,7 @@ class DeliveryReportPage extends AbstractPage
 
             usleep(500);
             $this->info(sprintf('downloading report for domain %s', $domain));
-
-
             $this->getAllTagReportsForSingleDomain();
-
             usleep(500);
         }
     }
@@ -67,11 +65,12 @@ class DeliveryReportPage extends AbstractPage
         );
 
         $this->logger->info('click download all data');
-        $this->driver->findElement(WebDriverBy::id('download_all_data'))
-            ->click();
-        ;
 
-        sleep(20); // download delay //TODO verify the location of downloaded file
+        /** RemoveWebDriver $downloadElement */
+        $downloadElement =  $this->driver->findElement(WebDriverBy::id('download_all_data'));
+
+        $this->downloadThenWaitUntilComplete($downloadElement);
+
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)

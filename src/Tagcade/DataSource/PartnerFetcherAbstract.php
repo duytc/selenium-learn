@@ -13,6 +13,24 @@ abstract class PartnerFetcherAbstract {
 
     protected $name;
 
+    protected $downloadFileHelper;
+
+    /**
+     * @return mixed
+     */
+    public function getDownloadFileHelper()
+    {
+        return $this->downloadFileHelper;
+    }
+
+    /**
+     * @param mixed $downloadFileHelper
+     */
+    public function setDownloadFileHelper($downloadFileHelper)
+    {
+        $this->downloadFileHelper = $downloadFileHelper;
+    }
+
     /**
      * @return LoggerInterface
      */
