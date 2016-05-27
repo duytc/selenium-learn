@@ -166,7 +166,10 @@ class DateSelectWidget extends AbstractWidget {
 
                 if($dateElement->getText() == $day && $dateElement->getAttribute('class') !== 'week' && $dateElement->getAttribute('class') !=='available off') {
 
-                    $cssValue = sprintf('body > div.daterangepicker.dropdown-menu.opensright > div.calendar.right > div > table > tbody > tr:nth-child(%d) > td:nth-child(%d)',$wkey+1, $key+1);
+                    $cssValue = sprintf(
+                        'body > div.daterangepicker.dropdown-menu.opensright > div.calendar.right > div > table > tbody > tr:nth-child(%d) > td:nth-child(%d)',
+                        $wkey+1, $key+1);
+
                     $this->driver->findElement(WebDriverBy::cssSelector($cssValue))->click();
 
                     $found = true;

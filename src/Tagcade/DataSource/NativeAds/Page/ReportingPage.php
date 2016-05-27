@@ -10,6 +10,7 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Tagcade\DataSource\NativeAds\Widget\DateSelectWidget;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
@@ -17,7 +18,6 @@ class ReportingPage extends AbstractPage {
 
     const URL = 'https://nativeads.com/publisher/reports-widget.php';
     const REPORT_FILE_NAME = 'report';
-
 
     /**
      * @param \DateTime $startDate
@@ -49,27 +49,50 @@ class ReportingPage extends AbstractPage {
         }
 
         $path = $this->getPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
+        $dataToWrite = [];
 
         $this->logger->info('Getting header of element');
         $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
 
-        $dataToWrite = [];
         $headerData = $this->getHeaderFromTable($tableElement);
         $dataToWrite[] = $headerData;
 
+        $this->logger->info('Getting table data for range days ');
+        $rangeDaysDatas = $this->getDataForRangeDays($startDate, $endDate);
+
+        foreach($rangeDaysDatas as $rangeDaysData) {
+
+            foreach($rangeDaysData as $adTagData) {
+                $dataToWrite[]=$adTagData;
+            }
+        }
+
+        $this->logger->info('Write data to file');
+        $this->arrayToCSVFile($path,$dataToWrite);
+    }
+
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return array
+     * @throws InvalidSelectorException
+     */
+
+    public function getDataForRangeDays (\DateTime $startDate, \DateTime $endDate)
+    {
         $interval = $startDate->diff($endDate);
         $this->logger->info(sprintf('Number of days: %s',$interval->days));
         $dateInterval = new \DateInterval('P1D'); // 1 day
         $startDate = $startDate->sub($dateInterval);
 
+        $allData =[];
 
         for ($date = 0; $date <= $interval->days ; $date++)
         {
-
             $dateReport = $startDate->add($dateInterval);
             $this->logger->info(sprintf('Date to save data %s', $dateReport->format('y-m-d')));
 
-            $dataToWrite[] = array($dateReport->format('y-m-d'));
+            $dateToWrite[] = array($dateReport->format('y-m-d'));
 
             $this->setDownloadDate($dateReport);
 
@@ -78,19 +101,17 @@ class ReportingPage extends AbstractPage {
             $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
             $rows = $this->getDataFromTable($tableElement);
 
+            $allData[] = $dateToWrite;
+            $dateToWrite = null;
+            $allData[] = $rows;
+
             $this->logger->info(sprintf('Get data from table finish'));
 
-
-            foreach ($rows as $row) {
-                $dataToWrite[] = $row;
-            }
         }
 
-        $this->logger->info('Write data to file');
-        $this->arrayToCSVFile($path,$dataToWrite);
+        return $allData;
 
     }
-
 
     /**
      * @param RemoteWebElement $tableElement
