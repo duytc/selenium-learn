@@ -27,10 +27,30 @@ abstract class AbstractPage
      */
     protected $downloadFileHelper;
 
+
+    protected $config;
+
+
     public function __construct(RemoteWebDriver $driver, $logger = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param mixed $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
     }
 
     /**
@@ -200,5 +220,26 @@ abstract class AbstractPage
         usleep(200);
 
         return;
+    }
+
+    /**
+     * @param $path
+     * @param $dataRows
+     * @throws \Exception
+     */
+    public function arrayToCSVFile($path, $dataRows)
+    {
+        if(is_dir($path)) {
+            throw new \Exception ('Path must be file');
+        }
+        if (!is_array($dataRows)) {
+            throw new \Exception ('Data to save csv file expect array type');
+        }
+
+        $file = fopen($path,'w');
+        foreach ($dataRows as $dataRow) {
+            fputcsv($file, $dataRow);
+        }
+        fclose($file);
     }
 }

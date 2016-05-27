@@ -349,6 +349,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
             ->setPassword($password)
             ->setStartDate(clone $startDate)
             ->setEndDate(clone $endDate)
+            ->setConfig($config)
         ;
     }
 

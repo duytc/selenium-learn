@@ -41,4 +41,15 @@ interface PartnerParamInterface {
      * @param \DateTime $endDate
      */
     public function setEndDate($endDate);
+
+    /**
+     * @return mixed
+     */
+    public function getConfig();
+
+    /**
+     * @param mixed $config
+     */
+    public function setConfig($config);
+
 }
