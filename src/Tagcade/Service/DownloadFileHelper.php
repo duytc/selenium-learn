@@ -178,4 +178,12 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
 
         return $expectFiles;
     }
+
+    /**
+     * @return string
+     */
+    public  function getRootDirectory ()
+    {
+        return $this->downloadRootDirectory;
+    }
 }

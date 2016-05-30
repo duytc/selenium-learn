@@ -25,6 +25,31 @@ class PartnerParams implements PartnerParamInterface
     protected $endDate;
 
     /**
+     * @var $config
+     */
+    protected $config;
+
+    /**
+     * @return mixed
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param mixed $config
+     * @return $this
+     */
+
+    public function setConfig($config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
      * @return String
      */
     public function getUsername()

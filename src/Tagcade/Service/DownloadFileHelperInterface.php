@@ -29,4 +29,10 @@ interface DownloadFileHelperInterface
      * @return mixed
      */
     public function downloadThenWaitUntilComplete(RemoteWebElement $clickableElement);
+
+    /**
+     * Return root directory
+     * @return mixed
+     */
+    public function getRootDirectory();
 }
