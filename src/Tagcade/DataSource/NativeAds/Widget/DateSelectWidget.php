@@ -54,14 +54,24 @@ class DateSelectWidget extends AbstractWidget {
         $month = $startDate->format('F');
         $day = $startDate->format('d');
 
+        $thWeek =  $startDate->format('W');
+        var_dump($thWeek);
+
         $selectElement =  $this->driver->findElement(WebDriverBy::id('reportrange2'));
         $selectElement->click();
 
 
         $customElement =  $this->driver->findElement(
-            WebDriverBy::cssSelector('body > div.daterangepicker.dropdown-menu.opensright > div.ranges > ul > li.active')
+            WebDriverBy::cssSelector('body > div.daterangepicker.dropdown-menu.opensright > div.ranges > ul > li:nth-child(7)')
         );
         $customElement->click();
+
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated (
+                WebDriverBy::cssSelector('body > div.daterangepicker.dropdown-menu.opensright > div.calendar.left > div > table > thead > tr:nth-child(1) > th.month > select.monthselect'
+                )
+            )
+        );
 
         $yearFromElement =  new WebDriverSelect (
             $this->driver->findElement(
@@ -75,11 +85,10 @@ class DateSelectWidget extends AbstractWidget {
                 WebDriverBy::cssSelector(
                     'body > div.daterangepicker.dropdown-menu.opensright > div.calendar.left > div > table > thead > tr:nth-child(1) > th.month > select.monthselect')
             ));
-
         $monthFromElement->selectByVisibleText($month);
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(
-                WebDriverBy::xpath('/html/body/div[6]/div[2]/div/table/tbody/tr[1]/td'
+            WebDriverExpectedCondition::visibilityOfElementLocated (
+                WebDriverBy::xpath('/html/body/div[6]/div[2]/div/table/tbody/tr/td'
                 )
             )
         );
@@ -130,7 +139,6 @@ class DateSelectWidget extends AbstractWidget {
         $year = $endDate->format('Y');
         $month = $endDate->format('F');
         $day = $endDate->format('d');
-
 
         $yearFromElement =  new WebDriverSelect (
             $this->driver->findElement(
