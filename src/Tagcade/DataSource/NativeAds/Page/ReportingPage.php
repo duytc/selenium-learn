@@ -48,18 +48,26 @@ class ReportingPage extends AbstractPage {
             $this->driver->manage()->timeouts()->setScriptTimeout(10);
         }
 
-        $path = $this->getPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
-        $dataToWrite = [];
 
-        $this->logger->info('Getting header of element');
+        $this->logger->info('Getting header and data for range days ');
         $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
 
         $headerData = $this->getHeaderFromTable($tableElement);
+        $rangeDaysDatas = $this->getDataForRangeDays(clone $startDate, clone $endDate);
+
+        $dataToWrite = $this->createDataToWrite($headerData, $rangeDaysDatas);
+
+        $this->logger->info('Write data to file');
+        $path = $this->getPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
+        $this->arrayToCSVFile($path, $dataToWrite);
+    }
+
+
+    public function createDataToWrite ($headerData, $rangeDaysDatas)
+    {
+        $dataToWrite = [];
+
         $dataToWrite[] = $headerData;
-
-        $this->logger->info('Getting table data for range days ');
-        $rangeDaysDatas = $this->getDataForRangeDays($startDate, $endDate);
-
         foreach($rangeDaysDatas as $rangeDaysData) {
 
             foreach($rangeDaysData as $adTagData) {
@@ -67,9 +75,9 @@ class ReportingPage extends AbstractPage {
             }
         }
 
-        $this->logger->info('Write data to file');
-        $this->arrayToCSVFile($path,$dataToWrite);
+        return $dataToWrite;
     }
+
 
     /**
      * @param \DateTime $startDate
@@ -175,43 +183,6 @@ class ReportingPage extends AbstractPage {
         }
 
         return $dataRows;
-    }
-
-    /**
-     * Get path to store csv file
-     * @param \DateTime $startDate
-     * @param \DateTime $endDate
-     * @return string
-     */
-    protected  function getPath(\DateTime $startDate, \DateTime $endDate, $config ,$fileName)
-    {
-
-        $rootDirectory = $this->downloadFileHelper->getRootDirectory();
-        $publisherId = $config['publisher_id'];
-        $partnerCName = $config['partner_cname'];
-
-        $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
-        if (!is_dir($publisherPath)) {
-            mkdir($publisherPath);
-        }
-
-        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
-        if (!is_dir($partnerPath)) {
-            mkdir($partnerPath);
-        }
-
-        $directory = sprintf('%s/%s-%s', $partnerPath , $startDate->format('ymd'), $endDate->format('ymd'));
-        var_dump($directory);
-        if (!is_dir($directory)) {
-            mkdir($directory);
-        }
-
-        $path = sprintf('%s/%s.csv', $directory, $fileName);
-        if (file_exists($path)) {
-            unlink($path);
-        }
-
-        return $path;
     }
 
     /**

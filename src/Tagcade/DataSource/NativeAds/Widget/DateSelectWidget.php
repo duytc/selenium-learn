@@ -54,12 +54,8 @@ class DateSelectWidget extends AbstractWidget {
         $month = $startDate->format('F');
         $day = $startDate->format('d');
 
-        $thWeek =  $startDate->format('W');
-        var_dump($thWeek);
-
         $selectElement =  $this->driver->findElement(WebDriverBy::id('reportrange2'));
         $selectElement->click();
-
 
         $customElement =  $this->driver->findElement(
             WebDriverBy::cssSelector('body > div.daterangepicker.dropdown-menu.opensright > div.ranges > ul > li:nth-child(7)')

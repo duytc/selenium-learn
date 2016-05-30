@@ -232,6 +232,7 @@ abstract class AbstractPage
         if(is_dir($path)) {
             throw new \Exception ('Path must be file');
         }
+
         if (!is_array($dataRows)) {
             throw new \Exception ('Data to save csv file expect array type');
         }
@@ -242,4 +243,45 @@ abstract class AbstractPage
         }
         fclose($file);
     }
+
+    /**
+     * Get path to store csv file
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return string
+     */
+    protected function getPath(\DateTime $startDate, \DateTime $endDate, $config ,$fileName)
+    {
+
+        $rootDirectory = $this->downloadFileHelper->getRootDirectory();
+        $publisherId = $config['publisher_id'];
+        $partnerCName = $config['partner_cname'];
+
+        $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
+        if (!is_dir($publisherPath)) {
+            mkdir($publisherPath);
+        }
+
+        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
+        if (!is_dir($partnerPath)) {
+            mkdir($partnerPath);
+        }
+
+        $directory = sprintf('%s/%s-%s', $partnerPath , $startDate->format('ymd'), $endDate->format('ymd'));
+
+        if (!is_dir($directory)) {
+            mkdir($directory);
+        }
+
+        $path = sprintf('%s/%s.csv', $directory, $fileName);
+
+        $extension = 1;
+        while (file_exists($path)) {
+            $path = sprintf('%s/%s(%d).csv', $directory, $fileName, $extension);
+            $extension ++;
+        }
+
+        return $path;
+    }
+
 }
