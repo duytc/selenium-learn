@@ -6,6 +6,7 @@ imports:
     - { resource: services/sovrn.yml }
     - { resource: services/pulse.point.yml }
     - { resource: services/media.yml }
+    - { resource: services/cpmbase.yml }
     - { resource: services/nativeads.yml }
 
 services:

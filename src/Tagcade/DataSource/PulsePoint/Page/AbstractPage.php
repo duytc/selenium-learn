@@ -116,6 +116,12 @@ abstract class AbstractPage
     }
 
 
+    public function getRootDirectory ()
+    {
+        return $this->downloadFileHelper->getRootDirectory();
+    }
+
+
     /**
      * @return $this|mixed
      */
@@ -157,6 +163,31 @@ abstract class AbstractPage
             }
 
             $overlaySel = WebDriverBy::cssSelector('div.blockUI.blockOverlay');
+            $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated($overlaySel));
+        }
+
+        if ($this->hasLogger()) {
+            $this->logger->info('Overlay has disappeared');
+        }
+    }
+
+    public function waitForJquery()
+    {
+        $this->driver->wait()->until(function (RemoteWebDriver $driver) {
+            return $driver->executeScript("return !!window.jQuery && window.jQuery.active == 0");
+        });
+    }
+
+    public function waitForOverlay($overlayCssSelector)
+    {
+        $overlayPresent = $this->driver->executeScript(sprintf("return !!document.querySelector('%s')", $overlayCssSelector));
+
+        if ($overlayPresent) {
+            if ($this->hasLogger()) {
+                $this->logger->info('Waiting for overlay to disappear');
+            }
+
+            $overlaySel = WebDriverBy::cssSelector($overlayCssSelector);
             $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated($overlaySel));
         }
 
@@ -210,6 +241,12 @@ abstract class AbstractPage
     {
         $domain = parse_url($this->driver->getCurrentURL());
         $domain = $domain['host'];
+
+        $host_names = explode(".", $domain);
+        $domain = $host_names[count($host_names)-2] . "." . $host_names[count($host_names)-1];
+
+        $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
+        $this->logger->info(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
 
         if (strpos($this->getPageUrl(), $domain) > -1) {
             return;

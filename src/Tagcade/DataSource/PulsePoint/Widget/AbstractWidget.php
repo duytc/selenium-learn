@@ -18,4 +18,29 @@ abstract class AbstractWidget
     {
         $this->driver = $driver;
     }
+
+    /**
+     * @param $currentDate
+     * @param $expectDate
+     * @return bool
+     */
+
+    public function isPrevioustNavigator($currentDate, $expectDate )
+    {
+
+        $currentMonth = date('m', strtotime($currentDate));
+        $currentYear = date('Y', strtotime($currentDate));
+
+        $expectMonth = date('m', strtotime($expectDate));
+        $expectYear = date('Y', strtotime($expectDate));;
+
+        if(( (int)$currentYear > (int)$expectYear) || ($currentYear == $expectYear && $currentMonth > $expectMonth)) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+
 }
