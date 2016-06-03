@@ -178,7 +178,15 @@ class ReportingPage extends AbstractPage  {
         }
 
         $dataRows = $this->getDataFromTable($tableElement);
-        $this->arrayToCSVFile($path, $dataRows);
+
+        $dataToWrite = [];
+
+        $dataToWrite[] = array($fileName);
+        foreach ($dataRows as $dataRow) {
+            $dataToWrite[] = $dataRow;
+        }
+
+        $this->arrayToCSVFile($path, $dataToWrite);
     }
 
     /**

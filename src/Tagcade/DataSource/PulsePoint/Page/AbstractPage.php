@@ -253,7 +253,6 @@ abstract class AbstractPage
         }
 
         $this->navigate();
-
         usleep(200);
 
         return;
@@ -291,8 +290,8 @@ abstract class AbstractPage
     {
 
         $rootDirectory = $this->downloadFileHelper->getRootDirectory();
-        $publisherId = $config['publisher_id'];
-        $partnerCName = $config['partner_cname'];
+        $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
+        $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
 
         $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
         if (!is_dir($publisherPath)) {

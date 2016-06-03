@@ -48,7 +48,6 @@ class ReportingPage extends AbstractPage {
             $this->driver->manage()->timeouts()->setScriptTimeout(10);
         }
 
-
         $this->logger->info('Getting header and data for range days ');
         $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
 
@@ -98,13 +97,13 @@ class ReportingPage extends AbstractPage {
         for ($date = 0; $date <= $interval->days ; $date++)
         {
             $dateReport = $startDate->add($dateInterval);
-            $this->logger->info(sprintf('Date to save data %s', $dateReport->format('y-m-d')));
+            $this->logger->info(sprintf('Date to save data %s', $dateReport->format('Y-m-d')));
 
-            $dateToWrite[] = array($dateReport->format('y-m-d'));
+            $dateToWrite[] = array($dateReport->format('Y-m-d'));
 
             $this->setDownloadDate($dateReport);
 
-            $this->logger->info(sprintf('Set date %s finish', $dateReport->format('y-m-d')));
+            $this->logger->info(sprintf('Set date %s finish', $dateReport->format('Y-m-d')));
 
             $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
             $rows = $this->getDataFromTable($tableElement);
