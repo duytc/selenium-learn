@@ -14,13 +14,18 @@ use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class Reportingpage extends AbstractPage {
 
+    const URL                       = 'https://traffic.a4g.com/www/admin/plugins/advancedStats/advancedStats-trafficker.php?entity=web';
 
-    const URL = 'https://traffic.a4g.com/www/admin/plugins/advancedStats/advancedStats-trafficker.php?entity=web';
-    const OPTION_SPECIFIC_VALUE = 'specific';
-
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @throws TimeOutException
+     * @throws \Exception
+     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
+     * @throws null
+     */
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
-
         $this->selectDateRange($startDate, $endDate);
 
         $goButtonCssSelector = '#period_form > input:nth-child(9)';
@@ -30,7 +35,6 @@ class Reportingpage extends AbstractPage {
 
         $this->waitForJquery();
         sleep(2);
-
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#thirdLevelContent > table.tableStats > tbody:nth-child(3)'))
         );
@@ -44,17 +48,21 @@ class Reportingpage extends AbstractPage {
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($zoneCssSelector))
         );
+
         $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector($zoneCssSelector));
-
         $this->downloadThenWaitUntilComplete($downloadBtn);
-
     }
 
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return $this
+     */
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
         $dateWidget = new DateSelectWidget($this->driver);
         $dateWidget->setDateRange($startDate, $endDate);
+
         return $this;
     }
-
 } 
