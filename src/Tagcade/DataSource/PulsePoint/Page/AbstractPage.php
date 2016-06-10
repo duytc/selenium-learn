@@ -294,6 +294,10 @@ abstract class AbstractPage
 
         $RunningCommandDate =  new \DateTime('now');
 
+        if (!is_dir($rootDirectory)) {
+            mkdir($rootDirectory);
+        }
+
         $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
         if (!is_dir($publisherPath)) {
             mkdir($publisherPath);
