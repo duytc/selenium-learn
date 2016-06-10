@@ -61,7 +61,6 @@ class HomePage extends AbstractPage {
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="/reporting"]')));
 
         return true;
-
     }
 
     /**
@@ -80,5 +79,4 @@ class HomePage extends AbstractPage {
             return false;
         }
     }
-
 } 

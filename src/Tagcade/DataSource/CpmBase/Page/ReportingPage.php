@@ -25,7 +25,7 @@ class ReportingPage extends AbstractPage  {
 
     const GROUP_BY_SIZE_VALUE ='size';
     const GRANULARITY_DAY_VALUE = 'day';
-    const PARTNER_CNAME_VALUE = 'CpmBase';
+    const NO_REPORT_DATA_FOUND = 'No report data found using the specified settings.';
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
@@ -84,6 +84,15 @@ class ReportingPage extends AbstractPage  {
 
             $this->logger->info(sprintf('Finished waiting for displaying report of site %s', $site));
 
+            $charElementCss = 'body > div.wrap > div.content > div > div.inner.reporting > div.chart';
+            $charElement = $this->driver->findElement(WebDriverBy::cssSelector($charElementCss));
+            $textValueOfChartElement = $charElement->getText();
+
+            if (self::NO_REPORT_DATA_FOUND == $textValueOfChartElement) {
+                $this->logger->info(sprintf('No data for site %s', $site));
+                continue;
+            }
+
             try {
                 $this->driver->wait()->until(
                     WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('table[class="table"]'))
@@ -93,12 +102,10 @@ class ReportingPage extends AbstractPage  {
                 $this->saveToCSVFileFromTable($tableElement, $startDate, $endDate, $site);
             } catch(NoSuchElementException $e) {
 
-                $this->logger->info(sprintf('No data for site %s',$site));
+                $this->logger->info(sprintf('Exception when get data for site %s, exception message %s',$site, $e->getMessage()));
             }
-
         }
     }
-
 
     /**
      * Selected granularity options for report
@@ -166,7 +173,6 @@ class ReportingPage extends AbstractPage  {
      */
     public function saveToCSVFileFromTable(RemoteWebElement $tableElement, \DateTime $startDate, \DateTime $endDate, $fileName)
     {
-
         $path = $this->getPath($startDate,$endDate, $this->getConfig(), $fileName);
 
         if (!$tableElement instanceof RemoteWebElement) {
