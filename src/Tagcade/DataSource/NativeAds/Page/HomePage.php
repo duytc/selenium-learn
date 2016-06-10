@@ -55,9 +55,6 @@ class HomePage extends AbstractPage {
         $this->info('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('button[class="btn btn-primary"]'))->click();
 
-        //$this->driver->manage()->timeouts()->pageLoadTimeout(20);
-        //$this->driver->manage()->timeouts()->implicitlyWait(20);
-
         try {
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="logout.php"]')));
             return true;

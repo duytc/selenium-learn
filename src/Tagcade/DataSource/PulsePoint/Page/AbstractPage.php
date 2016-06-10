@@ -292,6 +292,7 @@ abstract class AbstractPage
         $rootDirectory = $this->downloadFileHelper->getRootDirectory();
         $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
         $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
+        $RunningCommandDate =  new \DateTime('now');
 
         $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
         if (!is_dir($publisherPath)) {
@@ -303,7 +304,7 @@ abstract class AbstractPage
             mkdir($partnerPath);
         }
 
-        $directory = sprintf('%s/%s-%s', $partnerPath , $startDate->format('ymd'), $endDate->format('ymd'));
+        $directory = sprintf('%s/%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'));
 
         if (!is_dir($directory)) {
             mkdir($directory);

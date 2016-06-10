@@ -32,7 +32,6 @@ class ReportingPage extends AbstractPage {
         $reportDisplay= $this->driver->findElement(WebDriverBy::cssSelector('a[href="reports-widget.php"]'))->isDisplayed();
 
         if( false == $reportDisplay ) {
-
             $this->driver->findElement(WebDriverBy::cssSelector('a[href="#"]'))
                 ->click();
 
@@ -61,14 +60,17 @@ class ReportingPage extends AbstractPage {
         $this->arrayToCSVFile($path, $dataToWrite);
     }
 
-
+    /**
+     * @param $headerData
+     * @param $rangeDaysDatas
+     * @return array
+     */
     public function createDataToWrite ($headerData, $rangeDaysDatas)
     {
         $dataToWrite = [];
-
         $dataToWrite[] = $headerData;
-        foreach($rangeDaysDatas as $rangeDaysData) {
 
+        foreach($rangeDaysDatas as $rangeDaysData) {
             foreach($rangeDaysData as $adTagData) {
                 $dataToWrite[]=$adTagData;
             }
@@ -77,14 +79,12 @@ class ReportingPage extends AbstractPage {
         return $dataToWrite;
     }
 
-
     /**
      * @param \DateTime $startDate
      * @param \DateTime $endDate
      * @return array
      * @throws InvalidSelectorException
      */
-
     public function getDataForRangeDays (\DateTime $startDate, \DateTime $endDate)
     {
         $interval = $startDate->diff($endDate);
@@ -113,11 +113,9 @@ class ReportingPage extends AbstractPage {
             $allData[] = $rows;
 
             $this->logger->info(sprintf('Get data from table finish'));
-
         }
 
         return $allData;
-
     }
 
     /**
@@ -157,15 +155,18 @@ class ReportingPage extends AbstractPage {
      * @throws InvalidSelectorException
      */
     public function getDataFromTable (RemoteWebElement $tableElement) {
+        $dataRows =[];
+        $oneRows =[];
+
         if(!$tableElement instanceof RemoteWebElement) {
             throw new InvalidSelectorException('Invalid remove web element');
         }
-        $dataRows =[];
-        $oneRows =[];
+
         $this->logger->info('Find table element');
         /** @var RemoteWebElement $tableRow */
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools')));
         $rowElements = $tableElement->findElements(WebDriverBy::xpath('//*[@id="datatable_tabletools"]/tbody/tr'));
+
         $this->logger->info('Get data from table element');
         foreach ($rowElements as $rowElement) {
             $tdElements = $rowElement->findElements(WebDriverBy::cssSelector('td'));
