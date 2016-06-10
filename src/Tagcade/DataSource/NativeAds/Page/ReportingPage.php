@@ -62,13 +62,17 @@ class ReportingPage extends AbstractPage {
     }
 
 
+    /**
+     * @param $headerData
+     * @param $rangeDaysDatas
+     * @return array
+     */
     public function createDataToWrite ($headerData, $rangeDaysDatas)
     {
         $dataToWrite = [];
 
         $dataToWrite[] = $headerData;
         foreach($rangeDaysDatas as $rangeDaysData) {
-
             foreach($rangeDaysData as $adTagData) {
                 $dataToWrite[]=$adTagData;
             }
@@ -76,7 +80,6 @@ class ReportingPage extends AbstractPage {
 
         return $dataToWrite;
     }
-
 
     /**
      * @param \DateTime $startDate
@@ -113,11 +116,9 @@ class ReportingPage extends AbstractPage {
             $allData[] = $rows;
 
             $this->logger->info(sprintf('Get data from table finish'));
-
         }
 
         return $allData;
-
     }
 
     /**
@@ -157,11 +158,13 @@ class ReportingPage extends AbstractPage {
      * @throws InvalidSelectorException
      */
     public function getDataFromTable (RemoteWebElement $tableElement) {
+        $dataRows =[];
+        $oneRows =[];
+
         if(!$tableElement instanceof RemoteWebElement) {
             throw new InvalidSelectorException('Invalid remove web element');
         }
-        $dataRows =[];
-        $oneRows =[];
+
         $this->logger->info('Find table element');
         /** @var RemoteWebElement $tableRow */
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools')));

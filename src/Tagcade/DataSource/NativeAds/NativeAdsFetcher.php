@@ -41,7 +41,6 @@ class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetch
         if (!$reportingPage->isCurrentUrl()) {
             $this->logger->info('Comming to navigate');
             $reportingPage->navigate();
-           // $driver->manage()->timeouts()->pageLoadTimeout(20);
         }
 
         $this->logger->info('Start downloading reports');
