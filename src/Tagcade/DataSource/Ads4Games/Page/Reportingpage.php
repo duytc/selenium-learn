@@ -14,7 +14,7 @@ use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class Reportingpage extends AbstractPage {
 
-    const URL                       = 'https://traffic.a4g.com/www/admin/plugins/advancedStats/advancedStats-trafficker.php?entity=web';
+    const URL     =     'https://traffic.a4g.com/www/admin/plugins/advancedStats/advancedStats-trafficker.php?entity=web';
 
     /**
      * @param \DateTime $startDate

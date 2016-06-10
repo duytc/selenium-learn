@@ -110,7 +110,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
         $this->logger->info(sprintf('Start to wait for data download with currentPartialDownloadCount = %d', $currentPartialDownloadCount));
 
         $foundPartialFile = false;
-        $totalWaitTime = 0;
+        $totalWaitTime = 0.000000000;
 
         do {
 
@@ -134,6 +134,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                     break;
                 }
 
+                $this->logger->info(sprintf('Continue wait, total waiting time =%f', $totalWaitTime));
                 continue;
             }
 
