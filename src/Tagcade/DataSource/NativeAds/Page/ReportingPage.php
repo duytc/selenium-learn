@@ -32,7 +32,6 @@ class ReportingPage extends AbstractPage {
         $reportDisplay= $this->driver->findElement(WebDriverBy::cssSelector('a[href="reports-widget.php"]'))->isDisplayed();
 
         if( false == $reportDisplay ) {
-
             $this->driver->findElement(WebDriverBy::cssSelector('a[href="#"]'))
                 ->click();
 
@@ -61,7 +60,6 @@ class ReportingPage extends AbstractPage {
         $this->arrayToCSVFile($path, $dataToWrite);
     }
 
-
     /**
      * @param $headerData
      * @param $rangeDaysDatas
@@ -70,8 +68,8 @@ class ReportingPage extends AbstractPage {
     public function createDataToWrite ($headerData, $rangeDaysDatas)
     {
         $dataToWrite = [];
-
         $dataToWrite[] = $headerData;
+
         foreach($rangeDaysDatas as $rangeDaysData) {
             foreach($rangeDaysData as $adTagData) {
                 $dataToWrite[]=$adTagData;
@@ -87,7 +85,6 @@ class ReportingPage extends AbstractPage {
      * @return array
      * @throws InvalidSelectorException
      */
-
     public function getDataForRangeDays (\DateTime $startDate, \DateTime $endDate)
     {
         $interval = $startDate->diff($endDate);
@@ -169,6 +166,7 @@ class ReportingPage extends AbstractPage {
         /** @var RemoteWebElement $tableRow */
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools')));
         $rowElements = $tableElement->findElements(WebDriverBy::xpath('//*[@id="datatable_tabletools"]/tbody/tr'));
+
         $this->logger->info('Get data from table element');
         foreach ($rowElements as $rowElement) {
             $tdElements = $rowElement->findElements(WebDriverBy::cssSelector('td'));

@@ -291,7 +291,6 @@ abstract class AbstractPage
         $rootDirectory = $this->downloadFileHelper->getRootDirectory();
         $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
         $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
-
         $RunningCommandDate =  new \DateTime('now');
 
         if (!is_dir($rootDirectory)) {

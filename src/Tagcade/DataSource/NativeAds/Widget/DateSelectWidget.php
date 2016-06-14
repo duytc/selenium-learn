@@ -96,8 +96,7 @@ class DateSelectWidget extends AbstractWidget {
 
         $found = false;
 
-        foreach ($weekElements as $weekKey => $weekElement) {
-
+        foreach($weekElements as $weekKey => $weekElement) {
             if(true == $found) {
                 break;
             }
@@ -181,4 +180,5 @@ class DateSelectWidget extends AbstractWidget {
 
         return $this;
     }
+
 } 

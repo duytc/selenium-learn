@@ -8,6 +8,7 @@ imports:
     - { resource: services/media.yml }
     - { resource: services/cpmbase.yml }
     - { resource: services/nativeads.yml }
+    - { resource: services/ads4games.yml }
 
 services:
     yaml:
