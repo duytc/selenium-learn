@@ -22,4 +22,6 @@ parameters:
         komoona: 'tc:komoona:get-data'
         pulse-point: 'tc:pulse-point:get-data'
         yellow-hammer: 'tc:yellow-hammer:get-data'
-        media: 'tc:media:get-data'
+        cpm-base: 'tc:cpm-base:get-data'
+        media-net: 'tc:media:get-data'
+        native-ads: 'tc:native-ads:get-data'
