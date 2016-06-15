@@ -23,44 +23,49 @@ class ReportingPage extends AbstractPage
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('reports'))
         );
-        // select filter by ad units
         $this->driver->findElement(WebDriverBy::id('AdTags'))
             ->click()
         ;
 
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('csv5'))
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+        );
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
         );
 
-        // Step 1. Select date range
         $this->selectDateRange($startDate, $endDate);
+        $this->driver->findElement(WebDriverBy::id('btnGo'))->click();
 
-        // select filter by ad units
-        $this->driver->findElement(WebDriverBy::id('btnGo'))
-            ->click()
-        ;
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+        );
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+        );
 
         try {
-
             /** @var RemoteWebElement $downloadBtn */
             $downloadBtn =  $this->driver->findElement(WebDriverBy::id('csv5'));
-
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('csv5')));
-
             $this->downloadThenWaitUntilComplete($downloadBtn);
         }
         catch (TimeOutException $te) {
-            $this->logger->error('Not data to download');
+            $this->logger->error('No data available for selected date range.');
         }
         catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
-
     }
 
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return $this
+     */
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
-        $dateWidget = new DateSelectWidget($this->driver);
+        $dateWidget = new DateSelectWidget($this->driver, $this->logger);
         $dateWidget->setDateRange($startDate, $endDate);
         return $this;
     }

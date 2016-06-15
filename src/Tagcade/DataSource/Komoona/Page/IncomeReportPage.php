@@ -48,7 +48,7 @@ class IncomeReportPage extends AbstractPage
             throw new \InvalidArgumentException('The date range supplied is invalid');
         }
 
-        $dateWidget = new DateSelectWidget($this->driver);
+        $dateWidget = new DateSelectWidget($this->driver, $this->logger);
         $this->info(sprintf('Selecting start date %s', $startDate->format('Y-m-d')));
         $dateWidget->setDate($startDate, 'select#tags-date+input+img');
         $this->info(sprintf('Selecting end date %s', $endDate->format('Y-m-d')));

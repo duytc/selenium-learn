@@ -30,7 +30,10 @@ abstract class AbstractPage
 
     protected $config;
 
-
+    /**
+     * @param RemoteWebDriver $driver
+     * @param null $logger
+     */
     public function __construct(RemoteWebDriver $driver, $logger = null)
     {
         $this->driver = $driver;

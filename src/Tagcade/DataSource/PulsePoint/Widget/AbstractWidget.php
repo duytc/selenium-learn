@@ -3,6 +3,7 @@
 namespace Tagcade\DataSource\PulsePoint\Widget;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Monolog\Logger;
 
 abstract class AbstractWidget
 {
@@ -10,13 +11,19 @@ abstract class AbstractWidget
      * @var RemoteWebDriver
      */
     protected $driver;
+    /**
+     * @var Logger
+     */
+    protected  $logger;
 
     /**
      * @param RemoteWebDriver $driver
+     * @param Logger $logger
      */
-    public function __construct(RemoteWebDriver $driver)
+    public function __construct(RemoteWebDriver $driver , Logger $logger =null)
     {
         $this->driver = $driver;
+        $this->logger = $logger;
     }
 
     /**
