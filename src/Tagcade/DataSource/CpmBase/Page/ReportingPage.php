@@ -37,9 +37,9 @@ class ReportingPage extends AbstractPage  {
 
         // Wait for default site report loaded
         $this->waitForJquery();
-        $this->info('Site has Jquery present');
+        $this->logger->debug('Site has Jquery present');
         sleep(2);
-        $this->info('Waiting for overlay');
+        $this->logger->debug('Waiting for overlay');
         $this->waitForOverlay('#fancybox-loading');
 
         $this->getAllTagReportsForMultiSites($startDate, $endDate);
@@ -65,9 +65,9 @@ class ReportingPage extends AbstractPage  {
 
         // Wait for default site report loaded
         $this->waitForJquery();
-        $this->info('Site has Jquery present');
+        $this->logger->debug('Site has Jquery present');
         sleep(2);
-        $this->info('Waiting for overlay');
+        $this->logger->debug('Waiting for overlay');
         $this->waitForOverlay('#fancybox-loading');
 
         foreach ($sites as $site) {
@@ -75,21 +75,21 @@ class ReportingPage extends AbstractPage  {
             $selectElement = new WebDriverSelect($this->driver->findElement(WebDriverBy::name('publisher')));
             sleep(2);
 
-            $this->info(sprintf('Selecting site %s', $site));
+            $this->logger->debug(sprintf('Selecting site %s', $site));
             $selectElement->selectByValue($site);
 
             $this->waitForJquery();
             sleep(2);
             $this->waitForOverlay('#fancybox-loading');
 
-            $this->logger->info(sprintf('Finished waiting for displaying report of site %s', $site));
+            $this->logger->debug(sprintf('Finished waiting for displaying report of site %s', $site));
 
             $charElementCss = 'body > div.wrap > div.content > div > div.inner.reporting > div.chart';
             $charElement = $this->driver->findElement(WebDriverBy::cssSelector($charElementCss));
             $textValueOfChartElement = $charElement->getText();
 
             if (self::NO_REPORT_DATA_FOUND == $textValueOfChartElement) {
-                $this->logger->info(sprintf('No data for site %s', $site));
+                $this->logger->debug(sprintf('No data for site %s', $site));
                 continue;
             }
 
@@ -101,8 +101,7 @@ class ReportingPage extends AbstractPage  {
                 $tableElement = $this->driver->findElement(WebDriverBy::cssSelector('table[class="table"]'));
                 $this->saveToCSVFileFromTable($tableElement, $startDate, $endDate, $site);
             } catch(NoSuchElementException $e) {
-
-                $this->logger->info(sprintf('Exception when get data for site %s, exception message %s',$site, $e->getMessage()));
+                $this->logger->warning(sprintf('Exception when get data for site %s, exception message %s',$site, $e->getMessage()));
             }
         }
     }
@@ -113,7 +112,6 @@ class ReportingPage extends AbstractPage  {
     public function selectGranularity()
     {
         $selectedOptions = $this->getSelectedOptions('granularity');
-
         foreach ($selectedOptions as $selectedOption) {
             $intervalValue = $selectedOption->getAttribute('value');
 
@@ -176,10 +174,12 @@ class ReportingPage extends AbstractPage  {
         $path = $this->getPath($startDate,$endDate, $this->getConfig(), $fileName);
 
         if (!$tableElement instanceof RemoteWebElement) {
+            $this->logger->warning('Invalid remove web element');
             throw new InvalidSelectorException('Invalid remove web element');
         }
 
         if(is_dir($path)) {
+            $this->logger->warning(sprintf('The path is not file, path is %s',$path));
             throw new \Exception ('Path must be file');
         }
 
@@ -209,11 +209,11 @@ class ReportingPage extends AbstractPage  {
         $dataRows =[];
         $oneRows =[];
 
-        $this->logger->info('Find table element');
+        $this->logger->debug('Find table element');
         /** @var RemoteWebElement $tableRow */
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('table[class="table"')));
         $rowElements = $tableElement->findElements(WebDriverBy::xpath('//table/tbody/tr'));
-        $this->logger->info('Get data from table element');
+        $this->logger->debug('Get data from table element');
 
         foreach ($rowElements as $rowElement) {
             $tdElements = $rowElement->findElements(WebDriverBy::cssSelector('td'));
@@ -228,7 +228,7 @@ class ReportingPage extends AbstractPage  {
                 $oneRows =null;
 
             } catch (StaleElementReferenceException $e) {
-                $this->logger->info($e->getMessage());
+                $this->logger->warning($e->getMessage());
             }
         }
 
@@ -242,7 +242,6 @@ class ReportingPage extends AbstractPage  {
      */
     public function arrayToCSVFile($path, $dataRows)
     {
-
         if(is_dir($path)) {
             throw new \Exception ('Path must be file');
         }

@@ -20,7 +20,7 @@ class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterfa
 
         usleep(10);
 
-        $this->logger->info('entering download report page');
+        $this->logger->debug('entering download report page');
         $earningPage = new EarningPage($driver, $this->logger);
         $earningPage->setDownloadFileHelper($this->downloadFileHelper);
         if (!$earningPage->isCurrentUrl()) {

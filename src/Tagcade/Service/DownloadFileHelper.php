@@ -92,7 +92,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     {
         $currentPartialDownloadCount = $this->countFilesByExtension();
 
-        $this->logger->info('Click to download element');
+        $this->logger->debug('Click to download element');
         $clickableElement->click();
         $this->waitFinishingDownload($currentPartialDownloadCount);
 
@@ -107,7 +107,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     public function waitFinishingDownload($currentPartialDownloadCount = 0)
     {
         $currentPartialDownloadCount = (int)$currentPartialDownloadCount;
-        $this->logger->info(sprintf('Start to wait for data download with currentPartialDownloadCount = %d', $currentPartialDownloadCount));
+        $this->logger->debug(sprintf('Start to wait for data download with currentPartialDownloadCount = %d', $currentPartialDownloadCount));
 
         $foundPartialFile = false;
         $totalWaitTime = 0.000000000;
@@ -130,27 +130,27 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                 $totalWaitTime += 10/1000000;
 
                 if ($totalWaitTime > $this->downloadTimeout) {
-                    $this->logger->info(sprintf('Break because Time out %d', $totalWaitTime));
+                    $this->logger->debug(sprintf('Break because Time out %d', $totalWaitTime));
                     break;
                 }
 
-                $this->logger->info(sprintf('Continue wait, total waiting time =%f', $totalWaitTime));
+                $this->logger->debug(sprintf('Continue wait, total waiting time =%f', $totalWaitTime));
                 continue;
             }
 
-            $this->logger->info(sprintf('Found %d partial download files', $partialDownloadCount));
+            $this->logger->debug(sprintf('Found %d partial download files', $partialDownloadCount));
 
             if ($foundPartialFile == true && $partialDownloadCount <= $currentPartialDownloadCount) { // download complete
-                $this->logger->info('Download complete');
+                $this->logger->debug('Download complete');
                 break;
             }
 
-            $this->logger->info('Waiting for 5 seconds to see if download complete');
+            $this->logger->debug('Waiting for 5 seconds to see if download complete');
 
             sleep(self::RESCAN_TIMEOUT);
             $totalWaitTime += self::RESCAN_TIMEOUT;
 
-            $this->logger->info(sprintf('Wait complete due to timeout (yes/no) %d', $totalWaitTime >= $this->downloadTimeout));
+            $this->logger->debug(sprintf('Wait complete due to timeout (yes/no) %d', $totalWaitTime >= $this->downloadTimeout));
         }
         while ($totalWaitTime < $this->downloadTimeout);
 

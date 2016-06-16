@@ -17,15 +17,14 @@ class CpmBaseFetcher extends PartnerFetcherAbstract implements CpmBaseFetcherInt
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
-        $this->logger->info('enter login page');
+        $this->logger->debug('Enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $this->logger->info('start logging in');
         $homePage->doLogin($params->getUsername(), $params->getPassword());
-        $this->logger->info('end logging in');
+        $this->logger->debug('End logging in');
 
         usleep(10);
 
-        $this->logger->info('Enter download report page');
+        $this->logger->debug('Enter download report page');
         $deliveryReportPage = new ReportingPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->downloadFileHelper);
         $deliveryReportPage->setConfig($params->getConfig());

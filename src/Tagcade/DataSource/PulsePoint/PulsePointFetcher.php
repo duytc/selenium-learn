@@ -28,7 +28,7 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
         $loginPage->login($params->getUsername(), $params->getPassword());
         sleep(5);
 
-        $this->logger->info('enter download report page');
+        $this->logger->debug('enter download report page');
         $reportPage = new ReportPage($driver, $this->logger);
         $reportPage->setDownloadFileHelper($this->downloadFileHelper);
         if (!$reportPage->isCurrentUrl()) {

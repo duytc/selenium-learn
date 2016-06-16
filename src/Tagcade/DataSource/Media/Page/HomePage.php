@@ -35,7 +35,7 @@ class HomePage extends AbstractPage
             $this->navigate();
         }
 
-        $this->info('Filling username and password');
+        $this->logger->info('Filling username and password');
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('signIn2')));
         $this->driver->findElement(WebDriverBy::id('signIn2'))->click();
@@ -53,13 +53,13 @@ class HomePage extends AbstractPage
             ->sendKeys($password)
         ;
 
-        $this->info('Click login button');
+        $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('publisherSignin'))->click();
         try {
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('dashboard')));
             return true;
         }catch (NoSuchElementException $e){
-            $this->info('Username or password is not correct!');
+            $this->logger->warning('Username or password is not correct!');
             return false;
         }
     }

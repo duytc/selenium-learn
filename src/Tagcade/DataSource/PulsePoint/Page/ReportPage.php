@@ -14,7 +14,7 @@ class ReportPage extends AbstractPage
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate = null)
     {
         // Step 1. Select date range
-        $this->info('select date range');
+        $this->logger->debug('select date range');
         $reportDetailBox = $this->driver->findElement(WebDriverBy::id('reportDDLContainer'));
         if (!$reportDetailBox->isDisplayed()) {
             $reportDetailsHeaderSel = WebDriverBy::cssSelector('.header-title');
@@ -29,14 +29,14 @@ class ReportPage extends AbstractPage
             $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('dateFrom')));
         }
 
-        $this->info('filling start date data');
+        $this->logger->debug('filling start date data');
         $this->driver->findElement(WebDriverBy::id('dateFrom'))
             ->clear()
             ->sendKeys($startDate->format('m/d/Y'))
         ;
 
         usleep(200);
-        $this->info('filling end date data');
+        $this->logger->debug('filling end date data');
         $this->driver->findElement(WebDriverBy::id('dateTo'))
             ->clear()
             ->sendKeys($startDate->format('m/d/Y'))
@@ -44,7 +44,7 @@ class ReportPage extends AbstractPage
         usleep(200);
 
         // run report
-        $this->info('click run report button');
+        $this->logger->debug('click run report button');
         $this->driver->findElement(WebDriverBy::id('btnContainer'))
             ->click()
         ;
@@ -64,10 +64,10 @@ class ReportPage extends AbstractPage
         $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
         $exportButton = $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'));
         // click export to excel
-        $this->info('start downloading reports');
+        $this->logger->debug('start downloading reports');
         //$exportButton->click();
         $this->downloadThenWaitUntilComplete($exportButton);
-        $this->info('Clicked downloading reports');
+        $this->logger->debug('Clicked downloading reports');
 
     }
 } 

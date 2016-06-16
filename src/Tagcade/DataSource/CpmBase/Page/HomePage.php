@@ -23,24 +23,23 @@ class HomePage extends AbstractPage {
 
     public function doLogin($username, $password)
     {
-        $this->logger->info('Make sure current domain is for CpmBase partner');
         $this->navigateToPartnerDomain();
 
-        $this->logger->info('start login');
+        $this->logger->info('Start login');
         if ($this->isLoggedIn()) {
             return true;
         }
 
-        $this->logger->info('Try to login');
+        $this->logger->debug('Try to login');
 
         if (!$this->isCurrentUrl()) {
-            $this->logger->info('Navigate to login page ');
+            $this->logger->debug('Navigate to login page ');
             $this->navigate();
         }
 
         $this->driver->findElement(WebDriverBy::cssSelector('a[href="#"]'))->click();
 
-        $this->info('Filling username and password');
+        $this->logger->debug('Filling username and password');
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('email')));
         $this->driver
@@ -55,7 +54,7 @@ class HomePage extends AbstractPage {
             ->sendKeys($password)
         ;
 
-        $this->info('Click login button');
+        $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::name('login'))->click();
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="/reporting"]')));
@@ -71,7 +70,7 @@ class HomePage extends AbstractPage {
         try {
             $this->driver->findElement(WebDriverBy::cssSelector('div[class="logout"]'));
 
-            $this->logger->info('User is logged in');
+            $this->logger->debug('User is logged in');
             return true;
 
         } catch (NoSuchElementException $e) {

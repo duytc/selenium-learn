@@ -16,16 +16,14 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $this->logger->info('start logging in');
         $homePage->doLogin($params->getUsername(), $params->getPassword());
         $this->logger->info('end logging in');
 
         usleep(10);
 
-        $this->logger->info('enter download report page');
+        $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
-
 
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
@@ -35,8 +33,8 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
             WebDriverExpectedCondition::titleContains('Publisher Tools')
         );
 
-        $this->logger->info('start downloading reports');
+        $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-        $this->logger->info('finish downloading reports');
+        $this->logger->info('Finish downloading reports');
     }
 }

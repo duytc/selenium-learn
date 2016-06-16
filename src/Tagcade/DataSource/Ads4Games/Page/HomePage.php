@@ -37,7 +37,7 @@ class HomePage extends AbstractPage {
             $this->navigate();
         }
 
-        $this->info('Filling username and password');
+        $this->logger->debug('Filling username and password');
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('username')));
 
@@ -53,7 +53,7 @@ class HomePage extends AbstractPage {
             ->sendKeys($password)
         ;
 
-        $this->info('Click login button');
+        $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('login'))->click();
         try {
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('li[class="buttonLogout"]')));

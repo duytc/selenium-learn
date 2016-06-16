@@ -36,7 +36,7 @@ class HomePage extends AbstractPage {
             $this->navigate();
         }
 
-        $this->info('Filling username and password');
+        $this->logger->debug('Filling username and password');
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('username')));
 
@@ -52,17 +52,17 @@ class HomePage extends AbstractPage {
             ->sendKeys($password)
         ;
 
-        $this->info('Click login button');
+        $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('button[class="btn btn-primary"]'))->click();
 
         try {
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="logout.php"]')));
             return true;
         } catch (NoSuchElementException $e){
-            $this->info('Username or password is not correct!');
+            $this->logger->warning('Username or password is not correct!');
             return false;
         } catch (TimeOutException $e) {
-            $this->info('Time out exception');
+            $this->logger->warning('Time out exception');
             return false;
         }
     }

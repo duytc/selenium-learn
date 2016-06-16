@@ -22,7 +22,7 @@ class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetch
         // Step 1: login
         $this->logger->info('Enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $this->logger->info('Start logging in');
+        $this->logger->debug('Start logging in');
 
         $result = $homePage->doLogin($params->getUsername(), $params->getPassword());
         if (false == $result) {
@@ -32,14 +32,14 @@ class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetch
 
         usleep(500);
 
-        $this->logger->info('Enter download report page');
+        $this->logger->debug('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $reportingPage->setConfig($params->getConfig());
 
-        $this->logger->info('set all configs');
+        $this->logger->debug('set all configs');
         if (!$reportingPage->isCurrentUrl()) {
-            $this->logger->info('Comming to navigate');
+            $this->logger->debug('Comming to navigate');
             $reportingPage->navigate();
         }
 

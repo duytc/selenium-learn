@@ -109,7 +109,7 @@ abstract class AbstractPage
     public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement)
     {
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
-            $this->logger->info("Instance Helper error");
+            $this->logger->error("Instance Helper error");
             return $this;
         }
 
@@ -149,7 +149,7 @@ abstract class AbstractPage
     public function waitForData()
     {
         if ($this->hasLogger()) {
-            $this->logger->info('Waiting for ajax to load');
+            $this->logger->debug('Waiting for ajax to load');
         }
 
         $this->driver->wait()->until(function (RemoteWebDriver $driver) {
@@ -162,7 +162,7 @@ abstract class AbstractPage
 
         if ($overlayPresent) {
             if ($this->hasLogger()) {
-                $this->logger->info('Waiting for overlay to disappear');
+                $this->logger->debug('Waiting for overlay to disappear');
             }
 
             $overlaySel = WebDriverBy::cssSelector('div.blockUI.blockOverlay');
@@ -170,7 +170,7 @@ abstract class AbstractPage
         }
 
         if ($this->hasLogger()) {
-            $this->logger->info('Overlay has disappeared');
+            $this->logger->debug('Overlay has disappeared');
         }
     }
 
@@ -187,7 +187,7 @@ abstract class AbstractPage
 
         if ($overlayPresent) {
             if ($this->hasLogger()) {
-                $this->logger->info('Waiting for overlay to disappear');
+                $this->logger->debug('Waiting for overlay to disappear');
             }
 
             $overlaySel = WebDriverBy::cssSelector($overlayCssSelector);
@@ -195,7 +195,7 @@ abstract class AbstractPage
         }
 
         if ($this->hasLogger()) {
-            $this->logger->info('Overlay has disappeared');
+            $this->logger->debug('Overlay has disappeared');
         }
     }
 
@@ -249,7 +249,7 @@ abstract class AbstractPage
         $domain = $host_names[count($host_names)-2] . "." . $host_names[count($host_names)-1];
 
         $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
-        $this->logger->info(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
+        $this->logger->debug(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
 
         if (strpos($this->getPageUrl(), $domain) > -1) {
             return;

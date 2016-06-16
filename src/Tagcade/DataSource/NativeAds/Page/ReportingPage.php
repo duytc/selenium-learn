@@ -43,11 +43,11 @@ class ReportingPage extends AbstractPage {
                 ->click()
             ;
 
-            $this->logger->info('Wait loading report in 5s');
+            $this->logger->debug('Wait loading report in 5s');
             $this->driver->manage()->timeouts()->setScriptTimeout(10);
         }
 
-        $this->logger->info('Getting header and data for range days ');
+        $this->logger->debug('Getting header and data for range days ');
         $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
 
         $headerData = $this->getHeaderFromTable($tableElement);
@@ -55,7 +55,7 @@ class ReportingPage extends AbstractPage {
 
         $dataToWrite = $this->createDataToWrite($headerData, $rangeDaysDatas);
 
-        $this->logger->info('Write data to file');
+        $this->logger->debug('Write data to file');
         $path = $this->getPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
         $this->arrayToCSVFile($path, $dataToWrite);
     }
@@ -88,7 +88,7 @@ class ReportingPage extends AbstractPage {
     public function getDataForRangeDays (\DateTime $startDate, \DateTime $endDate)
     {
         $interval = $startDate->diff($endDate);
-        $this->logger->info(sprintf('Number of days: %s',$interval->days));
+        $this->logger->debug(sprintf('Number of days: %s',$interval->days));
         $dateInterval = new \DateInterval('P1D'); // 1 day
         $startDate = $startDate->sub($dateInterval);
 
@@ -97,13 +97,13 @@ class ReportingPage extends AbstractPage {
         for ($date = 0; $date <= $interval->days ; $date++)
         {
             $dateReport = $startDate->add($dateInterval);
-            $this->logger->info(sprintf('Date to save data %s', $dateReport->format('Y-m-d')));
+            $this->logger->debug(sprintf('Date to save data %s', $dateReport->format('Y-m-d')));
 
             $dateToWrite[] = array($dateReport->format('Y-m-d'));
 
             $this->setDownloadDate($dateReport);
 
-            $this->logger->info(sprintf('Set date %s finish', $dateReport->format('Y-m-d')));
+            $this->logger->debug(sprintf('Set date %s finish', $dateReport->format('Y-m-d')));
 
             $tableElement = $this->driver->findElement(WebDriverBy::id('datatable_tabletools'));
             $rows = $this->getDataFromTable($tableElement);
@@ -112,7 +112,7 @@ class ReportingPage extends AbstractPage {
             $dateToWrite = null;
             $allData[] = $rows;
 
-            $this->logger->info(sprintf('Get data from table finish'));
+            $this->logger->debug(sprintf('Get data from table finish'));
         }
 
         return $allData;
@@ -134,11 +134,11 @@ class ReportingPage extends AbstractPage {
         }
 
         $oneRows =[];
-        $this->logger->info('Find table element');
+        $this->logger->debug('Find table element');
         /** @var RemoteWebElement $tableRow */
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools')));
 
-        $this->logger->info('Get header data from table');
+        $this->logger->debug('Get header data from table');
         $tdElements = $this->driver->findElements(WebDriverBy::xpath('//*[@id="datatable_tabletools"]/thead/tr/th'));
 
         /** @var RemoteWebElement $tdElement */
@@ -162,12 +162,12 @@ class ReportingPage extends AbstractPage {
             throw new InvalidSelectorException('Invalid remove web element');
         }
 
-        $this->logger->info('Find table element');
+        $this->logger->debug('Find table element');
         /** @var RemoteWebElement $tableRow */
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools')));
         $rowElements = $tableElement->findElements(WebDriverBy::xpath('//*[@id="datatable_tabletools"]/tbody/tr'));
 
-        $this->logger->info('Get data from table element');
+        $this->logger->debug('Get data from table element');
         foreach ($rowElements as $rowElement) {
             $tdElements = $rowElement->findElements(WebDriverBy::cssSelector('td'));
             try {
@@ -178,7 +178,7 @@ class ReportingPage extends AbstractPage {
                 $dataRows[] = $oneRows;
                 $oneRows =null;
             } catch (StaleElementReferenceException $e) {
-                $this->logger->info($e->getMessage());
+                $this->logger->warning($e->getMessage());
             }
         }
 

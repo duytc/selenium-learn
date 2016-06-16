@@ -27,7 +27,7 @@ class HomePage extends AbstractPage
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login')));
 
-        $this->info('filling credentials');
+        $this->logger->debug('filling credentials');
         $this->driver
             ->findElement(WebDriverBy::id('login'))
             ->click()

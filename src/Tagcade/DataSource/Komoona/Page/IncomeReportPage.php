@@ -21,7 +21,7 @@ class IncomeReportPage extends AbstractPage
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate = null)
     {
         // Step 1. Select date range
-        $this->info('Selecting date range');
+        $this->logger->debug('Selecting date range');
         $this->selectDateRange($startDate, $endDate);
         $this->driver->findElement(WebDriverBy::id('get-tags-reprot'))
             ->click()
@@ -31,7 +31,7 @@ class IncomeReportPage extends AbstractPage
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('tags-export-to-excel'))
         );
 
-        $this->info('downloading excel report');
+        $this->logger->debug('downloading excel report');
 
         $downloadElement = $this->driver->findElement(WebDriverBy::id('tags-export-to-excel'));
 
@@ -49,9 +49,9 @@ class IncomeReportPage extends AbstractPage
         }
 
         $dateWidget = new DateSelectWidget($this->driver, $this->logger);
-        $this->info(sprintf('Selecting start date %s', $startDate->format('Y-m-d')));
+        $this->logger->debug(sprintf('Selecting start date %s', $startDate->format('Y-m-d')));
         $dateWidget->setDate($startDate, 'select#tags-date+input+img');
-        $this->info(sprintf('Selecting end date %s', $endDate->format('Y-m-d')));
+        $this->logger->debug(sprintf('Selecting end date %s', $endDate->format('Y-m-d')));
         $dateWidget->setDate($endDate, 'select#tags-date+input+img+input+img');
 
         return $this;
