@@ -26,5 +26,4 @@ class GetDataCommand extends BaseGetDataCommand  {
     {
         return $this->getContainer()->get('tagcade.data_source.fetcher.epom');
     }
-
-} 
+}
