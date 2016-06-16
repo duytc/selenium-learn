@@ -16,13 +16,13 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 class GetAllPartnersDataCommand extends ContainerAwareCommand
 {
-    protected $SUPPORTED_PARTNERS = [];
+    protected $supportedPartners = [];
 
     function __construct(array $partners)
     {
         parent::__construct();
 
-       $this->SUPPORTED_PARTNERS = $partners;
+       $this->supportedPartners = $partners;
     }
 
     protected function configure()
@@ -87,7 +87,7 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             return;
         }
 
-        foreach ($this->SUPPORTED_PARTNERS as $partner => $command) {
+        foreach ($this->supportedPartners as $partner => $command) {
            $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
 
             try {
