@@ -28,7 +28,7 @@ class LoginPage extends AbstractPage
             $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('LoginButton')));
         }
 
-        $this->info('filling credentials');
+        $this->logger->debug('filling credentials');
         $this->driver
             ->findElement(WebDriverBy::id('UserName'))
             ->clear()
@@ -41,7 +41,7 @@ class LoginPage extends AbstractPage
             ->sendKeys($password)
         ;
 
-        $this->info('click login button');
+        $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('menubar')));
 

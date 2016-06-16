@@ -18,4 +18,4 @@ monolog:
             bubble: false
             verbosity_levels:
                 VERBOSITY_VERBOSE: INFO
-                VERBOSITY_VERY_VERBOSE: DEBUG
+                VERBOSITY_VERY_VERBOSE: INFO

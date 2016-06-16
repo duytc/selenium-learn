@@ -6,6 +6,7 @@ use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Monolog\Logger;
 
 class DateSelectWidget extends AbstractWidget
 {
@@ -16,10 +17,12 @@ class DateSelectWidget extends AbstractWidget
 
     /**
      * @param RemoteWebDriver $driver
+     * @param Logger $logger
      */
-    public function __construct(RemoteWebDriver $driver)
+    public function __construct(RemoteWebDriver $driver, Logger $logger =null)
     {
-        parent::__construct($driver);
+        parent::__construct($driver, $logger);
+
     }
 
     /**
@@ -79,9 +82,12 @@ class DateSelectWidget extends AbstractWidget
 
         // Select date
         $expectDate = (int)$date->format('d');
-        $this->driver->findElement(WebDriverBy::linkText((string)$expectDate))
-            ->click()
-        ;
+        try {
+            $this->driver->findElement(WebDriverBy::linkText((string)$expectDate))->click();
+        } catch (\Exception $e) {
+            $this->logger->error(sprintf('Exception when set date =%s, exception meassage =%s',$date->format('Y-m-d'),$e->getMessage()));
+            throw $e;
+        }
 
         return $this;
     }

@@ -21,7 +21,7 @@ class HomePage extends AbstractPage
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
-        $this->info('filling credentials');
+        $this->logger->debug('filling credentials');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('password')));
 
@@ -37,9 +37,8 @@ class HomePage extends AbstractPage
             ->sendKeys($password)
         ;
 
-        $this->info('click login button');
+        $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
-//        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('site_rollups')));
     }
 
     protected function isLoggedIn()

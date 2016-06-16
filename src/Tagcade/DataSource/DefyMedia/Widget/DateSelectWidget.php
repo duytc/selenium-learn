@@ -6,15 +6,17 @@ use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Monolog\Logger;
 
 class DateSelectWidget extends AbstractWidget
 {
     /**
      * @param RemoteWebDriver $driver
+     * @param Logger $logger
      */
-    public function __construct(RemoteWebDriver $driver)
+    public function __construct(RemoteWebDriver $driver, Logger $logger = null)
     {
-        parent::__construct($driver);
+        parent::__construct($driver, $logger);
     }
 
     /**

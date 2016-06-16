@@ -15,13 +15,13 @@ class DefyMediaFetcher extends PartnerFetcherAbstract implements DefyMediaFetche
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $this->logger->info('start logging in');
         $homePage->doLogin($params->getUsername(), $params->getPassword());
-        $this->logger->info('finish logging in');
+        $this->logger->debug('finish logging in');
         usleep(300);
 
-        $this->logger->info('enter download report page');
+        $this->logger->debug('enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
+        $reportingPage->setDownloadFileHelper($this->downloadFileHelper);
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
         }

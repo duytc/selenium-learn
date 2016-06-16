@@ -101,10 +101,12 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
     public function getWebDriver($identifier, $dataPath = null)
     {
+        $this->logger->info(sprintf('identifier value=%s',$identifier));
         if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {
             $driver = $this->getExistingSession($identifier);
 
             if ($driver instanceof RemoteWebDriver) {
+                $this->logger->info('Using exiting web driver');
                 return $driver;
             }
 
@@ -114,6 +116,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $identifier = $dataPath;
         }
 
+        $this->logger->info(sprintf('Create web driver with identifier %s', $identifier));
         $driver = $this->createWebDriver($identifier);
 
         $sessionId = $driver->getSessionID();

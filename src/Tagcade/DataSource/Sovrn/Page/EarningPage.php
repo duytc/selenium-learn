@@ -19,7 +19,7 @@ class EarningPage extends AbstractPage
         $dateCalendarContainer = $this->driver->findElement(WebDriverBy::id('section-account-download-adstats'));
         $elements = $dateCalendarContainer->findElements(WebDriverBy::className('date-range-calendar'));
 
-        $this->logger->info('Popup browser');
+        $this->logger->debug('Popup browser');
         foreach ($elements as $e) {
             $att = $e->getAttribute('data-rangetype');
             if ($att == 'start') {
@@ -34,7 +34,7 @@ class EarningPage extends AbstractPage
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('calendar_downloads_account-downloads-adstats'))
         );
 
-        $this->logger->info(sprintf('Setting start date %s', $startDate->format('Y-m-d')));
+        $this->logger->debug(sprintf('Setting start date %s', $startDate->format('Y-m-d')));
 
         // Step 1. Set date range
         $this->selectDateRange($startDate, $endDate);
@@ -45,13 +45,13 @@ class EarningPage extends AbstractPage
         
         usleep(100);
         // breakdown by day
-        $this->logger->info('Setting breakdown by days');
+        $this->logger->debug('Setting breakdown by days');
         $this->driver->findElement(WebDriverBy::id('adstats-breakout'))
             ->click()
         ;
 
         // Step 2. Select combined report
-        $this->logger->info('Setting combined reports');
+        $this->logger->debug('Setting combined reports');
         $this->driver->findElement(WebDriverBy::id('adstats-filter-country-both'))
             ->click()
         ;
@@ -63,7 +63,8 @@ class EarningPage extends AbstractPage
         foreach($elements as $element) {
             $text = $element->getText();
             if ($text == 'Download') {
-                $element->click();
+                //$element->click();
+                $this->downloadThenWaitUntilComplete($element);
                 break;
             }
         }

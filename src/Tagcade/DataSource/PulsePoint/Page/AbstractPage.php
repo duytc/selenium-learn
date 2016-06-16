@@ -27,10 +27,33 @@ abstract class AbstractPage
      */
     protected $downloadFileHelper;
 
+
+    protected $config;
+
+    /**
+     * @param RemoteWebDriver $driver
+     * @param null $logger
+     */
     public function __construct(RemoteWebDriver $driver, $logger = null)
     {
         $this->driver = $driver;
         $this->logger = $logger;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param mixed $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
     }
 
     /**
@@ -86,12 +109,19 @@ abstract class AbstractPage
     public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement)
     {
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
+            $this->logger->error("Instance Helper error");
             return $this;
         }
 
         $this->downloadFileHelper->downloadThenWaitUntilComplete($removeWebElement);
 
         return $this;
+    }
+
+
+    public function getRootDirectory ()
+    {
+        return $this->downloadFileHelper->getRootDirectory();
     }
 
 
@@ -119,7 +149,7 @@ abstract class AbstractPage
     public function waitForData()
     {
         if ($this->hasLogger()) {
-            $this->logger->info('Waiting for ajax to load');
+            $this->logger->debug('Waiting for ajax to load');
         }
 
         $this->driver->wait()->until(function (RemoteWebDriver $driver) {
@@ -132,7 +162,7 @@ abstract class AbstractPage
 
         if ($overlayPresent) {
             if ($this->hasLogger()) {
-                $this->logger->info('Waiting for overlay to disappear');
+                $this->logger->debug('Waiting for overlay to disappear');
             }
 
             $overlaySel = WebDriverBy::cssSelector('div.blockUI.blockOverlay');
@@ -140,7 +170,32 @@ abstract class AbstractPage
         }
 
         if ($this->hasLogger()) {
-            $this->logger->info('Overlay has disappeared');
+            $this->logger->debug('Overlay has disappeared');
+        }
+    }
+
+    public function waitForJquery()
+    {
+        $this->driver->wait()->until(function (RemoteWebDriver $driver) {
+            return $driver->executeScript("return !!window.jQuery && window.jQuery.active == 0");
+        });
+    }
+
+    public function waitForOverlay($overlayCssSelector)
+    {
+        $overlayPresent = $this->driver->executeScript(sprintf("return !!document.querySelector('%s')", $overlayCssSelector));
+
+        if ($overlayPresent) {
+            if ($this->hasLogger()) {
+                $this->logger->debug('Waiting for overlay to disappear');
+            }
+
+            $overlaySel = WebDriverBy::cssSelector($overlayCssSelector);
+            $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated($overlaySel));
+        }
+
+        if ($this->hasLogger()) {
+            $this->logger->debug('Overlay has disappeared');
         }
     }
 
@@ -190,14 +245,84 @@ abstract class AbstractPage
         $domain = parse_url($this->driver->getCurrentURL());
         $domain = $domain['host'];
 
+        $host_names = explode(".", $domain);
+        $domain = $host_names[count($host_names)-2] . "." . $host_names[count($host_names)-1];
+
+        $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
+        $this->logger->debug(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
+
         if (strpos($this->getPageUrl(), $domain) > -1) {
             return;
         }
 
         $this->navigate();
-
         usleep(200);
 
         return;
     }
+
+    /**
+     * @param $path
+     * @param $dataRows
+     * @throws \Exception
+     */
+    public function arrayToCSVFile($path, $dataRows)
+    {
+        if(is_dir($path)) {
+            throw new \Exception ('Path must be file');
+        }
+
+        if (!is_array($dataRows)) {
+            throw new \Exception ('Data to save csv file expect array type');
+        }
+
+        $file = fopen($path,'w');
+        foreach ($dataRows as $dataRow) {
+            fputcsv($file, $dataRow);
+        }
+        fclose($file);
+    }
+
+    /**
+     * Get path to store csv file
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return string
+     */
+    protected function getPath(\DateTime $startDate, \DateTime $endDate, $config ,$fileName)
+    {
+        $rootDirectory = $this->downloadFileHelper->getRootDirectory();
+        $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
+        $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
+        $RunningCommandDate =  new \DateTime('now');
+
+        if (!is_dir($rootDirectory)) {
+            mkdir($rootDirectory);
+        }
+
+        $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
+        if (!is_dir($publisherPath)) {
+            mkdir($publisherPath);
+        }
+
+        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
+        if (!is_dir($partnerPath)) {
+            mkdir($partnerPath);
+        }
+
+        $directory = sprintf('%s/%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'));
+        if (!is_dir($directory)) {
+            mkdir($directory);
+        }
+
+        $path = sprintf('%s/%s.csv', $directory, $fileName);
+
+        $extension = 1;
+        while (file_exists($path)) {
+            $path = sprintf('%s/%s(%d).csv', $directory, $fileName, $extension);
+            $extension ++;
+        }
+        return $path;
+    }
+
 }

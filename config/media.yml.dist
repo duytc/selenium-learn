@@ -1,0 +1,8 @@
+# Pulsepoint UI username
+username: 'username'
+# Pulsepoint UI password
+password: 'password'
+# Tagcade publisher id
+publisher_id: 1
+# partner canonical name stored in core_partner
+partner_cname: 'media'
