@@ -9,6 +9,7 @@ imports:
     - { resource: services/cpmbase.yml }
     - { resource: services/nativeads.yml }
     - { resource: services/ads4games.yml }
+    - { resource: services/epom.yml }
 
 services:
     yaml:
