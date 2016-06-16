@@ -11,7 +11,8 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class DownloadFileHelper implements DownloadFileHelperInterface  {
 
-    const  RESCAN_TIMEOUT = 5;
+    const RESCAN_TIME_IN_SECONDS = 5;
+    const NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS = 0.25;
     /**
      * @var string
      */
@@ -110,7 +111,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
         $this->logger->debug(sprintf('Start to wait for data download with currentPartialDownloadCount = %d', $currentPartialDownloadCount));
 
         $foundPartialFile = false;
-        $totalWaitTime = 0.000000000;
+        $totalWaitTime = 0;
 
         do {
 
@@ -126,15 +127,15 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
             }
 
             if ($foundPartialFile == false) {
-                usleep(10);
-                $totalWaitTime += 10/1000000;
+                usleep(static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS * 1000000);
+                $totalWaitTime += static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS;
 
                 if ($totalWaitTime > $this->downloadTimeout) {
-                    $this->logger->debug(sprintf('Break because Time out %d', $totalWaitTime));
+                    $this->logger->debug(sprintf('Break because of time out after %f seconds', $totalWaitTime));
                     break;
                 }
 
-                $this->logger->debug(sprintf('Continue wait, total waiting time =%f', $totalWaitTime));
+                $this->logger->debug(sprintf('Continue wait, total waiting time: %f seconds', $totalWaitTime));
                 continue;
             }
 
@@ -147,8 +148,8 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
 
             $this->logger->debug('Waiting for 5 seconds to see if download complete');
 
-            sleep(self::RESCAN_TIMEOUT);
-            $totalWaitTime += self::RESCAN_TIMEOUT;
+            sleep(self::RESCAN_TIME_IN_SECONDS);
+            $totalWaitTime += self::RESCAN_TIME_IN_SECONDS;
 
             $this->logger->debug(sprintf('Wait complete due to timeout (yes/no) %d', $totalWaitTime >= $this->downloadTimeout));
         }
