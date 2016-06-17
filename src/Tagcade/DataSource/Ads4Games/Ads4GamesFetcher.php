@@ -29,6 +29,7 @@ class Ads4GamesFetcher extends PartnerFetcherAbstract implements Ads4GamesFetche
         $this->logger->debug('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());
+        $reportingPage->setConfig($params->getConfig());
 
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();

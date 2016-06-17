@@ -104,16 +104,17 @@ abstract class AbstractPage
 
     /**
      * @param RemoteWebElement $removeWebElement
+     * @param $directoryStoreDownloadFile
      * @return $this
      */
-    public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement)
+    public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement, $directoryStoreDownloadFile)
     {
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
             $this->logger->error("Instance Helper error");
             return $this;
         }
 
-        $this->downloadFileHelper->downloadThenWaitUntilComplete($removeWebElement);
+        $this->downloadFileHelper->downloadThenWaitUntilComplete($removeWebElement, $directoryStoreDownloadFile);
 
         return $this;
     }
@@ -295,6 +296,7 @@ abstract class AbstractPage
         $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
         $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
         $RunningCommandDate =  new \DateTime('now');
+        $myProcessId =  array_key_exists('process_id', $config)? $config['process_id'] : getmypid();
 
         if (!is_dir($rootDirectory)) {
             mkdir($rootDirectory);
@@ -310,7 +312,7 @@ abstract class AbstractPage
             mkdir($partnerPath);
         }
 
-        $directory = sprintf('%s/%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'));
+        $directory = sprintf('%s/%s-%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'), $myProcessId);
         if (!is_dir($directory)) {
             mkdir($directory);
         }
@@ -325,4 +327,39 @@ abstract class AbstractPage
         return $path;
     }
 
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @param $config
+     * @return string
+     */
+    public function getDirectoryStoreDownloadFile (\DateTime $startDate, \DateTime $endDate, $config)
+    {
+        $rootDirectory = $this->downloadFileHelper->getRootDirectory();
+        $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
+        $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
+        $RunningCommandDate =  new \DateTime('now');
+        $myProcessId =  array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
+
+        if (!is_dir($rootDirectory)) {
+            mkdir($rootDirectory);
+        }
+
+        $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
+        if (!is_dir($publisherPath)) {
+            mkdir($publisherPath);
+        }
+
+        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
+        if (!is_dir($partnerPath)) {
+            mkdir($partnerPath);
+        }
+
+        $directory = sprintf('%s/%s-%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'), $myProcessId);
+        if (!is_dir($directory)) {
+            mkdir($directory);
+        }
+
+        return $directory;
+    }
 }

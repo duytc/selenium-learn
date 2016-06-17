@@ -22,6 +22,8 @@ class DefyMediaFetcher extends PartnerFetcherAbstract implements DefyMediaFetche
         $this->logger->debug('enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->downloadFileHelper);
+        $reportingPage->setConfig($params->getConfig());
+
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
         }

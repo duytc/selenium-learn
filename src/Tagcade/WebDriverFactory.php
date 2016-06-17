@@ -135,13 +135,14 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $executionDate = new \DateTime('today');
 
         $defaultDownloadPath = sprintf(
-            '%s/publishers/%d/%s/%s-%s-%s',
+            '%s/publishers/%d/%s/%s-%s-%s-%s',
             $dataPath,
             $this->config['publisher_id'],
             $this->config['partner_cname'],
             $executionDate->format('Ymd'),
             $this->params->getStartDate()->format('Ymd'),
-            $this->params->getEndDate()->format('Ymd')
+            $this->params->getEndDate()->format('Ymd'),
+            $this->config['process_id']
         );
 
         $chromeOptions->setExperimentalOption('prefs', [
@@ -152,6 +153,8 @@ class WebDriverFactory implements WebDriverFactoryInterface
             'profile.content_settings.pattern_pairs.*.multiple-automatic-downloads' => 1,
 
         ]);
+
+        $this->logger->debug(sprintf('Path to store data =%s', $defaultDownloadPath));
 
         $capabilities = DesiredCapabilities::chrome();
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);

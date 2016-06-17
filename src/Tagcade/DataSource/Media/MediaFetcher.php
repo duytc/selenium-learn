@@ -28,6 +28,7 @@ class MediaFetcher extends PartnerFetcherAbstract implements MediaFetcherInterfa
         $this->logger->info('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());
+        $reportingPage->setConfig($params->getConfig());
 
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();

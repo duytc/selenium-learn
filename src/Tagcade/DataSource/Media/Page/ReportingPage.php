@@ -46,9 +46,11 @@ class ReportingPage extends AbstractPage
 
         try {
             /** @var RemoteWebElement $downloadBtn */
-            $downloadBtn =  $this->driver->findElement(WebDriverBy::id('csv5'));
+            $downloadElement =  $this->driver->findElement(WebDriverBy::id('csv5'));
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('csv5')));
-            $this->downloadThenWaitUntilComplete($downloadBtn);
+
+            $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
         }
         catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');

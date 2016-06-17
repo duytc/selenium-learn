@@ -151,6 +151,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $this->logger->info(sprintf('Found %d publishers associated to this partner', count($configs)));
         }
 
+        $processId = getmypid();
         $processedPublisherPartner = [];
         foreach($configs as $config) {
             try {
@@ -179,6 +180,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
                 if (!array_key_exists('partner_cname', $config)) {
                     $config['partner_cname'] = $partnerCName;
                 }
+
+                $config['process_id'] = $processId;
 
                 $this->getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
                 $processedPublisherPartner[$publisherId] = true;

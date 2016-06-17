@@ -29,7 +29,6 @@ class CpmBaseFetcher extends PartnerFetcherAbstract implements CpmBaseFetcherInt
         $deliveryReportPage->setDownloadFileHelper($this->downloadFileHelper);
         $deliveryReportPage->setConfig($params->getConfig());
 
-
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
         }

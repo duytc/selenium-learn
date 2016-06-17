@@ -66,7 +66,8 @@ class ReportPage extends AbstractPage
         // click export to excel
         $this->logger->debug('start downloading reports');
         //$exportButton->click();
-        $this->downloadThenWaitUntilComplete($exportButton);
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $this->downloadThenWaitUntilComplete($exportButton, $directoryStoreDownloadFile);
         $this->logger->debug('Clicked downloading reports');
 
     }

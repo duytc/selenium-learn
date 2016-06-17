@@ -50,7 +50,8 @@ class Reportingpage extends AbstractPage {
         );
 
         $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector($zoneCssSelector));
-        $this->downloadThenWaitUntilComplete($downloadBtn);
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
+        $this->downloadThenWaitUntilComplete($downloadBtn , $directoryStoreDownloadFile);
     }
 
     /**

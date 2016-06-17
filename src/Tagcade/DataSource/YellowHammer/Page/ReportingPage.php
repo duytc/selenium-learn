@@ -86,7 +86,8 @@ class ReportingPage extends AbstractPage
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOf($exportCSV));
         //$exportCSV->click();
-        $this->downloadThenWaitUntilComplete($exportCSV);
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $this->downloadThenWaitUntilComplete($exportCSV, $directoryStoreDownloadFile);
 
         //button-loader
         $this->driver->manage()->timeouts()->implicitlyWait(0);

@@ -33,7 +33,8 @@ class ReportingPage extends AbstractPage
         // Step 1. Select date range
         $this->selectDateRange($startDate, $endDate);
         $downloadElement = $this->driver->findElement(WebDriverBy::id('report-export'));
-        $this->downloadThenWaitUntilComplete($downloadElement);
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
+        $this->downloadThenWaitUntilComplete($downloadElement ,$directoryStoreDownloadFile);
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)

@@ -64,7 +64,8 @@ class EarningPage extends AbstractPage
             $text = $element->getText();
             if ($text == 'Download') {
                 //$element->click();
-                $this->downloadThenWaitUntilComplete($element);
+                $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+                $this->downloadThenWaitUntilComplete($element, $directoryStoreDownloadFile);
                 break;
             }
         }

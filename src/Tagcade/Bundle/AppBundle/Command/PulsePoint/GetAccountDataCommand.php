@@ -3,6 +3,7 @@
 namespace Tagcade\Bundle\AppBundle\Command\PulsePoint;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
@@ -22,34 +23,24 @@ class GetAccountDataCommand extends BaseGetDataCommand
         parent::configure();
     }
 
-    protected function handleGetDataByDateRange(PartnerParamInterface $params, RemoteWebDriver $driver)
+
+    protected function getDataForPublisher(InputInterface $input, $publisherId, PartnerParamInterface $params, array $config, $dataPath)
     {
+
         $startDate = $params->getStartDate();
         $endDate = $params->getEndDate();
         $end = $endDate->modify('+1 day');
         $interval = new \DateInterval('P1D');
         $dateRange = new \DatePeriod($startDate, $interval ,$end);
 
-
         foreach ($dateRange as $date) {
-            /**
-             * @var \DateTime $date
-             */
             $params->setStartDate($date);
-            $params->setEndDate(clone $date);
+            $params->setEndDate($date);
 
-            $this->logger->info(sprintf('Fetching report with start-date=%s, end-date=%s', $date->format('Y-m-d'), $date->format('Y-m-d')));
-
-            try {
-                $this->fetcher->getAllData($params, $driver);
-                $this->logger->info(sprintf('Finished fetching report with start-date=%s, end-date=%s', $date->format('Y-m-d'), $date->format('Y-m-d')));
-            }
-            catch(\Exception $e) {
-               $this->logger->error(sprintf('Failed to fetch report with start-date=%s, end-date=%s. Error was %s', $date->format('Y-m-d'), $date->format('Y-m-d'), $e->getMessage()));
-            }
-
-            usleep(300);
+            parent::getDataForPublisher($input, $publisherId, $params, $config, $dataPath);
         }
+
+        return 0;
     }
 
     /**

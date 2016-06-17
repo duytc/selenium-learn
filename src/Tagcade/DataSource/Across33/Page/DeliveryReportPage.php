@@ -8,6 +8,7 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
+use Symfony\Component\Validator\Constraints\Date;
 use Tagcade\DataSource\DefyMedia\Widget\DateSelectWidget;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
@@ -47,12 +48,21 @@ class DeliveryReportPage extends AbstractPage
 
             usleep(500);
             $this->logger->debug(sprintf('downloading report for domain %s', $domain));
-            $this->getAllTagReportsForSingleDomain();
+            $this->getAllTagReportsForSingleDomain( $startDate, $endDate);
             usleep(500);
         }
     }
 
-    protected function getAllTagReportsForSingleDomain()
+    /**
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @throws \Exception
+     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws null
+     * @internal param DateTime $startDatem
+     */
+    protected function getAllTagReportsForSingleDomain(\DateTime $startDate, \DateTime $endDate)
     {
         $this->logger->debug('Clicking option to select download all data');
         $this->driver->findElement(WebDriverBy::cssSelector('#filter_button+span > a'))
@@ -68,8 +78,10 @@ class DeliveryReportPage extends AbstractPage
 
         /** RemoveWebDriver $downloadElement */
         $downloadElement =  $this->driver->findElement(WebDriverBy::id('download_all_data'));
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
+        $this->downloadThenWaitUntilComplete($downloadElement ,$directoryStoreDownloadFile);
 
-        $this->downloadThenWaitUntilComplete($downloadElement);
+
 
     }
 

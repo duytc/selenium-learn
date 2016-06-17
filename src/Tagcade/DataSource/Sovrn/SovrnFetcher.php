@@ -23,6 +23,8 @@ class SovrnFetcher extends PartnerFetcherAbstract implements SovrnFetcherInterfa
         $this->logger->debug('entering download report page');
         $earningPage = new EarningPage($driver, $this->logger);
         $earningPage->setDownloadFileHelper($this->downloadFileHelper);
+        $earningPage->setConfig($params->getConfig());
+
         if (!$earningPage->isCurrentUrl()) {
             $earningPage->navigate();
         }

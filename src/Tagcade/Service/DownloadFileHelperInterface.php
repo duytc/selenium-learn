@@ -19,16 +19,18 @@ interface DownloadFileHelperInterface
     /**
      * Waiting download file finish
      *
+     * @param $directoryStoreDownloadFile
+     * @param $totalOldFiles
      * @return $this
-     *
      */
-    public function waitFinishingDownload($currentPartialDownloadCount = 0);
+    public function waitFinishingDownload( $directoryStoreDownloadFile, $totalOldFiles );
 
     /**
-     * @param RemoteWebElement $clickableElement
+     * @param RemoteWebElement $clickAbleElement
+     * @param $directoryStoreDownloadFile
      * @return mixed
      */
-    public function downloadThenWaitUntilComplete(RemoteWebElement $clickableElement);
+    public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile);
 
     /**
      * Return root directory

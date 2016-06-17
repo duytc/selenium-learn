@@ -84,49 +84,56 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     }
 
     /**
-     * Click to download button element and waiting for finishing download
-     * @param RemoteWebElement $clickableElement
-     *
-     * @return $this
+     * @param RemoteWebElement $clickAbleElement
+     * @param $directoryStoreDownloadFile
+     * @return $this|mixed
      */
-    public function downloadThenWaitUntilComplete(RemoteWebElement $clickableElement)
+    public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile)
     {
-        $currentPartialDownloadCount = $this->countFilesByExtension();
-
         $this->logger->debug('Click to download element');
-        $clickableElement->click();
-        $this->waitFinishingDownload($currentPartialDownloadCount);
+        $oldFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
+        $clickAbleElement->click();
+        $this->waitFinishingDownload($directoryStoreDownloadFile, $oldFiles ) ;
 
         return $this;
     }
 
     /**
-     * Do wait until download complete
-     * @param int $currentPartialDownloadCount
+     * @param int $directoryStoreDownloadFile
+     * @param $oldFiles
+     * @throws \Exception
+     * @internal param $totalOldFiles
      * @return $this
      */
-    public function waitFinishingDownload($currentPartialDownloadCount = 0)
-    {
-        $currentPartialDownloadCount = (int)$currentPartialDownloadCount;
-        $this->logger->debug(sprintf('Start to wait for data download with currentPartialDownloadCount = %d', $currentPartialDownloadCount));
 
+    public function waitFinishingDownload($directoryStoreDownloadFile, $oldFiles )
+    {
+        $countOldFiles = count($oldFiles);
         $foundPartialFile = false;
         $totalWaitTime = 0;
 
+        $this->logger->debug(sprintf('Start to wait for data download with $countOldFiles = %d, path to store downloadFile =%s', $countOldFiles, $directoryStoreDownloadFile));
         do {
 
-            $files = $this->getPartialDownloadFiles();
-            $partialDownloadCount = count($files);
+            $currentPartialDownloadFiles = $this->getPartialDownloadFiles($directoryStoreDownloadFile);
+            $currentPartialDownloadCount = count($currentPartialDownloadFiles);
 
-            if ($foundPartialFile === false && ($partialDownloadCount < $currentPartialDownloadCount)) {
-                $currentPartialDownloadCount = $partialDownloadCount; //!important update $currentPartialDownloadCount if the previous download complete and partial download file is removed
-            }
-
-            if ($foundPartialFile === false && ($partialDownloadCount > $currentPartialDownloadCount)) {
+            if ($foundPartialFile === false && ($currentPartialDownloadCount > 0)) {
                 $foundPartialFile = true;
             }
 
             if ($foundPartialFile == false) {
+
+                $allFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
+                $countCurrentFiles = count($allFiles);
+
+                $this->logger->debug(sprintf('Now total files = %d', $countCurrentFiles));
+
+                if ($countCurrentFiles > $countOldFiles) {
+                    $this->logger->debug('File has been downloaded!');
+                    break;
+                }
+
                 usleep(static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS * 1000000);
                 $totalWaitTime += static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS;
 
@@ -139,9 +146,9 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                 continue;
             }
 
-            $this->logger->debug(sprintf('Found %d partial download files', $partialDownloadCount));
+            $this->logger->debug(sprintf('Found %d partial download files', $currentPartialDownloadCount));
 
-            if ($foundPartialFile == true && $partialDownloadCount <= $currentPartialDownloadCount) { // download complete
+            if ( $foundPartialFile == true && $currentPartialDownloadCount ==0 ) { // download complete
                 $this->logger->debug('Download complete');
                 break;
             }
@@ -159,13 +166,14 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     }
 
     /**
+     * @param $downloadDirectory
      * @param array $fileExtensions
      * @return array
      */
-    private function getPartialDownloadFiles($fileExtensions = array ('crdownload'))
+    private function getPartialDownloadFiles($downloadDirectory, $fileExtensions = array ('crdownload'))
     {
         $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($this->downloadRootDirectory, \RecursiveDirectoryIterator::SKIP_DOTS)
+            new \RecursiveDirectoryIterator($downloadDirectory, \RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
         $expectFiles = [];
@@ -175,7 +183,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                 continue;
             }
 
-            $expectFiles = $fileInfo->getRealPath();
+            $expectFiles[] = $fileInfo->getRealPath();
         }
 
         return $expectFiles;
@@ -184,8 +192,32 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     /**
      * @return string
      */
-    public  function getRootDirectory ()
+    public function getRootDirectory ()
     {
         return $this->downloadRootDirectory;
+    }
+
+    /**
+     * @param $downloadDirectory
+     * @return array
+     * @throws \Exception
+     */
+    private function getAllFilesInDirectory($downloadDirectory)
+    {
+        if(!is_dir($downloadDirectory)) {
+            throw new \Exception(sprintf('This path is not directory, path is %s', $downloadDirectory));
+        }
+
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($downloadDirectory, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        $expectFiles = [];
+        /** @var  SplFileInfo $fileInfo */
+        foreach ($files as $fileInfo) {
+            $expectFiles[] = $fileInfo->getRealPath();
+        }
+
+        return $expectFiles;
     }
 }
