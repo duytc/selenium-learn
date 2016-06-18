@@ -80,9 +80,6 @@ class DeliveryReportPage extends AbstractPage
         $downloadElement =  $this->driver->findElement(WebDriverBy::id('download_all_data'));
         $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadElement ,$directoryStoreDownloadFile);
-
-
-
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
