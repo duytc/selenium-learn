@@ -114,6 +114,11 @@ abstract class AbstractPage
             return $this;
         }
 
+        if (!is_dir($directoryStoreDownloadFile)) {
+            $this->logger->error(sprintf('Path to store data downnload is not directory, %s', $directoryStoreDownloadFile));
+            return $this;
+        }
+
         $this->downloadFileHelper->downloadThenWaitUntilComplete($removeWebElement, $directoryStoreDownloadFile);
 
         return $this;
