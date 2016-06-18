@@ -115,7 +115,6 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @internal param $totalOldFiles
      * @return $this
      */
-
     public function waitFinishingDownload($directoryStoreDownloadFile, $oldFiles )
     {
         $countOldFiles = count($oldFiles);
@@ -138,7 +137,6 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
             }
 
             if ($foundPartialFile == false) {
-
                 $allFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
                 $countCurrentFiles = count($allFiles);
 
