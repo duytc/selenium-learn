@@ -245,8 +245,6 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $this->handleGetDataByDateRange($params, $driver);
 
             $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
-
-            sleep(10); // sleep 10 seconds, to assume that the download is complete.
         }
         catch (\Exception $e) {
             $this->logger->error($e->getMessage());

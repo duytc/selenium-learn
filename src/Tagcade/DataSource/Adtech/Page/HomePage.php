@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Tagcade\DataSource\Ads4Games\Page;
+namespace Tagcade\DataSource\Adtech\Page;
 
 
 use Facebook\WebDriver\Exception\NoSuchElementException;
@@ -12,7 +12,7 @@ use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class HomePage extends AbstractPage {
 
-    const URL = 'https://traffic.a4g.com/www/admin/index.php';
+    const URL = 'https://marketplace.adtechus.com/h2/index.do';
 
     /**
      * @param $username
@@ -28,12 +28,12 @@ class HomePage extends AbstractPage {
     {
         $this->navigateToPartnerDomain();
 
-        if ($this->isLoggedIn()) {
-            return true;
-        }
-
         if (!$this->isCurrentUrl()) {
             $this->navigate();
+        }
+
+        if ($this->isLoggedIn()) {
+            return true;
         }
 
         $this->logger->debug('Filling username and password');
@@ -53,9 +53,15 @@ class HomePage extends AbstractPage {
         ;
 
         $this->logger->debug('Click login button');
-        $this->driver->findElement(WebDriverBy::id('login'))->click();
+        $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
+
         try {
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('li[class="buttonLogout"]')));
+
+            $logOutButton = '#navLogoutItem';
+            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($logOutButton)));
+
+            $accountSummaryCss = '#ssp_stats_loading_ssp_stats_lineChartPanel';
+            $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector($accountSummaryCss)));
             return true;
         }catch (NoSuchElementException $e){
             $this->info('Username or password is not correct!');
@@ -69,13 +75,16 @@ class HomePage extends AbstractPage {
     protected function isLoggedIn()
     {
         try {
-            $this->driver->findElement(WebDriverBy::cssSelector('li[class="buttonLogout"]'));
+            $logOutButton = '#marketplaceNavigationbarForthTab > a:nth-child(1)';
+            $this->driver->findElement(WebDriverBy::cssSelector($logOutButton));
+
             return true;
 
         } catch (NoSuchElementException $e) {
 
+            $this->logger->debug('User does not login!');
             return false;
         }
     }
 
-} 
+}

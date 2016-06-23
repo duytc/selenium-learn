@@ -26,3 +26,4 @@ parameters:
         media-net: 'tc:media:get-data'
         native-ads: 'tc:native-ads:get-data'
         ads4games: 'tc:ads4games:get-data'
+        adstech: 'tc:adtech:get-data'

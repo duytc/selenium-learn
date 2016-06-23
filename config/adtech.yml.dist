@@ -1,0 +1,8 @@
+# Adtech UI username
+username: 'username'
+# Ads4Games UI password
+password: 'password'
+# Tagcade publisher id
+publisher_id: 2
+# partner canonical name stored in core_partner
+partner_cname: 'Adtech'

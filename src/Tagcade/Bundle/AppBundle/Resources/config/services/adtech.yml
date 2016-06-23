@@ -1,0 +1,15 @@
+services:
+#    tagcade.data_source.koomona.task_factory:
+#        class: Tagcade\DataSource\PulsePoint\TaskFactory
+#        arguments: [@tagcade.web_driver_factory, @logger]
+
+    tagcade.command.adtech.get_data_command:
+        class: Tagcade\Bundle\AppBundle\Command\Adtech\GetDataCommand
+        tags:
+            -  { name: console.command }
+
+    tagcade.data_source.fetcher.adtech:
+        class: Tagcade\DataSource\Adtech\AdtechFetcher
+        calls:
+            - [setLogger, [@logger]]
+            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
