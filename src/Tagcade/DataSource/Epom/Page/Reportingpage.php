@@ -54,7 +54,8 @@ class Reportingpage extends AbstractPage {
 
         sleep(120);
         $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector('a[title="Export to CSV"]'));
-        $this->downloadThenWaitUntilComplete($downloadBtn);
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
+        $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
     }
 
     /**
