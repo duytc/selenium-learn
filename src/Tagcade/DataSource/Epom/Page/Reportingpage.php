@@ -42,20 +42,22 @@ class Reportingpage extends AbstractPage {
         $this->driver->findElement(WebDriverBy::cssSelector($analyticCssSelector))
             ->click()
         ;
-
+        sleep(2);
         $this->logger->info('Select date range');
         $this->selectDateRange($startDate, $endDate);
         $this->selectBreakDown();
         $this->selectGroupBy();
 
-        $this->logger->debug('Click Run Report button');
-        $runReportButtonCss = '#button-1074';
-        $this->driver->findElement(WebDriverBy::cssSelector($runReportButtonCss))->click();
+        $this->logger->debug('Find and Click Report button');
+        $this->findRunReportButtonAndClick();
 
-        sleep(120);
+        $this->waitLoadingBodyReport();
+        $this->waitLoadingSummaryReport();
+
         $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector('a[title="Export to CSV"]'));
         $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
+        $this->waitDownloadIfNotCompleteInHelper();
     }
 
     /**
@@ -87,7 +89,6 @@ class Reportingpage extends AbstractPage {
         $ulElements = $this->driver->findElements(WebDriverBy::cssSelector('ul[class="x-list-plain"]'));
         $liElements = $ulElements[self::BREAK_DOWN_GROUP_UL_INDEX]->findElements(WebDriverBy::cssSelector('li[role="option"]'));
         $liElements[self::BREAK_DOWN_GROUP_DAY_OPTION_INDEX]->click();
-
     }
 
     /**
@@ -107,5 +108,83 @@ class Reportingpage extends AbstractPage {
         $liElements = $ulElements[self::GROUP_BY_GROUP_UL_INDEX]->findElements(WebDriverBy::cssSelector('li[role="option"]'));
         $liElements[self::GROUP_BY_GROUP_SITE_INDEX]->click();
         $liElements[self::GROUP_BY_GROUP_PLACEMENT_INDEX]->click();
+    }
+
+
+    protected function findRunReportButtonAndClick()
+    {
+        $analyticsFormElement = $this->driver->findElement(WebDriverBy::id('analytics-form-id'));
+        $aElementsCss = 'a[class="x-btn x-unselectable btn btn-default btn-lg x-box-item x-toolbar-item x-btn-default-medium x-noicon x-btn-noicon x-btn-default-medium-noicon"]';
+        $aElements = $analyticsFormElement->findElements(WebDriverBy::cssSelector($aElementsCss));
+        $this->logger->debug(sprintf('Number a element =%d', count($aElements)));
+        $aElements[1]->click();
+    }
+
+    /**
+     * Waiting for loading report finish
+     */
+    protected function waitLoadingBodyReport()
+    {
+        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Grid'));
+        $divLoadingElements = $report1GridElement->findElement(WebDriverBy::cssSelector('div[class="x-component x-mask-msg x-component-default"]'));
+
+        $totalWaitingTime = 0;
+        do {
+            sleep(5);
+            $totalWaitingTime +=5;
+            $styleValue = $divLoadingElements->getAttribute('style');
+            $isNoneValueInStyle = strpos($styleValue,'display: none;');
+
+            $this->logger->debug(sprintf('Report in detail waiting: Css Value %s', $styleValue ));
+            $this->logger->debug(sprintf('Report in detail waiting: $isNoneValueInStyle Value %d', $isNoneValueInStyle ));
+            $this->logger->debug(sprintf('Report in detail waiting: Total waiting time: %d', $totalWaitingTime ));
+
+        } while (false == $isNoneValueInStyle);
+    }
+
+    /**
+     * Waiting for loading report finish class="x-mask-msg"
+     */
+    protected function waitLoadingSummaryReport()
+    {
+        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Tab-body'));
+        $divLoadingElements = $report1GridElement->findElement(WebDriverBy::cssSelector('div[class="x-component x-mask-msg x-component-default"]'));
+
+        $totalWaitingTime = 0;
+        do {
+            sleep(5);
+            $totalWaitingTime +=5;
+            $styleValue = $divLoadingElements->getAttribute('style');
+            $isNoneValueInStyle = strpos($styleValue,'display: none;');
+
+            $this->logger->debug(sprintf('Summary Report Waiting: Css Value %s', $styleValue ));
+            $this->logger->debug(sprintf('Summary Report Waiting: $isNoneValueInStyle Value %d', $isNoneValueInStyle ));
+            $this->logger->debug(sprintf('Summary Report Waiting: Total waiting time: %d', $totalWaitingTime ));
+
+        } while (false == $isNoneValueInStyle);
+    }
+
+    /**
+     * Waiting for loading report finish
+     * @param int $timeout
+     */
+    protected function waitDownloadIfNotCompleteInHelper($timeout = 120)
+    {
+        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Grid'));
+
+        $divLoadingElements = $report1GridElement->findElements(WebDriverBy::cssSelector('div[class="x-mask-msg"]'));
+        $countLoadingElements = count($divLoadingElements);
+        $totalWaitingTime = 0;
+
+        while (($countLoadingElements > 0) && ($totalWaitingTime < $timeout)) {
+            sleep(5);
+            $totalWaitingTime +=5;
+
+            $divLoadingElements = $report1GridElement->findElements(WebDriverBy::cssSelector('div[class="x-mask-msg"]'));
+            $countLoadingElements = count($divLoadingElements);
+
+            $this->logger->debug(sprintf('Wait Download complete After in Helper: Count loading element %d', $countLoadingElements));
+            $this->logger->debug(sprintf('Wait Download complete After in Helper: Total waiting time: %d', $totalWaitingTime ));
+        }
     }
 } 

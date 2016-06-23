@@ -30,6 +30,7 @@ class EpomFetcher extends PartnerFetcherAbstract implements EpomFetcherInterface
         $this->logger->info('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());
+        $reportingPage->setConfig($params->getConfig());
 
         if (!$reportingPage->isCurrentUrl()) {
             $reportingPage->navigate();
