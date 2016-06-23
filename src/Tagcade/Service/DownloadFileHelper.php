@@ -39,7 +39,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     public function deleteFilesByExtension($fileExtensions = array ('crdownload'))
     {
         if ( !file_exists($this->downloadRootDirectory) ) {
-            throw new \Exception(sprintf('This folder system %s does not exit', $this->downloadRootDirectory));
+            throw new \Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
         }
 
         if (!is_dir($this->downloadRootDirectory)) {
@@ -67,7 +67,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     public function countFilesByExtension($fileExtensions = array ('crdownload'))
     {
         if ( !file_exists($this->downloadRootDirectory) ) {
-            throw new \Exception(sprintf('This folder system %s does not exit', $this->downloadRootDirectory));
+            throw new \Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
         }
 
         if (!is_dir($this->downloadRootDirectory)) {
