@@ -1,0 +1,8 @@
+# Epom username
+username: 'username'
+# Epoom UI password
+password: 'password'
+# Tagcade publisher id
+publisher_id: 2
+# partner canonical name stored in core_partner
+partner_cname: 'epom'

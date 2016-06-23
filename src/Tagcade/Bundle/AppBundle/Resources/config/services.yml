@@ -10,6 +10,7 @@ imports:
     - { resource: services/nativeads.yml }
     - { resource: services/ads4games.yml }
     - { resource: services/adtech.yml }
+    - { resource: services/epom.yml }
 
 services:
     yaml:

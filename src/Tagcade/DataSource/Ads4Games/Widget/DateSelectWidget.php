@@ -8,6 +8,7 @@ use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverSelect;
+use Monolog\Logger;
 
 class DateSelectWidget extends AbstractWidget {
 
