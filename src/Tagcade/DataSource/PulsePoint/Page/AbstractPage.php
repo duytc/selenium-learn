@@ -107,7 +107,7 @@ abstract class AbstractPage
      * @param $directoryStoreDownloadFile
      * @return $this
      */
-    public  function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement, $directoryStoreDownloadFile)
+    public function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement, $directoryStoreDownloadFile)
     {
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
             $this->logger->error("Instance Helper error");
@@ -367,4 +367,18 @@ abstract class AbstractPage
         return $directory;
     }
 
+    /**
+     * @param $directory
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getAllFileInDirectory($directory)
+    {
+        if(!is_dir($directory)) {
+            throw new \Exception(sprintf('This path is not directory, path is %s', $directory));
+        }
+        $filesInfo = $this->downloadFileHelper->getAllFilesInDirectory($directory);
+
+        return $filesInfo;
+    }
 }

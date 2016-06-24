@@ -151,7 +151,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                 $totalWaitTime += static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS;
 
                 if ($totalWaitTime > $this->downloadTimeout) {
-                    $this->logger->debug(sprintf('Break because of time out after %f seconds', $totalWaitTime));
+                    $this->logger->warning(sprintf('Break because of time out after %f seconds. File has not been download', $totalWaitTime));
                     break;
                 }
 
@@ -215,7 +215,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @return array
      * @throws \Exception
      */
-    private function getAllFilesInDirectory($downloadDirectory)
+    public function getAllFilesInDirectory($downloadDirectory)
     {
         if(!is_dir($downloadDirectory)) {
             throw new \Exception(sprintf('This path is not directory, path is %s', $downloadDirectory));

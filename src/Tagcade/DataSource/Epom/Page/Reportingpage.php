@@ -17,6 +17,7 @@ class Reportingpage extends AbstractPage {
 
     const URL     =     'https://www.epommarket.com/account/home.do#|publisherDashboard';
 
+    const  WAITING_DOWNLOAD_TIME_OUT                 =  240;
 
     const  BREAK_DOWN_GROUP_KICK_DOWN_INDEX          =   1;
     const  BREAK_DOWN_GROUP_UL_INDEX                 =   1;
@@ -55,9 +56,8 @@ class Reportingpage extends AbstractPage {
         $this->waitLoadingSummaryReport();
 
         $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector('a[title="Export to CSV"]'));
-        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
+        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
-        $this->waitDownloadIfNotCompleteInHelper();
     }
 
     /**
@@ -167,26 +167,44 @@ class Reportingpage extends AbstractPage {
     }
 
     /**
-     * Waiting for loading report finish
-     * @param int $timeout
+     * Waiting for download finish
+     * @param RemoteWebElement $downloadBtn
+     * @param $directoryStoreDownloadFile
+     * @return $this|void
      */
-    protected function waitDownloadIfNotCompleteInHelper($timeout = 120)
+    public function downloadThenWaitUntilComplete(RemoteWebElement $downloadBtn, $directoryStoreDownloadFile)
     {
-        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Grid'));
+        $FilesBeforeClickDownload = $this->downloadFileHelper->getAllFilesInDirectory($directoryStoreDownloadFile);
+        $countFileBeforeDownload = count($FilesBeforeClickDownload);
 
+        $this->logger->debug('Click to Download Button');
+        $downloadBtn->click();
+
+        $this->logger->debug('Waiting for download complete');
+        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Grid'));
         $divLoadingElements = $report1GridElement->findElements(WebDriverBy::cssSelector('div[class="x-mask-msg"]'));
         $countLoadingElements = count($divLoadingElements);
         $totalWaitingTime = 0;
 
-        while (($countLoadingElements > 0) && ($totalWaitingTime < $timeout)) {
+        while (($countLoadingElements > 0) && ($totalWaitingTime < self::WAITING_DOWNLOAD_TIME_OUT)) {
             sleep(5);
-            $totalWaitingTime +=5;
+            $totalWaitingTime += 5;
 
             $divLoadingElements = $report1GridElement->findElements(WebDriverBy::cssSelector('div[class="x-mask-msg"]'));
             $countLoadingElements = count($divLoadingElements);
 
-            $this->logger->debug(sprintf('Wait Download complete After in Helper: Count loading element %d', $countLoadingElements));
-            $this->logger->debug(sprintf('Wait Download complete After in Helper: Total waiting time: %d', $totalWaitingTime ));
+            $this->logger->debug(sprintf('Waiting for Download : Count loading element %d', $countLoadingElements));
+            $this->logger->debug(sprintf('Waiting for Download : Total waiting time: %d', $totalWaitingTime ));
+        }
+
+        $FileAfterWaitingDownload = $this->downloadFileHelper->getAllFilesInDirectory($directoryStoreDownloadFile);
+        $countFileAfterWaitingDownload = count($FileAfterWaitingDownload);
+
+        if($countFileAfterWaitingDownload > $countFileBeforeDownload) {
+            $this->logger->info('File has been download!');
+        } else {
+            $this->logger->warning('File has not been download after time out');
         }
     }
+
 } 

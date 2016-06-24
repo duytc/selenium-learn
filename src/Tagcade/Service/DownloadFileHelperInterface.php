@@ -37,4 +37,10 @@ interface DownloadFileHelperInterface
      * @return mixed
      */
     public function getRootDirectory();
+
+    /**
+     * @param $downloadDirectory
+     * @return mixed
+     */
+    public function getAllFilesInDirectory($downloadDirectory);
 }
