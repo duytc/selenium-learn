@@ -206,5 +206,4 @@ class Reportingpage extends AbstractPage {
             $this->logger->warning('File has not been download after time out');
         }
     }
-
 } 
