@@ -110,18 +110,20 @@ class Reportingpage extends AbstractPage {
         $liElements[self::GROUP_BY_GROUP_PLACEMENT_INDEX]->click();
     }
 
-
+    /**
+     * Find Run Report button and click
+     */
     protected function findRunReportButtonAndClick()
     {
         $analyticsFormElement = $this->driver->findElement(WebDriverBy::id('analytics-form-id'));
         $aElementsCss = 'a[class="x-btn x-unselectable btn btn-default btn-lg x-box-item x-toolbar-item x-btn-default-medium x-noicon x-btn-noicon x-btn-default-medium-noicon"]';
         $aElements = $analyticsFormElement->findElements(WebDriverBy::cssSelector($aElementsCss));
-        $this->logger->debug(sprintf('Number a element =%d', count($aElements)));
+        $this->logger->debug(sprintf('Number "a" element =%d', count($aElements)));
         $aElements[1]->click();
     }
 
     /**
-     * Waiting for loading report finish
+     * Waiting for loading body report
      */
     protected function waitLoadingBodyReport()
     {
@@ -143,7 +145,7 @@ class Reportingpage extends AbstractPage {
     }
 
     /**
-     * Waiting for loading report finish class="x-mask-msg"
+     * Waiting for loading summary part report
      */
     protected function waitLoadingSummaryReport()
     {
