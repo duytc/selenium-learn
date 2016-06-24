@@ -35,7 +35,7 @@ class HomePage extends AbstractPage {
             $this->navigate();
         }
 
-        $this->info('Filling username and password');
+        $this->logger->debug('Filling username and password');
 
         $submitButtonLoginCss = '#loginForm > button:nth-child(10)';
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($submitButtonLoginCss)));
@@ -52,7 +52,7 @@ class HomePage extends AbstractPage {
             ->sendKeys($password)
         ;
 
-        $this->info('Click login button');
+        $this->logger->debug('Click login button');
         $submitButtonLoginCss = '#loginForm > button:nth-child(10)';
         $this->driver->findElement(WebDriverBy::cssSelector($submitButtonLoginCss))->click();
 
@@ -60,7 +60,7 @@ class HomePage extends AbstractPage {
             $signOutButtonCss= '#top-right-block > div.top-right-block.borderNone > div > span';
             $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($signOutButtonCss)));
             return true;
-        }catch (NoSuchElementException $e){
+        } catch (NoSuchElementException $e) {
             $this->info('Username or password is not correct!');
             return false;
         }

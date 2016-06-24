@@ -130,7 +130,6 @@ abstract class AbstractPage
         return $this->downloadFileHelper->getRootDirectory();
     }
 
-
     /**
      * @return $this|mixed
      */
