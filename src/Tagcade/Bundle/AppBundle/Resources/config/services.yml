@@ -11,6 +11,7 @@ imports:
     - { resource: services/ads4games.yml }
     - { resource: services/adtech.yml }
     - { resource: services/epom.yml }
+    - { resource: services/pub.ventures.yml }
 
 services:
     yaml:
