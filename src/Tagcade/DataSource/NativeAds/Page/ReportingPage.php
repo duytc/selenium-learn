@@ -58,6 +58,7 @@ class ReportingPage extends AbstractPage {
         $this->logger->debug('Write data to file');
         $path = $this->getPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
         $this->arrayToCSVFile($path, $dataToWrite);
+        $this->logoutSystem();
     }
 
     /**
@@ -195,5 +196,11 @@ class ReportingPage extends AbstractPage {
         $dateWidget->setDate($downloadDate);
 
         return $this;
+    }
+
+    protected function logoutSystem()
+    {
+        $logoutButtonCss = '#left-panel > nav > ul > li:nth-child(8) > a > span';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
     }
 } 

@@ -51,6 +51,9 @@ class DeliveryReportPage extends AbstractPage
             $this->getAllTagReportsForSingleDomain( $startDate, $endDate);
             usleep(500);
         }
+
+        $this->logger->debug('Logout system');
+        $this->logOutSystem();
     }
 
     /**
@@ -87,5 +90,11 @@ class DeliveryReportPage extends AbstractPage
         $dateWidget = new DateSelectWidget($this->driver);
         $dateWidget->setDateRange($startDate, $endDate);
         return $this;
+    }
+
+    protected function logOutSystem()
+    {
+        $logOutButtonCss = '#main-nav > ul > li.logout > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logOutButtonCss))->click();
     }
 } 

@@ -94,10 +94,15 @@ class ReportingPage extends AbstractPage {
                 $this->logger->debug(sprintf('Count Waiting element = %d', count($waitingImageElements)));
             } while (count($waitingImageElements) >0);
 
+           $mainWindow = $this->driver->getWindowHandle();
            $this->logger->debug('Click to download button!');
-            $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector('img[src="https://marketplace.adtechus.com/h2/img/themeone/img/status/ready.png"]'));
+           $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector('img[src="https://marketplace.adtechus.com/h2/img/themeone/img/status/ready.png"]'));
            $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
            $this->downloadThenWaitUntilComplete($downloadBtn , $directoryStoreDownloadFile);
+
+            $this->driver->switchTo()->window($mainWindow);
+           $this->logger->debug('Logout System!');
+           $this->logoutSystem();
 
         } catch (NoSuchElementException $e) {
             $this->logger->warning(sprintf('Can not find element: %s', $e->getMessage()));
@@ -120,4 +125,13 @@ class ReportingPage extends AbstractPage {
 
         return $this;
     }
+
+    protected function logoutSystem()
+    {
+        $logoutButtonCss = '#navLogoutItem';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+        $confirmLogoutButtonsCss = '#button_caption\2e yes';
+        $this->driver->findElement(WebDriverBy::cssSelector($confirmLogoutButtonsCss))->click();
+    }
+
 } 

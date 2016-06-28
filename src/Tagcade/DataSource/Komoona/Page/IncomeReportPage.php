@@ -36,6 +36,7 @@ class IncomeReportPage extends AbstractPage
         $downloadElement = $this->driver->findElement(WebDriverBy::id('tags-export-to-excel'));
         $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
+        $this->logOutSystem();
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate = null)
@@ -55,5 +56,11 @@ class IncomeReportPage extends AbstractPage
         $dateWidget->setDate($endDate, 'select#tags-date+input+img+input+img');
 
         return $this;
+    }
+
+    protected function logOutSystem()
+    {
+        $logOutCss = '#submit > input[type="submit"]';
+        $this->driver->findElement(WebDriverBy::cssSelector($logOutCss))->click();
     }
 }

@@ -52,6 +52,8 @@ class Reportingpage extends AbstractPage {
         $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector($zoneCssSelector));
         $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadBtn , $directoryStoreDownloadFile);
+        $this->logger->debug('Logout system');
+        $this->logOutSystem();
     }
 
     /**
@@ -65,5 +67,13 @@ class Reportingpage extends AbstractPage {
         $dateWidget->setDateRange($startDate, $endDate);
 
         return $this;
+    }
+
+    protected function logOutSystem()
+    {
+       $logOutCssButton = 'oaNavigationExtraTop';
+       $logoutAreaElement = $this->driver->findElement(WebDriverBy::id($logOutCssButton));
+       $logoutElement = $logoutAreaElement->findElement(WebDriverBy::cssSelector('a'));
+       $logoutElement->click();
     }
 } 

@@ -51,6 +51,7 @@ class ReportingPage extends AbstractPage
 
             $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
+            $this->logoutSystem();
         }
         catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
@@ -70,5 +71,17 @@ class ReportingPage extends AbstractPage
         $dateWidget = new DateSelectWidget($this->driver, $this->logger);
         $dateWidget->setDateRange($startDate, $endDate);
         return $this;
+    }
+
+    protected function logoutSystem()
+    {
+        $logOutAreaCss = '#headband > div.branding.clearfix > div.branding-container.clearfix > div.userWraper > div.username.clearfix > p';
+        $this->driver->findElement(WebDriverBy::cssSelector($logOutAreaCss))->click();
+
+        $logoutButtonCss = '//*[@id="userWrapper"]/div[2]/div/div[2]/a';
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::xpath($logoutButtonCss))
+        );
+        $this->driver->findElement(WebDriverBy::xpath($logoutButtonCss))->click();
     }
 } 

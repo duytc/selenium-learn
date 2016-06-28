@@ -35,6 +35,7 @@ class ReportingPage extends AbstractPage
         $downloadElement = $this->driver->findElement(WebDriverBy::id('report-export'));
         $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadElement ,$directoryStoreDownloadFile);
+        $this->logoutSystem();
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
@@ -43,4 +44,17 @@ class ReportingPage extends AbstractPage
         $dateWidget->setDateRange($startDate, $endDate);
         return $this;
     }
+
+    protected function logoutSystem()
+    {
+        $this->logger->debug('Move mouse to logout area');
+        $acountArea = 'body > div.navbar.navbar-inverse.navbar-fixed-top > div > div.navbar-tools > ul > li > a > span';
+        $point =$this->driver->findElement(WebDriverBy::cssSelector($acountArea))->getCoordinates();
+        $this->driver->getMouse()->mouseMove($point);
+
+        $this->logger->debug('Click log out button');
+        $logoutButtonCss = 'body > div.navbar.navbar-inverse.navbar-fixed-top > div > div.navbar-tools > ul > li > ul > li > a:nth-child(2) > i';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+    }
+
 } 
