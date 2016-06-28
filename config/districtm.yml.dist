@@ -1,0 +1,10 @@
+# report link: http://b3.districtm.ca/
+
+# districtm UI username
+username: 'username'
+# districtm UI password
+password: 'password'
+# Tagcade publisher id
+publisher_id: 1
+# partner canonical name stored in core_partner
+partner_cname: 'districtm'

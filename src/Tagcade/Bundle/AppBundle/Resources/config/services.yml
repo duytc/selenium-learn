@@ -12,6 +12,7 @@ imports:
     - { resource: services/adtech.yml }
     - { resource: services/epom.yml }
     - { resource: services/pub.ventures.yml }
+    - { resource: services/districtm.yml }
 
 services:
     yaml:
