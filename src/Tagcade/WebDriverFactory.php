@@ -131,7 +131,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
     public function createWebDriver($dataPath)
     {
         $chromeOptions = new ChromeOptions();
-        $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile', $dataPath)]);
+        $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile.%s', $dataPath, uniqid($prefix = '', $more_entropy = true))]);
         $executionDate = new \DateTime('today');
 
         $defaultDownloadPath = sprintf(
@@ -171,11 +171,9 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $driver = RemoteWebDriver::createBySessionID($session['id'], $this->seleniumServerUrl);
             try {
                 $driver->manage()->deleteAllCookies();
-            }
-            catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->info("Failed to delete cookies for browser");
             }
-
             $driver->quit();
             $this->logger->info(sprintf("Cleared Session: %s\n", $session['id']));
         }
