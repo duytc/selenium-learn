@@ -104,6 +104,9 @@ class ReportingPage extends AbstractPage  {
                 $this->logger->warning(sprintf('Exception when get data for site %s, exception message %s',$site, $e->getMessage()));
             }
         }
+
+        $this->logger->debug('Logout system!');
+        $this->logoutSystem();
     }
 
     /**
@@ -258,4 +261,9 @@ class ReportingPage extends AbstractPage  {
         fclose($file);
     }
 
+    protected function logoutSystem()
+    {
+        $logoutButtonCss = 'body > div > div.logged-in-as > div > div > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+    }
 } 

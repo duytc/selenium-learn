@@ -28,3 +28,6 @@ parameters:
         ads4games: 'tc:ads4games:get-data'
         adtech: 'tc:adtech:get-data'
         epom: 'tc:epom:get-data'
+        pub-ventures: 'tc:pub-ventures:get-data'
+        districtm: 'tc:districtm:get-data'
+        conversant: 'tc:conversant:get-data'

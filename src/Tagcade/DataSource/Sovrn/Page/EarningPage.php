@@ -16,6 +16,7 @@ class EarningPage extends AbstractPage
     {
 
         // popup calendar
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('section-account-download-adstats')));
         $dateCalendarContainer = $this->driver->findElement(WebDriverBy::id('section-account-download-adstats'));
         $elements = $dateCalendarContainer->findElements(WebDriverBy::className('date-range-calendar'));
 
@@ -69,8 +70,19 @@ class EarningPage extends AbstractPage
                 break;
             }
         }
+        $this->logger->debug('Log out system');
+        $this->logOutSystem();
     }
 
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return $this
+     * @throws \Exception
+     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws null
+     */
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
         $dateWidget = new DateSelectWidget($this->driver);
@@ -82,5 +94,14 @@ class EarningPage extends AbstractPage
         );
 
         return $this;
+    }
+
+
+    protected function logOutSystem()
+    {
+        $userImageCss = '#user-menu-trigger > div.impersonated > div.profile-image-outer > img';
+        $this->driver->findElement(WebDriverBy::cssSelector($userImageCss))->click();
+        $loutOutButtonCss = '#user-menu-popup > ul > li:nth-child(2) > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($loutOutButtonCss))->click();
     }
 } 

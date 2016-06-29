@@ -1,0 +1,12 @@
+# report link: https://admin.valueclickmedia.com/corp/login
+
+# conversant UI username
+username: 'username'
+# conversant UI email
+email: 'username@gmail.com'
+# conversant UI password
+password: 'password'
+# Tagcade publisher id
+publisher_id: 1
+# partner canonical name stored in core_partner
+partner_cname: 'conversant'
