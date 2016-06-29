@@ -42,6 +42,11 @@ class HomePage extends AbstractPage
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('landing-login'))->click();
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.user-username')));
+        $welcomeBackCss = '#ExpectedPayout';
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($welcomeBackCss)));
+        $topPerformanceAdTags = '#content_dashboard_top_tags';
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($topPerformanceAdTags)));
+
     }
 
     protected function isLoggedIn()
