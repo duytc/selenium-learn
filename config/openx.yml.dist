@@ -1,0 +1,12 @@
+# report link: http://b3.districtm.ca/
+
+# openx UI username
+username: 'username'
+# openx UI email
+email: 'email'
+# openx UI password
+password: 'password'
+# openx publisher id
+publisher_id: 1
+# partner canonical name stored in core_partner
+partner_cname: 'openx'
