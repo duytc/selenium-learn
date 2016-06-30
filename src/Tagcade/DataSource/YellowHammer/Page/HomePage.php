@@ -44,7 +44,10 @@ class HomePage extends AbstractPage
 
         usleep(100);
 
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#username .icon-user')));
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#username .icon-user')),
+            'Login Fail'
+        );
     }
 
     protected function isLoggedIn()

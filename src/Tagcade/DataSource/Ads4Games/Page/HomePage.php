@@ -54,13 +54,11 @@ class HomePage extends AbstractPage {
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('login'))->click();
-        try {
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('li[class="buttonLogout"]')));
-            return true;
-        }catch (NoSuchElementException $e){
-            $this->info('Username or password is not correct!');
-            return false;
-        }
+
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('li[class="buttonLogout"]')),
+            'Login Fail'
+        );
     }
 
     /**

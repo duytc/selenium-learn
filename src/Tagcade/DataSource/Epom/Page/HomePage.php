@@ -56,14 +56,11 @@ class HomePage extends AbstractPage {
         $submitButtonLoginCss = '#loginForm > button:nth-child(10)';
         $this->driver->findElement(WebDriverBy::cssSelector($submitButtonLoginCss))->click();
 
-        try {
-            $signOutButtonCss= '#top-right-block > div.top-right-block.borderNone > div > span';
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($signOutButtonCss)));
-            return true;
-        } catch (NoSuchElementException $e) {
-            $this->info('Username or password is not correct!');
-            return false;
-        }
+        $signOutButtonCss= '#top-right-block > div.top-right-block.borderNone > div > span';
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($signOutButtonCss)),
+            'Login Fail'
+        );
     }
 
     /**

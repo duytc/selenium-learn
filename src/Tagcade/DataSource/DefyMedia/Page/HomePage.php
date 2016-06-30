@@ -41,7 +41,10 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn-orange'))->click();
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.clip-question')));
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.clip-question')),
+            'Login Fail'
+        );
     }
 
     protected function isLoggedIn()

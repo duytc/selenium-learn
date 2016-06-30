@@ -17,11 +17,8 @@ class MediaFetcher extends PartnerFetcherAbstract implements MediaFetcherInterfa
         $homePage = new HomePage($driver, $this->logger);
         $this->logger->debug('Start logging in');
 
-        $result = $homePage->doLogin($params->getUsername(), $params->getPassword());
-        if (false == $result) {
-            $this->logger->error('Can not login this system');
-            return;
-        }
+        $homePage->doLogin($params->getUsername(), $params->getPassword());
+
         $this->logger->debug('Finish logging in');
         usleep(300);
 

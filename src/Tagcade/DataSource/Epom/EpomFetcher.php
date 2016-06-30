@@ -19,11 +19,7 @@ class EpomFetcher extends PartnerFetcherAbstract implements EpomFetcherInterface
         $homePage = new HomePage($driver, $this->logger);
         $this->logger->info('Start logging in');
 
-        $result = $homePage->doLogin($params->getUsername(), $params->getPassword());
-        if (false == $result) {
-            $this->logger->info('Can not login this system');
-            return;
-        }
+        $homePage->doLogin($params->getUsername(), $params->getPassword());
         $this->logger->info('Finish logging in');
         usleep(300);
 

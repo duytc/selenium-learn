@@ -33,7 +33,8 @@ class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetche
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('B3 - Performance by Day / Domain / Ad Size')
+            WebDriverExpectedCondition::titleContains('B3 - Performance by Day / Domain / Ad Size'),
+            'Login Fail'
         );
 
         $this->logger->info('Start downloading reports');

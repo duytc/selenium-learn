@@ -33,7 +33,8 @@ class OpenxFetcher extends PartnerFetcherAbstract implements OpenxFetcherInterfa
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('OpenX - Reports')
+            WebDriverExpectedCondition::titleContains('OpenX - Reports'),
+            'Login Fail'
         );
 
         $this->logger->info('Start downloading reports');

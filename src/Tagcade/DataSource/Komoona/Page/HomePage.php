@@ -46,7 +46,7 @@ class HomePage extends AbstractPage
         ;
 
         $this->driver->findElement(WebDriverBy::id('login-submit'))->click();
-        $this->driver->wait()->until(WebDriverExpectedCondition::titleContains('Control Panel'));
+        $this->driver->wait()->until(WebDriverExpectedCondition::titleContains('Control Panel'), 'Login Fail');
 
     }
 

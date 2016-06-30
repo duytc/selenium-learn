@@ -55,18 +55,14 @@ class HomePage extends AbstractPage {
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
 
-        try {
+        $logOutButton = '#navLogoutItem';
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($logOutButton)), 'Login Fail');
 
-            $logOutButton = '#navLogoutItem';
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($logOutButton)));
-
-            $accountSummaryCss = '#ssp_stats_loading_ssp_stats_lineChartPanel';
-            $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector($accountSummaryCss)));
-            return true;
-        }catch (NoSuchElementException $e){
-            $this->info('Username or password is not correct!');
-            return false;
-        }
+        $accountSummaryCss = '#ssp_stats_loading_ssp_stats_lineChartPanel';
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector($accountSummaryCss)),
+            'Login Fail'
+        );
     }
 
     /**

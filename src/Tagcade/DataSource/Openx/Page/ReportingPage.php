@@ -29,7 +29,7 @@ class ReportingPage extends AbstractPage
             );
 
             $iframePopup->findElement(WebDriverBy::cssSelector("#exportDropdown > section > div"))->click();
-            $downloadElement = $iframePopup->findElement(WebDriverBy::cssSelector("#exportDropdown > section > div > #dd > ul > li:nth-child(2) > a"));
+            $downloadElement = $iframePopup->findElement(WebDriverBy::cssSelector("#exportDropdown > section > div > #dd > ul > li:nth-child(1) > a"));
 
             $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);

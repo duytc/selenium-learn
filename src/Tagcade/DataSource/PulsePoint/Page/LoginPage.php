@@ -43,9 +43,11 @@ class LoginPage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('menubar')));
 
-        return $this;
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('menubar')),
+            'Login Fail'
+        );
     }
 
     public function isLoggedIn()

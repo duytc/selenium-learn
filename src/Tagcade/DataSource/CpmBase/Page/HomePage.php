@@ -57,9 +57,10 @@ class HomePage extends AbstractPage {
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::name('login'))->click();
 
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="/reporting"]')));
-
-        return true;
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="/reporting"]')),
+            'Login Fail'
+        );
     }
 
     /**

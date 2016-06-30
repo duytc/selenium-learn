@@ -32,7 +32,8 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Publisher Tools')
+            WebDriverExpectedCondition::titleContains('Publisher Tools'),
+            'Login Fail'
         );
 
         $this->logger->info('Start downloading reports');

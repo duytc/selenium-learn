@@ -33,7 +33,8 @@ class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFe
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Pub Ventures - Console Report UI')
+            WebDriverExpectedCondition::titleContains('Pub Ventures - Console Report UI'),
+            'Login Fail'
         );
 
         $this->logger->info('Start downloading reports');

@@ -41,11 +41,20 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('landing-login'))->click();
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.user-username')));
+
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.user-username')),
+            'Login Fail'
+        );
         $welcomeBackCss = '#ExpectedPayout';
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($welcomeBackCss)));
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($welcomeBackCss)),
+            'Payout Empty'
+        );
         $topPerformanceAdTags = '#content_dashboard_top_tags';
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($topPerformanceAdTags)));
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($topPerformanceAdTags)), 'Content Empty'
+        );
 
     }
 

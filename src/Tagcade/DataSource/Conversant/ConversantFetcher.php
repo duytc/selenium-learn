@@ -33,7 +33,8 @@ class ConversantFetcher extends PartnerFetcherAbstract implements ConversantFetc
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Publisher UI - Earnings History')
+            WebDriverExpectedCondition::titleContains('Publisher UI - Earnings History'),
+            'Login Fail'
         );
 
         $this->logger->info('Start downloading reports');
