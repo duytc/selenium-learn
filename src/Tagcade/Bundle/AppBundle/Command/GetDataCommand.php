@@ -222,6 +222,7 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $this->logger->info(sprintf('Creating web driver with identifier param %s', $identifier));
         $driver = $webDriverFactory->getWebDriver($identifier, $dataPath);
+        // you could clear cache and cookies here if using the same profile
 
         if (!$driver) {
             $this->logger->critical('Failed to create web driver from session');
