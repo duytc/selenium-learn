@@ -30,6 +30,12 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $this
             ->setName('tc:unified-report-fetcher:get-data')
             ->addOption(
+                'publisher',
+                'p',
+                InputOption::VALUE_OPTIONAL,
+                'fetcher for a publisher'
+            )
+            ->addOption(
                 'start-date',
                 'f',
                 InputOption::VALUE_OPTIONAL,
@@ -68,6 +74,7 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $container = $this->getContainer();
         $logger = $container->get('logger');
 
+        $publisher = $input->getOption('publisher');
         $startDate = $input->getOption('start-date');
         $endDate = $input->getOption('end-date');
         $dataPath= $input->getOption('data-path');
@@ -92,12 +99,14 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
 
             try {
                 $runCommand = $this->getApplication()->find($command);
+
                 if (!$runCommand instanceof GetDataCommand) {
                     $logger->error(sprintf('Not found command %s', $command));
                     continue;
                 }
 
                 $arguments = array(
+                    '--publisher' => $publisher,
                     '--partner-cname' => $partner,
                     '--start-date' => $startDate,
                     '--end-date' => $endDate,

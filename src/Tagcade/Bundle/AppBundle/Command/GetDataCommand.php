@@ -39,6 +39,12 @@ abstract class GetDataCommand extends ContainerAwareCommand
     {
         $this
             ->addOption(
+                'publisher',
+                'p',
+                InputOption::VALUE_NONE,
+                'Start date (YYYY-MM-DD) to get report.'
+            )
+            ->addOption(
                 'start-date',
                 'f',
                 InputOption::VALUE_OPTIONAL,
@@ -144,9 +150,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
         } else {
             /** @var TagcadeRestClientInterface $restClient */
             $restClient = $this->getContainer()->get('tagcade_app.rest_client');
+            $publisherId = $input->getOption('publisher');
 
             $this->logger->info('Getting list of publishers and their configuration for this partner');
-            $configs = $restClient->getPartnerConfigurationForAllPublishers($partnerCName);
+            $configs = $restClient->getPartnerConfigurationForAllPublishers($partnerCName, $publisherId);
 
             $this->logger->info(sprintf('Found %d publishers associated to this partner', count($configs)));
         }

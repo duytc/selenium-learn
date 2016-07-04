@@ -93,17 +93,21 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         return $this->token;
     }
 
-    public function getPartnerConfigurationForAllPublishers($partnerCName)
+    public function getPartnerConfigurationForAllPublishers($partnerCName, $publisherId = null)
     {
         $this->logger->info(sprintf('Getting publisher configuration for partner %s', $partnerCName));
 
         $header = array('Authorization: Bearer ' . $this->getToken());
 
+        $data = is_numeric($publisherId) ? ['publisher' => $publisherId] : [];
         $publishers = $this->curl->executeQuery(
             str_replace('{cname}', $partnerCName, $this->getListPublisherUrl),
             'GET',
-            $header
+            $header,
+            $data
         );
+
+        var_dump($publishers);
 
         $this->curl->close();
 
