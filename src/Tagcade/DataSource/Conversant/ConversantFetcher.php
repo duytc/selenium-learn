@@ -16,7 +16,12 @@ class ConversantFetcher extends PartnerFetcherAbstract implements ConversantFetc
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if(!$login) {
+            return;
+        }
+
         $this->logger->info('end logging in');
 
         usleep(10);
@@ -33,8 +38,7 @@ class ConversantFetcher extends PartnerFetcherAbstract implements ConversantFetc
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Publisher UI - Earnings History'),
-            'Login Fail'
+            WebDriverExpectedCondition::titleContains('Publisher UI - Earnings History')
         );
 
         $this->logger->info('Start downloading reports');

@@ -107,8 +107,6 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             $data
         );
 
-        var_dump($publishers);
-
         $this->curl->close();
 
         $this->logger->info(sprintf('finished getting publisher configuration. Got this %s', $publishers));
