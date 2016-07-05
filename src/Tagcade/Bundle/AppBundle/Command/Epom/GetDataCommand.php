@@ -8,12 +8,12 @@ use Tagcade\DataSource\PartnerFetcherInterface;
 
 class GetDataCommand extends BaseGetDataCommand  {
 
-    const DEFAULT_CANONICAL_NAME = 'epom';
+    const DEFAULT_CANONICAL_NAME = 'epom-market';
 
     protected function configure()
     {
         $this
-            ->setName('tc:epom:get-data')
+            ->setName('tc:epom-market:get-data')
         ;
 
         parent::configure();
@@ -24,6 +24,6 @@ class GetDataCommand extends BaseGetDataCommand  {
      */
     protected function getFetcher()
     {
-        return $this->getContainer()->get('tagcade.data_source.fetcher.epom');
+        return $this->getContainer()->get('tagcade.data_source.fetcher.epom_market');
     }
 }
