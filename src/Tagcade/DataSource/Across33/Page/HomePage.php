@@ -15,7 +15,7 @@ class HomePage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
-            return;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) {
@@ -39,21 +39,14 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
+        sleep(2);
+        return $this->isLoggedIn();
     }
 
     protected function isLoggedIn()
     {
-        try {
-            $this->driver
-                ->findElement(WebDriverBy::id('header-mainmenu'))
-            ;
+       $headerMainmenus = $this->driver->findElements(WebDriverBy::cssSelector('a[href="/account/log_out"]'));
 
-            return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        return false;
+        return empty($headerMainmenus)? false:true;
     }
 } 

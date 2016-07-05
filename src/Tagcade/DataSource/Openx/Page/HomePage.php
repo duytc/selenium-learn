@@ -16,7 +16,7 @@ class HomePage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
-            return;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) {
@@ -25,6 +25,7 @@ class HomePage extends AbstractPage
         $this->logger->debug('filling credentials');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('email')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('password')));
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('submit')));
 
         $this->driver
             ->findElement(WebDriverBy::id('email'))
@@ -38,23 +39,20 @@ class HomePage extends AbstractPage
             ->sendKeys($password)
         ;
 
+        $this->driver->manage()->timeouts()->setScriptTimeout(200);
+        $this->driver->manage()->timeouts()->pageLoadTimeout(200);
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('submit'))->click();
+
+        $errors = $this->driver->findElements(WebDriverBy::cssSelector('div[class="error"]'));
+
+        return count($errors) >0 ? false: true;
     }
 
     protected function isLoggedIn()
     {
-        try {
-            $this->driver
-                ->findElement(WebDriverBy::id('header-container'))
-            ;
+        $reportings = $this->driver->findElements(WebDriverBy::id('reporting'));
 
-            return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        return false;
+        return empty($reportings)? false:true;
     }
 } 

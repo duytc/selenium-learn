@@ -21,7 +21,6 @@ class ReportingPage extends AbstractPage
         $iframe->findElement(WebDriverBy::xpath("//a[text()[contains(.,'Exchange Revenue_Yesterday')]]"))->click();
 
         try {
-            sleep(5);
 
             $iframePopup = $iframe->switchTo()->frame($iframe->findElement(WebDriverBy::cssSelector("#popupFrame > iframe")));
             $iframePopup->wait()->until(

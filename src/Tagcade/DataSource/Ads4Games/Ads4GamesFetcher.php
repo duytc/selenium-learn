@@ -17,7 +17,11 @@ class Ads4GamesFetcher extends PartnerFetcherAbstract implements Ads4GamesFetche
         // Step 1: login
         $this->logger->info('Enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+        if (false == $isLogin) {
+            $this->logger->warning('Login system failed');
+            return;
+        }
         $this->logger->info('Finish logging in');
 
         usleep(300);

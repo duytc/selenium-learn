@@ -55,14 +55,8 @@ class HomePage extends AbstractPage {
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
 
-        $logOutButton = '#navLogoutItem';
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($logOutButton)), 'Login Fail');
+        $this->isLoggedIn();
 
-        $accountSummaryCss = '#ssp_stats_loading_ssp_stats_lineChartPanel';
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector($accountSummaryCss)),
-            'Login Fail'
-        );
     }
 
     /**
@@ -70,17 +64,10 @@ class HomePage extends AbstractPage {
      */
     protected function isLoggedIn()
     {
-        try {
-            $logOutButton = '#marketplaceNavigationbarForthTab > a:nth-child(1)';
-            $this->driver->findElement(WebDriverBy::cssSelector($logOutButton));
+            $logOutButton = '#navLogoutItem';
+            $logOutElements = $this->driver->findElements(WebDriverBy::cssSelector($logOutButton));
 
-            return true;
-
-        } catch (NoSuchElementException $e) {
-
-            $this->logger->debug('User does not login!');
-            return false;
-        }
+            return empty($logOutElements)? false:true;
     }
 
 }

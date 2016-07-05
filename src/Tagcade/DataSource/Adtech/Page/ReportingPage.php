@@ -28,6 +28,8 @@ class ReportingPage extends AbstractPage {
      */
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
+        $impressionCharCss = '#ssp_stats_lineChartPanel > div > div:nth-child(1) > svg';
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($impressionCharCss)));
 
         $reportingTabCssSelector = '#marketplaceNavigationbarForthTab > a';
         $this->driver->findElement(WebDriverBy::cssSelector($reportingTabCssSelector))

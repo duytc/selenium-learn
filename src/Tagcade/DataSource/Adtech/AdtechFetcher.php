@@ -17,10 +17,15 @@ class AdtechFetcher extends PartnerFetcherAbstract implements AdtechFetcherInter
         // Step 1: login
         $this->logger->info('Enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
-        $this->logger->info('Finish logging in');
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
 
-        usleep(300);
+        if (false == $isLogin) {
+            $this->logger->warning('Login system failed');
+            return;
+        }
+
+        $this->logger->info('Finish logging in');
+        sleep(5);
 
         $this->logger->debug('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);

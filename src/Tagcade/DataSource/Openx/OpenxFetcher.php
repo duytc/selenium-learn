@@ -16,13 +16,23 @@ class OpenxFetcher extends PartnerFetcherAbstract implements OpenxFetcherInterfa
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if (false == $login) {
+            $this->logger->warning('Login system fail');
+            return;
+        }
+
         $this->logger->info('end logging in');
 
         usleep(10);
 
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new ReportingPage($driver, $this->logger);
+
+        if (!$deliveryReportPage->isCurrentUrl()) {
+            $deliveryReportPage->navigate();
+        }
 
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
@@ -31,11 +41,6 @@ class OpenxFetcher extends PartnerFetcherAbstract implements OpenxFetcherInterfa
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
         }
-
-        $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('OpenX - Reports'),
-            'Login Fail'
-        );
 
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
