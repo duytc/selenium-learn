@@ -40,6 +40,14 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.submit_input'))->click();
+
+        $error = $this->driver->findElements(WebDriverBy::cssSelector('#login-password-errors'));
+        if(count($error) > 0) {
+            $this->logger->warning('Login Fail');
+            return false;
+        }
+
+        return true;
     }
 
     protected function isLoggedIn()
