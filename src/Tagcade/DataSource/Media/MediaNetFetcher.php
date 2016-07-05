@@ -8,7 +8,7 @@ use Tagcade\DataSource\Media\Page\ReportingPage;
 use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class MediaFetcher extends PartnerFetcherAbstract implements MediaFetcherInterface
+class MediaNetFetcher extends PartnerFetcherAbstract implements MediaNetFetcherInterface
 {
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
@@ -20,8 +20,7 @@ class MediaFetcher extends PartnerFetcherAbstract implements MediaFetcherInterfa
         $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         $this->logger->debug('Finish logging in');
-        usleep(300);
-
+        sleep(5);
         $this->logger->info('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());

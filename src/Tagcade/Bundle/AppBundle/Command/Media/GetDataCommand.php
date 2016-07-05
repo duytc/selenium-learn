@@ -9,12 +9,12 @@ use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
 class GetDataCommand extends BaseGetDataCommand
 {
 
-    const DEFAULT_CANONICAL_NAME = 'media';
+    const DEFAULT_CANONICAL_NAME = 'media-net';
 
     protected function configure()
     {
         $this
-            ->setName('tc:media:get-data')
+            ->setName('tc:media-net:get-data')
         ;
 
         parent::configure();
@@ -25,6 +25,6 @@ class GetDataCommand extends BaseGetDataCommand
      */
     protected function getFetcher()
     {
-        return $this->getContainer()->get('tagcade.data_source.fetcher.media');
+        return $this->getContainer()->get('tagcade.data_source.fetcher.media_net');
     }
 }

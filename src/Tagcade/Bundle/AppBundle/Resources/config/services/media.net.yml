@@ -8,8 +8,8 @@ services:
         tags:
             -  { name: console.command }
 
-    tagcade.data_source.fetcher.media:
-        class: Tagcade\DataSource\Media\MediaFetcher
+    tagcade.data_source.fetcher.media_net:
+        class: Tagcade\DataSource\Media\MediaNetFetcher
         calls:
             - [setLogger, [@logger]]
             - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
