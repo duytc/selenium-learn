@@ -16,7 +16,12 @@ class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFe
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if(!$login) {
+            return;
+        }
+
         $this->logger->info('end logging in');
 
         usleep(10);
@@ -33,8 +38,7 @@ class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFe
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Pub Ventures - Console Report UI'),
-            'Login Fail'
+            WebDriverExpectedCondition::titleContains('Pub Ventures - Console Report UI')
         );
 
         $this->logger->info('Start downloading reports');
