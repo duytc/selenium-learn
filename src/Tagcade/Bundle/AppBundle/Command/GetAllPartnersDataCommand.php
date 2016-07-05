@@ -101,6 +101,11 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             return;
         }
 
+        if ($partnerCName != null && !array_key_exists($partnerCName,  $this->supportedPartners)) {
+            $logger->info(sprintf("Not supported that partner cname: %s", $partnerCName));
+            return;
+        }
+
         foreach ($this->supportedPartners as $partner => $command) {
             if(!!$partnerCName && $partner != $partnerCName) {
                 continue;
