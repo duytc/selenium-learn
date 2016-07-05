@@ -36,6 +36,12 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
                 'fetcher for a publisher'
             )
             ->addOption(
+                'partner-cname',
+                'pa',
+                InputOption::VALUE_OPTIONAL,
+                'fetcher for partner cname'
+            )
+            ->addOption(
                 'start-date',
                 'f',
                 InputOption::VALUE_OPTIONAL,
@@ -75,6 +81,7 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $logger = $container->get('logger');
 
         $publisher = $input->getOption('publisher');
+        $partnerCName = $input->getOption('partner-cname');
         $startDate = $input->getOption('start-date');
         $endDate = $input->getOption('end-date');
         $dataPath= $input->getOption('data-path');
@@ -95,7 +102,11 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         }
 
         foreach ($this->supportedPartners as $partner => $command) {
-           $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
+            if(!!$partnerCName && $partner != $partnerCName) {
+                continue;
+            }
+
+            $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
 
             try {
                 $runCommand = $this->getApplication()->find($command);
