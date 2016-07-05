@@ -7,6 +7,7 @@ namespace Tagcade\DataSource\Epom\Widget;
 use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
 use Monolog\Logger;
 use Tagcade\DataSource\PulsePoint\Widget\AbstractWidget;

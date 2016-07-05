@@ -10,7 +10,7 @@ use Tagcade\DataSource\Epom\Page\Reportingpage;
 use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class EpomFetcher extends PartnerFetcherAbstract implements EpomFetcherInterface {
+class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetcherInterface {
 
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
