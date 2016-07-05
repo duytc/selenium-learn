@@ -55,7 +55,8 @@ class HomePage extends AbstractPage {
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
 
-        $this->isLoggedIn();
+        sleep(2);
+       return $this->isLoggedIn();
 
     }
 
