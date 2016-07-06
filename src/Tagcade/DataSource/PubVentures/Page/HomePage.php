@@ -40,14 +40,21 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
+
+        $error = $this->driver->findElements(WebDriverBy::cssSelector('#login-form > fieldset > div.alert.error'));
+
+        if(count($error) > 0) {
+            $this->logger->warning('Login Fail');
+            return false;
+        }
+
+        return true;
     }
 
     protected function isLoggedIn()
     {
         try {
-            $this->driver
-                ->findElement(WebDriverBy::cssSelector('lucid-Button-content'))
-            ;
+            $this->driver->findElement(WebDriverBy::cssSelector('lucid-Button-content'));
 
             return true;
         }

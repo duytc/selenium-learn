@@ -5,15 +5,16 @@ imports:
     - { resource: services/across33.yml }
     - { resource: services/sovrn.yml }
     - { resource: services/pulse.point.yml }
-    - { resource: services/media.yml }
+    - { resource: services/media.net.yml }
     - { resource: services/cpmbase.yml }
     - { resource: services/nativeads.yml }
     - { resource: services/ads4games.yml }
     - { resource: services/adtech.yml }
-    - { resource: services/epom.yml }
+    - { resource: services/epom.market.yml }
     - { resource: services/pub.ventures.yml }
     - { resource: services/districtm.yml }
     - { resource: services/conversant.yml }
+    - { resource: services/openx.yml }
 
 services:
     yaml:

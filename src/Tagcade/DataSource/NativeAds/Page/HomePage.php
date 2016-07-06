@@ -55,16 +55,9 @@ class HomePage extends AbstractPage {
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('button[class="btn btn-primary"]'))->click();
 
-        try {
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="logout.php"]')));
-            return true;
-        } catch (NoSuchElementException $e){
-            $this->logger->warning('Username or password is not correct!');
-            return false;
-        } catch (TimeOutException $e) {
-            $this->logger->warning('Time out exception');
-            return false;
-        }
+        sleep(2);
+        return $this->isLoggedIn();
+
     }
 
     /**
@@ -72,13 +65,8 @@ class HomePage extends AbstractPage {
      */
     protected function isLoggedIn()
     {
-        try {
-            $this->driver->findElement(WebDriverBy::cssSelector('a[href="logout.php"]'));
-            return true;
+        $logoutElements = $this->driver->findElements(WebDriverBy::cssSelector('a[href="logout.php"]'));
 
-        } catch (NoSuchElementException $e) {
-
-            return false;
-        }
+        return empty($logoutElements)? false: true;
     }
 } 

@@ -16,7 +16,13 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if(false == $isLogin) {
+            $this->logger->warning('Login system failed');
+            return;
+        }
+
         $this->logger->info('end logging in');
 
         usleep(10);
@@ -32,7 +38,8 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Publisher Tools')
+            WebDriverExpectedCondition::titleContains('Publisher Tools'),
+            'Login Fail'
         );
 
         $this->logger->info('Start downloading reports');

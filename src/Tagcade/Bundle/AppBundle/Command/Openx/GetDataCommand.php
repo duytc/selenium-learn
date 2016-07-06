@@ -1,20 +1,22 @@
 <?php
 
-namespace Tagcade\Bundle\AppBundle\Command\Media;
+namespace Tagcade\Bundle\AppBundle\Command\Openx;
 
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Symfony\Component\Console\Input\InputOption;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\Bundle\AppBundle\Command\GetDataCommand as BaseGetDataCommand;
+use Tagcade\DataSource\PartnerParamInterface;
 
 class GetDataCommand extends BaseGetDataCommand
 {
 
-    const DEFAULT_CANONICAL_NAME = 'media-net';
+    const DEFAULT_CANONICAL_NAME = 'openx';
 
     protected function configure()
     {
         $this
-            ->setName('tc:media-net:get-data')
+            ->setName('tc:openx:get-data')
         ;
 
         parent::configure();
@@ -25,6 +27,6 @@ class GetDataCommand extends BaseGetDataCommand
      */
     protected function getFetcher()
     {
-        return $this->getContainer()->get('tagcade.data_source.fetcher.media_net');
+        return $this->getContainer()->get('tagcade.data_source.fetcher.openx');
     }
 }

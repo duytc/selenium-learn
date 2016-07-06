@@ -19,7 +19,11 @@ class CpmBaseFetcher extends PartnerFetcherAbstract implements CpmBaseFetcherInt
         // Step 1: login
         $this->logger->debug('Enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
+        if (false == $login) {
+            $this->logger->warning('Login system fail');
+            return;
+        }
         $this->logger->debug('End logging in');
 
         usleep(10);

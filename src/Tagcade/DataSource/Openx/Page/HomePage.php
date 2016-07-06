@@ -1,15 +1,16 @@
 <?php
 
-namespace Tagcade\DataSource\Across33\Page;
+namespace Tagcade\DataSource\Openx\Page;
+
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
-class HomePage extends AbstractPage 
+class HomePage extends AbstractPage
 {
-    const URL = 'https://platform.33across.com/sessions/new';
-    
+    const URL = 'http://us-market.openx.com/#/reports?tab=my_reports';
+
     public function doLogin($username, $password)
     {
         $this->navigateToPartnerDomain();
@@ -22,11 +23,12 @@ class HomePage extends AbstractPage
             $this->navigate();
         }
         $this->logger->debug('filling credentials');
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login')));
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('email')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('password')));
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('submit')));
 
         $this->driver
-            ->findElement(WebDriverBy::id('login'))
+            ->findElement(WebDriverBy::id('email'))
             ->clear()
             ->sendKeys($username)
         ;
@@ -37,16 +39,20 @@ class HomePage extends AbstractPage
             ->sendKeys($password)
         ;
 
+        $this->driver->manage()->timeouts()->setScriptTimeout(200);
+        $this->driver->manage()->timeouts()->pageLoadTimeout(200);
         $this->logger->debug('click login button');
-        $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
-        sleep(2);
-        return $this->isLoggedIn();
+        $this->driver->findElement(WebDriverBy::id('submit'))->click();
+
+        $errors = $this->driver->findElements(WebDriverBy::cssSelector('div[class="error"]'));
+
+        return count($errors) >0 ? false: true;
     }
 
     protected function isLoggedIn()
     {
-       $headerMainmenus = $this->driver->findElements(WebDriverBy::cssSelector('a[href="/account/log_out"]'));
+        $reportings = $this->driver->findElements(WebDriverBy::id('reporting'));
 
-        return empty($headerMainmenus)? false:true;
+        return empty($reportings)? false:true;
     }
 } 

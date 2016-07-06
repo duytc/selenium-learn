@@ -6,7 +6,7 @@ namespace Tagcade\DataSource\Media;
 
 use Tagcade\DataSource\PartnerFetcherInterface;
 
-interface MediaFetcherInterface extends  PartnerFetcherInterface {
+interface MediaNetFetcherInterface extends  PartnerFetcherInterface {
 
 
 } 

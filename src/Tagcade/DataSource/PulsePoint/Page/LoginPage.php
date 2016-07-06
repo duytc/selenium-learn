@@ -20,7 +20,7 @@ class LoginPage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
-            return $this;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) {
@@ -43,24 +43,16 @@ class LoginPage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('menubar')));
 
-        return $this;
+        sleep(2);
+        return $this->isLoggedIn();
     }
 
     public function isLoggedIn()
     {
-        try {
-            $this->driver
-                ->findElement(WebDriverBy::cssSelector('.userName'))
-            ;
+        $logoutCss = 'a[href="/Publisher/logout.aspx"]';
+        $userNameElements = $this->driver->findElements(WebDriverBy::cssSelector($logoutCss));
 
-            return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        return false;
+        return empty($userNameElements) ? false:true;
     }
 }

@@ -24,9 +24,10 @@ class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetch
         $homePage = new HomePage($driver, $this->logger);
         $this->logger->debug('Start logging in');
 
-        $result = $homePage->doLogin($params->getUsername(), $params->getPassword());
-        if (false == $result) {
-            $this->logger->info('Can not login this system');
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if (false == $isLogin) {
+            $this->logger->warning('Login system failed!');
             return;
         }
 

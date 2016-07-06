@@ -30,6 +30,18 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $this
             ->setName('tc:unified-report-fetcher:get-data')
             ->addOption(
+                'publisher',
+                'p',
+                InputOption::VALUE_OPTIONAL,
+                'fetcher for a publisher'
+            )
+            ->addOption(
+                'partner-cname',
+                'pa',
+                InputOption::VALUE_OPTIONAL,
+                'fetcher for partner cname'
+            )
+            ->addOption(
                 'start-date',
                 'f',
                 InputOption::VALUE_OPTIONAL,
@@ -68,6 +80,8 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
         $container = $this->getContainer();
         $logger = $container->get('logger');
 
+        $publisher = $input->getOption('publisher');
+        $partnerCName = $input->getOption('partner-cname');
         $startDate = $input->getOption('start-date');
         $endDate = $input->getOption('end-date');
         $dataPath= $input->getOption('data-path');
@@ -87,17 +101,28 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             return;
         }
 
+        if ($partnerCName != null && !array_key_exists($partnerCName,  $this->supportedPartners)) {
+            $logger->info(sprintf("Not supported that partner cname: %s", $partnerCName));
+            return;
+        }
+
         foreach ($this->supportedPartners as $partner => $command) {
-           $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
+            if(!!$partnerCName && $partner != $partnerCName) {
+                continue;
+            }
+
+            $logger->info(sprintf('Start run command %s for partner %s', $command, $partner));
 
             try {
                 $runCommand = $this->getApplication()->find($command);
+
                 if (!$runCommand instanceof GetDataCommand) {
                     $logger->error(sprintf('Not found command %s', $command));
                     continue;
                 }
 
                 $arguments = array(
+                    '--publisher' => $publisher,
                     '--partner-cname' => $partner,
                     '--start-date' => $startDate,
                     '--end-date' => $endDate,

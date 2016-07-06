@@ -28,7 +28,6 @@ class ReportingPage extends AbstractPage {
      */
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
-
         $reportingTabCssSelector = '#marketplaceNavigationbarForthTab > a';
         $this->driver->findElement(WebDriverBy::cssSelector($reportingTabCssSelector))
             ->click()

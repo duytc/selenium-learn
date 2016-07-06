@@ -1,28 +1,31 @@
 <?php
 
-namespace Tagcade\DataSource\Media;
+
+namespace Tagcade\DataSource\Epom;
+
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Tagcade\DataSource\Media\Page\HomePage;
-use Tagcade\DataSource\Media\Page\ReportingPage;
+use Tagcade\DataSource\Epom\Page\HomePage;
+use Tagcade\DataSource\Epom\Page\Reportingpage;
 use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class MediaFetcher extends PartnerFetcherAbstract implements MediaFetcherInterface
-{
+class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetcherInterface {
+
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         // Step 1: login
         $this->logger->info('Enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $this->logger->debug('Start logging in');
+        $this->logger->info('Start logging in');
 
-        $result = $homePage->doLogin($params->getUsername(), $params->getPassword());
-        if (false == $result) {
-            $this->logger->error('Can not login this system');
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+        if(false == $isLogin) {
+            $this->logger->warning('Login system failed!');
             return;
         }
-        $this->logger->debug('Finish logging in');
+        $this->logger->info('Finish logging in');
+
         usleep(300);
 
         $this->logger->info('Enter download report page');

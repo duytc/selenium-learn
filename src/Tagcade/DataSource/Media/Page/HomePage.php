@@ -55,13 +55,11 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('publisherSignin'))->click();
-        try {
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('dashboard')));
-            return true;
-        }catch (NoSuchElementException $e){
-            $this->logger->warning('Username or password is not correct!');
-            return false;
-        }
+
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('dashboard')),
+            'Login Fail'
+        );
     }
 
     /**

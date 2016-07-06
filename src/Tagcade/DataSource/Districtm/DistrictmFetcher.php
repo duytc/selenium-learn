@@ -16,7 +16,12 @@ class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetche
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if(!$login) {
+            return;
+        }
+
         $this->logger->info('end logging in');
 
         usleep(10);

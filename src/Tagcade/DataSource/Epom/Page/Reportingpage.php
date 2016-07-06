@@ -43,7 +43,7 @@ class Reportingpage extends AbstractPage {
         $this->driver->findElement(WebDriverBy::cssSelector($analyticCssSelector))
             ->click()
         ;
-        sleep(2);
+        sleep(5);
         $this->logger->info('Select date range');
         $this->selectDateRange($startDate, $endDate);
         $this->selectBreakDown();

@@ -7,7 +7,7 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\DataSource\PubVentures\Widget\DateSelectWidget;
+use Tagcade\DataSource\Conversant\Widget\DateSelectWidget;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class ReportingPage extends AbstractPage

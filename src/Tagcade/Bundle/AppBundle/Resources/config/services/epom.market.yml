@@ -3,13 +3,13 @@ services:
 #        class: Tagcade\DataSource\PulsePoint\TaskFactory
 #        arguments: [@tagcade.web_driver_factory, @logger]
 
-    tagcade.command.media.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\Media\GetDataCommand
+    tagcade.command.epom.get_data_command:
+        class: Tagcade\Bundle\AppBundle\Command\Epom\GetDataCommand
         tags:
             -  { name: console.command }
 
-    tagcade.data_source.fetcher.media:
-        class: Tagcade\DataSource\Media\MediaFetcher
+    tagcade.data_source.fetcher.epom_market:
+        class: Tagcade\DataSource\Epom\EpomMarketFetcher
         calls:
             - [setLogger, [@logger]]
             - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]

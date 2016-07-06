@@ -16,7 +16,13 @@ class KomoonaFetcher extends PartnerFetcherAbstract implements KomoonaFetcherInt
         // Step 1: login
         $homePage = new HomePage($driver, $this->logger);
         $this->logger->info(sprintf('Trying to login to home page %s', $homePage->getPageUrl()));
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        if (false == $isLogin) {
+            $this->logger->warning('Login system failed!');
+            return;
+        }
+
         $this->logger->debug(sprintf('The page is logged in %s', $homePage->getPageUrl()));
 
         // Step 2: view report

@@ -1,15 +1,15 @@
 <?php
 
-namespace Tagcade\DataSource\PubVentures;
+namespace Tagcade\DataSource\Openx;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\DataSource\PubVentures\Page\ReportingPage;
-use Tagcade\DataSource\PubVentures\Page\HomePage;
+use Tagcade\DataSource\Openx\Page\ReportingPage;
+use Tagcade\DataSource\Openx\Page\HomePage;
 use Tagcade\DataSource\PartnerFetcherAbstract;
 use Tagcade\DataSource\PartnerParamInterface;
 
-class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFetcherInterface
+class OpenxFetcher extends PartnerFetcherAbstract implements OpenxFetcherInterface
 {
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
@@ -18,7 +18,8 @@ class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFe
         $homePage = new HomePage($driver, $this->logger);
         $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
 
-        if(!$login) {
+        if (false == $login) {
+            $this->logger->warning('Login system fail');
             return;
         }
 
@@ -29,6 +30,10 @@ class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFe
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new ReportingPage($driver, $this->logger);
 
+        if (!$deliveryReportPage->isCurrentUrl()) {
+            $deliveryReportPage->navigate();
+        }
+
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
 
@@ -36,10 +41,6 @@ class PubVenturesFetcher extends PartnerFetcherAbstract implements PubVenturesFe
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
         }
-
-        $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Pub Ventures - Console Report UI')
-        );
 
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());

@@ -71,9 +71,6 @@ class Reportingpage extends AbstractPage {
 
     protected function logOutSystem()
     {
-       $logOutCssButton = 'oaNavigationExtraTop';
-       $logoutAreaElement = $this->driver->findElement(WebDriverBy::id($logOutCssButton));
-       $logoutElement = $logoutAreaElement->findElement(WebDriverBy::cssSelector('a'));
-       $logoutElement->click();
+        $this->driver->navigate()->to('https://traffic.a4g.com/www/admin/logout.php');
     }
 } 
