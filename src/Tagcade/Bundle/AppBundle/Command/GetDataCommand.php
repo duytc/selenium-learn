@@ -160,6 +160,12 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
         $processId = getmypid();
         $processedPublisherPartner = [];
+
+        if( null == $configs) {
+            $this->logger->warning('There are not configurations for this partner');
+            return 1;
+        }
+
         foreach($configs as $config) {
             try {
                 if (!array_key_exists('publisher_id', $config) && !isset($config['publisher']['id'])) {
