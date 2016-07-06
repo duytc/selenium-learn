@@ -55,10 +55,8 @@ class HomePage extends AbstractPage {
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('button[class="btn btn-primary"]'))->click();
 
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('a[href="logout.php"]')),
-            'Login Fail'
-        );
+        sleep(2);
+        return $this->isLoggedIn();
 
     }
 
@@ -67,13 +65,8 @@ class HomePage extends AbstractPage {
      */
     protected function isLoggedIn()
     {
-        try {
-            $this->driver->findElement(WebDriverBy::cssSelector('a[href="logout.php"]'));
-            return true;
+        $logoutElements = $this->driver->findElements(WebDriverBy::cssSelector('a[href="logout.php"]'));
 
-        } catch (NoSuchElementException $e) {
-
-            return false;
-        }
+        return empty($logoutElements)? false: true;
     }
 } 

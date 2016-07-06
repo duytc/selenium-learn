@@ -16,7 +16,7 @@ class HomePage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
-            return;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) {
@@ -41,36 +41,15 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('landing-login'))->click();
+        sleep(2);
 
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.user-username')),
-            'Login Fail'
-        );
-        $welcomeBackCss = '#ExpectedPayout';
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($welcomeBackCss)),
-            'Payout Empty'
-        );
-        $topPerformanceAdTags = '#content_dashboard_top_tags';
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($topPerformanceAdTags)), 'Content Empty'
-        );
-
+        return $this->isLoggedIn();
     }
 
     protected function isLoggedIn()
     {
-        try {
-            $this->driver
-                ->findElement(WebDriverBy::id('user-menu-trigger'))
-            ;
+        $logoutElements = $this->driver->findElements(WebDriverBy::id('user-menu-trigger'));
 
-            return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        return false;
+        return empty($logoutElements)? false:true;
     }
 } 

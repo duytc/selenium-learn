@@ -25,9 +25,13 @@ class PulsePointFetcher extends PartnerFetcherAbstract implements PulsePointFetc
     {
         $this->logger->info('enter login page');
         $loginPage = new LoginPage($driver, $this->logger);
-        $loginPage->login($params->getUsername(), $params->getPassword());
-        sleep(5);
+        $isLogin = $loginPage->login($params->getUsername(), $params->getPassword());
 
+        if (false == $isLogin) {
+            $this->logger->warning('Login system failed!');
+            return;
+        }
+        sleep(5);
         $this->logger->debug('enter download report page');
         $reportPage = new ReportPage($driver, $this->logger);
         $reportPage->setDownloadFileHelper($this->downloadFileHelper);

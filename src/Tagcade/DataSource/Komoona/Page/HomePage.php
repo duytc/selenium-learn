@@ -18,7 +18,7 @@ class HomePage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) { // current page is another page that tell the user is already logged in
-            return;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) { // redirect to current page if user is not logged in yet
@@ -46,39 +46,14 @@ class HomePage extends AbstractPage
         ;
 
         $this->driver->findElement(WebDriverBy::id('login-submit'))->click();
-        $this->driver->wait()->until(WebDriverExpectedCondition::titleContains('Control Panel'), 'Login Fail');
 
+        return $this->isLoggedIn();
     }
 
     protected function isLoggedIn()
     {
+       $logoutElements = $this->driver->findElements(WebDriverBy::cssSelector('input[value=logout]'));
 
-        try {
-
-            $logoutLink = $this->driver
-                ->findElement(WebDriverBy::id('logout'))
-            ;
-
-            if (strtolower($logoutLink->getText()) == 'logout') {
-                return true;
-            }
-            return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        try {
-            $this->driver
-                ->findElement(WebDriverBy::cssSelector('input[value=logout]'))
-            ;
-
-            return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        return false;
+        return empty($logoutElements) ? false: true;
     }
 }

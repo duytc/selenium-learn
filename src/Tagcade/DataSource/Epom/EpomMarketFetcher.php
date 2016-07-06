@@ -19,8 +19,13 @@ class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetc
         $homePage = new HomePage($driver, $this->logger);
         $this->logger->info('Start logging in');
 
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+        if(false == $isLogin) {
+            $this->logger->warning('Login system failed!');
+            return;
+        }
         $this->logger->info('Finish logging in');
+
         usleep(300);
 
         $this->logger->info('Enter download report page');

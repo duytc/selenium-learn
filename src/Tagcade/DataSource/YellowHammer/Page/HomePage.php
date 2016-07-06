@@ -17,7 +17,7 @@ class HomePage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
-            return;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) {
@@ -42,27 +42,15 @@ class HomePage extends AbstractPage
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::name('commit'))->click();
 
-        usleep(100);
-
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#username .icon-user')),
-            'Login Fail'
-        );
+        sleep(2);
+        return $this->isLoggedIn();
     }
 
     protected function isLoggedIn()
     {
-        try {
-            $this->driver
-                ->findElement(WebDriverBy::id('dashboard'))
-            ;
+        $dashboardElements = $this->driver->findElements(WebDriverBy::id('dashboard'));
+        return empty($dashboardElements) ? false: true;
 
-           return true;
-        }
-        catch (NoSuchElementException $ne) {
-
-        }
-
-        return false;
     }
+
 }
