@@ -154,7 +154,11 @@ abstract class GetDataCommand extends ContainerAwareCommand
 
             $this->logger->info('Getting list of publishers and their configuration for this partner');
             $configs = $restClient->getPartnerConfigurationForAllPublishers($partnerCName, $publisherId);
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> c234b508aeb88628c990de02b7adbfbe3763c4c7
             $this->logger->info(sprintf('Found %d publishers associated to this partner', count($configs)));
         }
 
