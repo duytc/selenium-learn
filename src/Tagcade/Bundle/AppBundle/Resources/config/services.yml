@@ -15,6 +15,7 @@ imports:
     - { resource: services/districtm.yml }
     - { resource: services/conversant.yml }
     - { resource: services/openx.yml }
+    - { resource: services/technorati.yml }
 
 services:
     yaml:

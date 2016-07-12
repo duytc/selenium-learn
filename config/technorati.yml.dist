@@ -1,0 +1,10 @@
+# report link: https://mycontango.technorati.com/#/reports
+
+# pubVentures UI username
+username: 'username'
+# pubVentures UI password
+password: 'password!'
+# Tagcade publisher id
+publisher_id: 2
+# partner canonical name stored in core_partner
+partner_cname: 'technorati'

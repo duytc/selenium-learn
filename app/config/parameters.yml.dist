@@ -32,3 +32,4 @@ parameters:
         districtm: 'tc:districtm:get-data'
         conversant: 'tc:conversant:get-data'
         openx: 'tc:openx:get-data'
+        technorati: 'tc:technorati:get-data'
