@@ -261,7 +261,10 @@ abstract class GetDataCommand extends ContainerAwareCommand
         }
         catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            $this->logger->error($e->getTraceAsString());
+            if(0 == strlen($e->getMessage())) {
+                $this->logger->error($e->getTraceAsString());
+            }
+
         }
 
         // todo check that chrome finished downloading all files before finishing

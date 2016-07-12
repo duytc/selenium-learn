@@ -136,7 +136,10 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
             }
             catch(\Exception $e) {
                 $logger->error($e->getMessage());
-                $logger->error($e->getTraceAsString());
+                if( 0 == strlen($e->getMessage())) {
+                    $logger->error($e->getTraceAsString());
+                }
+
             }
         }
     }
