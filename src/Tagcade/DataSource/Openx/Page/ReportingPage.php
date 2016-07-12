@@ -13,22 +13,21 @@ class ReportingPage extends AbstractPage
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
-        $this->driver->wait()->until(
+        $this->driver->wait(120,250)->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::tagName("iframe"))
         );
 
         $iframe = $this->driver->switchTo()->frame($this->driver->findElement(WebDriverBy::tagName("iframe")));
 
-        $this->driver->wait()->until(
+        $this->driver->wait(120, 250)->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::xpath("//a[text()[contains(.,'Exchange Revenue_Yesterday')]]"))
         );
 
         $iframe->findElement(WebDriverBy::xpath("//a[text()[contains(.,'Exchange Revenue_Yesterday')]]"))->click();
 
         try {
-            $this->driver->manage()->timeouts()->setScriptTimeout(200);
             $iframePopup = $iframe->switchTo()->frame($iframe->findElement(WebDriverBy::cssSelector("#popupFrame > iframe")));
-            $iframePopup->wait()->until(
+            $iframePopup->wait(120,250)->until(
                 WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector("#exportDropdown"))
             );
 
