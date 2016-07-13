@@ -135,11 +135,8 @@ class GetAllPartnersDataCommand extends ContainerAwareCommand
                 $logger->info(sprintf('Run command %s finished with exit code %s', $command, $result));
             }
             catch(\Exception $e) {
-                $logger->error($e->getMessage());
-                if( 0 == strlen($e->getMessage())) {
-                    $logger->error($e->getTraceAsString());
-                }
-
+                $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
+                $logger->critical($message);
             }
         }
     }

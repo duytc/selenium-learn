@@ -49,19 +49,19 @@ class ReportPage extends AbstractPage
             ->click()
         ;
 
-        $this->driver->wait()->until(
+        $this->driver->wait(120,250)->until(
             WebDriverExpectedCondition::not(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.block-ui-overlay')))
         );
 
-        $this->driver->wait()->until(
+        $this->driver->wait(120,250)->until(
             WebDriverExpectedCondition::not(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.block-ui-message-container')))
         );
 
-        $this->driver->wait(30, 1000)->until(
+        $this->driver->wait(120, 1000)->until(
             WebDriverExpectedCondition::not(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('div.blockUI')))
         );
 
-        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
+        $this->driver->wait(120,250)->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
         $exportButton = $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'));
         // click export to excel
         $this->logger->debug('start downloading reports');

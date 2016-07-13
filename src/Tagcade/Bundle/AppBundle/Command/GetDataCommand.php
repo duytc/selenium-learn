@@ -260,10 +260,8 @@ abstract class GetDataCommand extends ContainerAwareCommand
             $this->logger->info(sprintf('Finished getting %s data', $this->fetcher->getName()));
         }
         catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-            if(0 == strlen($e->getMessage())) {
-                $this->logger->error($e->getTraceAsString());
-            }
+            $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
+            $this->logger->critical($message);
 
         }
 

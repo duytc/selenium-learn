@@ -41,6 +41,8 @@ class LoginPage extends AbstractPage
             ->sendKeys($password)
         ;
 
+        $this->driver->manage()->timeouts()->pageLoadTimeout(200);
+        $this->driver->manage()->timeouts()->setScriptTimeout(200);
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('LoginButton'))->click();
 
