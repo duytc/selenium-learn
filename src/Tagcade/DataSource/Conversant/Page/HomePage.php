@@ -43,7 +43,6 @@ class HomePage extends AbstractPage
 
         $error = $this->driver->findElements(WebDriverBy::cssSelector('#login-password-errors'));
         if(count($error) > 0) {
-            $this->logger->warning('Login Fail');
             return false;
         }
 

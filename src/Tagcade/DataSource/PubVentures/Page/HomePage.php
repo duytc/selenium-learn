@@ -44,7 +44,6 @@ class HomePage extends AbstractPage
         $error = $this->driver->findElements(WebDriverBy::cssSelector('#login-form > fieldset > div.alert.error'));
 
         if(count($error) > 0) {
-            $this->logger->warning('Login Fail');
             return false;
         }
 

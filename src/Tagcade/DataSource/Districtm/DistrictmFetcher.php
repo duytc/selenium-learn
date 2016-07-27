@@ -19,6 +19,7 @@ class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetche
         $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         if(!$login) {
+            $this->logger->warning('Login system failed');
             return;
         }
 
