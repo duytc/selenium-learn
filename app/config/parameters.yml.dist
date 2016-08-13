@@ -26,7 +26,7 @@ parameters:
         media-net: 'tc:media-net:get-data'
         native-ads: 'tc:native-ads:get-data'
         ads4games: 'tc:ads4games:get-data'
-        adtech: 'tc:adtech:get-data'
+        ad-tech: 'tc:ad-tech:get-data'
         epom-market: 'tc:epom-market:get-data'
         pub-ventures: 'tc:pub-ventures:get-data'
         districtm: 'tc:districtm:get-data'
