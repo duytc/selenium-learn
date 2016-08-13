@@ -11,12 +11,12 @@ use Tagcade\DataSource\PartnerParamInterface;
 class GetDataCommand extends BaseGetDataCommand
 {
 
-    const DEFAULT_CANONICAL_NAME = 'adtech';
+    const DEFAULT_CANONICAL_NAME = 'ad-tech';
 
     protected function configure()
     {
         $this
-            ->setName('tc:adtech:get-data')
+            ->setName('tc:ad-tech:get-data')
         ;
 
         parent::configure();
