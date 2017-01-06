@@ -23,6 +23,18 @@ ssh -fN -D localhost:8888 myusername@myserver.com
 
 Some commands allow you to proxy requests
 
+Config output dir for fetched files
+-----------------------------------
+
+Edit output dir config in app/config/parameters.yml, make sure the dir contains "fetcher" at the end:
+
+```
+...
+    tagcade.default_data_path:      ./data/fetcher
+...
+```
+
+
 Fetch data command
 ------------------
 
