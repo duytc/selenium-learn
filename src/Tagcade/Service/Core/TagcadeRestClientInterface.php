@@ -3,7 +3,8 @@
 namespace Tagcade\Service\Core;
 
 
-interface TagcadeRestClientInterface {
+interface TagcadeRestClientInterface
+{
     /**
      * @param bool $force
      * @return mixed
@@ -18,4 +19,12 @@ interface TagcadeRestClientInterface {
      * @return mixed
      */
     public function getIntegrationToBeExecuted();
+
+    /**
+     * update last execution time for integration by canonicalName
+     *
+     * @param string $integrationCanonicalName
+     * @return mixed
+     */
+    public function updateLastExecutionTimeForIntegrationByCName($integrationCanonicalName);
 }

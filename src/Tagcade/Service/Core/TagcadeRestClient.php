@@ -7,43 +7,45 @@ use RestClient\CurlRestClient;
 
 class TagcadeRestClient implements TagcadeRestClientInterface
 {
-    /**
-     * @var null
-     */
+    const DEBUG = 0;
+
+    /** @var string */
     private $username;
-    /**
-     * @var array
-     */
+    /** @var array */
     private $password;
-    /**
-     * @var CurlRestClient
-     */
+    /** @var CurlRestClient */
     private $curl;
+
     /** @var string */
     private $getTokenUrl;
     /** @var string */
     private $getListPublisherUrl;
     /** @var string */
     private $getListIntegrationsToBeExecutedUrl;
+    /** @var string */
+    private $updateLastExecutionTimeForIntegrationUrl;
 
     /** @var string */
     private $token;
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
-    const DEBUG = 0;
-
-    function __construct(CurlRestClient $curl, $username, $password, $getTokenUrl, $getListPublisherUrl, $getListIntegrationsToBeExecutedUrl)
+    function __construct(CurlRestClient $curl, $username, $password,
+                         $getTokenUrl,
+                         $getListPublisherUrl,
+                         $getListIntegrationsToBeExecutedUrl,
+                         $updateLastExecutionTimeForIntegrationUrl
+    )
     {
+        $this->curl = $curl;
         $this->username = $username;
         $this->password = $password;
-        $this->curl = $curl;
+
         $this->getTokenUrl = $getTokenUrl;
         $this->getListPublisherUrl = $getListPublisherUrl;
         $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
+        $this->updateLastExecutionTimeForIntegrationUrl = $updateLastExecutionTimeForIntegrationUrl;
     }
 
     /**
@@ -165,5 +167,45 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         });
 
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateLastExecutionTimeForIntegrationByCName($integrationCanonicalName)
+    {
+        $this->logger->info(sprintf('Getting all Integrations to be executed'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            'cname' => $integrationCanonicalName
+        ];
+
+        $publishers = $this->curl->executeQuery(
+            $this->updateLastExecutionTimeForIntegrationUrl,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($publishers, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->error(sprintf('Update last execution time failed, code %d', $result['code']));
+            return false;
+        }
+
+        return (bool)$result;
     }
 }
