@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
-abstract class IntegrationActivatorCommand extends ContainerAwareCommand
+class IntegrationActivatorCommand extends ContainerAwareCommand
 {
     /** @var LoggerInterface */
     protected $logger;
