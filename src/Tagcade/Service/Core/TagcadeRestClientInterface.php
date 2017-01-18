@@ -23,8 +23,9 @@ interface TagcadeRestClientInterface
     /**
      * update last execution time for integration by canonicalName
      *
-     * @param string $integrationCanonicalName
+     * @param string $dataSourceIntegrationId
+     * @param \DateTime $dateTime
      * @return mixed
      */
-    public function updateLastExecutionTimeForIntegrationByCName($integrationCanonicalName);
+    public function updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, \DateTime $dateTime);
 }

@@ -11,6 +11,7 @@ class AppKernel extends Kernel
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new Symfony\Bundle\MonologBundle\MonologBundle(),
             new Tagcade\Bundle\AppBundle\TagcadeAppBundle(),
+            new \Leezy\PheanstalkBundle\LeezyPheanstalkBundle()
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

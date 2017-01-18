@@ -75,3 +75,10 @@ services:
         calls:
             - [setLogger, [@logger]]
 
+    tagcade.service.integration_activator:
+        class: Tagcade\Service\Integration\IntegrationActivator
+        arguments:
+            - @tagcade_app.rest_client
+            - @leezy.pheanstalk.primary
+            - %fetcher_worker_tube%
+            - %pheanstalk_ttr%

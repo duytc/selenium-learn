@@ -172,7 +172,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateLastExecutionTimeForIntegrationByCName($integrationCanonicalName)
+    public function updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, \DateTime $dateTime)
     {
         $this->logger->info(sprintf('Getting all Integrations to be executed'));
 
@@ -181,7 +181,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         /* post update to ur api */
         $data = [
-            'cname' => $integrationCanonicalName
+            'id' => $dataSourceIntegrationId,
+            'lastExecutedAt' => $dateTime,
         ];
 
         $publishers = $this->curl->executeQuery(

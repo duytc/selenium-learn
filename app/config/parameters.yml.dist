@@ -16,6 +16,10 @@ parameters:
     ur_get_list_integrations_to_be_executed_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/tobeexecuted'
     ur_update_last_execution_time_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/updatelastexecutiontime'
 
+    fetcher_worker_tube: 'fetcher-worker'
+    pheanstalk_ttr: 60
+    pheanstalk_primary_host: 127.0.0.1
+
     # mapping canonical name in db to real partner import command
     partners:
         33across: 'tc:33across:get-data'
