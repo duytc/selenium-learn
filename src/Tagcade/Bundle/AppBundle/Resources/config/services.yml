@@ -70,6 +70,7 @@ services:
             - %tagcade_user_password%
             - %tagcade_get_token_url%
             - %tagcade_get_list_publisher_url%
+            - %ur_get_list_integrations_to_be_executed_url%
         calls:
             - [setLogger, [@logger]]
 
