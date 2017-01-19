@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service;
+namespace Tagcade\Service\Fetcher;
 
 interface FetcherInterface
 {

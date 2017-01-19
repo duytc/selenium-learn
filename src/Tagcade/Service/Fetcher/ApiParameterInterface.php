@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\FetcherApi;
+namespace Tagcade\Service\Fetcher;
 
 interface ApiParameterInterface
 {
