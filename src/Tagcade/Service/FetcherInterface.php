@@ -2,15 +2,20 @@
 
 namespace Tagcade\Service;
 
-use Tagcade\Service\FetcherApi\ApiParameterInterface;
-
 interface FetcherInterface
 {
-	/**
-	 * @param ApiParameterInterface $apiParameter
-	 */
-	public function supportIntegration(ApiParameterInterface $apiParameter);
+    const TYPE_UI = 'ui';
+    const TYPE_API = 'api';
 
-	public function execute(array $parameters);
+    /**
+     * @param string $type
+     * @return bool true if supported
+     */
+    public function supportType($type);
 
+    /**
+     * @param array $parameters
+     * @return bool true if success
+     */
+    public function execute(array $parameters);
 }
