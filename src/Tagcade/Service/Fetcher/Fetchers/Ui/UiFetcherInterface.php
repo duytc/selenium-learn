@@ -3,22 +3,25 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Ui;
 
 use Tagcade\Service\Fetcher\ApiParameterInterface;
+use Tagcade\Service\Fetcher\FetcherInterface;
 
 interface UiFetcherInterface
 {
-	const TYPE = 'api';
+    const TYPE = FetcherInterface::TYPE_UI;
 
-	/**
-	 * Check this fetcher support this integration or not
-	 * @param ApiParameterInterface $parameter
-	 * @return mixed
-	 */
-	function supportIntegration(ApiParameterInterface $parameter);
+    /**
+     * Check this fetcher support this integration or not
+     *
+     * @param ApiParameterInterface $parameter
+     * @return mixed
+     */
+    function supportIntegration(ApiParameterInterface $parameter);
 
-	/**
-	 * Get data file
-	 * @param ApiParameterInterface $parameter
-	 * @return mixed
-	 */
-	function doGetData(ApiParameterInterface $parameter);
+    /**
+     * Get data file
+     *
+     * @param ApiParameterInterface $parameter
+     * @return mixed
+     */
+    function doGetData(ApiParameterInterface $parameter);
 }

@@ -18,6 +18,6 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
 		$type = $allParams['type'];
 		$integrationCName = $parameter->getIntegrationCName();
 
-		return (($integrationCName == self::INTEGRATION_C_NAME) && ($type == ApiFetcher::TYPE_API));
+		return (($integrationCName == self::INTEGRATION_C_NAME) && ($type == ApiFetcher::TYPE_UI));
 	}
 }
