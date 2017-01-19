@@ -1,14 +1,17 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Api;
+namespace Tagcade\Service\Fetcher\Fetchers\Ui;
 
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\Fetchers\ApiFetcher;
 
-class OpenxApiFetcher implements ApiFetcherInterface
+abstract class AbstractUiFetcher implements UiFetcherInterface
 {
-	const INTEGRATION_C_NAME = 'open-x';
+	const INTEGRATION_C_NAME = null;
 
+	/**
+	 * @inheritdoc
+	 */
 	function supportIntegration(ApiParameterInterface $parameter)
 	{
 		$allParams = $parameter->getParams();
@@ -16,10 +19,5 @@ class OpenxApiFetcher implements ApiFetcherInterface
 		$integrationCName = $parameter->getIntegrationCName();
 
 		return (($integrationCName == self::INTEGRATION_C_NAME) && ($type == ApiFetcher::TYPE_API));
-	}
-
-	function doGetData(ApiParameterInterface $parameter)
-	{
-		// TODO: Implement doGetData() method.
 	}
 }
