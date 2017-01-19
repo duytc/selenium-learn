@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\DataSource\Across33;
+namespace Tagcade\Service\Fetcher\Fetchers\Ui\Across33;
 
 use Tagcade\DataSource\PartnerFetcherInterface;
 

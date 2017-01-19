@@ -3,9 +3,10 @@
 namespace Tagcade\DataSource;
 
 use Psr\Log\LoggerInterface;
+use Tagcade\Service\DownloadFileHelperInterface;
 
-abstract class PartnerFetcherAbstract {
-
+abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
+{
     /**
      * @var LoggerInterface
      */
@@ -13,10 +14,11 @@ abstract class PartnerFetcherAbstract {
 
     protected $name;
 
+    /** @var DownloadFileHelperInterface */
     protected $downloadFileHelper;
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getDownloadFileHelper()
     {
@@ -24,15 +26,15 @@ abstract class PartnerFetcherAbstract {
     }
 
     /**
-     * @param mixed $downloadFileHelper
+     * @inheritdoc
      */
-    public function setDownloadFileHelper($downloadFileHelper)
+    public function setDownloadFileHelper(DownloadFileHelperInterface $downloadFileHelper)
     {
         $this->downloadFileHelper = $downloadFileHelper;
     }
 
     /**
-     * @return LoggerInterface
+     * @inheritdoc
      */
     public function getLogger()
     {
@@ -40,9 +42,9 @@ abstract class PartnerFetcherAbstract {
     }
 
     /**
-     * @param LoggerInterface $logger
+     * @inheritdoc
      */
-    public function setLogger($logger)
+    public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
