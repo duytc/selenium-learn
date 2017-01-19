@@ -2,9 +2,7 @@
 
 namespace Tagcade\Service\FetcherApi;
 
-use Tagcade\Service\FetcherInterface;
-
-class BaseFetcherApi implements FetcherInterface
+class BaseFetcherApi implements FetcherApiInterface
 {
 	/**
 	 * @param ApiParameterInterface $apiParameter
