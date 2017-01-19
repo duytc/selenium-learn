@@ -34,6 +34,26 @@ class IntegrationActivator implements IntegrationActivatorInterface
     public function createExecutionJobs()
     {
         /* get all dataSource-integrations that to be executed, from ur api */
+        /*
+         * for test:
+         * $dataSourceIntegrations = [
+         *  [
+         *      'dataSource' => [
+         *          'id' => 1
+         *      ],
+         *      'integration' => [
+         *          'id' => 2,
+         *          'canonicalName' => 'rubicon',
+         *          'type' => 'ui',
+         *          'method' => 'GET'
+         *      ],
+         *      'params' => [
+         *          'username' => 'admin',
+         *          'password' => '1A2B3C4D5E6F'
+         *      ]
+         *  ]
+         * ];
+         */
         $dataSourceIntegrations = $this->restClient->getIntegrationToBeExecuted();
         if (!is_array($dataSourceIntegrations)) {
             return false;
@@ -81,7 +101,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $this->pheanstalk
             ->useTube($this->fetcherWorkerTube)
             ->put(
-                $job,
+                json_encode($job),
                 PheanstalkInterface::DEFAULT_PRIORITY,
                 PheanstalkInterface::DEFAULT_DELAY,
                 $this->pheanstalkTTR

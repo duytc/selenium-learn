@@ -21,7 +21,6 @@ $kernel->boot();
 
 /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
 $container = $kernel->getContainer();
-$entityManager = $container->get('doctrine.orm.entity_manager');
 $tube = $container->getParameter('fetcher_worker_tube');
 $queue = $container->get("leezy.pheanstalk");
 // only tasks listed here are able to run
@@ -91,6 +90,5 @@ while (true) {
         );
         $queue->bury($job);
     }
-    $entityManager->clear();
     gc_collect_cycles();
 }
