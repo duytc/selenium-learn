@@ -23,8 +23,7 @@ interface ApiParameterInterface
 	 * @param mixed $integrationCName
 	 */
 	public function setIntegrationCName($integrationCName);
-
-
+	
 	/**
 	 * @return array
 	 */

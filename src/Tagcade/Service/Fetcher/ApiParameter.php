@@ -19,7 +19,6 @@ class ApiParameter implements ApiParameterInterface
 	 */
 	public function __construct($publisherId, $integrationCName, array  $params)
 	{
-
 		$this->publisherId = $publisherId;
 		$this->integrationCName = $integrationCName;
 		$this->params = $params;
