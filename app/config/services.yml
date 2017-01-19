@@ -1,6 +1,9 @@
 services:
     tagcade.worker.workers.get_partner_report_worker:
         class: Tagcade\Worker\Workers\GetPartnerReportWorker
+        arguments:
+            - '@tagcade.service.fetcher.fetcher_manager'
+
 
     tagcade.service.fetcher.fetchers.ui_fetcher:
         class: Tagcade\Service\Fetcher\Fetchers\UiFetcher
@@ -11,5 +14,6 @@ services:
     tagcade.service.fetcher.fetcher_manager:
         class: Tagcade\Service\Fetcher\FetcherManager
         arguments:
-            - '@tagcade.service.fetcher.fetchers.api_fetcher'
-            - '@tagcade.service.fetcher.fetchers.ui_fetcher'
+            -
+                - '@tagcade.service.fetcher.fetchers.api_fetcher'
+                - '@tagcade.service.fetcher.fetchers.ui_fetcher'
