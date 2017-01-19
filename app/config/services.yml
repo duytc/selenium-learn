@@ -1,3 +1,15 @@
 services:
     tagcade.worker.workers.get_partner_report_worker:
         class: Tagcade\Worker\Workers\GetPartnerReportWorker
+
+    tagcade.service.fetcher.fetchers.ui_fetcher:
+        class: Tagcade\Service\Fetcher\Fetchers\UiFetcher
+
+    tagcade.service.fetcher.fetchers.api_fetcher:
+        class: Tagcade\Service\Fetcher\Fetchers\ApiFetcher
+
+    tagcade.service.fetcher.fetcher_manager:
+        class: Tagcade\Service\Fetcher\FetcherManager
+        arguments:
+            - '@tagcade.service.fetcher.fetchers.api_fetcher'
+            - '@tagcade.service.fetcher.fetchers.ui_fetcher'

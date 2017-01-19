@@ -14,8 +14,8 @@ interface FetcherInterface
     public function supportType($type);
 
     /**
-     * @param array $parameters
+     * @param ApiParameterInterface $parameters
      * @return bool true if success
      */
-    public function execute(array $parameters);
+    public function execute(ApiParameterInterface $parameters);
 }
