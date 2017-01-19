@@ -66,13 +66,16 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $type = $dataSourceIntegration['integration']['type'];
         $method = $dataSourceIntegration['integration']['method'];
+        $params = $dataSourceIntegration['params'];
+
+        $params = array_merge(['method' => $method], $params);
 
         /* create job */
         $job = new \stdClass();
         $job->dataSourceId = $dataSourceId;
         $job->integrationCName = $integrationCName;
         $job->type = $type;
-        $job->method = $method;
+        $job->params = $params;
 
         /** @var PheanstalkInterface $pheanstalk */
         $this->pheanstalk
