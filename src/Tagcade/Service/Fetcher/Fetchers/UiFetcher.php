@@ -23,8 +23,10 @@ class UiFetcher extends BaseFetcher implements FetcherInterface
      * @param array $uiFetchers
      * @param LoggerInterface $logger
      */
-    public function __construct(array $uiFetchers, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, array $uiFetchers)
     {
+        $this->logger = $logger;
+
         $this->uiFetchers = [];
 
         /**@var UiFetcherInterface $uiFetcher */
@@ -34,8 +36,6 @@ class UiFetcher extends BaseFetcher implements FetcherInterface
             }
             $this->uiFetchers [] = $uiFetcher;
         }
-
-        $this->logger = $logger;
     }
 
     /**

@@ -29,6 +29,11 @@ interface PartnerFetcherInterface
      */
     public function setLogger(LoggerInterface $logger);
 
+    /**
+     * @param PartnerParamInterface $params
+     * @param RemoteWebDriver $driver
+     * @return mixed
+     */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver);
 
     /**

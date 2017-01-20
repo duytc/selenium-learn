@@ -4,3 +4,4 @@ services:
         abstract: true
         arguments:
             - @logger
+            - @tagcade.web_driver_factory
