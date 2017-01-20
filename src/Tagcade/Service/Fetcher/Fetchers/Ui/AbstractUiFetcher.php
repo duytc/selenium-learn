@@ -24,6 +24,9 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     protected $webDriverFactory;
 
     /** @var string */
+    protected $symfonyAppDir;
+
+    /** @var string */
     protected $defaultDataPath;
 
     /**
@@ -32,10 +35,11 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
      * @param string $defaultDataPath
      * @param PartnerFetcherInterface $partnerFetcher
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, $defaultDataPath, PartnerFetcherInterface $partnerFetcher)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, $symfonyAppDir, $defaultDataPath, PartnerFetcherInterface $partnerFetcher)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
+        $this->symfonyAppDir = $symfonyAppDir;
         $this->defaultDataPath = $defaultDataPath;
         $this->partnerFetcher = $partnerFetcher;
     }
@@ -67,6 +71,12 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
         $partnerParams = $this->createParams($params);
 
         $dataPath = $this->defaultDataPath;
+        $isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
+        $dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->symfonyAppDir, '/app'), ltrim($dataPath, './')) : $dataPath;
+        if (!is_writable($dataPath)) {
+            $this->logger->error(sprintf('Cannot write to data-path %s', $dataPath));
+            return 1;
+        }
 
         return $this->getDataForPublisher($publisherId, $integrationCName, $partnerParams, $dataPath);
     }
