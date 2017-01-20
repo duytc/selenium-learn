@@ -1,0 +1,6 @@
+services:
+    tagcade.service.fetcher.ui.ads4games:
+        class: Tagcade\Service\Fetcher\Fetchers\Ui\Ads4Games\Ads4GamesFetcher
+        parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
+        arguments:
+            - @tagcade.data_source.fetcher.ads4games

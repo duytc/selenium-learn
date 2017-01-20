@@ -1,0 +1,7 @@
+services:
+    tagcade.service.fetcher.ui.openx:
+        class: Tagcade\Service\Fetcher\Fetchers\Ui\Openx\OpenxFetcher
+        parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
+        arguments:
+            - @tagcade.data_source.fetcher.openx
+

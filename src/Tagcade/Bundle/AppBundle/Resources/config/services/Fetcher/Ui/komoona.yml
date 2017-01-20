@@ -1,0 +1,6 @@
+services:
+    tagcade.service.fetcher.ui.komoona:
+        class: Tagcade\Service\Fetcher\Fetchers\Ui\Komoona\KomoonaFetcher
+        parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
+        arguments:
+            - @tagcade.data_source.fetcher.komoona

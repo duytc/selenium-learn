@@ -1,0 +1,6 @@
+services:
+    tagcade.service.fetcher.ui.adtech:
+        class: Tagcade\Service\Fetcher\Fetchers\Ui\Adtech\AdtechFetcher
+        parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
+        arguments:
+            - @tagcade.data_source.fetcher.adtech
