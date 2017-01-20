@@ -29,6 +29,9 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     /** @var string */
     protected $defaultDataPath;
 
+    /** @var string */
+    protected $integrationCName;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
@@ -49,7 +52,7 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
      */
     public function supportIntegration(ApiParameterInterface $parameter)
     {
-        return $parameter->getIntegrationCName() == $this->getIntegrationCName();
+        return $parameter->getIntegrationCName() == $this->integrationCName;
     }
 
     /**
@@ -231,7 +234,11 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     }
 
     /**
-     * @return string
+     * @param string $integrationCName
+     * @return self
      */
-    public abstract function getIntegrationCName();
+    public function setIntegrationCName($integrationCName) {
+        $this->integrationCName = $integrationCName;
+        return $this;
+    }
 }

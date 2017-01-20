@@ -4,3 +4,5 @@ services:
         parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
         arguments:
             - @tagcade.data_source.fetcher.defy_media
+        calls:
+            - [setIntegrationCName,[%integration_cname_defy-media%]]

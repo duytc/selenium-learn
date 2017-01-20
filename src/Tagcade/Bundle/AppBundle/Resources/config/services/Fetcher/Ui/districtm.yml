@@ -4,3 +4,5 @@ services:
         parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
         arguments:
             - @tagcade.data_source.fetcher.districtm
+        calls:
+            - [setIntegrationCName,[%integration_cname_districtm%]]

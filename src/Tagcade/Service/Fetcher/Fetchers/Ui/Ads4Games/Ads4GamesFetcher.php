@@ -8,11 +8,4 @@ use Tagcade\Service\Fetcher\Fetchers\Ui\AbstractUiFetcher;
 
 class Ads4GamesFetcher extends AbstractUiFetcher implements Ads4GamesFetcherInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function getIntegrationCName()
-    {
-        return 'across33';
-    }
 }

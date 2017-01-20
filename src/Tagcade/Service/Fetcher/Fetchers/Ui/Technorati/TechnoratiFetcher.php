@@ -6,11 +6,4 @@ use Tagcade\Service\Fetcher\Fetchers\Ui\AbstractUiFetcher;
 
 class TechnoratiFetcher extends AbstractUiFetcher implements TechnoratiFetcherInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function getIntegrationCName()
-    {
-        return 'across33';
-    }
 }

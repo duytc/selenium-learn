@@ -6,11 +6,4 @@ use Tagcade\Service\Fetcher\Fetchers\Ui\AbstractUiFetcher;
 
 class PubVenturesFetcher extends AbstractUiFetcher implements PubVenturesFetcherInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function getIntegrationCName()
-    {
-        return 'across33';
-    }
 }

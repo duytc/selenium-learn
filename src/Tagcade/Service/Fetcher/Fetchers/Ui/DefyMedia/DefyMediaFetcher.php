@@ -6,11 +6,4 @@ use Tagcade\Service\Fetcher\Fetchers\Ui\AbstractUiFetcher;
 
 class DefyMediaFetcher extends AbstractUiFetcher implements DefyMediaFetcherInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function getIntegrationCName()
-    {
-        return 'across33';
-    }
 }
