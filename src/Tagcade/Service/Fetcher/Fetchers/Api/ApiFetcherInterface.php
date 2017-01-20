@@ -5,8 +5,6 @@ use Tagcade\Service\Fetcher\ApiParameterInterface;
 
 interface ApiFetcherInterface
 {
-	const TYPE = 'ui';
-
 	/**
 	 * Check this fetcher support this integration or not
 	 * @param ApiParameterInterface $parameter

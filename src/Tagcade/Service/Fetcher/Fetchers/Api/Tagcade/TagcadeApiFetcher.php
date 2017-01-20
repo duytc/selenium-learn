@@ -6,9 +6,8 @@ use DateTime;
 use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\Fetchers\Api\AbstractApiFetcher;
-use Tagcade\Service\Fetcher\Fetchers\Api\ApiFetcherInterface;
 
-class TagcadeApiFetcher extends AbstractApiFetcher implements ApiFetcherInterface
+class TagcadeApiFetcher extends AbstractApiFetcher
 {
 	const INTEGRATION_C_NAME = 'tagcade';
 

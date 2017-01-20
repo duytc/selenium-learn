@@ -7,7 +7,7 @@ use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\Fetchers\ApiFetcher;
 
-abstract class AbstractApiFetcher
+abstract class AbstractApiFetcher implements ApiFetcherInterface
 {
 	const INTEGRATION_C_NAME = null;
 	private $rootDirectory;

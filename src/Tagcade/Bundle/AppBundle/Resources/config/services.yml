@@ -19,6 +19,9 @@ imports:
     - { resource: services/Fetcher/ui-fetcher.yml }
     - { resource: services/Fetcher/Ui/abstract-ui-fetcher.yml }
     - { resource: services/Fetcher/Ui/across33.yml }
+    - { resource: services/Fetcher/api-fetcher.yml }
+    - { resource: services/Fetcher/Api/abstract-api-fetcher.yml }
+    - { resource: services/Fetcher/Api/tagcade.yml }
 
 services:
     yaml:

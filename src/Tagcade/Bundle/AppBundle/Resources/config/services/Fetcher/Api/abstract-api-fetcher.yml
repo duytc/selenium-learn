@@ -3,5 +3,5 @@ services:
         class: Tagcade\Service\Fetcher\Fetchers\Api\AbstractApiFetcher
         abstract: true
         arguments:
-            -%tagcade.default_data_path%
-            -@logger
+            - %tagcade.default_data_path%
+            - @logger
