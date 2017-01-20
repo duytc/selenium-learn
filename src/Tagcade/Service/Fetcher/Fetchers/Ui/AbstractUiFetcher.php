@@ -146,13 +146,15 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     {
         $config = [
             'publisher_id' => $publisherId,
-            'partner_cname' => $integrationCName
+            'partner_cname' => $integrationCName,
+            'force-new-session' => false, // TODO: get from params
+            'quit-web-driver-after-run' => true // TODO: get from params
         ];
 
         $this->webDriverFactory->setConfig($config);
         $this->webDriverFactory->setParams($params);
 
-        $forceNewSession = false;
+        $forceNewSession = $config['force-new-session'];
         $sessionId = null;
 
         if ($forceNewSession == false) {
@@ -193,7 +195,7 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
         }
 
         // todo check that chrome finished downloading all files before finishing
-        $quitWebDriverAfterRun = true;
+        $quitWebDriverAfterRun = $config['quit-web-driver-after-run'];
         if ($quitWebDriverAfterRun) {
             $driver->quit();
         }
