@@ -44,6 +44,8 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 
 	}
 
+
+
 	/**
 	 * @inheritdoc
 	 */
@@ -80,5 +82,10 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 		$header = array('Authorization: Bearer ' . $token);
 
 		return $header;
+	}
+
+	function getIntegrationCName()
+	{
+		return self::INTEGRATION_C_NAME;
 	}
 }
