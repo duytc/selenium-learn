@@ -5,3 +5,4 @@ services:
         arguments:
             - @logger
             - @tagcade.web_driver_factory
+            - %tagcade.default_data_path%

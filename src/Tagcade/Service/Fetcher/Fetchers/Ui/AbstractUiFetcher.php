@@ -23,15 +23,20 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     /** @var WebDriverFactoryInterface */
     protected $webDriverFactory;
 
+    /** @var string */
+    protected $defaultDataPath;
+
     /**
      * @param LoggerInterface $logger
-     * @param PartnerFetcherInterface $partnerFetcher
      * @param WebDriverFactoryInterface $webDriverFactory
+     * @param string $defaultDataPath
+     * @param PartnerFetcherInterface $partnerFetcher
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, PartnerFetcherInterface $partnerFetcher)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, $defaultDataPath, PartnerFetcherInterface $partnerFetcher)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
+        $this->defaultDataPath = $defaultDataPath;
         $this->partnerFetcher = $partnerFetcher;
     }
 
@@ -61,8 +66,7 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
         /** @var PartnerParamInterface $partnerParams */
         $partnerParams = $this->createParams($params);
 
-        /** @var string dataPath */
-        $dataPath = '';
+        $dataPath = $this->defaultDataPath;
 
         return $this->getDataForPublisher($publisherId, $integrationCName, $partnerParams, $dataPath);
     }
@@ -144,11 +148,13 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
      */
     protected function getDataForPublisher($publisherId, $integrationCName, PartnerParamInterface $params, $dataPath)
     {
+        $processId = getmypid();
         $config = [
             'publisher_id' => $publisherId,
             'partner_cname' => $integrationCName,
-            'force-new-session' => false, // TODO: get from params
-            'quit-web-driver-after-run' => true // TODO: get from params
+            'force-new-session' => true, // TODO: get from params
+            'quit-web-driver-after-run' => true, // TODO: get from params
+            'process_id' => $processId
         ];
 
         $this->webDriverFactory->setConfig($config);
