@@ -33,9 +33,9 @@ class IntegrationActivatorCommand extends ContainerAwareCommand
         $result = $activatorService->createExecutionJobs();
 
         if (!$result) {
-            $this->logger->info('Complete running integration activator with no error');
-        } else {
             $this->logger->error('Complete running integration activator with error');
+        } else {
+            $this->logger->info('Complete running integration activator with no error');
         }
     }
 
