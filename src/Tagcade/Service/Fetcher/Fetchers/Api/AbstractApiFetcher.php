@@ -7,8 +7,31 @@ use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\Fetchers\ApiFetcher;
 
-trait ApiFetcherTrait
+abstract class AbstractApiFetcher
 {
+	const INTEGRATION_C_NAME = null;
+	private $rootDirectory;
+	private $logger;
+
+	/**
+	 * AbstractApiFetcher constructor.
+	 * @param $rootDirectory
+	 * @param $logger
+	 */
+	public function __construct($rootDirectory, $logger)
+	{
+		$this->rootDirectory = sprintf('%s/publishers', $rootDirectory);
+		$this->logger = $logger;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRootDirectory()
+	{
+		return $this->rootDirectory;
+	}
+
 	/**
 	 * @inheritdoc
 	 */
@@ -38,11 +61,11 @@ trait ApiFetcherTrait
 	 * @param DateTime $startDate
 	 * @param DateTime $endDate
 	 * @param $fileName
-	 * @param $rootDirectory
 	 * @return string
 	 */
-	public function getPath(ApiParameterInterface $parameter, DateTime $startDate, DateTime $endDate, $fileName, $rootDirectory)
+	public function getPath(ApiParameterInterface $parameter, DateTime $startDate, DateTime $endDate, $fileName)
 	{
+		$rootDirectory = $this->getRootDirectory() ? $this->getRootDirectory() : './data';
 		$publisherId = $parameter->getPublisherId();
 		$partnerCName = $parameter->getIntegrationCName();
 
@@ -77,5 +100,28 @@ trait ApiFetcherTrait
 		}
 
 		return $path;
+	}
+
+	/**
+	 * @param $path
+	 * @param $dataRows
+	 * @throws \Exception
+	 */
+	public function arrayToCSVFile($path, $dataRows)
+	{
+		if (is_dir($path)) {
+			throw new \Exception ('Path must be file');
+		}
+
+		if (!is_array($dataRows)) {
+			throw new \Exception ('Data to save csv file expect array type');
+		}
+
+		$file = fopen($path, 'w');
+		foreach ($dataRows as $dataRow) {
+			fputcsv($file, $dataRow);
+		}
+
+		fclose($file);
 	}
 }
