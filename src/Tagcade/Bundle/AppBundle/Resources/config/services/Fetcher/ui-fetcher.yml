@@ -1,5 +1,5 @@
 services:
-    tagcade.service.fetcher.ui_fetcher:
+    tagcade.service.fetcher.fetchers.ui_fetcher:
         class: Tagcade\Service\Fetcher\Fetchers\UiFetcher
         arguments:
             - @logger
