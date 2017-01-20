@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Api;
 
 use DateTime;
+use Psr\Log\LoggerInterface;
 use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\Fetchers\ApiFetcher;
@@ -15,12 +16,12 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 
 	/**
 	 * AbstractApiFetcher constructor.
-	 * @param $rootDirectory
-	 * @param $logger
+	 * @param string $rootDirectory
+	 * @param LoggerInterface $logger
 	 */
-	public function __construct($rootDirectory, $logger)
+	public function __construct($rootDirectory, LoggerInterface $logger)
 	{
-		$this->rootDirectory = sprintf('%s/publishers', $rootDirectory);
+		$this->rootDirectory = $rootDirectory;
 		$this->logger = $logger;
 	}
 
