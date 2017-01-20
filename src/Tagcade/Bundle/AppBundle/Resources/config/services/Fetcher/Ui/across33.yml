@@ -1,0 +1,7 @@
+services:
+    tagcade.service.fetcher.ui.across33:
+        class: Tagcade\Service\Fetcher\Fetchers\Ui\Across33\Across33Fetcher
+        parent: @tagcade.fetcher.ui.abstract_ui_fetcher
+        arguments:
+            - @tagcade.data_source.fetcher.across33
+

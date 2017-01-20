@@ -2,8 +2,8 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Ui\Across33;
 
-use Tagcade\DataSource\PartnerFetcherInterface;
+use Tagcade\Service\Fetcher\Fetchers\Ui\UiFetcherInterface;
 
-interface Across33FetcherInterface extends PartnerFetcherInterface
+interface Across33FetcherInterface extends UiFetcherInterface
 {
 } 

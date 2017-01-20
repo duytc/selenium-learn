@@ -16,6 +16,8 @@ imports:
     - { resource: services/conversant.yml }
     - { resource: services/openx.yml }
     - { resource: services/technorati.yml }
+    - { resource: services/Fetcher/Ui/abstract-ui-fetcher.yml }
+    - { resource: services/Fetcher/Ui/across33.yml }
 
 services:
     yaml:
