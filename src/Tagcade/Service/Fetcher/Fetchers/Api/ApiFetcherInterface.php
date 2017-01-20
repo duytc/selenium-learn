@@ -20,4 +20,14 @@ interface ApiFetcherInterface
 	 * @return mixed
 	 */
 	function doGetData(ApiParameterInterface $parameter);
+
+	/**
+	 * Get report data
+	 * @param $url
+	 * @param string $method
+	 * @param null $header
+	 * @param array $data
+	 * @return mixed
+	 */
+	public function getReport($url, $method='GET', $header = null, $data = array());
 }
