@@ -8,6 +8,7 @@ use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
 use Tagcade\DataSource\PartnerFetcherInterface;
 use Tagcade\DataSource\PartnerParamInterface;
+use Tagcade\DataSource\PartnerParams;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\WebDriverFactoryInterface;
 
@@ -19,13 +20,18 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     /** @var PartnerFetcherInterface */
     protected $partnerFetcher;
 
+    /** @var WebDriverFactoryInterface */
+    protected $webDriverFactory;
+
     /**
      * @param LoggerInterface $logger
      * @param PartnerFetcherInterface $partnerFetcher
+     * @param WebDriverFactoryInterface $webDriverFactory
      */
-    public function __construct(LoggerInterface $logger, PartnerFetcherInterface $partnerFetcher)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, PartnerFetcherInterface $partnerFetcher)
     {
         $this->logger = $logger;
+        $this->webDriverFactory = $webDriverFactory;
         $this->partnerFetcher = $partnerFetcher;
     }
 
@@ -43,49 +49,122 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
     public function doGetData(ApiParameterInterface $parameter)
     {
         /** @var int publisherId */
-        $publisherId = 1;
-        /** @var PartnerParamInterface $params */
-        $params = null;
-        /** @var array $config */
-        $config = [];
+        $publisherId = $parameter->getPublisherId();
+        /** @var string $integrationCName */
+        $integrationCName = $parameter->getIntegrationCName();
+
+        $params = $parameter->getParams();
+        if (!is_array($params)) {
+            return false;
+        }
+
+        /** @var PartnerParamInterface $partnerParams */
+        $partnerParams = $this->createParams($params);
+
         /** @var string dataPath */
         $dataPath = '';
 
-        $this->getDataForPublisher($publisherId, $params, $config, $dataPath);
+        return $this->getDataForPublisher($publisherId, $integrationCName, $partnerParams, $dataPath);
+    }
+
+    /**
+     * create PartnerParams from configs
+     *
+     * @param array $config
+     * @return PartnerParamInterface
+     * @throws \CannotPerformOperationException
+     * @throws \InvalidCiphertextException
+     * @throws \Exception
+     */
+    protected function createParams(array $config)
+    {
+        /** @var string $username */
+        $username = $config['username'];
+
+        /** @var \DateTime */
+        $startDate = date_create($config['startDate']);
+
+        /** @var \DateTime */
+        $endDate = date_create($config['endDate']);
+
+        if ($startDate > $endDate) {
+            throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
+        }
+
+        if (!array_key_exists('base64EncryptedPassword', $config) && !array_key_exists('password', $config)) {
+            throw new \Exception('Invalid configuration. Not found password or base64EncryptedPassword in the configuration');
+        }
+
+        if (array_key_exists('base64EncryptedPassword', $config) && !isset($config['publisher']['uuid'])) {
+            throw new \Exception('Missing key to decrypt publisher password');
+        }
+
+        if (array_key_exists('base64EncryptedPassword', $config)) {
+            // decrypt the hashed password
+            $base64EncryptedPassword = $config['base64EncryptedPassword'];
+            $encryptedPassword = base64_decode($base64EncryptedPassword);
+
+            $decryptKey = $this->getEncryptionKey($config['publisher']['uuid']);
+            $password = \Crypto::Decrypt($encryptedPassword, $decryptKey);
+        } else {
+            $password = $config['password'];
+        }
+
+        /**
+         * todo date should be configurable
+         */
+        return (new PartnerParams())
+            ->setUsername($username)
+            ->setPassword($password)
+            ->setStartDate(clone $startDate)
+            ->setEndDate(clone $endDate)
+            ->setConfig($config);
+    }
+
+    /**
+     * get Encryption Key
+     *
+     * @param $uuid
+     * @return string
+     */
+    protected function getEncryptionKey($uuid)
+    {
+        $uuid = preg_replace('[\-]', '', $uuid);
+        return substr($uuid, 0, 16);
     }
 
     /**
      * get Data For Publisher
      *
-     * @param $publisherId
+     * @param int $publisherId
+     * @param string $integrationCName
      * @param PartnerParamInterface $params
-     * @param array $config
-     * @param $dataPath
+     * @param string $dataPath
      * @return int
      */
-    protected function getDataForPublisher($publisherId, PartnerParamInterface $params, array $config, $dataPath)
+    protected function getDataForPublisher($publisherId, $integrationCName, PartnerParamInterface $params, $dataPath)
     {
-        $config['publisher_id'] = $publisherId;
+        $config = [
+            'publisher_id' => $publisherId,
+            'partner_cname' => $integrationCName
+        ];
 
-        /** @var WebDriverFactoryInterface $webDriverFactory */
-        $webDriverFactory = null;
-        $webDriverFactory->setConfig($config);
-        $webDriverFactory->setParams($params);
-
+        $this->webDriverFactory->setConfig($config);
+        $this->webDriverFactory->setParams($params);
 
         $forceNewSession = false;
         $sessionId = null;
 
         if ($forceNewSession == false) {
-            $sessionId = $webDriverFactory->getLastSessionId();
+            $sessionId = $this->webDriverFactory->getLastSessionId();
         } else {
-            $webDriverFactory->clearAllSessions();
+            $this->webDriverFactory->clearAllSessions();
         }
 
         $identifier = $sessionId != null ? $sessionId : $dataPath;
 
         $this->logger->info(sprintf('Creating web driver with identifier param %s', $identifier));
-        $driver = $webDriverFactory->getWebDriver($identifier, $dataPath);
+        $driver = $this->webDriverFactory->getWebDriver($identifier, $dataPath);
         // you could clear cache and cookies here if using the same profile
 
         if (!$driver) {
@@ -111,7 +190,6 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
         } catch (\Exception $e) {
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
-
         }
 
         // todo check that chrome finished downloading all files before finishing
