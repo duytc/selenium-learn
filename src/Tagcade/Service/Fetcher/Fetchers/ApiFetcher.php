@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers;
 
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\FetcherInterface;
 use Tagcade\Service\Fetcher\Fetchers\Api\ApiFetcherInterface;
@@ -13,12 +14,17 @@ class ApiFetcher extends BaseFetcher implements FetcherInterface
 	 * @var array
 	 */
 	private $apiFetchers;
+	/**
+	 * @var LoggerInterface
+	 */
+	private $logger;
 
 	/**
 	 * ApiFetcher constructor.
+	 * @param LoggerInterface $logger
 	 * @param array $apiFetchers
 	 */
-	public function __construct(array $apiFetchers)
+	public function __construct(LoggerInterface $logger, array $apiFetchers)
 	{
 		$this->apiFetchers = [];
 		/**@var ApiFetcherInterface $apiFetcher */
@@ -28,6 +34,7 @@ class ApiFetcher extends BaseFetcher implements FetcherInterface
 			}
 			$this->apiFetchers [] = $apiFetcher;
 		}
+		$this->logger = $logger;
 	}
 
 	/**

@@ -1,0 +1,4 @@
+services:
+    tagcade.service.fetcher.api.across33:
+        class: Tagcade\Service\Fetcher\Fetchers\Api\Tagcade\TagcadeApiFetcher
+        parent: tagcade.service.fetcher.api.abstract_api_fetcher

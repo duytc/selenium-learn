@@ -2,17 +2,15 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Api\Tagcade;
 
+use DateTime;
 use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
 use Tagcade\Service\Fetcher\Fetchers\Api\AbstractApiFetcher;
 use Tagcade\Service\Fetcher\Fetchers\Api\ApiFetcherInterface;
-use Tagcade\Service\Fetcher\Fetchers\Api\ApiFetcherTrait;
 
-class TagcadeApiFetcher implements ApiFetcherInterface
+class TagcadeApiFetcher extends AbstractApiFetcher implements ApiFetcherInterface
 {
 	const INTEGRATION_C_NAME = 'tagcade';
-
-	use ApiFetcherTrait;
 
 	/**
 	 * @inheritdoc
@@ -28,7 +26,6 @@ class TagcadeApiFetcher implements ApiFetcherInterface
 		$url = $allParams['url'];
 		$method = $allParams['method'];
 		$group = $allParams['group'];
-		$publisherId = $parameter->getPublisherId();
 
 		$tokenUrl = 'http://api.tagcade.dev/app_debug.php/api/v1/getToken';
 		$token = $this->getToken($tokenUrl, $username, $password);
@@ -37,7 +34,14 @@ class TagcadeApiFetcher implements ApiFetcherInterface
 		$parameterForGetMethod = array('startDate' => $startDate, 'endDate' => $endDate, '$group' => $group);
 		$report = $this->getReport($url, $method, $header, $parameterForGetMethod);
 
-		var_dump($report);
+		$startDate = new DateTime($startDate);
+		$endDate = new DateTime($endDate);
+
+		$storeFile = $this->getPath($parameter, $startDate, $endDate, 'downloadFile');
+		$report = json_decode($report, true);
+		//$header = array_keys($report['reports'][0]);
+
+		$this->arrayToCSVFile($storeFile, $report['reports']);
 
 	}
 
