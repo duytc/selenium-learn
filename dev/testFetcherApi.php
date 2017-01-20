@@ -1,7 +1,5 @@
 <?php
 namespace tagcade\dev;
-use Monolog\Logger;
-use Tagcade\Service\Fetcher\Fetchers\Api\Tagcade\TagcadeApiFetcher;
 use Tagcade\Service\Fetcher\ApiParameter;
 use AppKernel;
 
@@ -13,10 +11,9 @@ $kernel->boot();
 
 //http://api.tagcade.dev/app_dev.php/api/reports/v1/performancereports/platform?endDate=2017-01-18&group=true&startDate=2017-01-13
 
-$logger = new Logger('loger');
-$rootDirectory =  './data';
+$container = $kernel->getContainer();
 
-$tagcadeClientFetcher = new TagcadeApiFetcher($rootDirectory, $logger);
+$tagcadeClientFetcher = $container->get('tagcade.service.fetcher.fetchers.api_fetcher');
 
 $publisherId = 2;
 $integrationCName = 'tagcade';
