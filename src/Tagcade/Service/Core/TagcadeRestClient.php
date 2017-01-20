@@ -121,7 +121,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function getIntegrationToBeExecuted()
+    public function getDataSourceIntegrationToBeExecuted()
     {
         $this->logger->info(sprintf('Getting all Integrations to be executed'));
 
@@ -130,7 +130,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         /* get from ur api */
         $data = [];
-        $publishers = $this->curl->executeQuery(
+        $dataSourceIntegrations = $this->curl->executeQuery(
             $this->getListIntegrationsToBeExecutedUrl,
             'GET',
             $header,
@@ -140,7 +140,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->curl->close();
 
         /* decode and parse */
-        $result = json_decode($publishers, true);
+        $result = json_decode($dataSourceIntegrations, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->logger->error(sprintf('Invalid response (json decode failed)'));
@@ -153,12 +153,11 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         /* filter invalid integrations */
-        $result = array_filter($result, function ($integration) {
-            if (!is_array($integration)
-                || !array_key_exists('id', $integration)
-                || !array_key_exists('canonicalName', $integration)
-                || !array_key_exists('type', $integration)
-                || !array_key_exists('method', $integration)
+        $result = array_filter($result, function ($dataSourceIntegration) {
+            if (!is_array($dataSourceIntegration)
+                || !array_key_exists('dataSource', $dataSourceIntegration)
+                || !array_key_exists('integration', $dataSourceIntegration)
+                || !array_key_exists('params', $dataSourceIntegration)
             ) {
                 return false;
             }

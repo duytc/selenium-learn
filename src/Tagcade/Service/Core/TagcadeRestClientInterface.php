@@ -18,7 +18,7 @@ interface TagcadeRestClientInterface
      *
      * @return mixed
      */
-    public function getIntegrationToBeExecuted();
+    public function getDataSourceIntegrationToBeExecuted();
 
     /**
      * update last execution time for integration by canonicalName
