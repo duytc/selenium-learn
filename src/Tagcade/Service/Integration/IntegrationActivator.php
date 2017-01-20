@@ -54,7 +54,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *  ]
          * ];
          */
-        $dataSourceIntegrations = $this->restClient->getIntegrationToBeExecuted();
+        $dataSourceIntegrations = $this->restClient->getDataSourceIntegrationToBeExecuted();
         if (!is_array($dataSourceIntegrations)) {
             return false;
         }
