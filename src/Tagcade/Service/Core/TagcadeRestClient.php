@@ -181,7 +181,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         /* post update to ur api */
         $data = [
             'id' => $dataSourceIntegrationId,
-            'lastExecutedAt' => $dateTime,
+            'lastexecutetime' => $dateTime->format('Y-m-d H:i:s')
         ];
 
         $publishers = $this->curl->executeQuery(
