@@ -119,9 +119,9 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     private function updateLastExecutionTime($dataSourceIntegration)
     {
-        $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
+        $dataSourceIntegrationId = $dataSourceIntegration['id'];
         $currentTime = new \DateTime();
 
-        return $this->restClient->updateLastExecutionTimeForIntegrationByCName($integrationCName, $currentTime);
+        return $this->restClient->updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, $currentTime);
     }
 }
