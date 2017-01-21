@@ -82,7 +82,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     private function createExecutionJob($dataSourceIntegration)
     {
-        $dataSourceId = $dataSourceIntegration['dataSource']['id'];
+        $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $type = $dataSourceIntegration['integration']['type'];
         $method = $dataSourceIntegration['integration']['method'];
@@ -90,18 +90,23 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         $params = array_merge(['method' => $method], $params);
 
-        /* create job */
+        /* create job data */
         $job = new \stdClass();
-        $job->dataSourceId = $dataSourceId;
+        $job->publisherId = $publisherId;
         $job->integrationCName = $integrationCName;
         $job->type = $type;
         $job->params = $params;
+
+        /* create job payload. 'task' and 'params' keys are due to worker code base */
+        $payload = new \stdClass();
+        $payload->task = 'getPartnerReport';
+        $payload->params = $job;
 
         /** @var PheanstalkInterface $pheanstalk */
         $this->pheanstalk
             ->useTube($this->fetcherWorkerTube)
             ->put(
-                json_encode($job),
+                json_encode($payload),
                 PheanstalkInterface::DEFAULT_PRIORITY,
                 PheanstalkInterface::DEFAULT_DELAY,
                 $this->pheanstalkTTR
