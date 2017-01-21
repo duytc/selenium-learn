@@ -13,6 +13,6 @@ abstract class BaseFetcher implements FetcherInterface
 	 */
 	public function supportType($type)
 	{
-		return $type = static::TYPE;
+		return $type === static::TYPE;
 	}
 }
