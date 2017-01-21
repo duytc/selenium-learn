@@ -22,10 +22,11 @@ $param = [
 			"password" => "123456",
 			'startDate'=>'2017-01-10',
 			'endDate' =>'2017-01-19',
+			'type' => 'api',
 			'method'=>'GET',
 			'url'=>'http://api.tagcade.dev/app_dev.php/api/reports/v1/performancereports/platform',
 			'group' =>'true'
 		];
 
 $param = new ApiParameter($publisherId, $integrationCName, $param);
-$tagcadeClientFetcher->doGetData($param);
+$tagcadeClientFetcher->execute($param);

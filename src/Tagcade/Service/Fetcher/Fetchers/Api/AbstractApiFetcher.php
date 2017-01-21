@@ -10,7 +10,8 @@ use Tagcade\Service\Fetcher\Fetchers\ApiFetcher;
 
 abstract class AbstractApiFetcher implements ApiFetcherInterface
 {
-	const INTEGRATION_C_NAME = null;
+	const INTEGRATION_C_NAME  = null;
+
 	private $rootDirectory;
 	private $logger;
 
@@ -42,8 +43,10 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 		$type = $allParams['type'];
 		$integrationCName = $parameter->getIntegrationCName();
 
-		return (($integrationCName == self::INTEGRATION_C_NAME) && ($type == ApiFetcher::TYPE_API));
+		return (($integrationCName == $this->getIntegrationCName()) && ($type == ApiFetcher::TYPE_API));
 	}
+
+	abstract function getIntegrationCName();
 
 	/**
 	 * @inheritdoc
