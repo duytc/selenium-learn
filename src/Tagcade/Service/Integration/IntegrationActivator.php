@@ -88,14 +88,20 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $method = $dataSourceIntegration['integration']['method'];
         $params = $dataSourceIntegration['params'];
 
-        $params = array_merge(['method' => $method], $params);
+        /* transform params from {key, value} to {<key> => <value>} */
+        $transformedParams = [];
+        foreach ($params as $param) {
+            $transformedParams[$param['key']] = $param['value'];
+        }
+
+        $transformedParams = array_merge(['method' => $method], $transformedParams);
 
         /* create job data */
         $job = new \stdClass();
         $job->publisherId = $publisherId;
         $job->integrationCName = $integrationCName;
         $job->type = $type;
-        $job->params = $params;
+        $job->params = json_encode($transformedParams);
 
         /* create job payload. 'task' and 'params' keys are due to worker code base */
         $payload = new \stdClass();
@@ -110,8 +116,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PheanstalkInterface::DEFAULT_PRIORITY,
                 PheanstalkInterface::DEFAULT_DELAY,
                 $this->pheanstalkTTR
-            )
-        ;
+            );
 
         return true;
     }
