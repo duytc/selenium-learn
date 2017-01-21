@@ -44,8 +44,6 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 
 	}
 
-
-
 	/**
 	 * @inheritdoc
 	 */
