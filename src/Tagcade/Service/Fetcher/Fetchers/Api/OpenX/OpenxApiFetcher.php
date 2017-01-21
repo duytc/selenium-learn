@@ -16,4 +16,9 @@ class OpenxApiFetcher extends AbstractApiFetcher
 	{
 		// TODO: Implement doGetData() method.
 	}
+
+	function getIntegrationCName()
+	{
+		// TODO: Implement getIntegrationCName() method.
+	}
 }
