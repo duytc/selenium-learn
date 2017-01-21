@@ -165,6 +165,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             return true;
         });
 
+        $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
+
         return $result;
     }
 
