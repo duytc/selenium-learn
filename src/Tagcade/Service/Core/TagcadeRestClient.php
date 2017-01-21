@@ -167,6 +167,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             return true;
         });
 
+        $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
+
         return $result;
     }
 
@@ -183,10 +185,10 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         /* post update to ur api */
         $data = [
             'id' => $dataSourceIntegrationId,
-            'lastExecutedAt' => $dateTime,
+            'lastexecutetime' => $dateTime->format('Y-m-d H:i:s')
         ];
 
-        $publishers = $this->curl->executeQuery(
+        $result = $this->curl->executeQuery(
             $this->updateLastExecutionTimeForIntegrationUrl,
             'POST',
             $header,
@@ -196,7 +198,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->curl->close();
 
         /* decode and parse */
-        $result = json_decode($publishers, true);
+        $result = json_decode($result, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->logger->error(sprintf('Invalid response (json decode failed)'));
