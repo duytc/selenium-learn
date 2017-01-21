@@ -32,7 +32,7 @@ class GetPartnerReportWorker
         $type = $params->type;
         $fetcher = $this->fetcherManager->getFetcher($type);
 
-        $parameter = new ApiParameter($params->publisherId, $params->integrationCName, json_decode($params->param, true));
+        $parameter = new ApiParameter($params->publisherId, $params->integrationCName, json_decode($params->params, true));
 
         $fetcher->execute($parameter);
     }
