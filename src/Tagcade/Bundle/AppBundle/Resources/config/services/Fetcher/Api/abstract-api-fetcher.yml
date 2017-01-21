@@ -4,4 +4,5 @@ services:
         abstract: true
         arguments:
             - %tagcade.default_data_path%
+            - %kernel.root_dir%
             - @logger

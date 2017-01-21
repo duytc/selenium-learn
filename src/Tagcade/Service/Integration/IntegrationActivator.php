@@ -86,6 +86,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $type = $dataSourceIntegration['integration']['type'];
         $method = $dataSourceIntegration['integration']['method'];
+        $url = $dataSourceIntegration['integration']['url'];
         $params = $dataSourceIntegration['params'];
 
         /* transform params from {key, value} to {<key> => <value>} */
@@ -94,7 +95,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
             $transformedParams[$param['key']] = $param['value'];
         }
 
-        $transformedParams = array_merge(['method' => $method], $transformedParams);
+        $transformedParams = array_merge(
+        	[
+        		'method' => $method,
+        		'url' => $url
+	        ],
+	        $transformedParams
+        );
 
         /* create job data */
         $job = new \stdClass();

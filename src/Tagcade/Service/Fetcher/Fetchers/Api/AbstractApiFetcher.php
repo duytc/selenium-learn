@@ -6,23 +6,33 @@ use DateTime;
 use Psr\Log\LoggerInterface;
 use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\ApiParameterInterface;
-use Tagcade\Service\Fetcher\Fetchers\ApiFetcher;
 
 abstract class AbstractApiFetcher implements ApiFetcherInterface
 {
-	const INTEGRATION_C_NAME  = null;
+	const INTEGRATION_C_NAME = null;
 
 	protected $rootDirectory;
 	protected $logger;
+	/**
+	 * @var
+	 */
+	private $rootKernelDirectory;
+	/**
+	 * @var
+	 */
+	private $dataDirectory;
 
 	/**
 	 * AbstractApiFetcher constructor.
-	 * @param string $rootDirectory
+	 * @param $dataDirectory
+	 * @param $rootKernelDirectory
 	 * @param LoggerInterface $logger
+	 * @internal param string $rootDirectory
 	 */
-	public function __construct($rootDirectory, LoggerInterface $logger)
+	public function __construct($dataDirectory, $rootKernelDirectory, LoggerInterface $logger)
 	{
-		$this->rootDirectory = $rootDirectory;
+		$this->dataDirectory = $dataDirectory;
+		$this->rootKernelDirectory = $rootKernelDirectory;
 		$this->logger = $logger;
 	}
 
@@ -31,7 +41,11 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 	 */
 	public function getRootDirectory()
 	{
-		return $this->rootDirectory;
+		$dataPath = $this->dataDirectory;
+		$isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
+		$dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->rootKernelDirectory, '/app'), ltrim($dataPath, './')) : $dataPath;
+
+		return $dataPath;
 	}
 
 	/**
@@ -76,7 +90,7 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 			mkdir($rootDirectory);
 		}
 
-		$publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
+		$publisherPath = sprintf('%s/%s', $rootDirectory, $publisherId);
 		if (!is_dir($publisherPath)) {
 			mkdir($publisherPath);
 		}
