@@ -133,6 +133,11 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 
 		$file = fopen($path, 'w');
 		foreach ($dataRows as $dataRow) {
+
+			$dataRow = array_filter($dataRow, function ($column) {
+				return !is_array($column);
+			});
+
 			fputcsv($file, $dataRow);
 		}
 
