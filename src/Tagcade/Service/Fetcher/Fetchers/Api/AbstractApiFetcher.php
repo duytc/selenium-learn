@@ -12,8 +12,8 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 {
 	const INTEGRATION_C_NAME  = null;
 
-	private $rootDirectory;
-	private $logger;
+	protected $rootDirectory;
+	protected $logger;
 
 	/**
 	 * AbstractApiFetcher constructor.
@@ -39,11 +39,7 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 	 */
 	function supportIntegration(ApiParameterInterface $parameter)
 	{
-		$allParams = $parameter->getParams();
-		$type = $allParams['type'];
-		$integrationCName = $parameter->getIntegrationCName();
-
-		return (($integrationCName == $this->getIntegrationCName()) && ($type == ApiFetcher::TYPE_API));
+		return ($parameter->getIntegrationCName() == $this->getIntegrationCName());
 	}
 
 	abstract function getIntegrationCName();

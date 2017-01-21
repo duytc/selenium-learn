@@ -142,6 +142,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         /* decode and parse */
         $result = json_decode($dataSourceIntegrations, true);
 
+	    var_dump($result);
+
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->logger->error(sprintf('Invalid response (json decode failed)'));
             return false;
