@@ -19,6 +19,22 @@ imports:
     - { resource: services/Fetcher/ui-fetcher.yml }
     - { resource: services/Fetcher/Ui/abstract-ui-fetcher.yml }
     - { resource: services/Fetcher/Ui/across33.yml }
+    - { resource: services/Fetcher/Ui/ads4games.yml }
+    - { resource: services/Fetcher/Ui/adtech.yml }
+    - { resource: services/Fetcher/Ui/conversant.yml }
+    - { resource: services/Fetcher/Ui/cpmbase.yml }
+    - { resource: services/Fetcher/Ui/defy.media.yml }
+    - { resource: services/Fetcher/Ui/districtm.yml }
+    - { resource: services/Fetcher/Ui/epom.market.yml }
+    - { resource: services/Fetcher/Ui/komoona.yml }
+    - { resource: services/Fetcher/Ui/media.net.yml }
+    - { resource: services/Fetcher/Ui/nativeads.yml }
+    - { resource: services/Fetcher/Ui/openx.yml }
+    - { resource: services/Fetcher/Ui/pub.ventures.yml }
+    - { resource: services/Fetcher/Ui/pulse.point.yml }
+    - { resource: services/Fetcher/Ui/sovrn.yml }
+    - { resource: services/Fetcher/Ui/technorati.yml }
+    - { resource: services/Fetcher/Ui/yellow.hammer.yml }
     - { resource: services/Fetcher/api-fetcher.yml }
     - { resource: services/Fetcher/Api/abstract-api-fetcher.yml }
     - { resource: services/Fetcher/Api/tagcade.yml }
