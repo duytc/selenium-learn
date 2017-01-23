@@ -21,4 +21,14 @@ class OpenxApiFetcher extends AbstractApiFetcher
 	{
 		// TODO: Implement getIntegrationCName() method.
 	}
+
+	function getColumnNames(array $reports)
+	{
+		// TODO: Implement getColumnNames() method.
+	}
+
+	function getReportValues(array $reports)
+	{
+		// TODO: Implement getReportValues() method.
+	}
 }
