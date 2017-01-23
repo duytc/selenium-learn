@@ -116,18 +116,25 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 
 	/**
 	 * @param $path
+	 * @param $columnNames
 	 * @param $dataRows
 	 * @throws \Exception
 	 */
-	public function arrayToCSVFile($path, $dataRows)
+	public function saveToCSVFile($path, $columnNames, $dataRows)
 	{
 		if (is_dir($path)) {
 			throw new \Exception ('Path must be file');
 		}
 
+		if (!is_array($columnNames)) {
+			throw  new \Exception('Column names must be an array');
+		}
+
 		if (!is_array($dataRows)) {
 			throw new \Exception ('Data to save csv file expect array type');
 		}
+
+		$dataRows = array_merge(array($columnNames), $dataRows);
 
 		$file = fopen($path, 'w');
 		foreach ($dataRows as $dataRow) {
@@ -143,6 +150,8 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 	}
 
 	abstract function getIntegrationCName();
+
 	abstract function getColumnNames(array $reports);
+
 	abstract function getReportValues(array $reports);
 }

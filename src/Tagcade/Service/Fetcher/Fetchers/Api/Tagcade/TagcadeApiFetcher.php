@@ -72,12 +72,10 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 		$storeFile = $this->getPath($parameter, $startDate, $endDate, 'downloadFile');
 		$report = json_decode($report, true);
 
-		$reportValues =  $this->getReportValues($report);
+		$reportValues = $this->getReportValues($report);
 		$header = $this->getColumnNames($reportValues);
-		$dataToSave = array_merge(array($header), $reportValues);
 
-		$this->arrayToCSVFile($storeFile, $dataToSave);
-
+		$this->saveToCSVFile($storeFile, $header, $reportValues);
 	}
 
 	/**
@@ -130,7 +128,7 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 
 	function getReportValues(array $reports)
 	{
-		$reportValues =  $reports['reports'];
+		$reportValues = $reports['reports'];
 
 		foreach ($reportValues as $index => $reportValue) {
 			foreach ($reportValue as $key => $report) {
