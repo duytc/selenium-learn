@@ -98,11 +98,19 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
         /** @var string $username */
         $username = $config['username'];
 
-        /** @var \DateTime */
-        $startDate = date_create($config['startDate']);
+        /** @var \DateTime $startDate */
+        if (!array_key_exists('startDate', $config)) {
+            $startDate = new \DateTime('yesterday');
+        } else {
+            $startDate = date_create($config['startDate']);
+        }
 
-        /** @var \DateTime */
-        $endDate = date_create($config['endDate']);
+        /** @var \DateTime $endDate */
+        if (!array_key_exists('endDate', $config)) {
+            $endDate = new \DateTime('yesterday');
+        } else {
+            $endDate = date_create($config['endDate']);
+        }
 
         if ($startDate > $endDate) {
             throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
@@ -237,7 +245,8 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
      * @param string $integrationCName
      * @return self
      */
-    public function setIntegrationCName($integrationCName) {
+    public function setIntegrationCName($integrationCName)
+    {
         $this->integrationCName = $integrationCName;
         return $this;
     }
