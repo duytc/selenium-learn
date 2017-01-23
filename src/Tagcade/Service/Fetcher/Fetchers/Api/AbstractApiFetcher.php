@@ -56,8 +56,6 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 		return ($parameter->getIntegrationCName() == $this->getIntegrationCName());
 	}
 
-	abstract function getIntegrationCName();
-
 	/**
 	 * @inheritdoc
 	 */
@@ -143,4 +141,8 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 
 		fclose($file);
 	}
+
+	abstract function getIntegrationCName();
+	abstract function getColumnNames(array $reports);
+	abstract function getReportValues(array $reports);
 }

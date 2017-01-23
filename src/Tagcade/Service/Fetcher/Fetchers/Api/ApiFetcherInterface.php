@@ -28,4 +28,10 @@ interface ApiFetcherInterface
 	 * @return mixed
 	 */
 	public function getReport($url, $method='GET', $header = null, $data = array());
+
+	/**
+	 * @param array $reports
+	 * @return mixed
+	 */
+	public function getColumnNames(array  $reports);
 }
