@@ -31,14 +31,16 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 		$password = $allParams['password'];
 
 		if (!array_key_exists('startDate', $allParams)) {
-			throw new Exception('Missing startDate in parameters');
+			$startDate = (new \DateTime('yesterday'))->format('Y-m-d');
+		} else {
+			$startDate = $allParams['startDate'];
 		}
-		$startDate = $allParams['startDate'];
 
-		$endDate = null;
-		if (array_key_exists('endDate', $allParams)) {
+		if (!array_key_exists('endDate', $allParams)) {
+			$endDate = (new \DateTime('yesterday'))->format('Y-m-d');
+		} else {
 			$endDate = $allParams['endDate'];
-		};
+		}
 
 		if (!array_key_exists('url', $allParams)) {
 			throw new Exception('Missing url in parameters');
