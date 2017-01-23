@@ -1,0 +1,8 @@
+services:
+    tagcade.service.fetcher.fetchers.api_fetcher:
+        class: Tagcade\Service\Fetcher\Fetchers\ApiFetcher
+        arguments:
+            - @logger
+            -
+                - @tagcade.service.fetcher.api.tagcade
+

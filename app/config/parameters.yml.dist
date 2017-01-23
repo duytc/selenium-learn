@@ -13,6 +13,12 @@ parameters:
     tagcade_download_time_out: 30
     tagcade_get_token_url: 'http://api.tagcade.dev/app_dev.php/api/v1/getToken'
     tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'
+    ur_get_list_integrations_to_be_executed_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/byschedule'
+    ur_update_last_execution_time_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/updatelastexecutetime'
+
+    fetcher_worker_tube: 'fetcher-worker'
+    pheanstalk_ttr: 60
+    pheanstalk_primary_host: 127.0.0.1
 
     # mapping canonical name in db to real partner import command
     partners:
@@ -33,3 +39,20 @@ parameters:
         conversant: 'tc:conversant:get-data'
         openx: 'tc:openx:get-data'
         technorati: 'tc:technorati:get-data'
+    integration_CName_33across: '33across'
+    integration_CName_sovrn: 'sovrn'
+    integration_CName_defy-media: 'defy-media'
+    integration_CName_komoona: 'komoona'
+    integration_CName_pulse-point: 'pulse-point'
+    integration_CName_yellow-hammer: 'yellow-hammer'
+    integration_CName_cpm-base: 'cpm-base'
+    integration_CName_media-net: 'media-net'
+    integration_CName_native-ads: 'native-ads'
+    integration_CName_ads4games: 'ads4games'
+    integration_CName_ad-tech: 'ad-tech'
+    integration_CName_epom-market: 'epom-market'
+    integration_CName_pub-ventures: 'pub-ventures'
+    integration_CName_districtm: 'districtm'
+    integration_CName_conversant: 'conversant'
+    integration_CName_openx: 'openx'
+    integration_CName_technorati: 'technorati'

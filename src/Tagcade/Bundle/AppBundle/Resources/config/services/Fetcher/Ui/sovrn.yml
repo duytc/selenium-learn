@@ -1,0 +1,8 @@
+services:
+    tagcade.service.fetcher.ui.sovrn:
+        class: Tagcade\Service\Fetcher\Fetchers\Ui\Sovrn\SovrnFetcher
+        parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
+        arguments:
+            - @tagcade.data_source.fetcher.sovrn
+        calls:
+            - [setIntegrationCName,[%integration_cname_sovrn%]]

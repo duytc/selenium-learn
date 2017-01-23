@@ -16,6 +16,28 @@ imports:
     - { resource: services/conversant.yml }
     - { resource: services/openx.yml }
     - { resource: services/technorati.yml }
+    - { resource: services/Fetcher/ui-fetcher.yml }
+    - { resource: services/Fetcher/Ui/abstract-ui-fetcher.yml }
+    - { resource: services/Fetcher/Ui/across33.yml }
+    - { resource: services/Fetcher/Ui/ads4games.yml }
+    - { resource: services/Fetcher/Ui/adtech.yml }
+    - { resource: services/Fetcher/Ui/conversant.yml }
+    - { resource: services/Fetcher/Ui/cpmbase.yml }
+    - { resource: services/Fetcher/Ui/defy.media.yml }
+    - { resource: services/Fetcher/Ui/districtm.yml }
+    - { resource: services/Fetcher/Ui/epom.market.yml }
+    - { resource: services/Fetcher/Ui/komoona.yml }
+    - { resource: services/Fetcher/Ui/media.net.yml }
+    - { resource: services/Fetcher/Ui/nativeads.yml }
+    - { resource: services/Fetcher/Ui/openx.yml }
+    - { resource: services/Fetcher/Ui/pub.ventures.yml }
+    - { resource: services/Fetcher/Ui/pulse.point.yml }
+    - { resource: services/Fetcher/Ui/sovrn.yml }
+    - { resource: services/Fetcher/Ui/technorati.yml }
+    - { resource: services/Fetcher/Ui/yellow.hammer.yml }
+    - { resource: services/Fetcher/api-fetcher.yml }
+    - { resource: services/Fetcher/Api/abstract-api-fetcher.yml }
+    - { resource: services/Fetcher/Api/tagcade.yml }
 
 services:
     yaml:
@@ -70,6 +92,15 @@ services:
             - %tagcade_user_password%
             - %tagcade_get_token_url%
             - %tagcade_get_list_publisher_url%
+            - %ur_get_list_integrations_to_be_executed_url%
+            - %ur_update_last_execution_time_for_integration_url%
         calls:
             - [setLogger, [@logger]]
 
+    tagcade.service.integration_activator:
+        class: Tagcade\Service\Integration\IntegrationActivator
+        arguments:
+            - @tagcade_app.rest_client
+            - @leezy.pheanstalk.primary
+            - %fetcher_worker_tube%
+            - %pheanstalk_ttr%

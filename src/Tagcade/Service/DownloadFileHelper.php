@@ -28,7 +28,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
 
     function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger)
     {
-        $this->downloadRootDirectory = sprintf('%s/publishers', $downloadRootDirectory);
+        $this->downloadRootDirectory = sprintf('%s/', $downloadRootDirectory);
         $this->downloadTimeout = $downloadTimeout;
         $this->logger = $logger;
     }

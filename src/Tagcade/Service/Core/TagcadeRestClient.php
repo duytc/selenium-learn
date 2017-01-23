@@ -7,41 +7,45 @@ use RestClient\CurlRestClient;
 
 class TagcadeRestClient implements TagcadeRestClientInterface
 {
-    /**
-     * @var null
-     */
-    private $username;
-    /**
-     * @var array
-     */
-    private $password;
-    /**
-     * @var CurlRestClient
-     */
-    private $curl;
-    /**
-     * @var string
-     */
-    private $getTokenUrl;
-    /**
-     * @var string
-     */
-    private $getListPublisherUrl;
-    private $token;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     const DEBUG = 0;
 
-    function __construct(CurlRestClient $curl, $username, $password, $getTokenUrl, $getListPublisherUrl)
+    /** @var string */
+    private $username;
+    /** @var array */
+    private $password;
+    /** @var CurlRestClient */
+    private $curl;
+
+    /** @var string */
+    private $getTokenUrl;
+    /** @var string */
+    private $getListPublisherUrl;
+    /** @var string */
+    private $getListIntegrationsToBeExecutedUrl;
+    /** @var string */
+    private $updateLastExecutionTimeForIntegrationUrl;
+
+    /** @var string */
+    private $token;
+
+    /** @var LoggerInterface */
+    private $logger;
+
+    function __construct(CurlRestClient $curl, $username, $password,
+                         $getTokenUrl,
+                         $getListPublisherUrl,
+                         $getListIntegrationsToBeExecutedUrl,
+                         $updateLastExecutionTimeForIntegrationUrl
+    )
     {
+        $this->curl = $curl;
         $this->username = $username;
         $this->password = $password;
-        $this->curl = $curl;
+
         $this->getTokenUrl = $getTokenUrl;
         $this->getListPublisherUrl = $getListPublisherUrl;
+        $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
+        $this->updateLastExecutionTimeForIntegrationUrl = $updateLastExecutionTimeForIntegrationUrl;
     }
 
     /**
@@ -68,8 +72,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         $this->logger->info('Trying to get token');
 
-        $data = array('username' => $this->username, 'password'  => $this->password);
-        $tokenResponse = $this->curl->executeQuery($this->getTokenUrl, 'POST', array(),  $data);
+        $data = array('username' => $this->username, 'password' => $this->password);
+        $tokenResponse = $this->curl->executeQuery($this->getTokenUrl, 'POST', array(), $data);
         $this->curl->close();
         $token = json_decode($tokenResponse, true);
 
@@ -82,7 +86,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('json decoding for token error');
         }
-        if (!array_key_exists('token', $token) ) {
+        if (!array_key_exists('token', $token)) {
             throw new \Exception(sprintf('Could not authenticate user %s', $this->username));
         }
 
@@ -112,5 +116,98 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->logger->info(sprintf('finished getting publisher configuration. Got this %s', $publishers));
 
         return json_decode($publishers, true);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationToBeExecuted()
+    {
+        $this->logger->info(sprintf('Getting all Integrations to be executed'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* get from ur api */
+        $data = [];
+        $dataSourceIntegrations = $this->curl->executeQuery(
+            $this->getListIntegrationsToBeExecutedUrl,
+            'GET',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($dataSourceIntegrations, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->error(sprintf('Not found Integration to be executed'));
+            return false;
+        }
+
+        /* filter invalid integrations */
+        $result = array_filter($result, function ($dataSourceIntegration) {
+            if (!is_array($dataSourceIntegration)
+                || !array_key_exists('dataSource', $dataSourceIntegration)
+                || !array_key_exists('integration', $dataSourceIntegration)
+                || !array_key_exists('params', $dataSourceIntegration)
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, \DateTime $dateTime)
+    {
+        $this->logger->info(sprintf('Getting all Integrations to be executed'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            'id' => $dataSourceIntegrationId,
+            'lastexecutetime' => $dateTime->format('Y-m-d H:i:s')
+        ];
+
+        $result = $this->curl->executeQuery(
+            $this->updateLastExecutionTimeForIntegrationUrl,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->error(sprintf('Update last execution time failed, code %d', $result['code']));
+            return false;
+        }
+
+        return (bool)$result;
     }
 }

@@ -135,7 +135,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $executionDate = new \DateTime('today');
 
         $defaultDownloadPath = sprintf(
-            '%s/publishers/%d/%s/%s-%s-%s-%s',
+            '%s/%d/%s/%s-%s-%s-%s',
             $dataPath,
             $this->config['publisher_id'],
             $this->config['partner_cname'],
