@@ -59,7 +59,7 @@ abstract class AbstractApiFetcher implements ApiFetcherInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getReport($url, $method = 'GET', $header = null, $data = array())
+	public function getData($url, $method = 'GET', $header = null, $data = array())
 	{
 		$curl = new CurlRestClient();
 		$responseData = $curl->executeQuery($url, $method, $header, $data);

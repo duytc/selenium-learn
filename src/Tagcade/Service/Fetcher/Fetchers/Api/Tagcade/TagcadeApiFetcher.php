@@ -60,22 +60,22 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 		$header = $this->createHeaderData($token);
 
 		$parameterForGetMethod = array('startDate' => $startDate, 'endDate' => $endDate, '$group' => $group);
-		$report = $this->getReport($url, $method, $header, $parameterForGetMethod);
+		$report = $this->getData($url, $method, $header, $parameterForGetMethod);
 
 		if (empty($report)) {
+			$this->logger->warning('There are not reports');
 			return false;
 		}
 
 		$startDate = new DateTime($startDate);
 		$endDate = new DateTime($endDate);
-
 		$storeFile = $this->getPath($parameter, $startDate, $endDate, 'downloadFile');
 		$report = json_decode($report, true);
 
 		$reportValues = $this->getReportValues($report);
 		$header = $this->getColumnNames($reportValues);
 
-		$this->saveToCSVFile($storeFile, $header, $reportValues);
+		return $this->saveToCSVFile($storeFile, $header, $reportValues);
 	}
 
 	/**
@@ -116,16 +116,25 @@ class TagcadeApiFetcher extends AbstractApiFetcher
 		return $header;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	function getIntegrationCName()
 	{
 		return self::INTEGRATION_C_NAME;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	function getColumnNames(array $reports)
 	{
 		return array_keys($reports[0]);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	function getReportValues(array $reports)
 	{
 		$reportValues = $reports['reports'];

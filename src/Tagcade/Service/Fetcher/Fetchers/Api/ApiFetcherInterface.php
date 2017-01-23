@@ -20,18 +20,27 @@ interface ApiFetcherInterface
 	function doGetData(ApiParameterInterface $parameter);
 
 	/**
-	 * Get report data
+	 * Get all data
 	 * @param $url
 	 * @param string $method
 	 * @param null $header
 	 * @param array $data
 	 * @return mixed
 	 */
-	public function getReport($url, $method='GET', $header = null, $data = array());
+	public function getData($url, $method='GET', $header = null, $data = array());
 
 	/**
-	 * @param array $reports
+	 * Get all column names
+	 * @param array $data
 	 * @return mixed
 	 */
-	public function getColumnNames(array  $reports);
+	public function getColumnNames(array  $data);
+
+	/**
+	 * Get report values
+	 * @param array $data
+	 * @return mixed
+	 */
+	public function getReportValues(array $data);
+
 }
