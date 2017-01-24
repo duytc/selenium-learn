@@ -15,6 +15,8 @@ class HomePage extends AbstractPage
 
     public function doLogin($username, $password)
     {
+        sleep(2);
+
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) { // current page is another page that tell the user is already logged in
@@ -46,6 +48,8 @@ class HomePage extends AbstractPage
         ;
 
         $this->driver->findElement(WebDriverBy::id('login-submit'))->click();
+
+        sleep(2);
 
         return $this->isLoggedIn();
     }
