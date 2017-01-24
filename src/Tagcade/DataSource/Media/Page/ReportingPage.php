@@ -4,6 +4,7 @@ namespace Tagcade\DataSource\Media\Page;
 
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeOutException;
+use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -43,6 +44,8 @@ class ReportingPage extends AbstractPage
         $this->driver->wait()->until(
             WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
         );
+
+		$this->driver->executeScript("window.scrollBy(0,250)", array());
 
         try {
             /** @var RemoteWebElement $downloadBtn */
