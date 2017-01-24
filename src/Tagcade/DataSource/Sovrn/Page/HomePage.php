@@ -46,7 +46,7 @@ class HomePage extends AbstractPage
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('landing-login'))->click();
         sleep(2);
-
+        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('user-menu-trigger')));
         return $this->isLoggedIn();
     }
 
