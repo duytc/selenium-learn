@@ -6,6 +6,8 @@ use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverWait;
+use Pheanstalk\Exception;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class HomePage extends AbstractPage
@@ -31,9 +33,9 @@ class HomePage extends AbstractPage
             return true;
         }
 
-        if (!$this->isCurrentUrl()) {
-            $this->navigate();
-        }
+//        if (!$this->isCurrentUrl()) {
+//            $this->navigate();
+//        }
 
         $this->logger->info('Filling username and password');
 
@@ -44,22 +46,29 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('email'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('publisherSignin'))->click();
-
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('dashboard')),
-            'Login Fail'
-        );
+        $this->sleep(2);
+        $this->driver->manage()->timeouts()->pageLoadTimeout(60);
+        $waitDriver = new WebDriverWait($this->driver, 60);
+        try {
+            $waitDriver->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('reports')),
+                'Login Fail'
+            );
+        } catch (Exception $exception) {
+            $waitDriver->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('reports')),
+                'Login Fail'
+            );
+        }
     }
 
     /**
@@ -71,7 +80,7 @@ class HomePage extends AbstractPage
             return true;
         }
 
-        /** @var RemoteWebElement[] $dashboardElement  */
+        /** @var RemoteWebElement[] $dashboardElement */
         $dashboardElement = $this->driver->findElements(WebDriverBy::id('dashboard'));
         if (count($dashboardElement) > 0) {
             $this->driver->findElement(WebDriverBy::id('dashboard'))->click();
@@ -80,15 +89,16 @@ class HomePage extends AbstractPage
         return false;
     }
 
-    public function findAndClickLinkByHref($findString) {
+    public function findAndClickLinkByHref($findString)
+    {
 
-        /** @var RemoteWebElement[] $aElements  */
+        /** @var RemoteWebElement[] $aElements */
         $aElements = $this->driver->findElements(WebDriverBy::tagName('a'));
 
         foreach ($aElements as $aElement) {
             $herfValue = $aElement->getAttribute('href');
             if (strpos($herfValue, $findString) !== false) {
-               $this->driver->navigate()->to($herfValue);
+                $this->driver->navigate()->to($herfValue);
                 return true;
             }
         }

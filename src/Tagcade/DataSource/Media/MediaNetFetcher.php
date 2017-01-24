@@ -20,7 +20,6 @@ class MediaNetFetcher extends PartnerFetcherAbstract implements MediaNetFetcherI
         $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         $this->logger->debug('Finish logging in');
-        sleep(5);
         $this->logger->info('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());

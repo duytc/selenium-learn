@@ -14,10 +14,13 @@ class EarningPage extends AbstractPage
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
-
         // popup calendar
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('section-account-download-adstats')));
+        $this->sleep(2);
+        $this->navigate();
+        $this->sleep(2);
+        $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('section-account-download-adstats')));
         $dateCalendarContainer = $this->driver->findElement(WebDriverBy::id('section-account-download-adstats'));
+        $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('date-range-calendar')));
         $elements = $dateCalendarContainer->findElements(WebDriverBy::className('date-range-calendar'));
 
         $this->logger->debug('Popup browser');
@@ -27,12 +30,13 @@ class EarningPage extends AbstractPage
                 $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOf($e));
 
                 $e->click();
+                $this->sleep(2);
                 break;
             }
         }
 
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('calendar_downloads_account-downloads-adstats'))
+            WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('calendar_downloads_account-downloads-adstats'))
         );
 
         $this->logger->debug(sprintf('Setting start date %s', $startDate->format('Y-m-d')));
@@ -43,33 +47,36 @@ class EarningPage extends AbstractPage
         $this->driver->wait()->until(
             WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::id('calendar_downloads_account-downloads-adstats'))
         );
-        
-        usleep(100);
+
+        $this->sleep(1);
         // breakdown by day
         $this->logger->debug('Setting breakdown by days');
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('adstats-breakout'))
+        );
         $this->driver->findElement(WebDriverBy::id('adstats-breakout'))
-            ->click()
-        ;
+            ->click();
+        sleep(1);
 
         // Step 2. Select combined report
         $this->logger->debug('Setting combined reports');
         $this->driver->findElement(WebDriverBy::id('adstats-filter-country-both'))
-            ->click()
-        ;
+            ->click();
 
-        usleep(100);
+        sleep(1);
         // Step 3. click download
         $downloadLinkContainer = $this->driver->findElement(WebDriverBy::id('section-account-download-adstats'));
         $elements = $downloadLinkContainer->findElements(WebDriverBy::cssSelector('.download-trigger'));
-        foreach($elements as $element) {
+        foreach ($elements as $element) {
             $text = $element->getText();
             if ($text == 'Download') {
                 //$element->click();
-                $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+                $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
                 $this->downloadThenWaitUntilComplete($element, $directoryStoreDownloadFile);
                 break;
             }
         }
+        $this->sleep(2);
         $this->logger->debug('Log out system');
         $this->logOutSystem();
     }
@@ -86,7 +93,9 @@ class EarningPage extends AbstractPage
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
         $dateWidget = new DateSelectWidget($this->driver);
+        $this->sleep(2);
         $dateWidget->setDate($startDate);
+        $this->sleep(2);
         $dateWidget->setDate($endDate);
 
         $this->driver->wait()->until(

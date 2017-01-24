@@ -4,6 +4,7 @@ namespace Tagcade\DataSource\Media\Page;
 
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeOutException;
+use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -18,45 +19,46 @@ class ReportingPage extends AbstractPage
     {
         // step 0. Report tab
         $this->driver->findElement(WebDriverBy::id('reports'))
-            ->click()
-        ;
+            ->click();
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('reports'))
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('reports'))
         );
         $this->driver->findElement(WebDriverBy::id('AdTags'))
-            ->click()
-        ;
+            ->click();
 
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
-        );
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('adTagStatsTab'))
         );
 
         $this->selectDateRange($startDate, $endDate);
+        $this->sleep(2);
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('btnGo'))
+        );
         $this->driver->findElement(WebDriverBy::id('btnGo'))->click();
 
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('adTagStatsTab'))
         );
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
-        );
+//        $this->driver->wait()->until(
+//            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+//        );
+
 
         try {
             /** @var RemoteWebElement $downloadBtn */
-            $downloadElement =  $this->driver->findElement(WebDriverBy::id('csv5'));
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('csv5')));
+            $this->sleep(2);
+            $this->driver->executeScript("window.scrollBy(0,500)", array());
+            $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('csv5')));
+            $downloadElement = $this->driver->findElement(WebDriverBy::id('csv5'));
 
-            $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $this->sleep(2);
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
             $this->logoutSystem();
-        }
-        catch (TimeOutException $te) {
+        } catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
     }
