@@ -78,6 +78,7 @@ services:
             - %tagcade.default_data_path%
             - %tagcade_download_time_out%
             - @logger
+            - %kernel.root_dir%
 
     ### rest client
     rest.client:

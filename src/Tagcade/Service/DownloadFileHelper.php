@@ -25,12 +25,17 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @var LoggerInterface
      */
     private $logger;
+	/**
+	 * @var
+	 */
+	private $rootKernelDirectory;
 
-    function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger)
+	function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger, $rootKernelDirectory)
     {
         $this->downloadRootDirectory = sprintf('%s/', $downloadRootDirectory);
         $this->downloadTimeout = $downloadTimeout;
         $this->logger = $logger;
+	    $this->rootKernelDirectory = $rootKernelDirectory;
     }
 
     /**
@@ -140,6 +145,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                 $allFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
                 $countCurrentFiles = count($allFiles);
 
+	            $this->logger->debug(sprintf('path store file %s', $directoryStoreDownloadFile));
                 $this->logger->debug(sprintf('Now total files = %d', $countCurrentFiles));
 
                 if ($countCurrentFiles > $countOldFiles) {
@@ -202,13 +208,18 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
         return $expectFiles;
     }
 
-    /**
-     * @return string
-     */
-    public function getRootDirectory ()
-    {
-        return $this->downloadRootDirectory;
-    }
+	/**
+	 * @return string
+	 */
+	public function getRootDirectory()
+	{
+		$dataPath = $this->downloadRootDirectory;
+		$isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
+		$dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->rootKernelDirectory, '/app'), ltrim($dataPath, './')) : $dataPath;
+
+		return $dataPath;
+	}
+
 
     /**
      * @param $downloadDirectory
