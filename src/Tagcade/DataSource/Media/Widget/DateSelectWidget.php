@@ -16,7 +16,7 @@ class DateSelectWidget extends AbstractWidget
      */
     public function __construct(RemoteWebDriver $driver, Logger $logger = null)
     {
-        parent::__construct($driver, $logger );
+        parent::__construct($driver, $logger);
     }
 
     /**
@@ -26,17 +26,19 @@ class DateSelectWidget extends AbstractWidget
      */
     public function setDateRange(DateTime $startDate, DateTime $endDate)
     {
-       $this->setStartDate($startDate);
-       $this->setEndDate($endDate);
+        sleep(2);
+        $this->setStartDate($startDate);
+        sleep(2);
+        $this->setEndDate($endDate);
 
-       return $this;
+        return $this;
     }
 
     /**
      * @param DateTime $startDate
      * @throws \Exception
      */
-    protected function setStartDate(DateTime $startDate )
+    protected function setStartDate(DateTime $startDate)
     {
         try {
             $this->logger->debug('Starting set start date');
@@ -56,7 +58,7 @@ class DateSelectWidget extends AbstractWidget
         try {
             $this->logger->debug('Starting set end date');
             $this->driver->findElement(WebDriverBy::id('to'))->clear()->sendKeys($endDate->format('m/d/y'));
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error(sprintf('Can not set end date =%d', $endDate->format('Y-m-d')));
             throw $e;
         }

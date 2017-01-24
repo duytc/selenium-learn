@@ -44,11 +44,11 @@ class ReportingPage extends AbstractPage
 //            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
 //        );
 
-//		$this->driver->executeScript("window.scrollBy(0,250)", array());
 
         try {
             /** @var RemoteWebElement $downloadBtn */
             $this->sleep(2);
+            $this->driver->executeScript("window.scrollBy(0,500)", array());
             $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('csv5')));
             $downloadElement = $this->driver->findElement(WebDriverBy::id('csv5'));
 

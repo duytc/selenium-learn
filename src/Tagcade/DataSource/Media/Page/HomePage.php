@@ -33,9 +33,9 @@ class HomePage extends AbstractPage
             return true;
         }
 
-        if (!$this->isCurrentUrl()) {
-            $this->navigate();
-        }
+//        if (!$this->isCurrentUrl()) {
+//            $this->navigate();
+//        }
 
         $this->logger->info('Filling username and password');
 
@@ -55,15 +55,17 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('publisherSignin'))->click();
+        $this->sleep(2);
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
+        $waitDriver = new WebDriverWait($this->driver, 60);
         try {
-            $this->driver->wait()->until(
-                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('reports')),
+            $waitDriver->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('reports')),
                 'Login Fail'
             );
         } catch (Exception $exception) {
-            $this->driver->wait()->until(
-                WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('reports')),
+            $waitDriver->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('reports')),
                 'Login Fail'
             );
         }
