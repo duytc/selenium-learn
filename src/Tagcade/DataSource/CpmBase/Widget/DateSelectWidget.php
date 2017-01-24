@@ -7,6 +7,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
+use Psr\Log\LoggerInterface;
 
 class DateSelectWidget extends AbstractWidget
 {
@@ -14,15 +15,16 @@ class DateSelectWidget extends AbstractWidget
     const SPECIFY_DATE_RANGE_VALUE = 'specifydaterange';
     const NONE_DISPLAY_VALUE='none;';
     const NUM_DAYS_OF_WEEK = 7;
-    const FIRST_BEAT_PICKER_INDEX = 2;
+    const FIRST_BEAT_PICKER_INDEX = 3;
     const DATE_AVAIABLE = 'days-cell cell';
 
-    /**
-     * @param RemoteWebDriver $driver
-     */
-    public function __construct(RemoteWebDriver $driver)
+	/**
+	 * @param RemoteWebDriver $driver
+	 * @param LoggerInterface $logger
+	 */
+    public function __construct(RemoteWebDriver $driver, LoggerInterface $logger)
     {
-        parent::__construct($driver);
+        parent::__construct($driver, $logger);
     }
 
     /**
@@ -65,7 +67,7 @@ class DateSelectWidget extends AbstractWidget
 
         /*Click to select month and year*/
 
-        $monthYearElement = $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(3) > div.header > div > a.header-navbar-button.nav-btn.current-indicator.button'));
+        $monthYearElement = $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(6) > div.header > div > a.header-navbar-button.nav-btn.current-indicator.button'));
         $monthYearValue = $monthYearElement->getText();
 
         $clickToPrevious = $this->isPrevioustNavigator($monthYearValue, $monthYearStart);
@@ -73,12 +75,12 @@ class DateSelectWidget extends AbstractWidget
         while (0 != strcmp($monthYearStart, $monthYearValue)) {
 
             if(true == $clickToPrevious) {
-                $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(3) > div.header > div > a.header-navbar-button.nav-btn.prev.button'))->click();
+                $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(6) > div.header > div > a.header-navbar-button.nav-btn.prev.button'))->click();
             } else {
-                $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(3) > div.header > div > a.header-navbar-button.nav-btn.next.button'))->click();
+                $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(6) > div.header > div > a.header-navbar-button.nav-btn.next.button'))->click();
             }
 
-            $monthYearElement = $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(3) > div.header > div > a.header-navbar-button.nav-btn.current-indicator.button'));
+            $monthYearElement = $this->driver->findElement(WebDriverBy::cssSelector('body > div:nth-child(6) > div.header > div > a.header-navbar-button.nav-btn.current-indicator.button'));
             $monthYearValue = $monthYearElement->getText();
         }
 
@@ -136,9 +138,11 @@ class DateSelectWidget extends AbstractWidget
 
             $cssString = $allBeatPicker->getAttribute('style');
             if(false == strpos($cssString, self::NONE_DISPLAY_VALUE)) {
-                $chooseBeatPicker = $month+3;
+                $chooseBeatPicker = $month+6;
             }
         }
+
+        $this->logger->info(sprintf('Choose beat picker = %d', $chooseBeatPicker));
 
         $cssMonthYearElement = sprintf('body > div:nth-child(%d) > div.header > div > a.header-navbar-button.nav-btn.current-indicator.button', $chooseBeatPicker);
         $monthYearElement = $this->driver->findElement(WebDriverBy::cssSelector($cssMonthYearElement));

@@ -148,7 +148,7 @@ class ReportingPage extends AbstractPage  {
      */
     public function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
-        $selectDateRange = new DateSelectWidget($this->driver);
+        $selectDateRange = new DateSelectWidget($this->driver, $this->logger);
         $selectDateRange->setDateRange($startDate, $endDate);
     }
 
