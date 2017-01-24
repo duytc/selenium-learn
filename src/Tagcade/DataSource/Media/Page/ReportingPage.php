@@ -31,6 +31,10 @@ class ReportingPage extends AbstractPage
         );
 
         $this->selectDateRange($startDate, $endDate);
+        $this->sleep(2);
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('btnGo'))
+        );
         $this->driver->findElement(WebDriverBy::id('btnGo'))->click();
 
         $this->driver->wait()->until(
@@ -44,6 +48,7 @@ class ReportingPage extends AbstractPage
 
         try {
             /** @var RemoteWebElement $downloadBtn */
+            $this->sleep(2);
             $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('csv5')));
             $downloadElement = $this->driver->findElement(WebDriverBy::id('csv5'));
 
