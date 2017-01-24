@@ -40,7 +40,7 @@ class ReportingPage extends AbstractPage
 //            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
 //        );
 
-		$this->driver->executeScript("window.scrollBy(0,250)", array());
+//		$this->driver->executeScript("window.scrollBy(0,250)", array());
 
         try {
             /** @var RemoteWebElement $downloadBtn */
@@ -48,8 +48,8 @@ class ReportingPage extends AbstractPage
             $downloadElement = $this->driver->findElement(WebDriverBy::id('csv5'));
 
             $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $this->sleep(2);
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
-            $this->sleep(5);
             $this->logoutSystem();
         } catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
