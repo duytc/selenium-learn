@@ -4,6 +4,7 @@ namespace Tagcade\DataSource\Across33\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverWait;
 use Tagcade\DataSource\PulsePoint\Page\AbstractPage;
 
 class HomePage extends AbstractPage 
@@ -40,6 +41,9 @@ class HomePage extends AbstractPage
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
         sleep(2);
+        $this->driver->manage()->timeouts()->pageLoadTimeout(60);
+        $waitDriver = new WebDriverWait($this->driver, 60);
+        $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('a[href="/account/log_out"]')));
         return $this->isLoggedIn();
     }
 

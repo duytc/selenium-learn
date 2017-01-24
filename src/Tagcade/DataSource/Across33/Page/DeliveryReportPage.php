@@ -18,6 +18,8 @@ class DeliveryReportPage extends AbstractPage
 	{
 		// step 0. select filter
 		$this->logger->debug('select filter');
+        $this->sleep(2);
+        $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('td a')));
 		$links = $this->driver->findElements(WebDriverBy::cssSelector('td a'));
 		$reportLinks = [];
 
@@ -42,7 +44,7 @@ class DeliveryReportPage extends AbstractPage
 				WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('deliveryTable'))
 			);
 
-			usleep(500);
+			usleep(1000);
 			$this->logger->debug(sprintf('downloading report for domain %s', $domain));
 			$this->getAllTagReportsForSingleDomain($startDate, $endDate);
 			usleep(500);
@@ -66,6 +68,7 @@ class DeliveryReportPage extends AbstractPage
 		$this->logger->debug('Clicking option to select download all data');
 		$this->driver->findElement(WebDriverBy::cssSelector('#filter_button+span > a'))
 			->click();;
+        $this->sleep(2);
 
 		$this->logger->debug('Wait for download all data menu appeared');
 		$this->driver->wait()->until(
