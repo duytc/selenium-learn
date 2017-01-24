@@ -30,8 +30,9 @@ class ReportingPage extends AbstractPage  {
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
         $this->driver->findElement(WebDriverBy::cssSelector('a[href="/reporting"]'))->click();
-
+		$this->logger->info('Select Granularity');
         $this->selectGranularity();
+	    $this->logger->info('Select date range');
         $this->selectDateRange($startDate, $endDate);
         $this->selectGroupBy();
 
@@ -147,7 +148,7 @@ class ReportingPage extends AbstractPage  {
      */
     public function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
-        $selectDateRange = new DateSelectWidget($this->driver);
+        $selectDateRange = new DateSelectWidget($this->driver, $this->logger);
         $selectDateRange->setDateRange($startDate, $endDate);
     }
 

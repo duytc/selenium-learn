@@ -37,7 +37,9 @@ class HomePage extends AbstractPage {
             $this->navigate();
         }
 
-        $this->driver->findElement(WebDriverBy::cssSelector('a[href="#"]'))->click();
+	    $this->logger->debug('find element login');
+
+        $this->driver->findElement(WebDriverBy::cssSelector('body > div.wrap > div.menu > div > ul:nth-child(3) > li:nth-child(2) > a'))->click();
 
         $this->logger->debug('Filling username and password');
 

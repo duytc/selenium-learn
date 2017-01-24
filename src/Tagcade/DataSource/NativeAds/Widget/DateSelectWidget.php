@@ -35,8 +35,10 @@ class DateSelectWidget extends AbstractWidget {
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('button[class="applyBtn btn btn-default btn-small btn-primary"]')));
         $this->driver->findElement(WebDriverBy::cssSelector('button[class="applyBtn btn btn-default btn-small btn-primary"]'))->click();
 
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools_processing')));
-        $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::id('datatable_tabletools_processing')));
+	    sleep(5);
+
+        /*$this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('datatable_tabletools_processing')));
+        $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::id('datatable_tabletools_processing')));*/
 
     }
 
@@ -82,12 +84,8 @@ class DateSelectWidget extends AbstractWidget {
                     'body > div.daterangepicker.dropdown-menu.opensright > div.calendar.left > div > table > thead > tr:nth-child(1) > th.month > select.monthselect')
             ));
         $monthFromElement->selectByVisibleText($month);
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated (
-                WebDriverBy::xpath('/html/body/div[6]/div[2]/div/table/tbody/tr/td'
-                )
-            )
-        );
+
+        sleep(3);
 
         $weekElements = $this->driver->findElements(
             WebDriverBy::cssSelector(
@@ -149,7 +147,7 @@ class DateSelectWidget extends AbstractWidget {
             ));
 
         $monthFromElement->selectByVisibleText($month);
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::xpath('/html/body/div[6]/div[1]/div/table/tbody')));
+        sleep(3);
 
         $weekElements = $this->driver->findElements(
             WebDriverBy::cssSelector(
