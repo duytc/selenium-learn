@@ -70,6 +70,11 @@ abstract class AbstractUiFetcher implements UiFetcherInterface
             return false;
         }
 
+        $processId = getmypid();
+        $params['publisher_id'] = $publisherId;
+        $params['partner_cname'] = $integrationCName;
+        $params['process_id'] = $processId;
+
         /** @var PartnerParamInterface $partnerParams */
         $partnerParams = $this->createParams($params);
 

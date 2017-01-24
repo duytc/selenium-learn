@@ -19,47 +19,41 @@ class ReportingPage extends AbstractPage
     {
         // step 0. Report tab
         $this->driver->findElement(WebDriverBy::id('reports'))
-            ->click()
-        ;
+            ->click();
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('reports'))
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('reports'))
         );
         $this->driver->findElement(WebDriverBy::id('AdTags'))
-            ->click()
-        ;
+            ->click();
 
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
-        );
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('adTagStatsTab'))
         );
 
         $this->selectDateRange($startDate, $endDate);
         $this->driver->findElement(WebDriverBy::id('btnGo'))->click();
 
         $this->driver->wait()->until(
-            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('adTagStatsTab'))
         );
-        $this->driver->wait()->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
-        );
+//        $this->driver->wait()->until(
+//            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
+//        );
 
 		$this->driver->executeScript("window.scrollBy(0,250)", array());
 
         try {
             /** @var RemoteWebElement $downloadBtn */
-            $downloadElement =  $this->driver->findElement(WebDriverBy::id('csv5'));
-            $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('csv5')));
+            $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('csv5')));
+            $downloadElement = $this->driver->findElement(WebDriverBy::id('csv5'));
 
-            $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
+            $this->sleep(5);
             $this->logoutSystem();
-        }
-        catch (TimeOutException $te) {
+        } catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
     }

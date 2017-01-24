@@ -25,8 +25,6 @@ class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetche
 
         $this->logger->info('end logging in');
 
-        usleep(10);
-
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new ReportingPage($driver, $this->logger);
 
