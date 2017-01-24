@@ -13,6 +13,8 @@ class HomePage extends AbstractPage
     
     public function doLogin($username, $password)
     {
+        sleep(2);
+
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
@@ -40,6 +42,8 @@ class HomePage extends AbstractPage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
+
+        usleep(10);
 
         $error = $this->driver->findElements(WebDriverBy::cssSelector('#form_container > div > div:nth-child(4) > form > div:nth-child(3) > div.col-md-8 > p.text-danger'));
         if(count($error) > 0) {
