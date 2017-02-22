@@ -5,6 +5,7 @@ namespace Tagcade\Service\Integration;
 
 use Pheanstalk\PheanstalkInterface;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
+use Tagcade\Service\Fetcher\FetcherInterface;
 
 class IntegrationActivator implements IntegrationActivatorInterface
 {
@@ -44,13 +45,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *      'integration' => [
          *          'id' => 2,
          *          'canonicalName' => 'rubicon',
-         *          'type' => 'ui',
-         *          'method' => 'GET'
+         *          'type' => 'ui', // TODO: remove
+         *          'method' => 'GET' // TODO: remove
+         *          'params' => [
+         *              'username' => 'admin',
+         *              'password' => '1A2B3C4D5E6F'
+         *          ]
          *      ],
-         *      'params' => [
-         *          'username' => 'admin',
-         *          'password' => '1A2B3C4D5E6F'
-         *      ]
          *  ]
          * ];
          */
@@ -84,9 +85,9 @@ class IntegrationActivator implements IntegrationActivatorInterface
     {
         $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
-        $type = $dataSourceIntegration['integration']['type'];
-        $method = $dataSourceIntegration['integration']['method'];
-        $url = $dataSourceIntegration['integration']['url'];
+        $type = array_key_exists('type', $dataSourceIntegration['integration']) ? $dataSourceIntegration['integration']['type'] : FetcherInterface::TYPE_UI;
+        $method = array_key_exists('method', $dataSourceIntegration['integration']) ? $dataSourceIntegration['integration']['method'] : 'GET';
+        $url = array_key_exists('url', $dataSourceIntegration['integration']) ? $dataSourceIntegration['integration']['url'] : '';
         $params = $dataSourceIntegration['params'];
 
         /* transform params from {key, value} to {<key> => <value>} */
