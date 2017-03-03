@@ -1,0 +1,51 @@
+<?php
+
+namespace Tagcade\Service\Fetcher\Fetchers\YellowHammer;
+
+
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
+use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Fetchers\YellowHammer\Page\HomePage;
+use Tagcade\Service\Fetcher\Fetchers\YellowHammer\Page\ReportingPage;
+
+class YellowHammerFetcher extends PartnerFetcherAbstract implements YellowHammerFetcherInterface
+{
+    /**
+     * @param PartnerParamInterface $params
+     * @param RemoteWebDriver $driver
+     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws null
+     */
+    public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
+    {
+        // Step 1: login
+        $this->logger->info('entering login page');
+        $homePage = new HomePage($driver, $this->logger);
+        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+        if(false == $isLogin) {
+            $this->logger->warning('Login system failed!');
+            return;
+        }
+
+        $driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('metrics_legend')));
+        // Step 2: view report
+        $this->logger->info('entering download report page');
+        $reportingPage = new ReportingPage($driver, $this->logger);
+        $reportingPage->setDownloadFileHelper($this->downloadFileHelper);
+        $reportingPage->setConfig($params->getConfig());
+
+        if (!$reportingPage->isCurrentUrl()) {
+            $reportingPage->navigate();
+        }
+
+        $driver->wait()->until(WebDriverExpectedCondition::titleContains('Reporting'));
+
+        $this->logger->info('start downloading reports');
+        $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
+        $this->logger->info('finishing downloading reports');
+    }
+}

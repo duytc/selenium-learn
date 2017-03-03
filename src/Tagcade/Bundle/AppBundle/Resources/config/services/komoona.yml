@@ -1,15 +1,11 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.komoona:
+        class: Tagcade\Service\Fetcher\Fetchers\Komoona\KomoonaFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.komoona.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\Komoona\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.komoona:
-        class: Tagcade\DataSource\Komoona\KomoonaFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.komoona:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\Komoona\Komoona
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.komoona'

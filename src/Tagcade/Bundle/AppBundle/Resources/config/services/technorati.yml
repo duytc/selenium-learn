@@ -1,16 +1,12 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.technorati:
+        class: Tagcade\Service\Fetcher\Fetchers\Technorati\TechnoratiFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.technorati.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\Technorati\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.technorati:
-        class: Tagcade\DataSource\Technorati\TechnoratiFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper,[@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.technorati:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\Technorati\Technorati
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.technorati'
 

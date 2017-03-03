@@ -1,15 +1,11 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.ads4games:
+        class: Tagcade\Service\Fetcher\Fetchers\Ads4Games\Ads4GamesFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.ads4games.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\Ads4Games\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.ads4games:
-        class: Tagcade\DataSource\Ads4Games\Ads4GamesFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.ads4games:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\Ads4Games\Ads4Games
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.ads4games'

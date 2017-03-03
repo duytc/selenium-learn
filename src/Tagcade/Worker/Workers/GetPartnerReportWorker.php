@@ -7,33 +7,40 @@ namespace Tagcade\Worker\Workers;
 // all public methods on the class represent tasks that can be done
 
 use stdClass;
-use Tagcade\Service\Fetcher\ApiParameter;
-use Tagcade\Service\Fetcher\FetcherManagerInterface;
+use Tagcade\Service\Integration\Config;
+use Tagcade\Service\Integration\IntegrationManagerInterface;
+use Tagcade\Service\Integration\ConfigInterface;
+use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
 class GetPartnerReportWorker
 {
     /**
-     * @var FetcherManagerInterface
+     * @var IntegrationManagerInterface
      */
     protected $fetcherManager;
 
     /**
      * GetPartnerReportWorker constructor.
-     * @param FetcherManagerInterface $fetcherManager
+     * @param IntegrationManagerInterface $fetcherManager
      */
-    public function __construct(FetcherManagerInterface $fetcherManager)
+    public function __construct(IntegrationManagerInterface $fetcherManager)
     {
         $this->fetcherManager = $fetcherManager;
     }
 
-
-    public function getPartnerReport(StdClass $params)
+    /**
+     * get Partner Report
+     *
+     * @param stdClass $params
+     */
+    public function getPartnerReport(stdClass $params)
     {
-        $type = $params->type;
-        $fetcher = $this->fetcherManager->getFetcher($type);
+        /** @var ConfigInterface $config */
+        $config = new Config($params->publisherId, $params->integrationCName, $params->dataSourceId, json_decode($params->params, true));
 
-        $parameter = new ApiParameter($params->publisherId, $params->integrationCName, json_decode($params->params, true));
+        /** @var IntegrationInterface $integration */
+        $integration = $this->fetcherManager->getIntegration($config);
 
-        $fetcher->execute($parameter);
+        $integration->run($config);
     }
 }

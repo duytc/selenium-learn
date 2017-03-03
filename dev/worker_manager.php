@@ -14,12 +14,11 @@ $queue = $container->get('leezy.pheanstalk');
 const TUBE = 'fetcher-worker';
 
 
-$params = new StdClass();
+$params = new stdClass();
 $params->publisherId = 1;
-$params->type = 'ui';
 $params->cname = 'sovrn';
 $params->param = '{"username": "admin", "password": "123456"}';
-$payload = new StdClass;
+$payload = new stdClass;
 
 $payload->task = 'getPartnerReport';
 $payload->params = $params;

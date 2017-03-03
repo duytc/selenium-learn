@@ -1,9 +1,0 @@
-services:
-    tagcade.service.fetcher.ui.abstract_ui_fetcher:
-        class: Tagcade\Service\Fetcher\Fetchers\Ui\AbstractUiFetcher
-        abstract: true
-        arguments:
-            - @logger
-            - @tagcade.web_driver_factory
-            - %kernel.root_dir%
-            - %tagcade.default_data_path%

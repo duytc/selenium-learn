@@ -2,7 +2,7 @@
 namespace tagcade\dev;
 use AppKernel;
 use stdClass;
-use Tagcade\Service\Fetcher\ApiParameter;
+use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Fetcher\Fetchers\UiFetcher;
 
 $loader = require_once __DIR__ . '/../app/autoload.php';
@@ -16,6 +16,7 @@ $container = $kernel->getContainer();
 $type = 'ui';
 $publisherId = 2;
 $integrationCName = 'across33';
+$dataSourceId = 2;
 $params = [
     'username' => 'admin',
     'password' => '123456',
@@ -23,7 +24,7 @@ $params = [
     'endDate' => '2016-01-14'
 ];
 
-$parameters = new ApiParameter($publisherId, $integrationCName, $params);
+$parameters = new Config($publisherId, $integrationCName, $dataSourceId, $params);
 
 /** @var UiFetcher $uiFetcher */
 $uiFetcher = $container->get('tagcade.service.fetcher.ui_fetcher');

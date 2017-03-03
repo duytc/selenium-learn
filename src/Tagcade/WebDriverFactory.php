@@ -7,7 +7,7 @@ use Facebook\WebDriver\Exception\UnknownServerException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
-use Tagcade\DataSource\PartnerParamInterface;
+use Tagcade\Service\Integration\Integrations\DemandPartner\PartnerParamInterface;
 
 class WebDriverFactory implements WebDriverFactoryInterface
 {

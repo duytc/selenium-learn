@@ -1,15 +1,11 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.yellowhammer:
+        class: Tagcade\Service\Fetcher\Fetchers\YellowHammer\YellowHammerFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.yellow_hammer.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\YellowHammer\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.yellow_hammer:
-        class: Tagcade\DataSource\YellowHammer\YellowHammerFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.yellow_hammer:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\YellowHammer\YellowHammer
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.yellowhammer'

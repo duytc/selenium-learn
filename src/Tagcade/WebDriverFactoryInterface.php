@@ -3,7 +3,7 @@
 namespace Tagcade;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Tagcade\DataSource\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerParamInterface;
 
 interface WebDriverFactoryInterface
 {

@@ -1,0 +1,9 @@
+services:
+    tagcade.service.integration.integrations.pubvantage.account_report:
+        class: Tagcade\Service\Integration\Integrations\Pubvantage\AccountReport
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.file_storage_service'
+            - '@tagcade.service.tagcade_api_service'
+            - '@logger'
+            - '@tagcade.service.ur_api_service'

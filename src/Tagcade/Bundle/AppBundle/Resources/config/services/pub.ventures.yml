@@ -1,15 +1,11 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.pubventures:
+        class: Tagcade\Service\Fetcher\Fetchers\PubVentures\PubVenturesFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.pub_ventures.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\PubVentures\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.pub_ventures:
-        class: Tagcade\DataSource\PubVentures\PubVenturesFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.pub_ventures:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\PubVentures\PubVentures
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.pubventures'

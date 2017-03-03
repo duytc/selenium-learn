@@ -1,11 +1,11 @@
 services:
-    tagcade.command.cpmbase.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\CpmBase\GetDataCommand
-        tags:
-            -  { name: console.command }
+    tagcade.service.fetcher.fetchers.cpmbase:
+        class: Tagcade\Service\Fetcher\Fetchers\CpmBase\CpmBaseFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.data_source.fetcher.cpmbase:
-        class: Tagcade\DataSource\CpmBase\CpmBaseFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper, [@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.cpmbase:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\CpmBase\CpmBase
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.cpmbase'

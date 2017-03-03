@@ -1,43 +1,23 @@
 imports:
-    - { resource: services/komoona.yml }
-    - { resource: services/yellow.hammer.yml }
-    - { resource: services/defy.media.yml }
     - { resource: services/across33.yml }
-    - { resource: services/sovrn.yml }
-    - { resource: services/pulse.point.yml }
-    - { resource: services/media.net.yml }
-    - { resource: services/cpmbase.yml }
-    - { resource: services/nativeads.yml }
+    - { resource: services/admeta.yml }
     - { resource: services/ads4games.yml }
     - { resource: services/adtech.yml }
-    - { resource: services/epom.market.yml }
-    - { resource: services/pub.ventures.yml }
-    - { resource: services/districtm.yml }
     - { resource: services/conversant.yml }
+    - { resource: services/cpmbase.yml }
+    - { resource: services/defy.media.yml }
+    - { resource: services/districtm.yml }
+    - { resource: services/epom.market.yml }
+    - { resource: services/komoona.yml }
+    - { resource: services/media.net.yml }
+    - { resource: services/nativeads.yml }
     - { resource: services/openx.yml }
+    - { resource: services/pub.ventures.yml }
+    - { resource: services/pubvantage.yml }
+    - { resource: services/pulse.point.yml }
+    - { resource: services/sovrn.yml }
     - { resource: services/technorati.yml }
-    - { resource: services/Fetcher/ui-fetcher.yml }
-    - { resource: services/Fetcher/Ui/abstract-ui-fetcher.yml }
-    - { resource: services/Fetcher/Ui/across33.yml }
-    - { resource: services/Fetcher/Ui/ads4games.yml }
-    - { resource: services/Fetcher/Ui/adtech.yml }
-    - { resource: services/Fetcher/Ui/conversant.yml }
-    - { resource: services/Fetcher/Ui/cpmbase.yml }
-    - { resource: services/Fetcher/Ui/defy.media.yml }
-    - { resource: services/Fetcher/Ui/districtm.yml }
-    - { resource: services/Fetcher/Ui/epom.market.yml }
-    - { resource: services/Fetcher/Ui/komoona.yml }
-    - { resource: services/Fetcher/Ui/media.net.yml }
-    - { resource: services/Fetcher/Ui/nativeads.yml }
-    - { resource: services/Fetcher/Ui/openx.yml }
-    - { resource: services/Fetcher/Ui/pub.ventures.yml }
-    - { resource: services/Fetcher/Ui/pulse.point.yml }
-    - { resource: services/Fetcher/Ui/sovrn.yml }
-    - { resource: services/Fetcher/Ui/technorati.yml }
-    - { resource: services/Fetcher/Ui/yellow.hammer.yml }
-    - { resource: services/Fetcher/api-fetcher.yml }
-    - { resource: services/Fetcher/Api/abstract-api-fetcher.yml }
-    - { resource: services/Fetcher/Api/tagcade.yml }
+    - { resource: services/yellow.hammer.yml }
 
 services:
     yaml:
@@ -50,35 +30,22 @@ services:
             - @logger
     curl:
         class: anlutro\cURL\cURL
-        scope: prototype
 
-    tagcade.data_source.admeta.api:
-        class: Tagcade\DataSource\AdMeta\Api
-        arguments: [@curl, @logger]
-        scope: prototype
-
-    tagcade.command.admeta.get_data:
-        class: Tagcade\Bundle\AppBundle\Command\AdMeta\GetDataCommand
-        # notice the = sign at the end of the admeta api service, this disables strict checking
-        # this is because we use a different scope
-        arguments: [@tagcade.data_source.admeta.api=, %tagcade.default_data_path%, @yaml, @logger]
-        tags:
-            -  { name: console.command }
-
-    tagcade.command.get_all_partner_data:
-        class: Tagcade\Bundle\AppBundle\Command\GetAllPartnersDataCommand
+    tagcade.service.integration.integrations.web_driver_service:
+        class: Tagcade\Service\WebDriverService
         arguments:
-            - %partners%
-        tags:
-            -  { name: console.command }
+            - '@logger'
+            - '@tagcade.web_driver_factory'
+            - '%kernel.root_dir%'
+            - '%tagcade.default_data_path%'
 
-    tagcade.data_source.fetcher.helper:
+    tagcade.service.integration.integrations.demand_partner.fetcher.helper:
         class: Tagcade\Service\DownloadFileHelper
         arguments:
-            - %tagcade.default_data_path%
-            - %tagcade_download_time_out%
-            - @logger
-            - %kernel.root_dir%
+            - '%tagcade.default_data_path%'
+            - '%tagcade_download_time_out%'
+            - '@logger'
+            - '%kernel.root_dir%'
 
     ### rest client
     rest.client:
@@ -88,20 +55,72 @@ services:
     tagcade_app.rest_client:
         class: Tagcade\Service\Core\TagcadeRestClient
         arguments:
-            - @rest.client
-            - %tagcade_user_name%
-            - %tagcade_user_password%
-            - %tagcade_get_token_url%
-            - %tagcade_get_list_publisher_url%
-            - %ur_get_list_integrations_to_be_executed_url%
-            - %ur_update_last_execution_time_for_integration_url%
+            - '@rest.client'
+            - '%tagcade_user_name%'
+            - '%tagcade_user_password%'
+            - '%tagcade_get_token_url%'
+            - '%tagcade_get_list_publisher_url%'
+            - '%ur_get_list_integrations_to_be_executed_url%'
+            - '%ur_update_last_execution_time_for_integration_url%'
         calls:
-            - [setLogger, [@logger]]
+            - [setLogger, ['@logger']]
 
     tagcade.service.integration_activator:
         class: Tagcade\Service\Integration\IntegrationActivator
         arguments:
-            - @tagcade_app.rest_client
-            - @leezy.pheanstalk.primary
-            - %fetcher_worker_tube%
-            - %pheanstalk_ttr%
+            - '@tagcade_app.rest_client'
+            - '@leezy.pheanstalk.primary'
+            - '%fetcher_worker_tube%'
+            - '%pheanstalk_ttr%'
+
+    tagcade.service.file_storage_service:
+        class: Tagcade\Service\FileStorageService
+        arguments:
+            - '%tagcade.default_data_path%'
+            - '%kernel.root_dir%'
+
+    tagcade.service.tagcade_api_service:
+        class: Tagcade\Service\TagcadeApiService
+
+    tagcade.service.ur_api_service:
+        class: Tagcade\Service\URApiService
+        arguments:
+            - '%ur_post_datasource_import_json_data%'
+            - '@logger'
+
+    tagcade.service.fetcher.fetchers.partner_fetcher_abstract:
+        class: Tagcade\Service\Fetcher\PartnerFetcherAbstract
+        abstract: true
+        arguments:
+            - '@logger'
+            - '@tagcade.service.integration.integrations.demand_partner.fetcher.helper'
+
+    tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract:
+        class: Tagcade\Service\Integration\Integrations\IntegrationDemandPartnerAbstract
+        abstract: true
+#        arguments:
+#            - '@tagcade.service.integration.integrations.web_driver_service'
+
+    tagcade.service.integration.integration_manager:
+        class: Tagcade\Service\Integration\IntegrationManager
+        arguments:
+            -
+                - '@tagcade.service.integration.integrations.demand_partner.across33'
+                - '@tagcade.service.integration.integrations.demand_partner.admeta'
+                - '@tagcade.service.integration.integrations.demand_partner.ads4games'
+                - '@tagcade.service.integration.integrations.demand_partner.adtech'
+                - '@tagcade.service.integration.integrations.demand_partner.conversant'
+                - '@tagcade.service.integration.integrations.demand_partner.cpmbase'
+                - '@tagcade.service.integration.integrations.demand_partner.defy_media'
+                - '@tagcade.service.integration.integrations.demand_partner.districtm'
+                - '@tagcade.service.integration.integrations.demand_partner.epom_market'
+                - '@tagcade.service.integration.integrations.demand_partner.komoona'
+                - '@tagcade.service.integration.integrations.demand_partner.media_net'
+                - '@tagcade.service.integration.integrations.demand_partner.nativeads'
+                - '@tagcade.service.integration.integrations.demand_partner.openx'
+                - '@tagcade.service.integration.integrations.demand_partner.pub_ventures'
+                - '@tagcade.service.integration.integrations.demand_partner.pulse_point'
+                - '@tagcade.service.integration.integrations.demand_partner.sovrn'
+                - '@tagcade.service.integration.integrations.demand_partner.technorati'
+                - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
+                - '@tagcade.service.integration.integrations.pubvantage.account_report'

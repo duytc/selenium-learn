@@ -1,6 +1,6 @@
 <?php
 namespace tagcade\dev;
-use Tagcade\Service\Fetcher\ApiParameter;
+use Tagcade\Service\Integration\Config;
 use AppKernel;
 
 $loader = require_once __DIR__ . '/../app/autoload.php';
@@ -17,16 +17,15 @@ $tagcadeClientFetcher = $container->get('tagcade.service.fetcher.fetchers.api_fe
 
 $publisherId = 2;
 $integrationCName = 'tagcade';
+$dataSourceId = 3;
 $param = [
 			"username" => "tcadmin",
 			"password" => "123456",
 			'startDate'=>'2017-01-10',
 			'endDate' =>'2017-01-19',
-			'type' => 'api',
-			'method'=>'GET',
-			'url'=>'http://api.tagcade.dev/app_dev.php/api/reports/v1/performancereports/platform',
+			//'url'=>'http://api.tagcade.dev/app_dev.php/api/reports/v1/performancereports/platform',
 			'group' =>'true'
 		];
 
-$param = new ApiParameter($publisherId, $integrationCName, $param);
+$param = new Config($publisherId, $integrationCName, $dataSourceId, $param);
 $tagcadeClientFetcher->execute($param);

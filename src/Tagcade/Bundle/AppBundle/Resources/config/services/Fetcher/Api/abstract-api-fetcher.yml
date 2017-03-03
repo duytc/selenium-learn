@@ -1,8 +1,0 @@
-services:
-    tagcade.service.fetcher.api.abstract_api_fetcher:
-        class: Tagcade\Service\Fetcher\Fetchers\Api\AbstractApiFetcher
-        abstract: true
-        arguments:
-            - %tagcade.default_data_path%
-            - %kernel.root_dir%
-            - @logger

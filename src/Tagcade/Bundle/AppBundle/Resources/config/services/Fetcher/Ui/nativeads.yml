@@ -1,8 +1,0 @@
-services:
-    tagcade.service.fetcher.ui.nativeads:
-        class: Tagcade\Service\Fetcher\Fetchers\Ui\NativeAds\NativeAdsFetcher
-        parent: tagcade.service.fetcher.ui.abstract_ui_fetcher
-        arguments:
-            - @tagcade.data_source.fetcher.nativeads
-        calls:
-            - [setIntegrationCName,[%integration_cname_native-ads%]]

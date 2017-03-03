@@ -1,16 +1,12 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.districtm:
+        class: Tagcade\Service\Fetcher\Fetchers\Districtm\DistrictmFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.districtm.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\Districtm\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.districtm:
-        class: Tagcade\DataSource\Districtm\DistrictmFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper,[@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.districtm:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\Districtm\Districtm
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.districtm'
 

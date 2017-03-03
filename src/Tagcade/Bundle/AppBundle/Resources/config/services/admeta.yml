@@ -1,0 +1,7 @@
+services:
+    tagcade.service.integration.integrations.demand_partner.admeta:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\AdMeta\AdMeta
+        arguments:
+            - '@curl'
+            - '@logger'
+            - '@tagcade.service.file_storage_service'

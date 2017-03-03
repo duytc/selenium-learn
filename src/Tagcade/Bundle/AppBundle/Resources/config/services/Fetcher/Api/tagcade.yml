@@ -1,4 +1,0 @@
-services:
-    tagcade.service.fetcher.api.tagcade:
-        class: Tagcade\Service\Fetcher\Fetchers\Api\Tagcade\TagcadeApiFetcher
-        parent: tagcade.service.fetcher.api.abstract_api_fetcher

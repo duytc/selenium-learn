@@ -1,16 +1,12 @@
 services:
-#    tagcade.data_source.koomona.task_factory:
-#        class: Tagcade\DataSource\PulsePoint\TaskFactory
-#        arguments: [@tagcade.web_driver_factory, @logger]
+    tagcade.service.fetcher.fetchers.openx:
+        class: Tagcade\Service\Fetcher\Fetchers\Openx\OpenxFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
-    tagcade.command.openx.get_data_command:
-        class: Tagcade\Bundle\AppBundle\Command\Openx\GetDataCommand
-        tags:
-            -  { name: console.command }
-
-    tagcade.data_source.fetcher.openx:
-        class: Tagcade\DataSource\Openx\OpenxFetcher
-        calls:
-            - [setLogger, [@logger]]
-            - [setDownloadFileHelper,[@tagcade.data_source.fetcher.helper]]
+    tagcade.service.integration.integrations.demand_partner.openx:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\Openx\Openx
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.openx'
 

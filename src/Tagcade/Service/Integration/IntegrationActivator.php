@@ -5,7 +5,6 @@ namespace Tagcade\Service\Integration;
 
 use Pheanstalk\PheanstalkInterface;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
-use Tagcade\Service\Fetcher\FetcherInterface;
 
 class IntegrationActivator implements IntegrationActivatorInterface
 {
@@ -45,13 +44,15 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *      'integration' => [
          *          'id' => 2,
          *          'canonicalName' => 'rubicon',
-         *          'type' => 'ui', // TODO: remove
-         *          'method' => 'GET' // TODO: remove
          *          'params' => [
-         *              'username' => 'admin',
-         *              'password' => '1A2B3C4D5E6F'
+         *               'username',
+         *               'password'
          *          ]
          *      ],
+         *      'params' => [
+         *          'username' => 'admin',
+         *          'password' => '1A2B3C4D5E6F'
+         *      ]
          *  ]
          * ];
          */
@@ -83,12 +84,12 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     private function createExecutionJob($dataSourceIntegration)
     {
+        // TODO: validate key in array before processing...
         $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
-        $type = array_key_exists('type', $dataSourceIntegration['integration']) ? $dataSourceIntegration['integration']['type'] : FetcherInterface::TYPE_UI;
-        $method = array_key_exists('method', $dataSourceIntegration['integration']) ? $dataSourceIntegration['integration']['method'] : 'GET';
-        $url = array_key_exists('url', $dataSourceIntegration['integration']) ? $dataSourceIntegration['integration']['url'] : '';
-        $params = $dataSourceIntegration['params'];
+        $dataSourceId = $dataSourceIntegration['dataSource']['id'];
+        $params = $dataSourceIntegration['params']; // params with key=>value pair
+        $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
 
         /* transform params from {key, value} to {<key> => <value>} */
         $transformedParams = [];
@@ -96,20 +97,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
             $transformedParams[$param['key']] = $param['value'];
         }
 
-        $transformedParams = array_merge(
-        	[
-        		'method' => $method,
-        		'url' => $url
-	        ],
-	        $transformedParams
-        );
-
         /* create job data */
         $job = new \stdClass();
         $job->publisherId = $publisherId;
         $job->integrationCName = $integrationCName;
-        $job->type = $type;
+        $job->dataSourceId = $dataSourceId;
         $job->params = json_encode($transformedParams);
+        $job->paramKeys = $paramKeys; // TODO: for validate params only
 
         /* create job payload. 'task' and 'params' keys are due to worker code base */
         $payload = new \stdClass();
