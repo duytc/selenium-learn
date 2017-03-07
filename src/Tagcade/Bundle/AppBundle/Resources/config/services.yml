@@ -1,4 +1,5 @@
 imports:
+    - { resource: services/aws.yml }
     - { resource: services/across33.yml }
     - { resource: services/admeta.yml }
     - { resource: services/ads4games.yml }
@@ -124,3 +125,4 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.technorati'
                 - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
                 - '@tagcade.service.integration.integrations.pubvantage.account_report'
+                - '@tagcade.service.integration.integrations.aws.s3'
