@@ -27,12 +27,16 @@ class URApiService implements URApiServiceInterface
         $this->logger = $logger;
     }
 
-    public function addJsonDataToDataSource(int $dataSourceId, array $rows, $header = null)
+    public function addJsonDataToDataSource($dataSourceId, array $rows, $header = null)
     {
-        $uploadUrl = str_replace('{id}', $dataSourceId, $this->uploadJsonDataLink);
+        $uploadUrl = $this->uploadJsonDataLink;
 
-        $curl = new CurlRestClient();
-        $responseData = $curl->executeQuery($uploadUrl, 'POST', $header, $rows);
+        $curl = new CurlRestClient($uploadUrl);
+        $responseData = $curl->post("", array(
+            'source' => 'integration',
+            'ids' => json_encode($dataSourceId),
+            'data' => $rows
+        ));
         $curl->close();
 
         $responseData = json_decode($responseData, true);

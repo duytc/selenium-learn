@@ -11,5 +11,5 @@ interface URApiServiceInterface
      * @return
      * @internal param array $columns
      */
-    public function addJsonDataToDataSource(int $dataSourceId, array $rows, $header = null);
+    public function addJsonDataToDataSource($dataSourceId, array $rows, $header = null);
 }
