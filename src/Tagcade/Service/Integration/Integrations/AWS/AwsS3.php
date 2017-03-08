@@ -16,6 +16,15 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 {
     const INTEGRATION_C_NAME = 'aws-s3';
 
+    const PARAM_BUCKET = 'bucket';
+    const PARAM_PATTERN = 'pattern';
+    const PARAM_AWS_KEY = 'aws_key';
+    const PARAM_AWS_SECRET = 'aws_secret';
+    const PARAM_AWS_REGION = 'aws_region';
+    const PARAM_VERSION = 'version';
+
+    const VALUE_VERSION_DEFAULT = 'latest';
+
     /**
      * @var LoggerInterface
      */
@@ -43,17 +52,17 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
     public function run(ConfigInterface $config)
     {
         $allParams = $config->getParams();
-        if (!array_key_exists('bucket', $allParams)) {
-            $this->logger->error('Missing bucket in parameters');
+        if (!array_key_exists(self::PARAM_BUCKET, $allParams)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_BUCKET));
             throw new Exception('Missing bucket in parameters');
         }
-        $bucket = $allParams['bucket'];
+        $bucket = $allParams[self::PARAM_BUCKET];
 
-        if (!array_key_exists('pattern', $allParams)) {
-            $this->logger->error('Missing pattern in parameters');
-            throw new Exception('Missing pattern in parameters');
+        if (!array_key_exists(self::PARAM_PATTERN, $allParams)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
         }
-        $filePattern = $allParams['pattern'];
+        $filePattern = $allParams[self::PARAM_PATTERN];
 
         if (!array_key_exists('startDate', $allParams)) {
             $startDate = new \DateTime('yesterday');
@@ -61,23 +70,23 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             $startDate = new \DateTime($allParams['startDate']);
         }
 
-        if (!array_key_exists('aws_key', $allParams)) {
-            $this->logger->error('Missing aws_key in parameters');
-            throw new Exception('Missing aws_key in parameters');
+        if (!array_key_exists(self::PARAM_AWS_KEY, $allParams)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
         }
-        $awsKey = $allParams['aws_key'];
+        $awsKey = $allParams[self::PARAM_AWS_KEY];
 
-        if (!array_key_exists('aws_secret', $allParams)) {
-            $this->logger->error('Missing aws_secret in parameters');
-            throw new Exception('Missing aws_secret in parameters');
+        if (!array_key_exists(self::PARAM_AWS_SECRET, $allParams)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
         }
-        $awsSecret = $allParams['aws_secret'];
+        $awsSecret = $allParams[self::PARAM_AWS_SECRET];
 
-        if (!array_key_exists('aws_region', $allParams)) {
-            $this->logger->error('Missing aws_region in parameters');
-            throw new Exception('Missing aws_region in parameters');
+        if (!array_key_exists(self::PARAM_AWS_REGION, $allParams)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
         }
-        $awsRegion = $allParams['aws_region'];
+        $awsRegion = $allParams[self::PARAM_AWS_SECRET];
 
         $s3 = new S3Client([
             'credentials' => [
@@ -85,7 +94,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 'secret' => $awsSecret,
             ],
             'region' => $awsRegion,
-            'version' => 'latest',
+            'version' => self::VALUE_VERSION_DEFAULT,
         ]);
 
         $iterator = $s3->getIterator('ListObjects', array('Bucket' => $bucket));
