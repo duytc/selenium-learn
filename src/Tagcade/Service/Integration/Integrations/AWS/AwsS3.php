@@ -91,25 +91,25 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $iterator = $s3->getIterator('ListObjects', array('Bucket' => $bucket));
 
         foreach ($iterator as $object) {
-            $key = $object['Key'];
-            if (!preg_match($filePattern, $key)) {
+            $fileName = $object['Key'];
+            if (!preg_match($filePattern, $fileName, $matches)) {
                 continue;
             }
 
             /** @var DateTimeResult $lastModified */
             $lastModified = $object['LastModified'];
-            if (!$this->isNewFile($key, $startDate, $lastModified)) {
+            if (!$this->isNewFile($fileName, $startDate, $lastModified)) {
                 continue;
             }
 
-            $fileName = bin2hex(random_bytes(10));
-            $path = $this->fileStorage->getDownloadPath($config, $fileName);
+            $fileNameToSave = sprintf('%s-%s', $matches[0], date_format(new DateTime(), 'YmdHms'));
+            $path = $this->fileStorage->getDownloadPath($config, $fileNameToSave);
 
             // download file
             /** @var \Aws\Result $result */
             $result = $s3->getObject(array(
                 'Bucket' => $bucket,
-                'Key' => $key,
+                'Key' => $fileName,
                 'SaveAs' => $path
             ));
 
