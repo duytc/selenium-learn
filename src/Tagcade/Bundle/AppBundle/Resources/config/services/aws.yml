@@ -1,7 +1,6 @@
 services:
     tagcade.service.integration.integrations.aws.s3:
         class: Tagcade\Service\Integration\Integrations\AWS\AwsS3
-        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
         arguments:
             - '@logger'
             - '@tagcade.service.file_storage_service'
