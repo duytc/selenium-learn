@@ -114,8 +114,14 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             ));
 
             // check result
-            if ($result['Body']) {
-                //
+            if (!is_array($result['@metadata'])) {
+                $this->logger->warning(sprintf('Can not verify downloading of file %s because missing @metadata from AWS Result', $fileName));
+                continue;
+            }
+
+            $statusCode = $result['@metadata']['statusCode'];
+            if ($statusCode !== 200) {
+                $this->logger->error(sprintf('Download file %s failed, status code %d', $fileName, $statusCode));
             }
         }
     }
