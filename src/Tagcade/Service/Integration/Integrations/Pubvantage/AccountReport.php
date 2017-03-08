@@ -93,7 +93,7 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
             return false;
         }
 
-        $fileName = bin2hex(random_bytes(10));
+        $fileName = sprintf('%s.csv', bin2hex(random_bytes(10)));
         $path = $this->fileStorage->getDownloadPath($config, $fileName);
         return $this->fileStorage->saveToCSVFile($path, $this->getRows($reports), $this->getColumns($reports));
 

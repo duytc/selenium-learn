@@ -70,12 +70,14 @@ class FileStorageService implements FileStorageServiceInterface
             mkdir($directory);
         }
 
-        $path = sprintf('%s/%s.csv', $directory, $fileName);
+        $path = sprintf('%s/%s', $directory, $fileName);
 
-        $extension = 1;
+        $duplicatedNumber = 1;
         while (file_exists($path)) {
-            $path = sprintf('%s/%s(%d).csv', $directory, $fileName, $extension);
-            $extension++;
+            $fileNameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+            $path = sprintf('%s/%s(%d).%s', $directory, $fileNameWithoutExtension, $duplicatedNumber, $extension);
+            $duplicatedNumber++;
         }
 
         return $path;

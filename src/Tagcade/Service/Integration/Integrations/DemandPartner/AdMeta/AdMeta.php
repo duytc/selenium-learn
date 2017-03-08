@@ -46,7 +46,7 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
      * @param LoggerInterface $logger
      * @param FileStorageServiceInterface $fileStorageService
      */
-    public function __construct(cUrl $curl, LoggerInterface $logger, FileStorageServiceInterface $fileStorageService)
+    public function __construct(cURL $curl, LoggerInterface $logger, FileStorageServiceInterface $fileStorageService)
     {
         $this->logger = $logger;
         $this->curl = $curl;
@@ -92,7 +92,7 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $this->logger->info('Finished fetching report data');
         }
 
-        $fileName = bin2hex(random_bytes(10));
+        $fileName = sprintf('%s.csv', bin2hex(random_bytes(10)));
         $filePath = $this->fileStorageService->getDownloadPath($config, $fileName);
         $this->fileStorageService->saveToCSVFile($filePath, $data, null);
     }
