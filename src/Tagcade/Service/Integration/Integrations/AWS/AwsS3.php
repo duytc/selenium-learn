@@ -5,6 +5,7 @@ namespace Tagcade\Service\Integration\Integrations\AWS;
 
 
 use Aws\Api\DateTimeResult;
+use Aws\Result;
 use Aws\S3\S3Client;
 use DateInterval;
 use DateTime;
@@ -106,7 +107,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             $path = $this->fileStorage->getDownloadPath($config, $fileNameToSave);
 
             // download file
-            /** @var \Aws\Result $result */
+            /** @var Result $result */
             $result = $s3->getObject(array(
                 'Bucket' => $bucket,
                 'Key' => $fileName,
