@@ -103,8 +103,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 continue;
             }
 
-            $fileNameToSave = sprintf('%s-%s', $matches[0], date_format(new DateTime(), 'YmdHms'));
-            $path = $this->fileStorage->getDownloadPath($config, $fileNameToSave);
+            $path = $this->fileStorage->getDownloadPath($config, $fileName);
 
             // download file
             /** @var Result $result */
