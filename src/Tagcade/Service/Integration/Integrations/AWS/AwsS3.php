@@ -22,6 +22,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
     const PARAM_AWS_SECRET = 'aws_secret';
     const PARAM_AWS_REGION = 'aws_region';
     const PARAM_VERSION = 'version';
+    const PARAM_START_DATE = 'startDate';
 
     const VALUE_VERSION_DEFAULT = 'latest';
 
@@ -63,18 +64,17 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         // get all params
         $bucket = $allParams[self::PARAM_BUCKET];
         $filePattern = $allParams[self::PARAM_PATTERN];
-
-        // TODO: remove unused startDate
-        if (!array_key_exists('startDate', $allParams)) {
-            $startDate = new \DateTime('yesterday');
-        } else {
-            $startDate = new \DateTime($allParams['startDate']);
-        }
-
         $awsKey = $allParams[self::PARAM_AWS_KEY];
         $awsSecret = $allParams[self::PARAM_AWS_SECRET];
         $awsRegion = $allParams[self::PARAM_AWS_SECRET];
 
+        if (!array_key_exists(self::PARAM_START_DATE, $allParams)) {
+            $startDate = new \DateTime('yesterday');
+        } else {
+            $startDate = new \DateTime($allParams[self::PARAM_START_DATE]);
+        }
+
+        // create new S3Client instance
         $s3 = new S3Client([
             'credentials' => [
                 'key' => $awsKey,
@@ -84,6 +84,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             'version' => self::VALUE_VERSION_DEFAULT,
         ]);
 
+        // do get files from aws
         $iterator = $s3->getIterator('ListObjects', array('Bucket' => $bucket));
 
         foreach ($iterator as $object) {
@@ -92,9 +93,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 continue;
             }
 
-            /**
-             * @var \Aws\Api\DateTimeResult $lastModified
-             */
+            /** @var \Aws\Api\DateTimeResult $lastModified */
             $lastModified = $object['LastModified'];
             $interval = $lastModified->diff($startDate);
             if ($interval->invert == 1) {
@@ -141,6 +140,22 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         if (!array_key_exists(self::PARAM_AWS_REGION, $allParameters)) {
             $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_REGION));
             throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_REGION));
+        }
+
+        if (array_key_exists(self::PARAM_START_DATE, $allParameters)) {
+            $startDateStr = $allParameters[self::PARAM_START_DATE];
+
+            try {
+                $startDate = date_create_from_format('Y-m-d', $startDateStr);
+
+                if (false === $startDate) {
+                    $this->logger->error(sprintf('Invalid date %s in parameters', $startDateStr));
+                    throw new Exception(sprintf('Invalid date %s in parameters', $startDateStr));
+                }
+            } catch (Exception $e) {
+                $this->logger->error(sprintf('Try parse date %s from parameters got error %s', $startDateStr, $e->getMessage()));
+                throw new Exception(sprintf('Try parse date %s from parameters got error %s', $startDateStr, $e->getMessage()));
+            }
         }
     }
 }
