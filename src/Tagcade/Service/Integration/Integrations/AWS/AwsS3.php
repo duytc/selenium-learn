@@ -4,7 +4,10 @@
 namespace Tagcade\Service\Integration\Integrations\AWS;
 
 
+use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
+use DateInterval;
+use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\FileStorageService;
@@ -66,12 +69,12 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $filePattern = $allParams[self::PARAM_PATTERN];
         $awsKey = $allParams[self::PARAM_AWS_KEY];
         $awsSecret = $allParams[self::PARAM_AWS_SECRET];
-        $awsRegion = $allParams[self::PARAM_AWS_SECRET];
+        $awsRegion = $allParams[self::PARAM_AWS_REGION];
 
         if (!array_key_exists(self::PARAM_START_DATE, $allParams)) {
-            $startDate = new \DateTime('yesterday');
+            $startDate = new DateTime('yesterday');
         } else {
-            $startDate = new \DateTime($allParams[self::PARAM_START_DATE]);
+            $startDate = new DateTime($allParams[self::PARAM_START_DATE]);
         }
 
         // create new S3Client instance
@@ -93,21 +96,27 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 continue;
             }
 
-            /** @var \Aws\Api\DateTimeResult $lastModified */
+            /** @var DateTimeResult $lastModified */
             $lastModified = $object['LastModified'];
-            $interval = $lastModified->diff($startDate);
-            if ($interval->invert == 1) {
+            if (!$this->isNewFile($key, $startDate, $lastModified)) {
                 continue;
             }
 
             $fileName = bin2hex(random_bytes(10));
             $path = $this->fileStorage->getDownloadPath($config, $fileName);
 
-            $s3->getObject(array(
+            // download file
+            /** @var \Aws\Result $result */
+            $result = $s3->getObject(array(
                 'Bucket' => $bucket,
                 'Key' => $key,
                 'SaveAs' => $path
             ));
+
+            // check result
+            if ($result['Body']) {
+                //
+            }
         }
     }
 
@@ -157,5 +166,29 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 throw new Exception(sprintf('Try parse date %s from parameters got error %s', $startDateStr, $e->getMessage()));
             }
         }
+    }
+
+    /**
+     * check if is new file
+     *
+     * @param string $fileName
+     * @param DateTime $startDate
+     * @param DateTimeResult $lastModified
+     * @return bool
+     */
+    private function isNewFile($fileName, DateTime $startDate, DateTimeResult $lastModified)
+    {
+        /** @var DateInterval $interval */
+        $interval = $lastModified->diff($startDate);
+        if (false == $interval) {
+            $this->logger->error(sprintf('Can not diff startDate %s with lastModified %s for file %s', $startDate->format('Y-m-d'), $lastModified->format('Y-m-d'), $fileName));
+            return false;
+        }
+
+        if ($interval->days >= 1) {
+            return false;
+        }
+
+        return true;
     }
 }
