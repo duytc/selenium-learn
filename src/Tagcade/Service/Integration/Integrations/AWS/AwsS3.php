@@ -51,41 +51,28 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
      */
     public function run(ConfigInterface $config)
     {
+        // validate params
         $allParams = $config->getParams();
-        if (!array_key_exists(self::PARAM_BUCKET, $allParams)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_BUCKET));
-            throw new Exception('Missing bucket in parameters');
+        if (!is_array($allParams)) {
+            $this->logger->error('expect config parameters is array');
+            throw new Exception('expect config parameters is array');
         }
-        $bucket = $allParams[self::PARAM_BUCKET];
 
-        if (!array_key_exists(self::PARAM_PATTERN, $allParams)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
-        }
+        $this->validateParameters($allParams);
+
+        // get all params
+        $bucket = $allParams[self::PARAM_BUCKET];
         $filePattern = $allParams[self::PARAM_PATTERN];
 
+        // TODO: remove unused startDate
         if (!array_key_exists('startDate', $allParams)) {
             $startDate = new \DateTime('yesterday');
         } else {
             $startDate = new \DateTime($allParams['startDate']);
         }
 
-        if (!array_key_exists(self::PARAM_AWS_KEY, $allParams)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
-        }
         $awsKey = $allParams[self::PARAM_AWS_KEY];
-
-        if (!array_key_exists(self::PARAM_AWS_SECRET, $allParams)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
-        }
         $awsSecret = $allParams[self::PARAM_AWS_SECRET];
-
-        if (!array_key_exists(self::PARAM_AWS_REGION, $allParams)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
-        }
         $awsRegion = $allParams[self::PARAM_AWS_SECRET];
 
         $s3 = new S3Client([
@@ -122,6 +109,38 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 'Key' => $key,
                 'SaveAs' => $path
             ));
+        }
+    }
+
+    /**
+     * @param array $allParameters
+     * @throws Exception
+     */
+    private function validateParameters(array $allParameters)
+    {
+        if (!array_key_exists(self::PARAM_BUCKET, $allParameters)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_BUCKET));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_BUCKET));
+        }
+
+        if (!array_key_exists(self::PARAM_PATTERN, $allParameters)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
+        }
+
+        if (!array_key_exists(self::PARAM_AWS_KEY, $allParameters)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
+        }
+
+        if (!array_key_exists(self::PARAM_AWS_SECRET, $allParameters)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
+        }
+
+        if (!array_key_exists(self::PARAM_AWS_REGION, $allParameters)) {
+            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_REGION));
+            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_REGION));
         }
     }
 }
