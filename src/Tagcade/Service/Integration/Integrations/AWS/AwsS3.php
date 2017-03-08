@@ -38,8 +38,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
     }
 
     /**
-     * @param ConfigInterface $config
-     * @return void
+     * @inheritdoc
      */
     public function run(ConfigInterface $config)
     {
@@ -59,7 +58,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         if (!array_key_exists('startDate', $allParams)) {
             $startDate = new \DateTime('yesterday');
         } else {
-            $startDate = new \DateTime($allParams['startDate']) ;
+            $startDate = new \DateTime($allParams['startDate']);
         }
 
         if (!array_key_exists('aws_key', $allParams)) {
@@ -82,10 +81,10 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 
         $s3 = new S3Client([
             'credentials' => [
-                'key'    => $awsKey,
+                'key' => $awsKey,
                 'secret' => $awsSecret,
             ],
-            'region'  => $awsRegion,
+            'region' => $awsRegion,
             'version' => 'latest',
         ]);
 
@@ -112,7 +111,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 
             $s3->getObject(array(
                 'Bucket' => $bucket,
-                'Key'    => $key,
+                'Key' => $key,
                 'SaveAs' => $path
             ));
         }
