@@ -88,7 +88,6 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             'version' => 'latest',
         ]);
 
-
         $iterator = $s3->getIterator('ListObjects', array('Bucket' => $bucket));
 
         foreach ($iterator as $object) {
