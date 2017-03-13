@@ -123,6 +123,16 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             if ($statusCode !== 200) {
                 $this->logger->error(sprintf('Download file %s failed, status code %d', $fileName, $statusCode));
             }
+
+            // create metadata file.
+            // metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
+            $metadata = [
+                'module' => 'integration',
+                'integrationCName' => self::INTEGRATION_C_NAME,
+                'pattern' => $filePattern
+            ];
+            $metadataFilePath = $path . '.meta';
+            file_put_contents($metadataFilePath, json_encode($metadata));
         }
     }
 
