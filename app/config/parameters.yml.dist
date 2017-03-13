@@ -15,7 +15,7 @@ parameters:
     tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'
     ur_get_list_integrations_to_be_executed_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/byschedule'
     ur_update_last_execution_time_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/updatelastexecutetime'
-    ur_post_datasource_import_json_data: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasources/{id}/importJson'
+    ur_post_datasource_import_json_data: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasources/entry'
 
     fetcher_worker_tube: 'fetcher-worker'
     pheanstalk_ttr: 60
