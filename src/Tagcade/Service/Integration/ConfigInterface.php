@@ -57,7 +57,7 @@ interface ConfigInterface
      * @param mixed $defaultValue
      * @return mixed found value or defaultValue if not found
      */
-    public function getParamValue($paramKey, $defaultValue): array;
+    public function getParamValue($paramKey, $defaultValue);
 
     /**
      * get param type by param key
@@ -66,7 +66,7 @@ interface ConfigInterface
      * @param mixed $defaultType
      * @return mixed found value or defaultValue if not found
      */
-    public function getParamType($paramKey, $defaultType): array;
+    public function getParamType($paramKey, $defaultType);
 
     /**
      * @param array $params

@@ -106,7 +106,7 @@ class Config implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function getParamValue($paramKey, $defaultValue): array
+    public function getParamValue($paramKey, $defaultValue)
     {
         $paramArr = $this->getParamArr($paramKey);
         if (!is_array($paramArr) || !array_key_exists('value', $paramArr)) {
@@ -124,7 +124,7 @@ class Config implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function getParamType($paramKey, $defaultValue): array
+    public function getParamType($paramKey, $defaultValue)
     {
         $paramArr = $this->getParamArr($paramKey);
         if (!is_array($paramArr) || !array_key_exists('type', $paramArr)) {
