@@ -122,7 +122,9 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             // metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
             $metadata = [
                 'module' => 'integration',
-                'integrationCName' => self::INTEGRATION_C_NAME,
+                'publisherId' => $config->getPublisherId(),
+                'dataSourceId' => $config->getDataSourceId(),
+                'integrationCName' => $config->getIntegrationCName(),
                 'pattern' => $filePattern
             ];
             $metadataFilePath = $path . '.meta';
