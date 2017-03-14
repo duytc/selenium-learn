@@ -125,7 +125,8 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 'publisherId' => $config->getPublisherId(),
                 'dataSourceId' => $config->getDataSourceId(),
                 'integrationCName' => $config->getIntegrationCName(),
-                'pattern' => $filePattern
+                'pattern' => $filePattern,
+                'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
             ];
             $metadataFilePath = $path . '.meta';
             file_put_contents($metadataFilePath, json_encode($metadata));
