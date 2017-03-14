@@ -52,13 +52,17 @@ class WebDriverService implements WebDriverServiceInterface
         /** @var string $integrationCName */
         $integrationCName = $config->getIntegrationCName();
 
-        // TODO: use new function get paramValue from config
-        // ...
+        $username = $config->getParamValue('username', null);
+        $password = $config->getParamValue('password', null);
+        $startDateStr = $config->getParamValue('startDate', 'yesterday');
+        $endDateStr = $config->getParamValue('endDate', 'yesterday');
 
-        $params = $config->getParams();
-        if (!is_array($params)) {
-            return false;
-        }
+        $params = [
+            'username' => $username,
+            'password' => $password,
+            'startDate' => $startDateStr,
+            'endDate' => $endDateStr
+        ];
 
         $processId = getmypid();
         $params['publisher_id'] = $publisherId;
@@ -92,20 +96,8 @@ class WebDriverService implements WebDriverServiceInterface
     {
         /** @var string $username */
         $username = $config['username'];
-
-        /** @var \DateTime $startDate */
-        if (!array_key_exists('startDate', $config)) {
-            $startDate = new \DateTime('yesterday');
-        } else {
-            $startDate = date_create($config['startDate']);
-        }
-
-        /** @var \DateTime $endDate */
-        if (!array_key_exists('endDate', $config)) {
-            $endDate = new \DateTime('yesterday');
-        } else {
-            $endDate = date_create($config['endDate']);
-        }
+        $startDate = date_create($config['startDate']);
+        $endDate = date_create($config['endDate']);
 
         if ($startDate > $endDate) {
             throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
