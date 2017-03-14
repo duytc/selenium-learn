@@ -7,7 +7,6 @@ namespace Tagcade\Service\Integration\Integrations\AWS;
 use Aws\Api\DateTimeResult;
 use Aws\Result;
 use Aws\S3\S3Client;
-use DateInterval;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -27,6 +26,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
     const PARAM_AWS_REGION = 'aws_region';
     const PARAM_VERSION = 'version';
     const PARAM_START_DATE = 'startDate';
+    const PARAM_END_DATE = 'endDate';
 
     const VALUE_VERSION_DEFAULT = 'latest';
 
@@ -63,8 +63,10 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $awsSecret = $config->getParamValue(self::PARAM_AWS_SECRET, null);
         $awsRegion = $config->getParamValue(self::PARAM_AWS_REGION, null);
         $startDate = new DateTime($config->getParamValue(self::PARAM_START_DATE, 'yesterday'));
+        $endDate = new DateTime($config->getParamValue(self::PARAM_END_DATE, 'yesterday'));
 
         // validate required params
+        // TODO: validate start/end date too
         if (empty($bucket) || empty($filePattern) || empty($awsKey) || empty($awsSecret) || empty($awsRegion)) {
             $this->logger->error('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
             throw new Exception('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
@@ -91,7 +93,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 
             /** @var DateTimeResult $lastModified */
             $lastModified = $object['LastModified'];
-            if (!$this->isNewFile($fileName, $startDate, $lastModified)) {
+            if (!$this->isNewFile($startDate, $endDate, $lastModified)) {
                 continue;
             }
 
@@ -131,24 +133,13 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
     /**
      * check if is new file
      *
-     * @param string $fileName
      * @param DateTime $startDate
+     * @param DateTime $endDate
      * @param DateTimeResult $lastModified
      * @return bool
      */
-    private function isNewFile($fileName, DateTime $startDate, DateTimeResult $lastModified)
+    private function isNewFile(DateTime $startDate, DateTime $endDate, DateTimeResult $lastModified)
     {
-        /** @var DateInterval $interval */
-        $interval = $lastModified->diff($startDate);
-        if (false == $interval) {
-            $this->logger->error(sprintf('Can not diff startDate %s with lastModified %s for file %s', $startDate->format('Y-m-d'), $lastModified->format('Y-m-d'), $fileName));
-            return false;
-        }
-
-        if ($interval->days >= 1) {
-            return false;
-        }
-
-        return true;
+        return ($startDate < $lastModified) && ($lastModified < $endDate);
     }
 }
