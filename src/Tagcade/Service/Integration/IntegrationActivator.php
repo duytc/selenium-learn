@@ -49,7 +49,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *               'password'
          *          ]
          *      ],
-         *      'params' => [
+         *      'originalParams' => [
          *          'username' => 'admin',
          *          'password' => '1A2B3C4D5E6F'
          *      ]
@@ -88,7 +88,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $dataSourceId = $dataSourceIntegration['dataSource']['id'];
-        $params = $dataSourceIntegration['params']; // params with key=>value pair
+        $params = $dataSourceIntegration['originalParams']; // original params as array of { key, value, type }
         $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
 
         /* create job data */
