@@ -45,15 +45,15 @@ interface ConfigInterface
     /**
      * get param array by param key
      *
-     * @param string $paramKey false if paramKey empty or is not string or not found
-     * @return array
+     * @param string $paramKey
+     * @return array|bool false if paramKey empty or is not string or not found
      */
-    public function getParamArr($paramKey): array;
+    public function getParamArr($paramKey);
 
     /**
      * get param value by param key, also decode base64 if type is 'secure'
      *
-     * @param string $paramKey false if paramKey empty or is not string or not found
+     * @param string $paramKey
      * @param mixed $defaultValue
      * @return mixed found value or defaultValue if not found
      */
@@ -62,7 +62,7 @@ interface ConfigInterface
     /**
      * get param type by param key
      *
-     * @param string $paramKey false if paramKey empty or is not string or not found
+     * @param string $paramKey
      * @param mixed $defaultType
      * @return mixed found value or defaultValue if not found
      */

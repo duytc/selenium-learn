@@ -84,7 +84,7 @@ class Config implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function getParamArr($paramKey): array
+    public function getParamArr($paramKey)
     {
         if (!is_string($paramKey) || empty($paramKey)) {
             return false;
