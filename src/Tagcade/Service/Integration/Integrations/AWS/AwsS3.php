@@ -74,7 +74,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $startDate = new DateTime($config->getParamValue(self::PARAM_START_DATE, 'yesterday'));
 
         // validate required params
-        if (empty($bucket) || empty($bucket) || empty($filePattern) || empty($awsKey) || empty($awsSecret) || empty($awsRegion)) {
+        if (empty($bucket) || empty($filePattern) || empty($awsKey) || empty($awsSecret) || empty($awsRegion)) {
             $this->logger->error('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
             throw new Exception('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
         }
