@@ -11,9 +11,9 @@ interface WebDriverServiceInterface
      * do get data
      *
      * @param PartnerFetcherInterface $partnerFetcher
-     * @param ConfigInterface $parameter
+     * @param ConfigInterface $config
      * @return bool|int
      * @throws \Exception
      */
-    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $parameter);
+    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $config);
 }

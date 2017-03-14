@@ -45,14 +45,17 @@ class WebDriverService implements WebDriverServiceInterface
     /**
      * @inheritdoc
      */
-    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $parameter)
+    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $config)
     {
         /** @var int publisherId */
-        $publisherId = $parameter->getPublisherId();
+        $publisherId = $config->getPublisherId();
         /** @var string $integrationCName */
-        $integrationCName = $parameter->getIntegrationCName();
+        $integrationCName = $config->getIntegrationCName();
 
-        $params = $parameter->getParams();
+        // TODO: use new function get paramValue from config
+        // ...
+
+        $params = $config->getParams();
         if (!is_array($params)) {
             return false;
         }

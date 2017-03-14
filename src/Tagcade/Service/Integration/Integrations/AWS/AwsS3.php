@@ -66,16 +66,17 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $this->validateParameters($allParams);
 
         // get all params
-        $bucket = $allParams[self::PARAM_BUCKET];
-        $filePattern = $allParams[self::PARAM_PATTERN];
-        $awsKey = $allParams[self::PARAM_AWS_KEY];
-        $awsSecret = $allParams[self::PARAM_AWS_SECRET];
-        $awsRegion = $allParams[self::PARAM_AWS_REGION];
+        $bucket = $config->getParamValue(self::PARAM_BUCKET, null);
+        $filePattern = $config->getParamValue(self::PARAM_PATTERN, null);
+        $awsKey = $config->getParamValue(self::PARAM_AWS_KEY, null);
+        $awsSecret = $config->getParamValue(self::PARAM_AWS_SECRET, null);
+        $awsRegion = $config->getParamValue(self::PARAM_AWS_REGION, null);
+        $startDate = new DateTime($config->getParamValue(self::PARAM_START_DATE, 'yesterday'));
 
-        if (!array_key_exists(self::PARAM_START_DATE, $allParams)) {
-            $startDate = new DateTime('yesterday');
-        } else {
-            $startDate = new DateTime($allParams[self::PARAM_START_DATE]);
+        // validate required params
+        if (empty($bucket) || empty($bucket) || empty($filePattern) || empty($awsKey) || empty($awsSecret) || empty($awsRegion)) {
+            $this->logger->error('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
+            throw new Exception('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
         }
 
         // create new S3Client instance

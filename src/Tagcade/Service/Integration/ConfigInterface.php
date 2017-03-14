@@ -43,6 +43,32 @@ interface ConfigInterface
     public function getParams(): array;
 
     /**
+     * get param array by param key
+     *
+     * @param string $paramKey false if paramKey empty or is not string or not found
+     * @return array
+     */
+    public function getParamArr($paramKey): array;
+
+    /**
+     * get param value by param key, also decode base64 if type is 'secure'
+     *
+     * @param string $paramKey false if paramKey empty or is not string or not found
+     * @param mixed $defaultValue
+     * @return mixed found value or defaultValue if not found
+     */
+    public function getParamValue($paramKey, $defaultValue): array;
+
+    /**
+     * get param type by param key
+     *
+     * @param string $paramKey false if paramKey empty or is not string or not found
+     * @param mixed $defaultType
+     * @return mixed found value or defaultValue if not found
+     */
+    public function getParamType($paramKey, $defaultType): array;
+
+    /**
      * @param array $params
      * @return self
      */

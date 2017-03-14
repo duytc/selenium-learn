@@ -91,18 +91,12 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $params = $dataSourceIntegration['params']; // params with key=>value pair
         $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
 
-        /* transform params from {key, value} to {<key> => <value>} */
-        $transformedParams = [];
-        foreach ($params as $param) {
-            $transformedParams[$param['key']] = $param['value'];
-        }
-
         /* create job data */
         $job = new \stdClass();
         $job->publisherId = $publisherId;
         $job->integrationCName = $integrationCName;
         $job->dataSourceId = $dataSourceId;
-        $job->params = json_encode($transformedParams);
+        $job->params = json_encode($params);
         $job->paramKeys = $paramKeys; // TODO: for validate params only
 
         /* create job payload. 'task' and 'params' keys are due to worker code base */

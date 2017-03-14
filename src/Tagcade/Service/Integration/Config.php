@@ -82,6 +82,59 @@ class Config implements ConfigInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getParamArr($paramKey): array
+    {
+        if (!is_string($paramKey) || empty($paramKey)) {
+            return false;
+        }
+
+        foreach ($this->params as $param) {
+            if (!is_array($param) || !array_key_exists('key', $param)) {
+                continue;
+            }
+
+            if ($param['key'] === $paramKey) {
+                return $param;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParamValue($paramKey, $defaultValue): array
+    {
+        $paramArr = $this->getParamArr($paramKey);
+        if (!is_array($paramArr) || !array_key_exists('value', $paramArr)) {
+            return $defaultValue;
+        }
+
+        $value = $paramArr['value'];
+
+        // decode value (base64) if type is 'secure'
+        $type = $this->getParamType($paramKey, null);
+
+        return ($type === 'secure') ? base64_decode($value) : $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParamType($paramKey, $defaultValue): array
+    {
+        $paramArr = $this->getParamArr($paramKey);
+        if (!is_array($paramArr) || !array_key_exists('type', $paramArr)) {
+            return $defaultValue;
+        }
+
+        return $paramArr['type'];
+    }
+
+    /**
      * @inheritdoc
      */
     public function setParams(array $params)
