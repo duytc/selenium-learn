@@ -56,15 +56,6 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
      */
     public function run(ConfigInterface $config)
     {
-        // validate params
-        $allParams = $config->getParams();
-        if (!is_array($allParams)) {
-            $this->logger->error('expect config parameters is array');
-            throw new Exception('expect config parameters is array');
-        }
-
-        $this->validateParameters($allParams);
-
         // get all params
         $bucket = $config->getParamValue(self::PARAM_BUCKET, null);
         $filePattern = $config->getParamValue(self::PARAM_PATTERN, null);
@@ -134,54 +125,6 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             ];
             $metadataFilePath = $path . '.meta';
             file_put_contents($metadataFilePath, json_encode($metadata));
-        }
-    }
-
-    /**
-     * @param array $allParameters
-     * @throws Exception
-     */
-    private function validateParameters(array $allParameters)
-    {
-        if (!array_key_exists(self::PARAM_BUCKET, $allParameters)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_BUCKET));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_BUCKET));
-        }
-
-        if (!array_key_exists(self::PARAM_PATTERN, $allParameters)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_PATTERN));
-        }
-
-        if (!array_key_exists(self::PARAM_AWS_KEY, $allParameters)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_KEY));
-        }
-
-        if (!array_key_exists(self::PARAM_AWS_SECRET, $allParameters)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_SECRET));
-        }
-
-        if (!array_key_exists(self::PARAM_AWS_REGION, $allParameters)) {
-            $this->logger->error(sprintf('Missing %s in parameters', self::PARAM_AWS_REGION));
-            throw new Exception(sprintf('Missing %s in parameters', self::PARAM_AWS_REGION));
-        }
-
-        if (array_key_exists(self::PARAM_START_DATE, $allParameters)) {
-            $startDateStr = $allParameters[self::PARAM_START_DATE];
-
-            try {
-                $startDate = date_create_from_format('Y-m-d', $startDateStr);
-
-                if (false === $startDate) {
-                    $this->logger->error(sprintf('Invalid date %s in parameters', $startDateStr));
-                    throw new Exception(sprintf('Invalid date %s in parameters', $startDateStr));
-                }
-            } catch (Exception $e) {
-                $this->logger->error(sprintf('Try parse date %s from parameters got error %s', $startDateStr, $e->getMessage()));
-                throw new Exception(sprintf('Try parse date %s from parameters got error %s', $startDateStr, $e->getMessage()));
-            }
         }
     }
 
