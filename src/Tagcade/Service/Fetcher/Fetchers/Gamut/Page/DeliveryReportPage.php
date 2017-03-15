@@ -82,7 +82,7 @@ class DeliveryReportPage extends AbstractPage
                 /*
                  * if no data then continue
                  */
-                $excel = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_exportButton'));
+                $exportExcelButton = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_exportButton'));
             } catch (NoSuchElementException $noSuchElementException) {
                 $this->driver->navigate()->back();
                 continue;
@@ -91,7 +91,7 @@ class DeliveryReportPage extends AbstractPage
             /*
              * download file
              */
-            $this->downloadFileHelper->downloadThenWaitUntilComplete($excel, $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig()));
+            $this->downloadFileHelper->downloadThenWaitUntilComplete($exportExcelButton, $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig()));
 
             $this->sleep(1);
             $this->driver->navigate()->back();
