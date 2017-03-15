@@ -45,7 +45,7 @@ class GamutFetcher extends PartnerFetcherAbstract implements GamutFetcherInterfa
         }
 
         $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('Publisher Tools'),
+            WebDriverExpectedCondition::titleContains('Create Custom Report'),
             'Login Fail'
         );
 

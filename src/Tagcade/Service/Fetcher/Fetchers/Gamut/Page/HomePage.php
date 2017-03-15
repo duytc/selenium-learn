@@ -7,13 +7,14 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 
-class HomePage extends AbstractPage 
+class HomePage extends AbstractPage
 {
     const URL = 'http://app-1.gamut.media/MemberPages/Site/default.aspx';
 
     public function doLogin($username, $password)
     {
-        $this->navigateToPartnerDomain();
+        $this->driver->manage()->timeouts()->pageLoadTimeout(30);
+        $this->driver->navigate()->to(self::URL);
 
         if ($this->isLoggedIn()) {
             return true;
@@ -29,14 +30,12 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('UserName'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('Password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_BodyContent_BodyContent_SignInButton'))->click();
@@ -49,8 +48,8 @@ class HomePage extends AbstractPage
 
     protected function isLoggedIn()
     {
-       $headerMainmenus = $this->driver->findElements(WebDriverBy::id('ctl00_ctl00_appHeader_signOutLinkButton'));
+        $headerMainmenus = $this->driver->findElements(WebDriverBy::id('ctl00_ctl00_appHeader_signOutLinkButton'));
 
-        return empty($headerMainmenus)? false:true;
+        return empty($headerMainmenus) ? false : true;
     }
 } 
