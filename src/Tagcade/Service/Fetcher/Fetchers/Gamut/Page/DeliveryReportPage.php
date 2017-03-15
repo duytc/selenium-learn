@@ -7,7 +7,7 @@ use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
-use Tagcade\Service\Fetcher\Fetchers\DefyMedia\Widget\DateSelectWidget;
+use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 
 class DeliveryReportPage extends AbstractPage
@@ -31,9 +31,7 @@ class DeliveryReportPage extends AbstractPage
         $forOneOrMoreSelect->selectByValue('PublisherPerformance-Site');
         $this->sleep(1);
 
-        $show = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_ddlDateRange'));
-        $showSelect = new WebDriverSelect($show);
-        $showSelect->selectByValue('1');
+        $this->selectDateRange($startDate, $endDate);
         $this->sleep(1);
 
         $timeZone = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_TimeZoneDropDown'));
