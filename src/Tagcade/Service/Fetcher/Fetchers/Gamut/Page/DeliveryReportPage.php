@@ -10,9 +10,7 @@ use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 
 class DeliveryReportPage extends AbstractPage
 {
-	const URL = 'https://platform.33across.com/reports';
-
-	const URL_DELIVERY = 'https://platform.33across.com/reports/delivery';
+	const URL = 'http://app-1.gamut.media/MemberPages/Reports/Editor.aspx';
 
 	public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
 	{
