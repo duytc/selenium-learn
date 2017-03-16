@@ -79,6 +79,9 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
             /* update next execution at */
             $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
+
+            /* update backFill Executed if need */
+            $this->updateBackFillExecuted($dataSourceIntegrationSchedule);
         }
 
         return true;
@@ -134,7 +137,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
     }
 
     /**
-     * update Last Execution Time
+     * update Next Execution At
      *
      * @param $dataSourceIntegrationSchedule
      * @return mixed
@@ -144,5 +147,30 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $dataSourceIntegrationScheduleId = $dataSourceIntegrationSchedule['id'];
 
         return $this->restClient->updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
+    }
+
+    /**
+     * update BackFill Executed
+     *
+     * @param $dataSourceIntegrationSchedule
+     * @return mixed
+     */
+    private function updateBackFillExecuted($dataSourceIntegrationSchedule)
+    {
+        $dataSourceIntegrationScheduleId = $dataSourceIntegrationSchedule['id'];
+        $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
+
+        if (!is_array($dataSourceIntegration) || !array_key_exists('backFill', $dataSourceIntegration)) {
+            return true;
+        }
+
+        // skip if not need backFill
+        $isBackFill = (bool)$dataSourceIntegration['backFill'];
+        if (!$isBackFill) {
+            return true;
+        }
+
+        // update backFill executed to true
+        return $this->restClient->updateBackFillExecutedForIntegrationSchedule($dataSourceIntegrationScheduleId);
     }
 }
