@@ -33,44 +33,52 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     public function createExecutionJobs()
     {
-        /* get all dataSource-integrations that to be executed, from ur api */
+        /* get all dataSource-integration-schedule that to be executed, from ur api */
         /*
          * for test:
-         * $dataSourceIntegrations = [
-         *  [
-         *      'dataSource' => [
-         *          'id' => 1
-         *      ],
-         *      'integration' => [
-         *          'id' => 2,
-         *          'canonicalName' => 'rubicon',
-         *          'params' => [
-         *               'username',
-         *               'password'
-         *          ]
-         *      ],
-         *      'originalParams' => [
-         *          'username' => 'admin',
-         *          'password' => '1A2B3C4D5E6F'
-         *      ]
-         *  ]
+         * $dataSourceIntegrationSchedules = [
+         *    [
+         *       'id' => 1,
+         *       'scheduleType' => 'checkEvery|checkAt',
+         *       'executeAt' => 1,
+         *       dataSourceIntegration = [
+         *           'dataSource' => [
+         *               'id' => 1
+         *           ],
+         *           'integration' => [
+         *               'id' => 2,
+         *               'canonicalName' => 'rubicon',
+         *               'params' => [
+         *                    [ 'key' => 'username', 'type' => 'plainText' ],
+         *                    [ 'key' => 'password', 'type' => 'secure' ],
+         *                    ...
+         *               ]
+         *           ],
+         *           'originalParams' => [
+         *               [ 'key' => 'username', 'type' => 'plainText', 'value' => 'admin' ],
+         *               [ 'key' => 'password', 'type' => 'secure', 'value' => '1A2B3C4D5E6F' ],
+         *               ...
+         *           ]
+         *       ]
+         *    ],
+         *    ...
          * ];
          */
-        $dataSourceIntegrations = $this->restClient->getDataSourceIntegrationToBeExecuted();
-        if (!is_array($dataSourceIntegrations)) {
+        $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
+        if (!is_array($dataSourceIntegrationSchedules)) {
             return false;
         }
 
-        foreach ($dataSourceIntegrations as $dataSourceIntegration) {
+        foreach ($dataSourceIntegrationSchedules as $dataSourceIntegrationSchedule) {
             /* create new job for execution */
-            $createJobResult = $this->createExecutionJob($dataSourceIntegration);
+            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule);
 
             if (!$createJobResult) {
                 continue;
             }
 
             /* update last execution time */
-            $this->updateLastExecutionTime($dataSourceIntegration);
+            $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
         }
 
         return true;
@@ -79,12 +87,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * create execution job for dataSourceIntegration
      *
-     * @param $dataSourceIntegration
+     * @param $dataSourceIntegrationSchedule
      * @return bool
      */
-    private function createExecutionJob($dataSourceIntegration)
+    private function createExecutionJob($dataSourceIntegrationSchedule)
     {
         // TODO: validate key in array before processing...
+        $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
         $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $dataSourceId = $dataSourceIntegration['dataSource']['id'];
@@ -120,14 +129,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * update Last Execution Time
      *
-     * @param $dataSourceIntegration
+     * @param $dataSourceIntegrationSchedule
      * @return mixed
      */
-    private function updateLastExecutionTime($dataSourceIntegration)
+    private function updateNextExecuteAt($dataSourceIntegrationSchedule)
     {
-        $dataSourceIntegrationId = $dataSourceIntegration['id'];
-        $currentTime = new \DateTime();
+        $dataSourceIntegrationScheduleId = $dataSourceIntegrationSchedule['id'];
 
-        return $this->restClient->updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, $currentTime);
+        return $this->restClient->updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
     }
 }

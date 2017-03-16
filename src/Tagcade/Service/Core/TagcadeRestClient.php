@@ -23,7 +23,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /** @var string */
     private $getListIntegrationsToBeExecutedUrl;
     /** @var string */
-    private $updateLastExecutionTimeForIntegrationUrl;
+    private $updateNextExecuteAtForDataSourceIntegrationScheduleUrl;
 
     /** @var string */
     private $token;
@@ -35,7 +35,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $getTokenUrl,
                          $getListPublisherUrl,
                          $getListIntegrationsToBeExecutedUrl,
-                         $updateLastExecutionTimeForIntegrationUrl
+                         $updateNextExecuteAtForDataSourceIntegrationScheduleUrl
     )
     {
         $this->curl = $curl;
@@ -45,7 +45,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->getTokenUrl = $getTokenUrl;
         $this->getListPublisherUrl = $getListPublisherUrl;
         $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
-        $this->updateLastExecutionTimeForIntegrationUrl = $updateLastExecutionTimeForIntegrationUrl;
+        $this->updateNextExecuteAtForDataSourceIntegrationScheduleUrl = $updateNextExecuteAtForDataSourceIntegrationScheduleUrl;
     }
 
     /**
@@ -121,7 +121,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function getDataSourceIntegrationToBeExecuted()
+    public function getDataSourceIntegrationSchedulesToBeExecuted()
     {
         $this->logger->info(sprintf('Getting all Integrations to be executed'));
 
@@ -173,7 +173,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, \DateTime $dateTime)
+    public function updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId)
     {
         $this->logger->info(sprintf('Getting all Integrations to be executed'));
 
@@ -182,12 +182,11 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         /* post update to ur api */
         $data = [
-            'id' => $dataSourceIntegrationId,
-            'lastexecutetime' => $dateTime->format('Y-m-d H:i:s')
+            'id' => $dataSourceIntegrationScheduleId,
         ];
 
         $result = $this->curl->executeQuery(
-            $this->updateLastExecutionTimeForIntegrationUrl,
+            $this->updateNextExecuteAtForDataSourceIntegrationScheduleUrl,
             'POST',
             $header,
             $data
