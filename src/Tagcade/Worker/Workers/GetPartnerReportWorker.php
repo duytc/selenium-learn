@@ -36,7 +36,7 @@ class GetPartnerReportWorker
     public function getPartnerReport(stdClass $params)
     {
         /** @var ConfigInterface $config */
-        $config = new Config($params->publisherId, $params->integrationCName, $params->dataSourceId, json_decode($params->params, true));
+        $config = new Config($params->publisherId, $params->integrationCName, $params->dataSourceId, json_decode($params->params, true), json_decode($params->backFill, true));
 
         /** @var IntegrationInterface $integration */
         $integration = $this->fetcherManager->getIntegration($config);

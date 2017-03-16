@@ -73,4 +73,24 @@ interface ConfigInterface
      * @return self
      */
     public function setParams(array $params);
+
+    /**
+     * @return array
+     */
+    public function getBackFill();
+
+    /**
+     * @param array $backFill
+     */
+    public function setBackFill(array $backFill);
+
+    /**
+     * @return bool
+     */
+    public function isNeedRunBackFill();
+
+    /**
+     * @return \DateTime|false
+     */
+    public function getStartDateFromBackFill();
 }

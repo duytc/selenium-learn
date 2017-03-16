@@ -62,8 +62,21 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $awsKey = $config->getParamValue(self::PARAM_AWS_KEY, null);
         $awsSecret = $config->getParamValue(self::PARAM_AWS_SECRET, null);
         $awsRegion = $config->getParamValue(self::PARAM_AWS_REGION, null);
-        $startDate = new DateTime($config->getParamValue(self::PARAM_START_DATE, 'yesterday'));
-        $endDate = new DateTime($config->getParamValue(self::PARAM_END_DATE, 'yesterday'));
+
+        //// important: try get startDate, endDate by backFill
+        if ($config->isNeedRunBackFill()) {
+            $startDate = $config->getStartDateFromBackFill();
+
+            if (!$startDate instanceof DateTime) {
+                $this->logger->error('need run backFill but backFillStartDate is invalid');
+                throw new Exception('need run backFill but backFillStartDate is invalid');
+            }
+
+            $endDate = new DateTime('yesterday');
+        } else {
+            $startDate = new DateTime($config->getParamValue(self::PARAM_START_DATE, 'yesterday'));
+            $endDate = new DateTime($config->getParamValue(self::PARAM_END_DATE, 'yesterday'));
+        }
 
         // validate required params
         // TODO: validate start/end date too

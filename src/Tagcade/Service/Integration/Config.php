@@ -9,6 +9,8 @@ class Config implements ConfigInterface
     private $dataSourceId;
     /** @var array */
     private $params;
+    /** @var array */
+    private $backFill;
 
     /**
      * ApiParameter constructor.
@@ -16,13 +18,15 @@ class Config implements ConfigInterface
      * @param $integrationCName
      * @param $dataSourceId
      * @param array $params
+     * @param array $backFill
      */
-    public function __construct($publisherId, $integrationCName, $dataSourceId, array $params)
+    public function __construct($publisherId, $integrationCName, $dataSourceId, array $params, array $backFill)
     {
         $this->publisherId = $publisherId;
         $this->integrationCName = $integrationCName;
         $this->dataSourceId = $dataSourceId;
         $this->params = $params;
+        $this->backFill = $backFill;
     }
 
     /**
@@ -140,5 +144,53 @@ class Config implements ConfigInterface
     public function setParams(array $params)
     {
         $this->params = $params;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getBackFill()
+    {
+        return $this->backFill;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setBackFill(array $backFill)
+    {
+        $this->backFill = $backFill;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isNeedRunBackFill()
+    {
+        if (is_array($this->backFill) || !array_key_exists('backFill', $this->backFill)) {
+            return false;
+        }
+
+        return (bool)$this->backFill['backFill'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getStartDateFromBackFill()
+    {
+        if (is_array($this->backFill) || !array_key_exists('backFillStartDate', $this->backFill)) {
+            return false;
+        }
+
+        $backFillStartDateString = $this->backFill['backFill'];
+
+        try {
+            $backFillStartDate = date_create_from_format('Y-m-d', $backFillStartDateString);
+
+            return $backFillStartDate;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

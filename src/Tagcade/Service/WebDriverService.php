@@ -54,8 +54,22 @@ class WebDriverService implements WebDriverServiceInterface
 
         $username = $config->getParamValue('username', null);
         $password = $config->getParamValue('password', null);
-        $startDateStr = $config->getParamValue('startDate', 'yesterday');
-        $endDateStr = $config->getParamValue('endDate', 'yesterday');
+
+        //// important: try get startDate, endDate by backFill
+        if ($config->isNeedRunBackFill()) {
+            $startDate = $config->getStartDateFromBackFill();
+
+            if (!$startDate instanceof \DateTime) {
+                $this->logger->error('need run backFill but backFillStartDate is invalid');
+                throw new \Exception('need run backFill but backFillStartDate is invalid');
+            }
+
+            $startDateStr = $startDate->format('Y-m-d');
+            $endDateStr = 'yesterday';
+        } else {
+            $startDateStr = $config->getParamValue('startDate', 'yesterday');
+            $endDateStr = $config->getParamValue('endDate', 'yesterday');
+        }
 
         $params = [
             'username' => $username,

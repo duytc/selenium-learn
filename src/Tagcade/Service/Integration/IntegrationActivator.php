@@ -99,6 +99,12 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $dataSourceId = $dataSourceIntegration['dataSource']['id'];
         $params = $dataSourceIntegration['originalParams']; // original params as array of { key, value, type }
         $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
+        $backFill = [
+            'backFill' => $dataSourceIntegration['backFill'],
+            'backFillStartDate' => $dataSourceIntegration['backFillStartDate'],
+            'backFillForce' => $dataSourceIntegration['backFillForce'],
+            'backFillExecuted' => $dataSourceIntegration['backFillExecuted']
+        ];
 
         /* create job data */
         $job = new \stdClass();
@@ -107,6 +113,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $job->dataSourceId = $dataSourceId;
         $job->params = json_encode($params);
         $job->paramKeys = $paramKeys; // TODO: for validate params only
+        $job->backFill = json_encode($backFill);
 
         /* create job payload. 'task' and 'params' keys are due to worker code base */
         $payload = new \stdClass();
