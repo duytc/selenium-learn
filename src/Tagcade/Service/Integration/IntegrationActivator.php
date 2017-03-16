@@ -77,7 +77,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 continue;
             }
 
-            /* update last execution time */
+            /* update next execution at */
             $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
         }
 
