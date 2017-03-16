@@ -41,9 +41,17 @@ class DeliveryReportPage extends AbstractPage
 
         $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_ViewReport1'))->click();
         $this->sleep(2);
-        $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_ReportJSGrid_Table')));
 
-        $this->getAllTagReportsForSingleDomain($startDate, $endDate);
+        $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_divDateRangeStatement')));
+
+        try {
+            $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_ReportJSGrid_Table'));
+            $this->getAllTagReportsForSingleDomain($startDate, $endDate);
+        } catch (NoSuchElementException $noSuchElementException) {
+            $noDataError = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_dateSelector_valiationLabel'));
+            $this->logger->error($noDataError->getText());
+        }
+
 
         $this->logger->debug('Logout system');
         $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_appHeader_signOutLinkButton'))->click();

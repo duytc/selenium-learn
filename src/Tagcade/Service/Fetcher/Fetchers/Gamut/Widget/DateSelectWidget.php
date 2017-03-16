@@ -28,7 +28,18 @@ class DateSelectWidget extends AbstractWidget
      */
     protected function setStartDate(DateTime $startDate)
     {
-        $this->selectDate($startDate);
+        $monthElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_startDateCalendar_Month'));
+        $monthSelect = new WebDriverSelect($monthElement);
+        $m = $startDate->format("n");
+        $monthSelect->selectByValue($m);
+        $dayElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_startDateCalendar_Day'));
+        $daySelect = new WebDriverSelect($dayElement);
+        $d = $startDate->format("j");
+        $daySelect->selectByValue($d);
+        $yearElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_startDateCalendar_Year'));
+        $yearSelect = new WebDriverSelect($yearElement);
+        $y = $startDate->format("Y");
+        $yearSelect->selectByValue($y);
     }
 
     /**
@@ -36,23 +47,17 @@ class DateSelectWidget extends AbstractWidget
      */
     protected function setEndDate(DateTime $endDate)
     {
-        $this->selectDate($endDate);
-    }
-
-    private function selectDate(DateTime $date)
-    {
-        $y = $date->format('Y');
-        $m = $date->format('n');
-        $d = $date->format('d');
-
-        $monthElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_startDateCalendar_Month'));
-        $timeZoneSelect = new WebDriverSelect($monthElement);
-        $timeZoneSelect->selectByValue($m);
-        $dayElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_startDateCalendar_Day'));
-        $timeZoneSelect = new WebDriverSelect($dayElement);
-        $timeZoneSelect->selectByValue($d);
-        $yearElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_startDateCalendar_Year'));
-        $timeZoneSelect = new WebDriverSelect($yearElement);
-        $timeZoneSelect->selectByValue($y);
+        $monthElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_endDateCalendar_Month'));
+        $monthSelect = new WebDriverSelect($monthElement);
+        $m = $endDate->format("n");
+        $monthSelect->selectByValue($m);
+        $dayElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_endDateCalendar_Day'));
+        $daySelect = new WebDriverSelect($dayElement);
+        $d = $endDate->format("j");
+        $daySelect->selectByValue($d);
+        $yearElement = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_DateRange_endDateCalendar_Year'));
+        $yearSelect = new WebDriverSelect($yearElement);
+        $y = $endDate->format("Y");
+        $yearSelect->selectByValue($y);
     }
 }
