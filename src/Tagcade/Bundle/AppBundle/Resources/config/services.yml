@@ -8,6 +8,7 @@ imports:
     - { resource: services/defy.media.yml }
     - { resource: services/districtm.yml }
     - { resource: services/epom.market.yml }
+    - { resource: services/gamut.yml }
     - { resource: services/komoona.yml }
     - { resource: services/media.net.yml }
     - { resource: services/nativeads.yml }
@@ -114,6 +115,7 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.defy_media'
                 - '@tagcade.service.integration.integrations.demand_partner.districtm'
                 - '@tagcade.service.integration.integrations.demand_partner.epom_market'
+                - '@tagcade.service.integration.integrations.demand_partner.gamut'
                 - '@tagcade.service.integration.integrations.demand_partner.komoona'
                 - '@tagcade.service.integration.integrations.demand_partner.media_net'
                 - '@tagcade.service.integration.integrations.demand_partner.nativeads'
