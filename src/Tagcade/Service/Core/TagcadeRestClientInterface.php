@@ -27,4 +27,12 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
+
+    /**
+     * update backfill executed for integration
+     *
+     * @param string $dataSourceIntegrationScheduleId
+     * @return mixed
+     */
+    public function updateBackFillExecutedForIntegrationSchedule($dataSourceIntegrationScheduleId);
 }

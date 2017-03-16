@@ -24,6 +24,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     private $getListIntegrationsToBeExecutedUrl;
     /** @var string */
     private $updateNextExecuteAtForDataSourceIntegrationScheduleUrl;
+    /** @var string */
+    private $updateBackFillExecutedForDataSourceIntegrationScheduleUrl;
 
     /** @var string */
     private $token;
@@ -35,7 +37,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $getTokenUrl,
                          $getListPublisherUrl,
                          $getListIntegrationsToBeExecutedUrl,
-                         $updateNextExecuteAtForDataSourceIntegrationScheduleUrl
+                         $updateNextExecuteAtForDataSourceIntegrationScheduleUrl,
+                         $updateBackFillExecutedForDataSourceIntegrationScheduleUrl
     )
     {
         $this->curl = $curl;
@@ -46,6 +49,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->getListPublisherUrl = $getListPublisherUrl;
         $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
         $this->updateNextExecuteAtForDataSourceIntegrationScheduleUrl = $updateNextExecuteAtForDataSourceIntegrationScheduleUrl;
+        $this->updateBackFillExecutedForDataSourceIntegrationScheduleUrl = $updateBackFillExecutedForDataSourceIntegrationScheduleUrl;
     }
 
     /**
@@ -174,7 +178,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
      */
     public function updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId)
     {
-        $this->logger->info(sprintf('Getting all Integrations to be executed'));
+        $this->logger->info(sprintf('Updating last execution time'));
 
         /* get token */
         $header = array('Authorization: Bearer ' . $this->getToken());
@@ -203,6 +207,46 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
             $this->logger->error(sprintf('Update last execution time failed, code %d', $result['code']));
+            return false;
+        }
+
+        return (bool)$result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateBackFillExecutedForIntegrationSchedule($dataSourceIntegrationScheduleId)
+    {
+        $this->logger->info(sprintf('Updating backfill executed'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            'id' => $dataSourceIntegrationScheduleId,
+        ];
+
+        $result = $this->curl->executeQuery(
+            $this->updateBackFillExecutedForDataSourceIntegrationScheduleUrl,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->error(sprintf('Update backfill executed failed, code %d', $result['code']));
             return false;
         }
 
