@@ -18,14 +18,21 @@ interface TagcadeRestClientInterface
      *
      * @return mixed
      */
-    public function getDataSourceIntegrationToBeExecuted();
+    public function getDataSourceIntegrationSchedulesToBeExecuted();
 
     /**
      * update last execution time for integration by canonicalName
      *
-     * @param string $dataSourceIntegrationId
-     * @param \DateTime $dateTime
+     * @param string $dataSourceIntegrationScheduleId
      * @return mixed
      */
-    public function updateLastExecutionTimeForIntegrationByCName($dataSourceIntegrationId, \DateTime $dateTime);
+    public function updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
+
+    /**
+     * update backfill executed for integration
+     *
+     * @param string $dataSourceIntegrationScheduleId
+     * @return mixed
+     */
+    public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId);
 }

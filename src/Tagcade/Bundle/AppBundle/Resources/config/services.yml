@@ -1,4 +1,5 @@
 imports:
+    - { resource: services/aws.yml }
     - { resource: services/across33.yml }
     - { resource: services/admeta.yml }
     - { resource: services/ads4games.yml }
@@ -63,6 +64,7 @@ services:
             - '%tagcade_get_list_publisher_url%'
             - '%ur_get_list_integrations_to_be_executed_url%'
             - '%ur_update_last_execution_time_for_integration_url%'
+            - '%ur_update_backfill_executed_for_integration_url%'
         calls:
             - [setLogger, ['@logger']]
 
@@ -126,3 +128,4 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.technorati'
                 - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
                 - '@tagcade.service.integration.integrations.pubvantage.account_report'
+                - '@tagcade.service.integration.integrations.aws.s3'

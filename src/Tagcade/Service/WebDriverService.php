@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Fetcher\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerParams;
+use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\WebDriverFactoryInterface;
 
@@ -45,17 +46,54 @@ class WebDriverService implements WebDriverServiceInterface
     /**
      * @inheritdoc
      */
-    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $parameter)
+    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $config)
     {
         /** @var int publisherId */
-        $publisherId = $parameter->getPublisherId();
+        $publisherId = $config->getPublisherId();
         /** @var string $integrationCName */
-        $integrationCName = $parameter->getIntegrationCName();
+        $integrationCName = $config->getIntegrationCName();
 
-        $params = $parameter->getParams();
-        if (!is_array($params)) {
-            return false;
+        $username = $config->getParamValue('username', null);
+        $password = $config->getParamValue('password', null);
+
+        //// important: try get startDate, endDate by backFill
+        if ($config->isNeedRunBackFill()) {
+            $startDate = $config->getStartDateFromBackFill();
+
+            if (!$startDate instanceof \DateTime) {
+                $this->logger->error('need run backFill but backFillStartDate is invalid');
+                throw new \Exception('need run backFill but backFillStartDate is invalid');
+            }
+
+            $startDateStr = $startDate->format('Y-m-d');
+            $endDateStr = 'yesterday';
+        } else {
+            // prefer dateRange than startDate - endDate
+            $dateRange = $config->getParamValue('dateRange', null);
+            if (!empty($dateRange)) {
+                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
+
+                if (!is_array($startDateEndDate)) {
+                    // use default 'yesterday'
+                    $startDateStr = 'yesterday';
+                    $endDateStr = 'yesterday';
+                } else {
+                    $startDateStr = $startDateEndDate[0];
+                    $endDateStr = $startDateEndDate[1];
+                }
+            } else {
+                // use user modified startDate, endDate
+                $startDateStr = $config->getParamValue('startDate', 'yesterday');
+                $endDateStr = $config->getParamValue('endDate', 'yesterday');
+            }
         }
+
+        $params = [
+            'username' => $username,
+            'password' => $password,
+            'startDate' => $startDateStr,
+            'endDate' => $endDateStr
+        ];
 
         $processId = getmypid();
         $params['publisher_id'] = $publisherId;
@@ -89,20 +127,8 @@ class WebDriverService implements WebDriverServiceInterface
     {
         /** @var string $username */
         $username = $config['username'];
-
-        /** @var \DateTime $startDate */
-        if (!array_key_exists('startDate', $config)) {
-            $startDate = new \DateTime('yesterday');
-        } else {
-            $startDate = date_create($config['startDate']);
-        }
-
-        /** @var \DateTime $endDate */
-        if (!array_key_exists('endDate', $config)) {
-            $endDate = new \DateTime('yesterday');
-        } else {
-            $endDate = date_create($config['endDate']);
-        }
+        $startDate = date_create($config['startDate']);
+        $endDate = date_create($config['endDate']);
 
         if ($startDate > $endDate) {
             throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
