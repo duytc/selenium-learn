@@ -2,6 +2,7 @@
 
 namespace tagcade\dev;
 use AppKernel;
+use Monolog\Handler\StreamHandler;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\IntegrationManagerInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
@@ -13,6 +14,11 @@ $kernel = new AppKernel('dev', true);
 $kernel->boot();
 
 $container = $kernel->getContainer();
+
+$logger = $container->get('logger');
+$logger->pushHandler(new StreamHandler("php://stdout", \Monolog\Logger::DEBUG));
+
+$logger->debug('starting integration test');
 
 $configFile = dirname(__FILE__) . '/integration_config.json';
 
@@ -36,7 +42,4 @@ $fetcherManager = $container->get('tagcade.service.integration.integration_manag
 /** @var IntegrationInterface $integration */
 $integration = $fetcherManager->getIntegration($config);
 
-// problem: no monolog output will be shown in the terminal, it will only be logged in app/logs/.
-// config_dev.yml defines 2 handlers, the console handler will output to the terminal but this dev script does
-// not active the console handler
 $integration->run($config);
