@@ -1,0 +1,33 @@
+{
+    "publisherId": 2,
+    "integrationCName": "gamut",
+    "dataSourceId": 30,
+    "params": [
+        {
+            "key": "username",
+            "type": "plainText",
+            "value": "USERNAMEHERE"
+        },
+        {
+            "key": "password",
+            "type": "plainText",
+            "value": "PASSWORDHERE"
+        }
+    ],
+    "paramKeys": [
+        {
+            "key": "username",
+            "type": "plainText"
+        },
+        {
+            "key": "password",
+            "type": "plainText"
+        }
+    ],
+    "backFill": {
+        "backFill": false,
+        "backFillStartDate": null,
+        "backFillForce": false,
+        "backFillExecuted": false
+    }
+}
