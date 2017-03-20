@@ -151,7 +151,8 @@ class WebDriverFactory implements WebDriverFactoryInterface
             //Turns off download prompt
             'profile.default_content_settings.popups' => 0,
             'profile.content_settings.pattern_pairs.*.multiple-automatic-downloads' => 1,
-
+            'profile.password_manager_enabled' => false,
+            'credentials_enable_service' => false
         ]);
 
         $this->logger->debug(sprintf('Path to store data =%s', $defaultDownloadPath));
