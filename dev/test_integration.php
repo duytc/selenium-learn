@@ -36,4 +36,7 @@ $fetcherManager = $container->get('tagcade.service.integration.integration_manag
 /** @var IntegrationInterface $integration */
 $integration = $fetcherManager->getIntegration($config);
 
+// problem: no monolog output will be shown in the terminal, it will only be logged in app/logs/.
+// config_dev.yml defines 2 handlers, the console handler will output to the terminal but this dev script does
+// not active the console handler
 $integration->run($config);
