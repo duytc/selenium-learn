@@ -41,7 +41,7 @@ try {
 } catch (\Exception $e) {
     // top level log is very clean. This is the supervisor log but it provides the name of the specific file for more debugging
     // if the admin wants to know more about the failure, they have the exact log file
-    $logger->warning(sprintf('Execution run failed, please see %s for more details', $logFile));
+    $logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
 } finally {
     fclose($fp);
 }
