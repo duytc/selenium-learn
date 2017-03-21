@@ -22,9 +22,9 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 
     const PARAM_BUCKET = 'bucket';
     const PARAM_PATTERN = 'pattern';
-    const PARAM_AWS_KEY = 'aws_key';
-    const PARAM_AWS_SECRET = 'aws_secret';
-    const PARAM_AWS_REGION = 'aws_region';
+    const PARAM_AWS_KEY = 'awsKey';
+    const PARAM_AWS_SECRET = 'awsSecret';
+    const PARAM_AWS_REGION = 'awsRegion';
     const PARAM_VERSION = 'version';
     const PARAM_START_DATE = 'startDate';
     const PARAM_END_DATE = 'endDate';
