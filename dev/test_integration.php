@@ -16,9 +16,9 @@ $kernel->boot();
 $container = $kernel->getContainer();
 
 $logger = $container->get('logger');
-$logger->pushHandler(new StreamHandler("php://stdout", \Monolog\Logger::DEBUG));
+$logger->pushHandler(new StreamHandler("php://stderr", \Monolog\Logger::DEBUG));
 
-$logger->debug('starting integration test');
+$logger->info('starting integration test');
 
 $configFile = dirname(__FILE__) . '/integration_config.json';
 
