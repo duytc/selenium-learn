@@ -1,22 +1,47 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-
+use Monolog\Handler\StreamHandler;
 use Symfony\Component\Process\Process;
 
-// By default supervisor sends all stdout and stderr into a single file,
-// You can emulate this with php7.0 test_integration.php >> logs/log 2>> logs/error
-// This makes debugging hard, since you don't know where the logs came from
+$loader = require_once __DIR__ . '/../app/autoload.php';
+require_once __DIR__ . '/../app/AppKernel.php';
 
-// here is a simple example of wrapping a script and capturing the stdout and stderr and putting into a named file containing the import id
+$kernel = new AppKernel('dev', true);
+$kernel->boot();
 
-$importId = rand(1, 10000);
+$container = $kernel->getContainer();
 
-$process = new Process('php7.0 test_integration.php 2>&1');
-$process->run();
+$logger = $container->get('logger');
 
-// can also use $process->getIncrementalOutput()
+// only show log messages above warning in the top level process, this keeps supervisor log clean
+$logger->pushHandler(new StreamHandler("php://stderr", \Monolog\Logger::WARNING));
 
-file_put_contents(__DIR__ . sprintf('/logs/import_log_%d', $importId), $process->getOutput());
+const PHP_BIN = '/usr/bin/php7.0';
+// in prod would probably be a symfony console command with args
+const RUN_COMMAND = 'test_integration.php';
 
-echo $process->getOutput();
+// for fetcher logs, we need to come up with a run id or execution run id. In UR API, this would be the import id
+$executionRunId = rand(1, 50000);
+
+$logFile = __DIR__ . sprintf('/logs/run_log_%d.log', $executionRunId);
+
+$fp = fopen($logFile, 'a');
+
+$process = new Process(sprintf('%s %s', PHP_BIN, RUN_COMMAND));
+
+try {
+    $process->mustRun(
+//    $process->run(
+        function ($type, $buffer) use (&$fp) {
+            fwrite($fp, $buffer);
+            // We can also display logs in this shell as well
+            //    echo $buffer;
+        }
+    );
+} catch (\Exception $e) {
+    // top level log is very clean. This is the supervisor log but it provides the name of the specific file for more debugging
+    // if the admin wants to know more about the failure, they have the exact log file
+    $logger->warning(sprintf('Execution run failed, please see %s for more details', $logFile));
+} finally {
+    fclose($fp);
+}
