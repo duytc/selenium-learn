@@ -3,9 +3,11 @@
 namespace Tagcade\Service\Integration\Integrations\DemandPartner\AdMeta;
 
 use anlutro\cURL\cURL;
+use anlutro\cURL\Request;
 use DateTime;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\FileStorageServiceInterface;
+use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\DemandPartner\AdMeta\Exception\BadResponseException;
 use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
@@ -14,17 +16,9 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 class AdMeta extends IntegrationAbstract implements IntegrationInterface
 {
     const INTEGRATION_C_NAME = 'admeta';
+
     const BASE_API_URL = 'https://tango.admeta.com/api';
     const DATE_FORMAT = 'Y-m-d';
-
-    /**
-     * @var string
-     */
-    private $username;
-    /**
-     * @var string
-     */
-    private $password;
 
     /**
      * @var cUrl
@@ -55,20 +49,49 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
 
     /**
      * @param ConfigInterface $config
-     * @return void
+     * @throws BadResponseException
+     * @throws \Exception
      */
     public function run(ConfigInterface $config)
     {
-        $allParams = $config->getParams();
-        if (!array_key_exists('startDate', $allParams)) {
-            $date = (new \DateTime('yesterday'))->format('Y-m-d');
+        $username = $config->getParamValue('username', null);
+        $password = $config->getParamValue('password', null);
+
+        //// important: try get startDate, endDate by backFill
+        if ($config->isNeedRunBackFill()) {
+            $startDate = $config->getStartDateFromBackFill();
+
+            if (!$startDate instanceof \DateTime) {
+                $this->logger->error('need run backFill but backFillStartDate is invalid');
+                throw new \Exception('need run backFill but backFillStartDate is invalid');
+            }
+
+            $startDateStr = $startDate->format('Y-m-d');
+            $endDateStr = 'yesterday';
         } else {
-            $date = $allParams['startDate'];
+            // prefer dateRange than startDate - endDate
+            $dateRange = $config->getParamValue('dateRange', null);
+            if (!empty($dateRange)) {
+                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
+
+                if (!is_array($startDateEndDate)) {
+                    // use default 'yesterday'
+                    $startDateStr = 'yesterday';
+                    $endDateStr = 'yesterday';
+                } else {
+                    $startDateStr = $startDateEndDate[0];
+                    $endDateStr = $startDateEndDate[1];
+                }
+            } else {
+                // use user modified startDate, endDate
+                $startDateStr = $config->getParamValue('startDate', 'yesterday');
+                $endDateStr = $config->getParamValue('endDate', 'yesterday');
+            }
         }
 
         $query = [
-            'date-from' => $date->format(static::DATE_FORMAT),
-            'date-to' => $date->format(static::DATE_FORMAT),
+            'date-from' => $startDateStr,
+            'date-to' => $endDateStr,
             'limit' => '1000',
             'offset' => '1000',
             'group-by' => 'date,website,webpage,placement,order',
@@ -86,7 +109,7 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $this->logger->info('Start fetching report data');
         }
 
-        $data = $this->doGet($url);
+        $data = $this->doGet($url, $username, $password);
 
         if ($this->logger) {
             $this->logger->info('Finished fetching report data');
@@ -97,17 +120,35 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
         $this->fileStorageService->saveToCSVFile($filePath, $data, null);
     }
 
-    public function getAdvertisers()
+    /**
+     * @param $username
+     * @param $password
+     * @return string
+     * @throws BadResponseException
+     */
+    public function getAdvertisers($username, $password)
     {
-        return $this->doGet($this->getLiveApiUrl('advertisers'));
+        return $this->doGet($this->getLiveApiUrl('advertisers'), $username, $password);
     }
 
-    public function getAgencies()
+    /**
+     * @param $username
+     * @param $password
+     * @return string
+     * @throws BadResponseException
+     */
+    public function getAgencies($username, $password)
     {
-        return $this->doGet($this->getLiveApiUrl('agencies'));
+        return $this->doGet($this->getLiveApiUrl('agencies'), $username, $password);
     }
 
-    public function getSubPublishers()
+    /**
+     * @param $username
+     * @param $password
+     * @return string
+     * @throws BadResponseException
+     */
+    public function getSubPublishers($username, $password)
     {
         $query = [
             'name' => '',
@@ -122,10 +163,16 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $query
         );
 
-        return $this->doGet($url);
+        return $this->doGet($url, $username, $password);
     }
 
-    public function getUsers()
+    /**
+     * @param $username
+     * @param $password
+     * @return string
+     * @throws BadResponseException
+     */
+    public function getUsers($username, $password)
     {
         $query = [
             'name' => '',
@@ -140,10 +187,16 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $query
         );
 
-        return $this->doGet($url);
+        return $this->doGet($url, $username, $password);
     }
 
-    public function getSites()
+    /**
+     * @param $username
+     * @param $password
+     * @return string
+     * @throws BadResponseException
+     */
+    public function getSites($username, $password)
     {
         $query = [
             'count' => '',
@@ -156,10 +209,16 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $query
         );
 
-        return $this->doGet($url);
+        return $this->doGet($url, $username, $password);
     }
 
-    public function getPlacements()
+    /**
+     * @param $username
+     * @param $password
+     * @return string
+     * @throws BadResponseException
+     */
+    public function getPlacements($username, $password)
     {
         $query = [
             'count' => '',
@@ -172,15 +231,17 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $query
         );
 
-        return $this->doGet($url);
+        return $this->doGet($url, $username, $password);
     }
 
     /**
      * @param DateTime $date
+     * @param $username
+     * @param $password
      * @return string
      * @throws BadResponseException
      */
-    public function getReports(DateTime $date = null)
+    public function getReports(DateTime $date = null, $username, $password)
     {
         if (!$date) {
             $date = new DateTime('yesterday');
@@ -206,7 +267,7 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
             $this->logger->info('Start fetching report data');
         }
 
-        $data = $this->doGet($url);
+        $data = $this->doGet($url, $username, $password);
 
         if ($this->logger) {
             $this->logger->info('Finished fetching report data');
@@ -217,14 +278,17 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
 
     /**
      * @param string $url
-     * @throws BadResponseException
+     * @param $username
+     * @param $password
      * @return string
+     * @throws BadResponseException
      */
-    protected function doGet($url)
+    protected function doGet($url, $username, $password)
     {
-        $request = $this->curl->newRequest('get', $url)
-            ->auth($this->username, $this->password)
-        ;
+        /** @var Request $request */
+        $request = $this->curl
+            ->newRequest('get', $url)
+            ->auth($username, $password);
 
         $response = $request->send();
 
@@ -292,27 +356,5 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
     public function getCurl()
     {
         return $this->curl;
-    }
-
-    /**
-     * @param string $username
-     * @return $this
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
-
-        return $this;
-    }
-
-    /**
-     * @param string $password
-     * @return $this
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
     }
 }
