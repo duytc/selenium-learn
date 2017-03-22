@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Sovrn extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'sovrn';
+    const INTEGRATION_C_NAME = 'demand-partner-sovrn';
 
     /**
      * Sovrn constructor.

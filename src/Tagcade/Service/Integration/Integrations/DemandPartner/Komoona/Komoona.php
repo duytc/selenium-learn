@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Komoona extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'komoona';
+    const INTEGRATION_C_NAME = 'demand-partner-komoona';
 
     /**
      * Komoona constructor.

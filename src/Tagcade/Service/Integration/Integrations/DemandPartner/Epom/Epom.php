@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Epom extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'epom-market';
+    const INTEGRATION_C_NAME = 'demand-partner-epom-market';
 
     /**
      * Epom constructor.

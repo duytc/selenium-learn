@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class PubVentures extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'pub-ventures';
+    const INTEGRATION_C_NAME = 'demand-partner-pub-ventures';
 
     /**
      * PubVentures constructor.

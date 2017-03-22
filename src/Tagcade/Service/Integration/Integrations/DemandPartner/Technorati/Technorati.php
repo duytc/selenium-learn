@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Technorati extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'technorati';
+    const INTEGRATION_C_NAME = 'demand-partner-technorati';
 
     /**
      * Technorati constructor.

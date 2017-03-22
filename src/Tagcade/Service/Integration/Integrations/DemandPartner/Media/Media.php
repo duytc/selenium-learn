@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Media extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'media-net';
+    const INTEGRATION_C_NAME = 'demand-partner-media-net';
 
     /**
      * Media constructor.

@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Gamut extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'gamut';
+    const INTEGRATION_C_NAME = 'demand-partner-gamut';
 
     /**
      * Across33 constructor.

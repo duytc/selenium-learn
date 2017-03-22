@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Ads4Games extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'ads4games';
+    const INTEGRATION_C_NAME = 'demand-partner-ads4games';
 
     /**
      * Ads4Games constructor.
