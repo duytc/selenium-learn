@@ -12,7 +12,7 @@ use Tagcade\Service\Integration\IntegrationManagerInterface;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
-class GetPartnerReportWorker
+class ExecuteIntegrationJobWorker
 {
     /**
      * @var IntegrationManagerInterface
@@ -33,7 +33,7 @@ class GetPartnerReportWorker
      *
      * @param stdClass $params
      */
-    public function getPartnerReport(stdClass $params)
+    public function executeIntegration(stdClass $params)
     {
         /** @var ConfigInterface $config */
         $config = new Config($params->publisherId, $params->integrationCName, $params->dataSourceId, json_decode($params->params, true), json_decode($params->backFill, true));

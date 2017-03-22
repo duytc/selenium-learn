@@ -25,7 +25,7 @@ $tube = $container->getParameter('fetcher_worker_tube');
 $queue = $container->get("leezy.pheanstalk");
 // only tasks listed here are able to run
 $availableWorkers = [
-    $container->get('tagcade.worker.workers.get_partner_report_worker'),
+    $container->get('tagcade.worker.workers.execute_integration_job_worker'),
 ];
 
 $workerPool = new \Tagcade\Worker\Pool($availableWorkers);
