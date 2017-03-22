@@ -121,7 +121,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         /* create job payload. 'task' and 'params' keys are due to worker code base */
         $payload = new \stdClass();
-        $payload->task = 'getPartnerReport';
+        $payload->task = 'executeIntegration';
         $payload->params = $job;
 
         /** @var PheanstalkInterface $pheanstalk */

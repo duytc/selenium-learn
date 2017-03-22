@@ -1,5 +1,5 @@
 services:
-    tagcade.worker.workers.get_partner_report_worker:
-        class: Tagcade\Worker\Workers\GetPartnerReportWorker
+    tagcade.worker.workers.execute_integration_job_worker:
+        class: Tagcade\Worker\Workers\ExecuteIntegrationJobWorker
         arguments:
             - '@tagcade.service.integration.integration_manager'
