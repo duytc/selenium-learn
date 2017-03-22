@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class PulsePoint extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'pulse-point';
+    const INTEGRATION_C_NAME = 'demand-partner-pulse-point';
 
     /**
      * PulsePoint constructor.

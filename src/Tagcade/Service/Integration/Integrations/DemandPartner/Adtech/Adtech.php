@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Adtech extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'ad-tech';
+    const INTEGRATION_C_NAME = 'demand-partner-ad-tech';
 
     /**
      * Adtech constructor.

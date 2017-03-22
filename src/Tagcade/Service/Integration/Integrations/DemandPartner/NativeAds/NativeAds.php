@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class NativeAds extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'native-ads';
+    const INTEGRATION_C_NAME = 'demand-partner-native-ads';
 
     /**
      * NativeAds constructor.

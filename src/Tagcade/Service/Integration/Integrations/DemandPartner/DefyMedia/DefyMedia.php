@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class DefyMedia extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'defy-media';
+    const INTEGRATION_C_NAME = 'demand-partner-defy-media';
 
     /**
      * DefyMedia constructor.

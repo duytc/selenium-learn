@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Across33 extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = '33across';
+    const INTEGRATION_C_NAME = 'demand-partner-33across';
 
     /**
      * Across33 constructor.

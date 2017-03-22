@@ -13,7 +13,7 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
 class AdMeta extends IntegrationAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'admeta';
+    const INTEGRATION_C_NAME = 'demand-partner-admeta';
     const BASE_API_URL = 'https://tango.admeta.com/api';
     const DATE_FORMAT = 'Y-m-d';
 

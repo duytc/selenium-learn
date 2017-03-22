@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class CpmBase extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'cpm-base';
+    const INTEGRATION_C_NAME = 'demand-partner-cpm-base';
 
     /**
      * CpmBase constructor.

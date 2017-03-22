@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class YellowHammer extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'yellow-hammer';
+    const INTEGRATION_C_NAME = 'demand-partner-yellow-hammer';
 
     /**
      * YellowHammer constructor.

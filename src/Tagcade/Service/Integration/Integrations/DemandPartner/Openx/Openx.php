@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Openx extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'openx';
+    const INTEGRATION_C_NAME = 'demand-partner-openx';
 
     /**
      * Openx constructor.

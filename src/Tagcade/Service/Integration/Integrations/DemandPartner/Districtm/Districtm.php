@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Districtm extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'districtm';
+    const INTEGRATION_C_NAME = 'demand-partner-districtm';
 
     /**
      * Districtm constructor.

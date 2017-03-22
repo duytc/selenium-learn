@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Conversant extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'conversant';
+    const INTEGRATION_C_NAME = 'demand-partner-conversant';
 
     /**
      * Conversant constructor.
