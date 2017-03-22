@@ -88,16 +88,23 @@ class DeliveryReportPage extends AbstractPage
                 /*
                  * if no data then continue
                  */
-                $exportExcelButton = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_exportButton'));
+                $htmlTable = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_ReportJSGrid_Table'))->getAttribute("innerHTML");
             } catch (NoSuchElementException $noSuchElementException) {
                 $this->driver->navigate()->back();
                 continue;
             }
 
-            /*
-             * download file
-             */
-            $this->downloadFileHelper->downloadThenWaitUntilComplete($exportExcelButton, $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig()));
+            // save $table inside temporary file that will be deleted later
+            $tmpFile = tempnam(sys_get_temp_dir(), 'html');
+            file_put_contents($tmpFile, $htmlTable);
+
+            $objReader = \PHPExcel_IOFactory::createReader('HTML');
+            $objPHPExcel = $objReader->load($tmpFile);
+
+            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+            $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $objWriter->save(sprintf('%s/%s-%s-%s(%d).xlsx', $directoryStoreDownloadFile, 'gamut', $startDate->format('Y-m-d'), $endDate->format('Y-m-d'), $i + 1));
+
 
             $this->sleep(1);
             $this->driver->navigate()->back();
