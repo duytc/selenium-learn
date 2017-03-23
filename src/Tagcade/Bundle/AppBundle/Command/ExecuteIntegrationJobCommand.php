@@ -50,5 +50,7 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
         $integration = $fetcherManager->getIntegration($config);
 
         $integration->run($config);
+
+        return 0;
     }
 }
