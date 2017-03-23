@@ -7,6 +7,7 @@ use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
+use PHPExcel_IOFactory;
 use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 
@@ -98,10 +99,10 @@ class DeliveryReportPage extends AbstractPage
             $tmpFile = tempnam(sys_get_temp_dir(), 'html');
             file_put_contents($tmpFile, $htmlTable);
 
-            $objReader = \PHPExcel_IOFactory::createReader('HTML');
+            $objReader = PHPExcel_IOFactory::createReader('HTML');
             $objPHPExcel = $objReader->load($tmpFile);
 
-            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
             $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
             $objWriter->save(sprintf('%s/%s-%s-%s(%d).xlsx', $directoryStoreDownloadFile, 'gamut', $startDate->format('Y-m-d'), $endDate->format('Y-m-d'), $i + 1));
 
