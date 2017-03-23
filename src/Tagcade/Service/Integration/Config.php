@@ -4,6 +4,7 @@ namespace Tagcade\Service\Integration;
 
 class Config implements ConfigInterface
 {
+    const PARAM_VALUE_DYNAMIC_DATE_RANGE_YESTERDAY = 'yesterday';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS = 'last 2 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_3_DAYS = 'last 3 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_4_DAYS = 'last 4 days';
@@ -12,6 +13,7 @@ class Config implements ConfigInterface
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_WEEK = 'last week';
 
     public static $SUPPORTED_PARAM_VALUE_DYNAMIC_DATE_RANGES = [
+        self::PARAM_VALUE_DYNAMIC_DATE_RANGE_YESTERDAY => '-1 day',
         self::PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS => '-2 day',
         self::PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_3_DAYS => '-3 day',
         self::PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_4_DAYS => '-4 day',
