@@ -15,8 +15,6 @@ class Config implements ConfigInterface
     const PARAM_TYPE_SECURE = 'secure'; // e.g password, token, key, ...
     const PARAM_TYPE_REGEX = 'regex'; // e.g pattern, ...
 
-    const SUPPORTED_PARAM_VALUE_REGEX = '^(?!(\/.*))(?!(.*\/[gmixsuXUAJ]*$))';
-
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS = 'last 2 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_3_DAYS = 'last 3 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_4_DAYS = 'last 4 days';
@@ -163,10 +161,15 @@ class Config implements ConfigInterface
 
         $value = $paramArr[self::PARAM_KEY_VALUE];
 
-        // decode value (base64) if type is 'secure'
         $type = $this->getParamType($paramKey, null);
 
-        return ($type === self::PARAM_TYPE_SECURE) ? base64_decode($value) : $value;
+        // decode value (base64) if type is 'secure'
+        $value = ($type === self::PARAM_TYPE_SECURE) ? base64_decode($value) : $value;
+
+        // build full regex if type is 'regex'
+        $value = ($type === self::PARAM_TYPE_REGEX) ? sprintf('/%s/', $value) : $value;
+
+        return $value;
     }
 
     /**
