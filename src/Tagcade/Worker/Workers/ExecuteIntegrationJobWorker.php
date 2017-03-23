@@ -6,26 +6,36 @@ namespace Tagcade\Worker\Workers;
 // responsible for doing the background tasks assigned by the manager
 // all public methods on the class represent tasks that can be done
 
+use Monolog\Logger;
 use stdClass;
-use Tagcade\Service\Integration\Config;
-use Tagcade\Service\Integration\IntegrationManagerInterface;
-use Tagcade\Service\Integration\ConfigInterface;
-use Tagcade\Service\Integration\Integrations\IntegrationInterface;
+use Symfony\Component\Process\Process;
 
 class ExecuteIntegrationJobWorker
 {
+    const PHP_BIN = 'php ../app/console';
+    const RUN_COMMAND = 'tc:unified-report-fetcher:execute:integration:job';
+    const TEM_FILE_NAME_PREFIX = 'integration_config_';
+
     /**
-     * @var IntegrationManagerInterface
+     * @var Logger $logger
      */
-    protected $fetcherManager;
+    private $logger;
+
+    private $logDir;
+
+    private $tempFileDir;
 
     /**
      * GetPartnerReportWorker constructor.
-     * @param IntegrationManagerInterface $fetcherManager
+     * @param Logger $logger
+     * @param $logDir
+     * @param $tempFileDir
      */
-    public function __construct(IntegrationManagerInterface $fetcherManager)
+    public function __construct(Logger $logger, $logDir, $tempFileDir)
     {
-        $this->fetcherManager = $fetcherManager;
+        $this->logger = $logger;
+        $this->logDir = $logDir;
+        $this->tempFileDir = $tempFileDir;
     }
 
     /**
@@ -35,12 +45,38 @@ class ExecuteIntegrationJobWorker
      */
     public function executeIntegration(stdClass $params)
     {
-        /** @var ConfigInterface $config */
-        $config = new Config($params->publisherId, $params->integrationCName, $params->dataSourceId, json_decode($params->params, true), json_decode($params->backFill, true));
+        $executionRunId = strtotime("now");
 
-        /** @var IntegrationInterface $integration */
-        $integration = $this->fetcherManager->getIntegration($config);
+        if (!is_dir($this->logDir)) {
+            mkdir($this->logDir);
+        }
 
-        $integration->run($config);
+        if (!is_dir($this->tempFileDir)) {
+            mkdir($this->tempFileDir, 0777, true);
+        }
+
+        $logFile = sprintf('%s/run_log_%d.log', $this->logDir, $executionRunId);
+        $tempFileName = sprintf('%s%s.json', self::TEM_FILE_NAME_PREFIX, $executionRunId);
+        $integrationConfigFile = sprintf('%s/%s', $this->tempFileDir, $tempFileName);
+
+        $fp = fopen($logFile, 'a');
+        $fp1 = fopen($integrationConfigFile, 'a');
+        fwrite($fp1, json_encode($params));
+
+        $process = new Process(sprintf('%s %s %s', self::PHP_BIN, self::RUN_COMMAND, $tempFileName));
+
+        try {
+            $process->mustRun(
+                function ($type, $buffer) use (&$fp) {
+                    fwrite($fp, $buffer);
+                }
+            );
+        } catch (\Exception $e) {
+            $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
+        } finally {
+            fclose($fp);
+            fclose($fp1);
+            unlink($integrationConfigFile);
+        }
     }
 }

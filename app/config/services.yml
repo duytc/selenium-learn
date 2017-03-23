@@ -2,4 +2,6 @@ services:
     tagcade.worker.workers.execute_integration_job_worker:
         class: Tagcade\Worker\Workers\ExecuteIntegrationJobWorker
         arguments:
-            - '@tagcade.service.integration.integration_manager'
+            - '@monolog.logger'
+            - '%integration_log_file_dir%'
+            - '%integration_temp_file_dir%'
