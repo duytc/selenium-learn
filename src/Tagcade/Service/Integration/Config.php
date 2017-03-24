@@ -4,6 +4,17 @@ namespace Tagcade\Service\Integration;
 
 class Config implements ConfigInterface
 {
+    /* all define keys-values of params of DataSourceIntegration */
+    const PARAM_KEY_KEY = 'key';
+    const PARAM_KEY_VALUE = 'value';
+    const PARAM_KEY_TYPE = 'type';
+
+    const PARAM_TYPE_PLAIN_TEXT = 'plainText'; // e.g username, url, ...
+    const PARAM_TYPE_DATE = 'date'; // e.g startDate, ...
+    const PARAM_TYPE_DYNAMIC_DATE_RANGE = 'dynamicDateRange'; // e.g dateRange, ...
+    const PARAM_TYPE_SECURE = 'secure'; // e.g password, token, key, ...
+    const PARAM_TYPE_REGEX = 'regex'; // e.g pattern, ...
+
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_YESTERDAY = 'yesterday';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS = 'last 2 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_3_DAYS = 'last 3 days';
@@ -12,6 +23,21 @@ class Config implements ConfigInterface
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_6_DAYS = 'last 6 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_WEEK = 'last week';
 
+    /* all define keys-values of backfill feature of DataSource */
+    const DATA_SOURCE_BACKFILL = 'backFill';
+    const DATA_SOURCE_BACKFILL_START_DATE = 'backFillStartDate';
+    const DATA_SOURCE_BACKFILL_EXECUTED = 'backFillExecuted';
+
+    /* supported params types */
+    public static $SUPPORTED_PARAM_TYPES = [
+        self::PARAM_TYPE_PLAIN_TEXT,
+        self::PARAM_TYPE_DATE,
+        self::PARAM_TYPE_DYNAMIC_DATE_RANGE,
+        self::PARAM_TYPE_SECURE,
+        self::PARAM_TYPE_REGEX
+    ];
+
+    /* supported dynamic date range values */
     public static $SUPPORTED_PARAM_VALUE_DYNAMIC_DATE_RANGES = [
         self::PARAM_VALUE_DYNAMIC_DATE_RANGE_YESTERDAY => '-1 day',
         self::PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS => '-2 day',
@@ -113,11 +139,11 @@ class Config implements ConfigInterface
         }
 
         foreach ($this->params as $param) {
-            if (!is_array($param) || !array_key_exists('key', $param)) {
+            if (!is_array($param) || !array_key_exists(self::PARAM_KEY_KEY, $param)) {
                 continue;
             }
 
-            if ($param['key'] === $paramKey) {
+            if ($param[self::PARAM_KEY_KEY] === $paramKey) {
                 return $param;
             }
         }
@@ -131,16 +157,21 @@ class Config implements ConfigInterface
     public function getParamValue($paramKey, $defaultValue)
     {
         $paramArr = $this->getParamArr($paramKey);
-        if (!is_array($paramArr) || !array_key_exists('value', $paramArr)) {
+        if (!is_array($paramArr) || !array_key_exists(self::PARAM_KEY_VALUE, $paramArr)) {
             return $defaultValue;
         }
 
-        $value = $paramArr['value'];
+        $value = $paramArr[self::PARAM_KEY_VALUE];
 
-        // decode value (base64) if type is 'secure'
         $type = $this->getParamType($paramKey, null);
 
-        return ($type === 'secure') ? base64_decode($value) : $value;
+        // decode value (base64) if type is 'secure'
+        $value = ($type === self::PARAM_TYPE_SECURE) ? base64_decode($value) : $value;
+
+        // build full regex if type is 'regex'. Default we support flag 'i' for case insensitive
+        $value = ($type === self::PARAM_TYPE_REGEX) ? sprintf('/%s/i', $value) : $value;
+
+        return $value;
     }
 
     /**
@@ -149,11 +180,11 @@ class Config implements ConfigInterface
     public function getParamType($paramKey, $defaultValue)
     {
         $paramArr = $this->getParamArr($paramKey);
-        if (!is_array($paramArr) || !array_key_exists('type', $paramArr)) {
+        if (!is_array($paramArr) || !array_key_exists(self::PARAM_KEY_TYPE, $paramArr)) {
             return $defaultValue;
         }
 
-        return $paramArr['type'];
+        return $paramArr[self::PARAM_KEY_TYPE];
     }
 
     /**
@@ -185,12 +216,15 @@ class Config implements ConfigInterface
      */
     public function isNeedRunBackFill()
     {
-        if (!is_array($this->backFill) || !array_key_exists('backFill', $this->backFill) || !array_key_exists('backFillExecuted', $this->backFill)) {
+        if (!is_array($this->backFill)
+            || !array_key_exists(self::DATA_SOURCE_BACKFILL, $this->backFill)
+            || !array_key_exists(self::DATA_SOURCE_BACKFILL_EXECUTED, $this->backFill)
+        ) {
             return false;
         }
 
-        $isBackFill = (bool)$this->backFill['backFill'];
-        $isBackFillExecuted = (bool)$this->backFill['backFillExecuted'];
+        $isBackFill = (bool)$this->backFill[self::DATA_SOURCE_BACKFILL];
+        $isBackFillExecuted = (bool)$this->backFill[self::DATA_SOURCE_BACKFILL_EXECUTED];
 
         return $isBackFill && !$isBackFillExecuted;
     }
@@ -200,11 +234,11 @@ class Config implements ConfigInterface
      */
     public function getStartDateFromBackFill()
     {
-        if (!is_array($this->backFill) || !array_key_exists('backFillStartDate', $this->backFill)) {
+        if (!is_array($this->backFill) || !array_key_exists(self::DATA_SOURCE_BACKFILL_START_DATE, $this->backFill)) {
             return false;
         }
 
-        $backFillStartDateString = $this->backFill['backFillStartDate'];
+        $backFillStartDateString = $this->backFill[self::DATA_SOURCE_BACKFILL_START_DATE];
 
         try {
             $backFillStartDate = date_create($backFillStartDateString);
