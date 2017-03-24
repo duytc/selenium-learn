@@ -4,4 +4,7 @@ services:
         arguments:
             - '@monolog.logger'
             - '%integration_log_file_dir%'
-            - '%integration_temp_file_dir%'
+            - %integration_temp_file_dir%
+            - %kernel.root_dir%
+            - %kernel.environment%
+            - %kernel.debug%

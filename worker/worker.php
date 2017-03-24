@@ -1,6 +1,7 @@
 <?php
 // exit successfully after this time, supervisord will then restart
 // this is to prevent any memory leaks from running PHP for a long time
+use Monolog\Handler\StreamHandler;
 const WORKER_TIME_LIMIT = 10800; // 3 hours
 const RESERVE_TIMEOUT = 3600;
 // Set the start time
@@ -21,6 +22,10 @@ $kernel->boot();
 
 /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
 $container = $kernel->getContainer();
+
+$logger = $container->get('logger');
+$logger->pushHandler(new StreamHandler("php://stderr", \Monolog\Logger::DEBUG));
+
 $tube = $container->getParameter('fetcher_worker_tube');
 $queue = $container->get("leezy.pheanstalk");
 // only tasks listed here are able to run

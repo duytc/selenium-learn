@@ -12,7 +12,6 @@ use Symfony\Component\Process\Process;
 
 class ExecuteIntegrationJobWorker
 {
-    const PHP_BIN = 'php ../app/console';
     const RUN_COMMAND = 'tc:unified-report-fetcher:execute:integration:job';
     const TEM_FILE_NAME_PREFIX = 'integration_config_';
 
@@ -25,17 +24,29 @@ class ExecuteIntegrationJobWorker
 
     private $tempFileDir;
 
+    private $pathToSymfonyConsole;
+
+    private $environment;
+
+    private $debug;
+
     /**
      * GetPartnerReportWorker constructor.
      * @param Logger $logger
      * @param $logDir
      * @param $tempFileDir
+     * @param $pathToSymfonyConsole
+     * @param $environment
+     * @param $debug
      */
-    public function __construct(Logger $logger, $logDir, $tempFileDir)
+    public function __construct(Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug)
     {
         $this->logger = $logger;
         $this->logDir = $logDir;
         $this->tempFileDir = $tempFileDir;
+        $this->pathToSymfonyConsole = $pathToSymfonyConsole;
+        $this->environment = $environment;
+        $this->debug = $debug;
     }
 
     /**
@@ -48,7 +59,7 @@ class ExecuteIntegrationJobWorker
         $executionRunId = strtotime("now");
 
         if (!is_dir($this->logDir)) {
-            mkdir($this->logDir);
+            mkdir($this->logDir, 0777, true);
         }
 
         if (!is_dir($this->tempFileDir)) {
@@ -63,7 +74,7 @@ class ExecuteIntegrationJobWorker
         $fp1 = fopen($integrationConfigFile, 'a');
         fwrite($fp1, json_encode($params));
 
-        $process = new Process(sprintf('%s %s %s', self::PHP_BIN, self::RUN_COMMAND, $tempFileName));
+        $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $tempFileName));
 
         try {
             $process->mustRun(
@@ -78,5 +89,16 @@ class ExecuteIntegrationJobWorker
             fclose($fp1);
             unlink($integrationConfigFile);
         }
+    }
+
+    protected function getAppConsoleCommand()
+    {
+        $command = sprintf('php %s/console --env=%s', $this->pathToSymfonyConsole, $this->environment);
+
+        if (!$this->debug) {
+            $command .= ' --no-debug';
+        }
+
+        return $command;
     }
 }
