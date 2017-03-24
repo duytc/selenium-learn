@@ -13,5 +13,5 @@ interface IntegrationActivatorInterface
     /**
      * @inheritdoc
      */
-    public function createExecutionJobForDataSource($dataSourceId, array $params);
+    public function createExecutionJobForDataSource($dataSourceId, $params);
 }
