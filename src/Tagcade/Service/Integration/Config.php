@@ -166,8 +166,8 @@ class Config implements ConfigInterface
         // decode value (base64) if type is 'secure'
         $value = ($type === self::PARAM_TYPE_SECURE) ? base64_decode($value) : $value;
 
-        // build full regex if type is 'regex'
-        $value = ($type === self::PARAM_TYPE_REGEX) ? sprintf('/%s/', $value) : $value;
+        // build full regex if type is 'regex'. Default we support flag 'i' for case insensitive
+        $value = ($type === self::PARAM_TYPE_REGEX) ? sprintf('/%s/i', $value) : $value;
 
         return $value;
     }
