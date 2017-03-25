@@ -18,7 +18,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('tc:unified-report-fetcher:activator:run:datasource')
+            ->setName('ur:fetcher:integration-activator-run:datasource')
             ->addArgument('dataSourceId', InputOption::VALUE_REQUIRED, 'Integration name')
             ->addOption('parameters', 'p', InputOption::VALUE_OPTIONAL,
                 'Integration parameters (optional) as name:type, allow multiple parameters separated by comma. 
@@ -41,7 +41,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
 
         // create lock and if other process is running
         // this make sure only one integration activator process is running at a time
-        $lock = new LockHandler('ur:fetcher:integration-activator-run');
+        $lock = new LockHandler($this->getName());
 
         if (!$lock->lock()) {
             $this->logger->info(sprintf('%s: The command is already running in another process.', $this->getName()));
