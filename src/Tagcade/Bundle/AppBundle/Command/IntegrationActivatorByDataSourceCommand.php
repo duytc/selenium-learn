@@ -98,7 +98,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
             return [
                 'key' => $paramNameAndType[0],
                 'type' => 'plainText',
-                'value' => $paramNameAndType[1]
+                'value' => count($paramNameAndType[1]) < 2 ? null : $paramNameAndType[1]
             ];
         }, $params);
 
