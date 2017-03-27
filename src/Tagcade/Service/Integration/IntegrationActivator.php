@@ -93,29 +93,8 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     public function createExecutionJobForDataSource($dataSourceId, $params = null)
     {
-        /* get all dataSource-integrations that to be executed, from ur api */
-        /*
-         * for test:
-         * $dataSourceIntegrations = [
-         *  [
-         *      'dataSource' => [
-         *          'id' => 1
-         *      ],
-         *      'integration' => [
-         *          'id' => 2,
-         *          'canonicalName' => 'rubicon',
-         *          'params' => [
-         *               'username',
-         *               'password'
-         *          ]
-         *      ],
-         *      'params' => [
-         *          'username' => 'admin',
-         *          'password' => '1A2B3C4D5E6F'
-         *      ]
-         *  ]
-         * ];
-         */
+        /* get all dataSource-integration-schedule that to be executed, from ur api */
+        /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
         $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
         if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
             return true;
@@ -125,15 +104,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
             return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
         });
 
-        if (is_array($dataSourceIntegrationSchedule)){
+        if (is_array($dataSourceIntegrationSchedule)) {
             $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedule[0];
         }
 
         if ($dataSourceIntegrationSchedule) {
-            if (is_array($params)){
-                /**
-                 * Overwrite custom params
-                 */
+            if (is_array($params)) {
+                /* Overwrite by custom params */
                 $dataSourceIntegrationSchedule['dataSourceIntegration']['originalParams'] = $params;
             }
 
