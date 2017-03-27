@@ -12,8 +12,8 @@ interface IntegrationActivatorInterface
 
     /**
      * @param int $dataSourceId
-     * @param null|array $params
+     * @param null|array $customParams
      * @return bool
      */
-    public function createExecutionJobForDataSource($dataSourceId, $params = null);
+    public function createExecutionJobForDataSource($dataSourceId, $customParams = null);
 }

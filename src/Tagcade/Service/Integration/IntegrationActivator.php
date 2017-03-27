@@ -91,7 +91,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * @inheritdoc
      */
-    public function createExecutionJobForDataSource($dataSourceId, $params = null)
+    public function createExecutionJobForDataSource($dataSourceId, $customParams = null)
     {
         /* get all dataSource-integration-schedule that to be executed, from ur api */
         /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
@@ -109,9 +109,9 @@ class IntegrationActivator implements IntegrationActivatorInterface
         }
 
         if ($dataSourceIntegrationSchedule) {
-            if (is_array($params)) {
+            if (is_array($customParams)) {
                 /* Overwrite by custom params */
-                $dataSourceIntegrationSchedule['dataSourceIntegration']['originalParams'] = $params;
+                $dataSourceIntegrationSchedule['dataSourceIntegration']['originalParams'] = $customParams;
             }
 
             /* create new job for execution */
