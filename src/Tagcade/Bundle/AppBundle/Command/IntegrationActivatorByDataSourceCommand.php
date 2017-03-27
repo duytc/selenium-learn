@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\LockHandler;
+use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
 class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
@@ -101,7 +102,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
 
             return [
                 'key' => $paramNameAndType[0],
-                'type' => 'plainText',
+                'type' => Config::PARAM_TYPE_PLAIN_TEXT,
                 'value' => count($paramNameAndType[1]) < 2 ? null : $paramNameAndType[1]
             ];
         }, $params);
