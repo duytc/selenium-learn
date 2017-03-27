@@ -91,7 +91,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * @inheritdoc
      */
-    public function createExecutionJobForDataSource($dataSourceId, $params)
+    public function createExecutionJobForDataSource($dataSourceId, $params = null)
     {
         /* get all dataSource-integrations that to be executed, from ur api */
         /*
