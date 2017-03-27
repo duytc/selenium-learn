@@ -21,6 +21,14 @@ interface TagcadeRestClientInterface
     public function getDataSourceIntegrationSchedulesToBeExecuted();
 
     /**
+     * get all integrations to be executed
+     *
+     * @param $dataSourceId
+     * @return mixed
+     */
+    public function getDataSourceIntegrationSchedulesByDataSource($dataSourceId);
+
+    /**
      * update last execution time for integration by canonicalName
      *
      * @param string $dataSourceIntegrationScheduleId

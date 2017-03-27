@@ -24,7 +24,11 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
                 'Integration parameters (optional) as name:type, allow multiple parameters separated by comma. 
                 Supported types are: plainText (default), date (Y-m-d), dynamicDateRange (last 1,2,3... days) 
                 and secure (will be encrypted in database and not show value in ui). 
-                e.g. -p "username,password:secure,startDate:date"');
+                e.g. -p "username,password:secure,startDate:date"')
+            ->addOption('force', 'f', InputOption::VALUE_NONE,
+                'Run update integration without checking schedule')
+            ->addOption('update-next-execute', 'u', InputOption::VALUE_NONE,
+                'Not update schedule of integration');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -52,7 +56,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         /** @var IntegrationActivatorInterface $activatorService */
         $activatorService = $this->getContainer()->get('tagcade.service.integration_activator');
 
-        $result = $activatorService->createExecutionJobForDataSource($dataSourceId, $params);
+        $result = $activatorService->createExecutionJobForDataSource($dataSourceId, $params, $input->getOption('force'), $input->getOption('update-next-execute'));
 
         if (!$result) {
             $this->logger->error('Complete running integration activator with error');

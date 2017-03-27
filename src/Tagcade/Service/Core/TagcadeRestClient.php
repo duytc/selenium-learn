@@ -11,19 +11,28 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
     /** @var string */
     private $username;
+
     /** @var array */
     private $password;
+
     /** @var CurlRestClient */
     private $curl;
 
     /** @var string */
     private $getTokenUrl;
+
     /** @var string */
     private $getListPublisherUrl;
+
     /** @var string */
     private $getListIntegrationsToBeExecutedUrl;
+
+    /** @var string */
+    private $getListIntegrationsByDataSourceIdUrl;
+
     /** @var string */
     private $updateNextExecuteAtForDataSourceIntegrationScheduleUrl;
+
     /** @var string */
     private $updateBackFillExecutedForDataSourceIntegrationScheduleUrl;
 
@@ -37,6 +46,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $getTokenUrl,
                          $getListPublisherUrl,
                          $getListIntegrationsToBeExecutedUrl,
+                         $getListIntegrationsByDataSourceIdUrl,
                          $updateNextExecuteAtForDataSourceIntegrationScheduleUrl,
                          $updateBackFillExecutedForDataSourceIntegrationScheduleUrl
     )
@@ -48,6 +58,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->getTokenUrl = $getTokenUrl;
         $this->getListPublisherUrl = $getListPublisherUrl;
         $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
+        $this->getListIntegrationsByDataSourceIdUrl = $getListIntegrationsByDataSourceIdUrl;
         $this->updateNextExecuteAtForDataSourceIntegrationScheduleUrl = $updateNextExecuteAtForDataSourceIntegrationScheduleUrl;
         $this->updateBackFillExecutedForDataSourceIntegrationScheduleUrl = $updateBackFillExecutedForDataSourceIntegrationScheduleUrl;
     }
@@ -136,6 +147,57 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $data = [];
         $dataSourceIntegrations = $this->curl->executeQuery(
             $this->getListIntegrationsToBeExecutedUrl,
+            'GET',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($dataSourceIntegrations, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->error(sprintf('Not found Integration to be executed'));
+            return false;
+        }
+
+        /* filter invalid integrations */
+        $result = array_filter($result, function ($dataSourceIntegration) {
+            if (!is_array($dataSourceIntegration)
+                || !array_key_exists('id', $dataSourceIntegration)
+                || !array_key_exists('dataSourceIntegration', $dataSourceIntegration)
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationSchedulesByDataSource($dataSourceId)
+    {
+        $this->logger->info(sprintf('Getting all Integrations to be executed'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* get from ur api */
+        $data = [];
+        $dataSourceIntegrations = $this->curl->executeQuery(
+            str_replace('{dataSourceId}', $dataSourceId, $this->getListIntegrationsByDataSourceIdUrl),
             'GET',
             $header,
             $data

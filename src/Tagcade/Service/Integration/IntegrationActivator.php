@@ -91,18 +91,27 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * @inheritdoc
      */
-    public function createExecutionJobForDataSource($dataSourceId, $customParams = null)
+    public function createExecutionJobForDataSource($dataSourceId, $customParams = null, $isForce = false, $isScheduleUpdated = false)
     {
-        /* get all dataSource-integration-schedule that to be executed, from ur api */
-        /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
-        $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
-        if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
-            return true;
+        $dataSourceIntegrationSchedule = null;
+        if ($isForce){
+            /* get all dataSource-integration-schedule without checking schedule, from ur api */
+            /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
+            $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesByDataSource($dataSourceId);
+            if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
+                return true;
+            }
+        } else {
+            /* get all dataSource-integration-schedule that to be executed, from ur api */
+            /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
+            $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
+            if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
+                return true;
+            }
+            $dataSourceIntegrationSchedule = array_filter($dataSourceIntegrationSchedules, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
+                return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
+            });
         }
-
-        $dataSourceIntegrationSchedule = array_filter($dataSourceIntegrationSchedules, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
-            return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
-        });
 
         if (is_array($dataSourceIntegrationSchedule)) {
             $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedule[0];
@@ -117,7 +126,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
             /* create new job for execution */
             $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule);
 
-            if ($createJobResult) {
+            if ($createJobResult && $isScheduleUpdated) {
                 /* update next execution at */
                 $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
 
