@@ -18,7 +18,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('ur:fetcher:integration-activator-run:datasource')
+            ->setName('tc:unified-report-fetcher:activator:run:datasource')
             ->addArgument('dataSourceId', InputOption::VALUE_REQUIRED, 'Integration name')
             ->addOption('parameters', 'p', InputOption::VALUE_OPTIONAL,
                 'Integration parameters (optional) as name:type, allow multiple parameters separated by comma. 
