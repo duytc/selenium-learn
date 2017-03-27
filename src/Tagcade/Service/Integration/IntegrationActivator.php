@@ -93,7 +93,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     public function createExecutionJobForDataSource($dataSourceId, $customParams = null, $isForce = false, $isScheduleUpdated = false)
     {
-        $dataSourceIntegrationSchedule = null;
+        $dataSourceIntegrationSchedules = null;
         if ($isForce){
             /* get all dataSource-integration-schedule without checking schedule, from ur api */
             /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
@@ -108,13 +108,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
             if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
                 return true;
             }
-            $dataSourceIntegrationSchedule = array_filter($dataSourceIntegrationSchedules, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
+            $dataSourceIntegrationSchedules = array_filter($dataSourceIntegrationSchedules, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
                 return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
             });
         }
 
-        if (is_array($dataSourceIntegrationSchedule)) {
-            $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedule[0];
+        if (is_array($dataSourceIntegrationSchedules)) {
+            $dataSourceIntegrationSchedule = array_values($dataSourceIntegrationSchedules)[0];
         }
 
         if ($dataSourceIntegrationSchedule) {
