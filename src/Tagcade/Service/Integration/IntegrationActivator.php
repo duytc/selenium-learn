@@ -108,32 +108,35 @@ class IntegrationActivator implements IntegrationActivatorInterface
             if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
                 return true;
             }
+
+            // filter by data source id
             $dataSourceIntegrationSchedules = array_filter($dataSourceIntegrationSchedules, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
                 return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
             });
+
+            if (count($dataSourceIntegrationSchedules) < 1) {
+                return true;
+            }
         }
 
-        if (is_array($dataSourceIntegrationSchedules)) {
-            $dataSourceIntegrationSchedule = array_values($dataSourceIntegrationSchedules)[0];
+        // only run one of schedules
+        $dataSourceIntegrationSchedule = array_values($dataSourceIntegrationSchedules)[0];
+
+        if (is_array($customParams)) {
+            /* Overwrite by custom params */
+            $dataSourceIntegrationSchedule['dataSourceIntegration']['originalParams'] = $customParams;
         }
 
-        if ($dataSourceIntegrationSchedule) {
-            if (is_array($customParams)) {
-                /* Overwrite by custom params */
-                $dataSourceIntegrationSchedule['dataSourceIntegration']['originalParams'] = $customParams;
-            }
+        /* create new job for execution */
+        $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule);
 
-            /* create new job for execution */
-            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule);
+        if ($createJobResult && $isScheduleUpdated) {
+            /* update next execution at */
+            $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
 
-            if ($createJobResult && $isScheduleUpdated) {
-                /* update next execution at */
-                $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
-
-                /* update backFill Executed if need */
-                $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedule['dataSourceIntegration'];
-                $this->updateBackFillExecuted($dataSourceIntegrationSchedule);
-            }
+            /* update backFill Executed if need */
+            $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedule['dataSourceIntegration'];
+            $this->updateBackFillExecuted($dataSourceIntegrationSchedule);
         }
 
         return true;
