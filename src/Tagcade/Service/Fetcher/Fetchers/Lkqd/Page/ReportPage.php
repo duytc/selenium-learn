@@ -9,6 +9,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\ReportSourceSelectWidget;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\ReportTypeSelectWidget;
+use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\RunReportWidget;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 
 class ReportPage extends AbstractPage
@@ -23,6 +24,10 @@ class ReportPage extends AbstractPage
         $this->selectReportSource();
         $this->selectReportType();
         $this->selectDateRange($startDate, $endDate);
+
+        $runReportElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]'));
+        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]')));
+        $runReportElement->click();
 
         /** RemoveWebDriver $downloadElement */
         $downloadElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "download-button")]'));
@@ -43,15 +48,15 @@ class ReportPage extends AbstractPage
 
     protected function selectReportType()
     {
-        $dateWidget = new ReportTypeSelectWidget($this->driver, $this->logger);
-        $dateWidget->setReportType(self::DAILY_REPORT_INDEX);
+        $reportTypeWidget = new ReportTypeSelectWidget($this->driver, $this->logger);
+        $reportTypeWidget->setReportType(self::DAILY_REPORT_INDEX);
         return $this;
     }
 
     protected function selectReportSource()
     {
-        $dateWidget = new ReportSourceSelectWidget($this->driver, $this->logger);
-        $dateWidget->setReportSource(self::SUPPLY_SOURCE_INDEX);
+        $reportSourceWidget = new ReportSourceSelectWidget($this->driver, $this->logger);
+        $reportSourceWidget->setReportSource(self::SUPPLY_SOURCE_INDEX);
         return $this;
     }
 
