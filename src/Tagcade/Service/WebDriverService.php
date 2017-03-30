@@ -85,6 +85,14 @@ class WebDriverService implements WebDriverServiceInterface
                 // use user modified startDate, endDate
                 $startDateStr = $config->getParamValue('startDate', 'yesterday');
                 $endDateStr = $config->getParamValue('endDate', 'yesterday');
+
+                if (empty($startDateStr)) {
+                    $startDateStr = 'yesterday';
+                }
+
+                if (empty($endDateStr)) {
+                    $endDateStr = 'yesterday';
+                }
             }
         }
 
