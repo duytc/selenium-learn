@@ -22,6 +22,10 @@ class DeliveryReportPage extends AbstractPage
 
         $this->selectDateRange($startDate, $endDate);
 
+        $this->sleep(2);
+
+        $this->driver->findElement(WebDriverBy::id('ember1214'))->click();
+
         $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::className('ember1470')));
 
         $downloadElement = $this->driver->findElement(WebDriverBy::id('ember1215'));
@@ -36,7 +40,7 @@ class DeliveryReportPage extends AbstractPage
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
         $now = new \DateTime();
-        if ($now === $startDate || $now === $endDate) {
+        if ($now->format('Ymd') === $startDate->format('Ymd') || $now->format('Ymd') === $endDate->format('Ymd')) {
             throw new \Exception('not supported startDate or endDate equal today');
         }
 
