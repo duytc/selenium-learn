@@ -8,7 +8,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class LkqdIntegration extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'video-lkqd-integration';
+    const INTEGRATION_C_NAME = 'video-lkqd';
 
     public function __construct(WebDriverServiceInterface $webDriverService, PartnerFetcherInterface $fetcher)
     {
