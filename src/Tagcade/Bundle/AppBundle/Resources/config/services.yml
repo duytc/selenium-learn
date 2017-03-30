@@ -22,6 +22,7 @@ imports:
     - { resource: services/yellow.hammer.yml }
     - { resource: services/lkqd.yml }
     - { resource: services/springserve.yml }
+    - { resource: services/Video/cedato.yml }
 
 services:
     yaml:
@@ -137,3 +138,4 @@ services:
                 - '@tagcade.service.integration.integrations.aws.s3'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
+                - '@tagcade.service.integration.integrations.video.cedato'
