@@ -1,16 +1,16 @@
 <?php
 
 
-namespace Tagcade\Service\Integration\Integrations\Video\LkqdIntegration;
+namespace Tagcade\Service\Integration\Integrations\Video\SpringServe;
 
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
 use Tagcade\Service\WebDriverServiceInterface;
 
-class LkqdIntegration extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
+class SpringServe extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'video-lkqd';
+    const INTEGRATION_C_NAME = 'video-springserve';
 
     public function __construct(WebDriverServiceInterface $webDriverService, PartnerFetcherInterface $fetcher)
     {

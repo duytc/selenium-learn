@@ -1,0 +1,11 @@
+services:
+    tagcade.service.fetcher.fetchers.spring_serve:
+        class: Tagcade\Service\Fetcher\Fetchers\SpringServe\SpringServeFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
+
+    tagcade.service.integration.integrations.video.springserve:
+        class: Tagcade\Service\Integration\Integrations\Video\SpringServe\SpringServe
+        parent: tagcade.service.integration.integrations.video_demand_partner.integration_video_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.spring_serve'
