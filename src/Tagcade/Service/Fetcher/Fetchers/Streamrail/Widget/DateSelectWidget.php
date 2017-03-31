@@ -98,11 +98,8 @@ class DateSelectWidget extends AbstractWidget
 
         sleep(1);
 
-        $yesterday = new \DateTime('yesterday');
-        if ($yesterday->format('Ymd') != $startDate->format('Ymd') || $yesterday->format('Ymd') != $endDate->format('Ymd')) {
-            $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('#ember1420-input_root > div > div > div > div > div.picker__footer > button.btn-flat.picker__close'));
-            $buttonClose->click();
-        }
+        $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('/html/body/div[1]'));
+        $buttonClose->click();
 
         sleep(1);
     }
