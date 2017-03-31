@@ -3,11 +3,11 @@
 namespace Tagcade\Service\Integration\Integrations\Video\Cedato;
 
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
-use Tagcade\Service\Integration\Integrations\IntegrationDemandPartnerAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
+use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
 use Tagcade\Service\WebDriverServiceInterface;
 
-class Cedato extends IntegrationDemandPartnerAbstract implements IntegrationInterface
+class Cedato extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
 {
     const INTEGRATION_C_NAME = 'demand-partner-video-cedato';
 
