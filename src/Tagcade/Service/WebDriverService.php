@@ -9,8 +9,6 @@ use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Fetcher\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerParams;
-use Tagcade\Service\Integration\Config;
-use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\WebDriverFactoryInterface;
 
 class WebDriverService implements WebDriverServiceInterface
@@ -46,73 +44,8 @@ class WebDriverService implements WebDriverServiceInterface
     /**
      * @inheritdoc
      */
-    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $config)
+    public function doGetData(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $partnerParams)
     {
-        /** @var int publisherId */
-        $publisherId = $config->getPublisherId();
-        /** @var string $integrationCName */
-        $integrationCName = $config->getIntegrationCName();
-
-        $username = $config->getParamValue('username', null);
-        $password = $config->getParamValue('password', null);
-        $reportType = $config->getParamValue('reportType', null);
-
-        //// important: try get startDate, endDate by backFill
-        if ($config->isNeedRunBackFill()) {
-            $startDate = $config->getStartDateFromBackFill();
-
-            if (!$startDate instanceof \DateTime) {
-                $this->logger->error('need run backFill but backFillStartDate is invalid');
-                throw new \Exception('need run backFill but backFillStartDate is invalid');
-            }
-
-            $startDateStr = $startDate->format('Y-m-d');
-            $endDateStr = 'yesterday';
-        } else {
-            // prefer dateRange than startDate - endDate
-            $dateRange = $config->getParamValue('dateRange', null);
-            if (!empty($dateRange)) {
-                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
-
-                if (!is_array($startDateEndDate)) {
-                    // use default 'yesterday'
-                    $startDateStr = 'yesterday';
-                    $endDateStr = 'yesterday';
-                } else {
-                    $startDateStr = $startDateEndDate[0];
-                    $endDateStr = $startDateEndDate[1];
-                }
-            } else {
-                // use user modified startDate, endDate
-                $startDateStr = $config->getParamValue('startDate', 'yesterday');
-                $endDateStr = $config->getParamValue('endDate', 'yesterday');
-
-                if (empty($startDateStr)) {
-                    $startDateStr = 'yesterday';
-                }
-
-                if (empty($endDateStr)) {
-                    $endDateStr = 'yesterday';
-                }
-            }
-        }
-
-        $params = [
-            'username' => $username,
-            'password' => $password,
-            'startDate' => $startDateStr,
-            'endDate' => $endDateStr,
-            'reportType' => $reportType
-        ];
-
-        $processId = getmypid();
-        $params['publisher_id'] = $publisherId;
-        $params['partner_cname'] = $integrationCName;
-        $params['process_id'] = $processId;
-
-        /** @var PartnerParamInterface $partnerParams */
-        $partnerParams = $this->createParams($params);
-
         $dataPath = $this->defaultDataPath;
         $isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
         $dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->symfonyAppDir, '/app'), ltrim($dataPath, './')) : $dataPath;

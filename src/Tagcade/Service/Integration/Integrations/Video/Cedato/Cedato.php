@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Integration\Integrations\Video\Cedato;
 
+use Tagcade\Service\Fetcher\CedatoPartnerParams;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
@@ -20,5 +21,15 @@ class Cedato extends IntegrationVideoDemandPartnerAbstract implements Integratio
     {
         parent::__construct($webDriverService);
         $this->partnerFetcher = $fetcher;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * override because of new param "reportType"
+     */
+    public function createPartnerParams($config)
+    {
+        return new CedatoPartnerParams($config);
     }
 }

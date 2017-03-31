@@ -3,6 +3,8 @@
 namespace Tagcade\Service\Fetcher;
 
 
+use Tagcade\Service\Integration\ConfigInterface;
+
 class PartnerParams implements PartnerParamInterface
 {
     /**
@@ -13,11 +15,6 @@ class PartnerParams implements PartnerParamInterface
      * @var String
      */
     protected $password;
-
-    /**
-     * @var String
-     */
-    protected $reportType;
 
     /**
      * @var \DateTime
@@ -34,24 +31,80 @@ class PartnerParams implements PartnerParamInterface
      */
     protected $config;
 
+    public function __construct(ConfigInterface $config)
+    {
+        /** @var int publisherId */
+        $publisherId = $config->getPublisherId();
+        /** @var string $integrationCName */
+        $integrationCName = $config->getIntegrationCName();
+
+        $username = $config->getParamValue('username', null);
+        $password = $config->getParamValue('password', null);
+        $reportType = $config->getParamValue('reportType', null);
+
+        //// important: try get startDate, endDate by backFill
+        if ($config->isNeedRunBackFill()) {
+            $startDate = $config->getStartDateFromBackFill();
+
+            if (!$startDate instanceof \DateTime) {
+                $this->logger->error('need run backFill but backFillStartDate is invalid');
+                throw new \Exception('need run backFill but backFillStartDate is invalid');
+            }
+
+            $startDateStr = $startDate->format('Y-m-d');
+            $endDateStr = 'yesterday';
+        } else {
+            // prefer dateRange than startDate - endDate
+            $dateRange = $config->getParamValue('dateRange', null);
+            if (!empty($dateRange)) {
+                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
+
+                if (!is_array($startDateEndDate)) {
+                    // use default 'yesterday'
+                    $startDateStr = 'yesterday';
+                    $endDateStr = 'yesterday';
+                } else {
+                    $startDateStr = $startDateEndDate[0];
+                    $endDateStr = $startDateEndDate[1];
+                }
+            } else {
+                // use user modified startDate, endDate
+                $startDateStr = $config->getParamValue('startDate', 'yesterday');
+                $endDateStr = $config->getParamValue('endDate', 'yesterday');
+
+                if (empty($startDateStr)) {
+                    $startDateStr = 'yesterday';
+                }
+
+                if (empty($endDateStr)) {
+                    $endDateStr = 'yesterday';
+                }
+            }
+        }
+
+        $params = [
+            'username' => $username,
+            'password' => $password,
+            'startDate' => $startDateStr,
+            'endDate' => $endDateStr,
+            'reportType' => $reportType
+        ];
+
+        $processId = getmypid();
+        $params['publisher_id'] = $publisherId;
+        $params['partner_cname'] = $integrationCName;
+        $params['process_id'] = $processId;
+
+        /** @var PartnerParamInterface $partnerParams */
+        $partnerParams = $this->createParams($params);
+    }
+
     /**
      * @return mixed
      */
     public function getConfig()
     {
         return $this->config;
-    }
-
-    /**
-     * @param mixed $config
-     * @return $this
-     */
-
-    public function setConfig($config)
-    {
-        $this->config = $config;
-
-        return $this;
     }
 
     /**
@@ -63,33 +116,11 @@ class PartnerParams implements PartnerParamInterface
     }
 
     /**
-     * @param String $username
-     * @return $this
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
-
-        return $this;
-    }
-
-    /**
      * @return String
      */
     public function getPassword()
     {
         return $this->password;
-    }
-
-    /**
-     * @param String $password
-     * @return $this
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
     }
 
     /**
@@ -101,53 +132,10 @@ class PartnerParams implements PartnerParamInterface
     }
 
     /**
-     * @param \DateTime $startDate
-     *
-     * @return $this
-     */
-    public function setStartDate($startDate)
-    {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-    /**
      * @return \DateTime
      */
     public function getEndDate()
     {
         return $this->endDate;
-    }
-
-    /**
-     * @param \DateTime $endDate
-     *
-     * @return $this
-     */
-    public function setEndDate($endDate)
-    {
-        $this->endDate = $endDate;
-
-        return $this;
-    }
-
-    /**
-     * @return String
-     */
-    public function getReportType()
-    {
-        return $this->reportType;
-    }
-
-    /**
-     * @param String $reportType
-     * @return $this
-     */
-    public function setReportType($reportType)
-    {
-        $this->reportType = $reportType;
-
-        return $this;
     }
 }
