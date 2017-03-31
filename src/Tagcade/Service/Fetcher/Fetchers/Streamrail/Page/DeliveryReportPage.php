@@ -24,17 +24,17 @@ class DeliveryReportPage extends AbstractPage
 
         $this->sleep(2);
 
-        $this->driver->findElement(WebDriverBy::id('ember1214'))->click();
+        $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Apply Filters"]'))->click();
 
-        $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::className('ember1470')));
+        $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath('//*[@data-tooltip="Undo"]')));
 
-        $downloadElement = $this->driver->findElement(WebDriverBy::id('ember1215'));
+        $downloadElement = $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Export to CSV"]'));
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
 
         $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
 
-        $this->logger->debug('Logout system');
-        $this->logOutSystem();
+//        $this->logger->debug('Logout system');
+//        $this->logOutSystem();
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)

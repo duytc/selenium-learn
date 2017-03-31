@@ -17,7 +17,7 @@ class DateSelectWidget extends AbstractWidget
     public function setDateRange(DateTime $startDate, DateTime $endDate)
     {
         $this->setStartDate($startDate);
-        $this->setEndDate($endDate);
+        $this->setEndDate($startDate, $endDate);
 
         return $this;
     }
@@ -63,9 +63,11 @@ class DateSelectWidget extends AbstractWidget
     }
 
     /**
+     * @param DateTime $startDate
      * @param DateTime $endDate
+     * @throws \Exception
      */
-    protected function setEndDate(DateTime $endDate)
+    protected function setEndDate(DateTime $startDate, DateTime $endDate)
     {
         sleep(1);
 
@@ -96,8 +98,11 @@ class DateSelectWidget extends AbstractWidget
 
         sleep(1);
 
-        $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('#ember1420-input_root > div > div > div > div > div.picker__footer > button.btn-flat.picker__close'));
-        $buttonClose->click();
+        $yesterday = new \DateTime('yesterday');
+        if ($yesterday->format('Ymd') != $startDate->format('Ymd') || $yesterday->format('Ymd') != $endDate->format('Ymd')) {
+            $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('#ember1420-input_root > div > div > div > div > div.picker__footer > button.btn-flat.picker__close'));
+            $buttonClose->click();
+        }
 
         sleep(1);
     }
