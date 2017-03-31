@@ -20,8 +20,8 @@ imports:
     - { resource: services/sovrn.yml }
     - { resource: services/technorati.yml }
     - { resource: services/yellow.hammer.yml }
-    - { resource: services/lkqd.yml }
-    - { resource: services/springserve.yml }
+    - { resource: services/Video/lkqd.yml }
+    - { resource: services/Video/springserve.yml }
     - { resource: services/Video/cedato.yml }
 
 services:
