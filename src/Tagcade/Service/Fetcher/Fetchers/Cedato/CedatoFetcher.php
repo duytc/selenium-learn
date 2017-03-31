@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Video_cedato;
+namespace Tagcade\Service\Fetcher\Fetchers\Cedato;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;

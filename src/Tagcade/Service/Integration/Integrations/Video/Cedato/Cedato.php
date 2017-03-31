@@ -9,7 +9,7 @@ use Tagcade\Service\WebDriverServiceInterface;
 
 class Cedato extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'demand-partner-video-cedato';
+    const INTEGRATION_C_NAME = 'video-cedato';
 
     /**
      * Media constructor.

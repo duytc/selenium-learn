@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Video_cedato\Page;
+namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
 
 use DateTime;
 use Facebook\WebDriver\WebDriverBy;
