@@ -63,11 +63,10 @@ class DateSelectWidget extends AbstractWidget
     }
 
     /**
-     * @param DateTime $startDate
      * @param DateTime $endDate
      * @throws \Exception
      */
-    protected function setEndDate(DateTime $startDate, DateTime $endDate)
+    protected function setEndDate(DateTime $endDate)
     {
         sleep(1);
 
@@ -98,8 +97,12 @@ class DateSelectWidget extends AbstractWidget
 
         sleep(1);
 
-        $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('/html/body/div[1]'));
-        $buttonClose->click();
+        try {
+            $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('#ember1420-input_root > div > div > div > div > div.picker__footer > button.btn-flat.picker__close'));
+            $buttonClose->click();
+        } catch (\Exception $exp) {
+
+        }
 
         sleep(1);
     }
