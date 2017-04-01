@@ -28,13 +28,15 @@ class DeliveryReportPage extends AbstractPage
 
         $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath('//*[@data-tooltip="Undo"]')));
 
+        $this->sleep(2);
+
         $downloadElement = $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Export to CSV"]'));
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
 
         $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
 
-//        $this->logger->debug('Logout system');
-//        $this->logOutSystem();
+        $this->logger->debug('Logout system');
+        $this->logOutSystem();
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
