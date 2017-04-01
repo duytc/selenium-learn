@@ -15,6 +15,11 @@ class PartnerParams implements PartnerParamInterface
     protected $password;
 
     /**
+     * @var String
+     */
+    protected $reportType;
+
+    /**
      * @var \DateTime
      */
     protected $startDate;
@@ -123,6 +128,25 @@ class PartnerParams implements PartnerParamInterface
     public function setEndDate($endDate)
     {
         $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    /**
+     * @return String
+     */
+    public function getReportType()
+    {
+        return $this->reportType;
+    }
+
+    /**
+     * @param String $reportType
+     * @return $this
+     */
+    public function setReportType($reportType)
+    {
+        $this->reportType = $reportType;
 
         return $this;
     }
