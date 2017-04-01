@@ -17,7 +17,7 @@ class DateSelectWidget extends AbstractWidget
     public function setDateRange(DateTime $startDate, DateTime $endDate)
     {
         $this->setStartDate($startDate);
-        $this->setEndDate($startDate, $endDate);
+        $this->setEndDate($endDate);
 
         return $this;
     }
