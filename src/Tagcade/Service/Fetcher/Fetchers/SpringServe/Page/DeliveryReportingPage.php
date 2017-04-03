@@ -6,6 +6,7 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Widget\DateSelectWidget;
 
@@ -24,11 +25,11 @@ class DeliveryReportingPage extends AbstractPage
         $runReportBtn = $this->driver->findElement(WebDriverBy::name('commit'));
         $runReportBtn->click();
 
+        sleep(10);
+
         try {
             /** @var RemoteWebElement $downloadElement */
             $downloadElement = $this->driver->findElement(WebDriverBy::id('export_link'));
-            $downloadElement->click();
-
             $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
 
