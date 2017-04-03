@@ -7,6 +7,8 @@ use Tagcade\Service\Integration\ConfigInterface;
 
 class CedatoPartnerParams extends PartnerParams implements CedatoPartnerParamInterface
 {
+    const PARAM_KEY_REPORT_TYPE = 'reportType';
+
     /**
      * @var string
      */
@@ -19,10 +21,7 @@ class CedatoPartnerParams extends PartnerParams implements CedatoPartnerParamInt
     public function __construct(ConfigInterface $config)
     {
         parent::__construct($config);
-
-        $reportType = $config->getParams()['reportType'];
-
-        $this->reportType = $reportType;
+        $this->reportType = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
     }
 
     /**

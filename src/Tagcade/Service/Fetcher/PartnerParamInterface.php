@@ -28,4 +28,19 @@ interface PartnerParamInterface
      * @return mixed
      */
     public function getConfig();
+
+    /**
+     * @return int
+     */
+    public function getPublisherId();
+
+    /**
+     * @return string
+     */
+    public function getIntegrationCName();
+
+    /**
+     * @return int
+     */
+    public function getProcessId();
 }

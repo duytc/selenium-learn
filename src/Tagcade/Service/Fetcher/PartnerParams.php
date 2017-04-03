@@ -3,10 +3,33 @@
 namespace Tagcade\Service\Fetcher;
 
 
+use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
 
 class PartnerParams implements PartnerParamInterface
 {
+    const PARAM_KEY_USERNAME = 'username';
+    const PARAM_KEY_PASSWORD = 'password';
+    const PARAM_KEY_START_DATE = 'startDate';
+    const PARAM_KEY_END_DATE = 'endDate';
+
+    /* required params (information for webdriver run) */
+    /**
+     * @var int publisherId
+     */
+    protected $publisherId;
+
+    /**
+     * @var string $integrationCName
+     */
+    protected $integrationCName;
+
+    /**
+     * @var int publisherId
+     */
+    protected $processId;
+
+    /* very common params come from integration */
     /**
      * @var String
      */
@@ -26,6 +49,7 @@ class PartnerParams implements PartnerParamInterface
      */
     protected $endDate;
 
+    /* original integration config */
     /**
      * @var $config
      */
@@ -37,17 +61,16 @@ class PartnerParams implements PartnerParamInterface
         $publisherId = $config->getPublisherId();
         /** @var string $integrationCName */
         $integrationCName = $config->getIntegrationCName();
+        $processId = getmypid();
 
-        $username = $config->getParamValue('username', null);
-        $password = $config->getParamValue('password', null);
-        $reportType = $config->getParamValue('reportType', null);
+        $username = $config->getParamValue(self::PARAM_KEY_USERNAME, null);
+        $password = $config->getParamValue(self::PARAM_KEY_PASSWORD, null);
 
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
             $startDate = $config->getStartDateFromBackFill();
 
             if (!$startDate instanceof \DateTime) {
-                $this->logger->error('need run backFill but backFillStartDate is invalid');
                 throw new \Exception('need run backFill but backFillStartDate is invalid');
             }
 
@@ -69,8 +92,8 @@ class PartnerParams implements PartnerParamInterface
                 }
             } else {
                 // use user modified startDate, endDate
-                $startDateStr = $config->getParamValue('startDate', 'yesterday');
-                $endDateStr = $config->getParamValue('endDate', 'yesterday');
+                $startDateStr = $config->getParamValue(self::PARAM_KEY_START_DATE, 'yesterday');
+                $endDateStr = $config->getParamValue(self::PARAM_KEY_END_DATE, 'yesterday');
 
                 if (empty($startDateStr)) {
                     $startDateStr = 'yesterday';
@@ -82,25 +105,28 @@ class PartnerParams implements PartnerParamInterface
             }
         }
 
-        $params = [
-            'username' => $username,
-            'password' => $password,
-            'startDate' => $startDateStr,
-            'endDate' => $endDateStr,
-            'reportType' => $reportType
+        $configParams = [
+            // TODO: remove duplicate definitions of publisherId, integrationCName and processId
+            'publisher_id' => $publisherId,
+            'partner_cname' => $integrationCName,
+            'process_id' => $processId,
+            self::PARAM_KEY_USERNAME => $username,
+            self::PARAM_KEY_PASSWORD => $password,
+            self::PARAM_KEY_START_DATE => $startDateStr,
+            self::PARAM_KEY_END_DATE => $endDateStr
         ];
 
-        $processId = getmypid();
-        $params['publisher_id'] = $publisherId;
-        $params['partner_cname'] = $integrationCName;
-        $params['process_id'] = $processId;
+        /* set required params */
+        $this->publisherId = $publisherId;
+        $this->integrationCName = $integrationCName;
+        $this->processId = $processId;
 
-        /** @var PartnerParamInterface $partnerParams */
-        $partnerParams = $this->createParams($params);
+        /* create common params */
+        $this->createParams($configParams);
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -108,7 +134,7 @@ class PartnerParams implements PartnerParamInterface
     }
 
     /**
-     * @return String
+     * @inheritdoc
      */
     public function getUsername()
     {
@@ -116,7 +142,7 @@ class PartnerParams implements PartnerParamInterface
     }
 
     /**
-     * @return String
+     * @inheritdoc
      */
     public function getPassword()
     {
@@ -124,7 +150,7 @@ class PartnerParams implements PartnerParamInterface
     }
 
     /**
-     * @return \DateTime
+     * @inheritdoc
      */
     public function getStartDate()
     {
@@ -132,10 +158,91 @@ class PartnerParams implements PartnerParamInterface
     }
 
     /**
-     * @return \DateTime
+     * @inheritdoc
      */
     public function getEndDate()
     {
         return $this->endDate;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPublisherId()
+    {
+        return $this->publisherId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIntegrationCName()
+    {
+        return $this->integrationCName;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getProcessId()
+    {
+        return $this->processId;
+    }
+
+    /**
+     * create PartnerParams from configs
+     *
+     * @param array $config
+     * @throws \CannotPerformOperationException
+     * @throws \InvalidCiphertextException
+     * @throws \Exception
+     */
+    protected function createParams(array $config)
+    {
+        /** @var string $username */
+        $username = $config[self::PARAM_KEY_USERNAME];
+        $startDate = date_create($config[self::PARAM_KEY_START_DATE]);
+        $endDate = date_create($config[self::PARAM_KEY_END_DATE]);
+
+        if ($startDate > $endDate) {
+            throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
+        }
+
+        if (!array_key_exists('base64EncryptedPassword', $config) && !array_key_exists(self::PARAM_KEY_PASSWORD, $config)) {
+            throw new \Exception('Invalid configuration. Not found password or base64EncryptedPassword in the configuration');
+        }
+
+        if (array_key_exists('base64EncryptedPassword', $config) && !isset($config['publisher']['uuid'])) {
+            throw new \Exception('Missing key to decrypt publisher password');
+        }
+
+        if (array_key_exists('base64EncryptedPassword', $config)) {
+            // decrypt the hashed password
+            $base64EncryptedPassword = $config['base64EncryptedPassword'];
+            $encryptedPassword = base64_decode($base64EncryptedPassword);
+
+            $decryptKey = $this->getEncryptionKey($config['publisher']['uuid']);
+            $password = \Crypto::Decrypt($encryptedPassword, $decryptKey);
+        } else {
+            $password = $config[self::PARAM_KEY_PASSWORD];
+        }
+
+        $this->username = $username;
+        $this->password = $password;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+        $this->config = $config;
+    }
+
+    /**
+     * get Encryption Key
+     *
+     * @param $uuid
+     * @return string
+     */
+    protected function getEncryptionKey($uuid)
+    {
+        $uuid = preg_replace('[\-]', '', $uuid);
+        return substr($uuid, 0, 16);
     }
 }
