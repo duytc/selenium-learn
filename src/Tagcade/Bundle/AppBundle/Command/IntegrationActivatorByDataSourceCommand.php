@@ -20,7 +20,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
     {
         $this
             ->setName('tc:unified-report-fetcher:activator:run:datasource')
-            ->addArgument('dataSourceId', InputOption::VALUE_REQUIRED, 'Integration name')
+            ->addArgument('dataSourceId', InputOption::VALUE_REQUIRED, 'Data source id')
             ->addOption('parameters', 'p', InputOption::VALUE_OPTIONAL,
                 'Integration parameters (optional) as name:type, allow multiple parameters separated by comma. 
                 Supported types are: plainText (default), date (Y-m-d), dynamicDateRange (last 1,2,3... days) 
@@ -34,13 +34,19 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* get inputs */
-        $dataSourceId = $input->getArgument('dataSourceId');
-        $paramsString = $input->getOption('parameters');
-        $params = $this->parseParams($paramsString);
-
         /* create logger */
         $this->createLogger();
+        
+        /* get inputs */
+        $dataSourceId = $input->getArgument('dataSourceId');
+
+        if (empty($dataSourceId)){
+            $this->logger->info('Missing data source id');
+            return;
+        }
+
+        $paramsString = $input->getOption('parameters');
+        $params = $this->parseParams($paramsString);
 
         $this->logger->info('Start running integration activator');
 
@@ -57,7 +63,12 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         /** @var IntegrationActivatorInterface $activatorService */
         $activatorService = $this->getContainer()->get('tagcade.service.integration_activator');
 
-        $result = $activatorService->createExecutionJobForDataSource($dataSourceId, $params, $input->getOption('force'), $input->getOption('update-next-execute'));
+        if ($input->getOption('force')){
+            $result = $activatorService->createExecutionJobForDataSourceWithoutSchedule($dataSourceId, $params);
+        } else {
+            $result = $activatorService->createExecutionJobForDataSourceWithSchedule($dataSourceId, $params, $input->getOption('update-next-execute'));
+        }
+
 
         if (!$result) {
             $this->logger->error('Complete running integration activator with error');

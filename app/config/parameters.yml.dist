@@ -14,7 +14,7 @@ parameters:
     tagcade_get_token_url: 'http://api.tagcade.dev/app_dev.php/api/v1/getToken'
     tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'
     ur_get_list_integrations_to_be_executed_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/byschedule'
-    ur_get_list_integrations_by_datasource_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/{dataSourceId}/bydatasource'
+    ur_get_list_integrations_by_datasource_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations?datasourceId={dataSourceId}'
     ur_update_last_execution_time_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/updateexecuteat'
     ur_update_backfill_executed_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/backfill'
     ur_post_datasource_import_json_data: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasources/entry'

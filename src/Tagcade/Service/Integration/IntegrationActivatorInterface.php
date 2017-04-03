@@ -13,9 +13,15 @@ interface IntegrationActivatorInterface
     /**
      * @param int $dataSourceId
      * @param null|array $customParams
-     * @param null|bool $isForce
      * @param null|bool $isScheduleUpdated
      * @return bool
      */
-    public function createExecutionJobForDataSource($dataSourceId, $customParams = null, $isForce = false, $isScheduleUpdated = false);
+    public function createExecutionJobForDataSourceWithSchedule($dataSourceId, $customParams = null, $isScheduleUpdated = false);
+
+    /**
+     * @param int $dataSourceId
+     * @param null|array $customParams
+     * @return bool
+     */
+    public function createExecutionJobForDataSourceWithoutSchedule($dataSourceId, $customParams = null);
 }

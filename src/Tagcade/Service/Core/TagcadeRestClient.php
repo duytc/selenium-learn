@@ -219,11 +219,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         /* filter invalid integrations */
-        $result = array_filter($result, function ($dataSourceIntegration) {
-            if (!is_array($dataSourceIntegration)
-                || !array_key_exists('id', $dataSourceIntegration)
-                || !array_key_exists('dataSourceIntegration', $dataSourceIntegration)
-            ) {
+        $result = array_filter($result, function ($dataSourceIntegration) use ($dataSourceId){
+            if ($dataSourceIntegration['dataSource']['id'] != $dataSourceId){
                 return false;
             }
 
