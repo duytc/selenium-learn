@@ -56,6 +56,7 @@ class WebDriverService implements WebDriverServiceInterface
         $username = $config->getParamValue('username', null);
         $password = $config->getParamValue('password', null);
         $reportType = $config->getParamValue('reportType', null);
+        $account = $config->getParamValue('account', null);
 
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
@@ -102,7 +103,8 @@ class WebDriverService implements WebDriverServiceInterface
             'password' => $password,
             'startDate' => $startDateStr,
             'endDate' => $endDateStr,
-            'reportType' => $reportType
+            'reportType' => $reportType,
+            'account' => $account
         ];
 
         $processId = getmypid();
@@ -140,6 +142,7 @@ class WebDriverService implements WebDriverServiceInterface
         $startDate = date_create($config['startDate']);
         $endDate = date_create($config['endDate']);
         $reportType = $config['reportType'];
+        $account = $config['account'];
 
         if ($startDate > $endDate) {
             throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
@@ -173,7 +176,8 @@ class WebDriverService implements WebDriverServiceInterface
             ->setStartDate(clone $startDate)
             ->setEndDate(clone $endDate)
             ->setConfig($config)
-            ->setReportType($reportType);
+            ->setReportType($reportType)
+            ->setAccount($account);
     }
 
     /**
