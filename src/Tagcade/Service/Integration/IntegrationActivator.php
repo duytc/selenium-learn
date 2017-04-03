@@ -102,7 +102,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $dataSourceId = $dataSourceIntegration['dataSource']['id'];
         $params = $dataSourceIntegration['originalParams']; // original params as array of { key, value, type }
-        $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
+        $paramKeys = $dataSourceIntegration['originalParams']; // param keys only
         $backFill = [
             'backFill' => $dataSourceIntegration['backFill'],
             'backFillStartDate' => $dataSourceIntegration['backFillStartDate'],

@@ -35,6 +35,11 @@ class PartnerParams implements PartnerParamInterface
     protected $config;
 
     /**
+     * @var string
+     */
+    protected $account;
+
+    /**
      * @return mixed
      */
     public function getConfig()
@@ -148,6 +153,24 @@ class PartnerParams implements PartnerParamInterface
     {
         $this->reportType = $reportType;
 
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccount()
+    {
+        return $this->account;
+    }
+
+    /**
+     * @param string $account
+     * @return $this
+     */
+    public function setAccount($account)
+    {
+        $this->account = $account;
         return $this;
     }
 }
