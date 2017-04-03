@@ -6,7 +6,6 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Widget\DateSelectWidget;
 
