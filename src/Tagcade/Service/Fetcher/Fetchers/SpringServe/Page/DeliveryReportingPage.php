@@ -24,8 +24,6 @@ class DeliveryReportingPage extends AbstractPage
         $runReportBtn = $this->driver->findElement(WebDriverBy::name('commit'));
         $runReportBtn->click();
 
-        sleep(7);
-
         try {
             /** @var RemoteWebElement $downloadElement */
             $downloadElement = $this->driver->findElement(WebDriverBy::id('export_link'));

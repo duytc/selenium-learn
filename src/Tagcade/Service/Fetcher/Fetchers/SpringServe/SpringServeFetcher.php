@@ -25,7 +25,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        usleep(10);
+
         $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         if (!$login) {
@@ -34,8 +34,6 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
         }
 
         $this->logger->info('end logging in');
-
-        usleep(5);
 
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportingPage($driver, $this->logger);
@@ -75,7 +73,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
 
                         $this->logger->info('Start downloading reports');
                         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-                        $this->logger->info('Finish downloading reports' . $liElement->getText());
+                        $this->logger->info('Finish downloading reports');
                         $accountIndex = $key;
                         break;
                     }
