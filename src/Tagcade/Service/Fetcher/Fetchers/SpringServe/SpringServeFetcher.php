@@ -22,6 +22,11 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        if (empty($params->getAccount())){
+            $this->logger->error('Account regex can not be empty');
+            return;
+        }
+
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
