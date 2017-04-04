@@ -2,8 +2,15 @@
 
 namespace Tagcade\Service\Integration;
 
+use DateTime;
+use Exception;
+
 class Config implements ConfigInterface
 {
+    const PARAM_START_DATE = 'startDate';
+    const PARAM_END_DATE = 'endDate';
+    const PARAM_DATE_RANGE = 'dateRange';
+
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_YESTERDAY = 'yesterday';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS = 'last 2 days';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_3_DAYS = 'last 3 days';
@@ -235,5 +242,46 @@ class Config implements ConfigInterface
         }
 
         return [$startDate, $endDate];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStartDateEndDate()
+    {
+        //// important: try get startDate, endDate by backFill
+        if ($this->isNeedRunBackFill()) {
+            $startDate = $this->getStartDateFromBackFill();
+
+            if (!$startDate instanceof DateTime) {
+                throw new Exception('need run backFill but backFillStartDate is invalid');
+            }
+
+            $endDate = new DateTime('yesterday');
+        } else {
+            // prefer dateRange than startDate - endDate
+            $dateRange = $this->getParamValue(self::PARAM_DATE_RANGE, null);
+            if (!empty($dateRange)) {
+                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
+
+                if (!is_array($startDateEndDate)) {
+                    // use default 'yesterday'
+                    $startDate = new DateTime('yesterday');
+                    $endDate = new DateTime('yesterday');
+                } else {
+                    $startDate = new DateTime($startDateEndDate[0]);
+                    $endDate = new DateTime($startDateEndDate[1]);
+                }
+            } else {
+                // use user modified startDate, endDate
+                $startDate = new DateTime($this->getParamValue(self::PARAM_START_DATE, 'yesterday'));
+                $endDate = new DateTime($this->getParamValue(self::PARAM_END_DATE, 'yesterday'));
+            }
+        }
+
+        return [
+            self::PARAM_START_DATE => $startDate,
+            self::PARAM_END_DATE => $endDate,
+        ];
     }
 }
