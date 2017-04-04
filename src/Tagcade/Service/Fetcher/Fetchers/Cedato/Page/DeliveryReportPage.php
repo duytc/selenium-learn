@@ -123,7 +123,7 @@ class DeliveryReportPage extends AbstractPage
             case self::DEMAND_SOURCE_BY_SUPPLY_REPORT_TYPE:
                 $url = self::DEMAND_SOURCE_BY_SUPPLY_URL;
                 break;
-            case self::SUPPLY_URL:
+            case self::SUPPLY_REPORT_TYPE:
                 $url = self::SUPPLY_URL;
                 break;
             case self::SUPPLY_BY_DEMAND_SOURCES_REPORT_TYPE:
