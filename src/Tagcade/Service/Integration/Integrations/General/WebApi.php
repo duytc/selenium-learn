@@ -117,7 +117,7 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     {
         // replace macros
         $replacedParams = $this->params;
-        $replacedParams = str_replace(self::MACRO_API_TOKEN, $this->apiToken, $replacedParams);
+        $replacedParams = str_replace(self::MACRO_API_TOKEN, $this->getApiToken(), $replacedParams);
         $replacedParams = str_replace(self::MACRO_START_DATE, $this->getStartDateString(), $replacedParams);
         $replacedParams = str_replace(self::MACRO_END_DATE, $this->getEndDateString(), $replacedParams);
 
@@ -125,6 +125,14 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
         $allParams = \GuzzleHttp\Psr7\parse_query($replacedParams);
 
         return $allParams;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiToken()
+    {
+        return $this->apiToken;
     }
 
     public function getStartDateString($format = 'Y-m-d')
@@ -154,7 +162,7 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     }
 
     /**
-     * do get data for this by a params
+     * do get data for this by a paramsgetHeader(
      *
      * @param array $params built from this params and other params
      * @throws Exception
@@ -172,7 +180,7 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
      * @param $responseData
      * @throws Exception
      */
-    private function handleResponse(CurlRestClient $curl, $responseData)
+    protected function handleResponse(CurlRestClient $curl, $responseData)
     {
         $curlHttpCode = curl_getinfo($curl->getCurl(), CURLINFO_HTTP_CODE);
         if ($curlHttpCode !== 200) {
