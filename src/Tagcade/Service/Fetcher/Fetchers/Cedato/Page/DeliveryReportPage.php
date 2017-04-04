@@ -112,7 +112,7 @@ class DeliveryReportPage extends AbstractPage
     /**
      * navigate to ReportPage based on report type
      * @param string $reportType
-     *
+     * @throws \Exception
      */
     public function navigateToReportPage($reportType)
     {
@@ -130,7 +130,8 @@ class DeliveryReportPage extends AbstractPage
                 $url = self::SUPPLY_BY_DEMAND_SOURCES_URL;
                 break;
             default:
-                $url = self::SUPPLY_URL;
+                $this->logger->error(sprintf('cannot find report type: %s', $reportType));
+                throw new \Exception(sprintf('cannot find report type: %s', $reportType));
         }
 
         $this->driver->navigate()->to($url);
