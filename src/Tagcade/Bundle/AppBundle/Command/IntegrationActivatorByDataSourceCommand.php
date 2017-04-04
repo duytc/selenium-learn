@@ -45,6 +45,11 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
             return;
         }
 
+        if ($input->getOption('force') && $input->getOption('update-next-execute')){
+            $this->logger->info('Can not use option -f and -u together. Please try one of them');
+            return;
+        }
+
         $paramsString = $input->getOption('parameters');
         $params = $this->parseParams($paramsString);
 
