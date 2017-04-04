@@ -14,7 +14,7 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
 class WebApi extends IntegrationAbstract implements IntegrationInterface
 {
-    const INTEGRATION_C_NAME = 'web-api';
+    const INTEGRATION_C_NAME = 'general-web-api';
 
     /* params from integration */
     const PARAM_AUTH_URL = 'authUrl'; // url for authentication if need
