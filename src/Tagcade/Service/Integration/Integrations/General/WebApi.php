@@ -33,6 +33,11 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     const MACRO_START_DATE = '{START_DATE}';
     const MACRO_END_DATE = '{END_DATE}';
 
+    const XLS_CONTENT_TYPE = 'application/vnd.ms-excel';
+    const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const XML_CONTENT_TYPE = 'application/xml';
+    const JSON_CONTENT_TYPE = 'application/json';
+
     const URL = null;
 
     /**
@@ -150,16 +155,51 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
      * do get data for this by a params
      *
      * @param array $params built from this params and other params
-     * @return mixed
+     * @throws Exception
      */
     protected function doGetData($params = array())
     {
         $curl = new CurlRestClient();
         $responseData = $curl->executeQuery($this->reportUrl, $this->getMethod(), $this->getHeader(), $params);
+
+        $this->handleResponse($curl, $responseData);
+    }
+
+    /**
+     * @param CurlRestClient $curl
+     * @param $responseData
+     * @throws Exception
+     */
+    private function handleResponse(CurlRestClient $curl, $responseData)
+    {
+        $curlHttpCode = curl_getinfo($curl->getCurl(), CURLINFO_HTTP_CODE);
+        if ($curlHttpCode !== 200) {
+            $this->logger->error('cannot get data from this url');
+            throw new Exception('cannot get data from this url');
+        }
+
+        $curlContentType = curl_getinfo($curl->getCurl(), CURLINFO_CONTENT_TYPE);
+
+        switch ($curlContentType) {
+            case self::XLSX_CONTENT_TYPE:
+                $fileType = ".xlsx";
+                break;
+            case self::XLS_CONTENT_TYPE:
+                $fileType = ".xls";
+                break;
+            case self::XML_CONTENT_TYPE:
+                $fileType = ".xml";
+                break;
+            case self::JSON_CONTENT_TYPE:
+                $fileType = ".json";
+                break;
+            default:
+                $fileType = ".txt";
+        }
+
         $curl->close();
-        $fileName = sprintf('%s_%d', 'file', strtotime(date('Y-m-d')));
+        $fileName = sprintf('%s_%d%s', 'file', strtotime(date('Y-m-d')), $fileType);
         $path = $this->fileStorage->getDownloadPath($this->config, $fileName);
         file_put_contents($path, $responseData);
-        return $responseData;
     }
 }
