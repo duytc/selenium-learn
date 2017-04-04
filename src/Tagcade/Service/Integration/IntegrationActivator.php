@@ -93,11 +93,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     public function createExecutionJobForDataSourceWithSchedule($dataSourceId, $customParams = null, $isScheduleUpdated = false)
     {
-        $dataSourceIntegrationSchedulesRaw = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
-
-        $dataSourceIntegrationSchedules = array_filter($dataSourceIntegrationSchedulesRaw, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
-            return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
-        });
+        $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId);
 
         if (!is_array($dataSourceIntegrationSchedules)) {
             return false;

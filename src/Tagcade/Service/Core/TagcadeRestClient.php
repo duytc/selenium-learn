@@ -136,7 +136,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function getDataSourceIntegrationSchedulesToBeExecuted()
+    public function getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId = null)
     {
         $this->logger->info(sprintf('Getting all Integrations to be executed'));
 
@@ -178,6 +178,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
             return true;
         });
+        
+        if ($dataSourceId){
+            $result = array_filter($result, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
+                return $dataSourceId = $dataSourceIntegrationSchedule['dataSourceIntegration']['dataSource']['id'] == $dataSourceId;
+            });
+        }
 
         $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
 
