@@ -91,9 +91,11 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     {
         $this->config = $config;
         // get all params
-        $this->reportUrl = $config->getParamValue(self::PARAM_REPORT_URL, null);
         $this->authUrl = $config->getParamValue(self::PARAM_AUTH_URL, null);
+        $this->username = $config->getParamValue(self::PARAM_USER_NAME, null);
+        $this->password = $config->getParamValue(self::PARAM_PASSWORD, null);
 
+        $this->reportUrl = $config->getParamValue(self::PARAM_REPORT_URL, null);
         $this->apiToken = $config->getParamValue(self::PARAM_API_TOKEN, null);
         $this->params = $config->getParamValue(self::PARAM_PARAMS, null);
 
