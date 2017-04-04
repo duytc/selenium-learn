@@ -20,6 +20,10 @@ imports:
     - { resource: services/sovrn.yml }
     - { resource: services/technorati.yml }
     - { resource: services/yellow.hammer.yml }
+    - { resource: services/lkqd.yml }
+    - { resource: services/springserve.yml }
+    - { resource: services/Video/cedato.yml }
+    - { resource: services/Video/streamrail.yml }
     - { resource: services/General/web_api.yml }
 
 services:
@@ -102,6 +106,10 @@ services:
     tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract:
         class: Tagcade\Service\Integration\Integrations\IntegrationDemandPartnerAbstract
         abstract: true
+
+    tagcade.service.integration.integrations.video_demand_partner.integration_video_demand_partner_abstract:
+        class: Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract
+        abstract: true
 #        arguments:
 #            - '@tagcade.service.integration.integrations.web_driver_service'
 
@@ -130,4 +138,8 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
                 - '@tagcade.service.integration.integrations.pubvantage.account_report'
                 - '@tagcade.service.integration.integrations.aws.s3'
+                - '@tagcade.service.integration.integrations.video.lkqd'
+                - '@tagcade.service.integration.integrations.video.springserve'
+                - '@tagcade.service.integration.integrations.video.cedato'
+                - '@tagcade.service.integration.integrations.video.streamrail'
                 - '@tagcade.service.integration.integrations.general.web_api'

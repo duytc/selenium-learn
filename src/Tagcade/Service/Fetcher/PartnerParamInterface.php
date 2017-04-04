@@ -53,4 +53,24 @@ interface PartnerParamInterface
      */
     public function setConfig($config);
 
+    /**
+     * @return String
+     */
+    public function getReportType();
+
+    /**
+     * @param $reportType
+     */
+    public function setReportType($reportType);
+
+    /**
+     * @return string
+     */
+    public function getAccount();
+
+    /**
+     * @param string $account
+     * @return $this
+     */
+    public function setAccount($account);
 }

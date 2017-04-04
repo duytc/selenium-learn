@@ -1,0 +1,13 @@
+# report link: http://video.springserve.com/users/sign_in
+
+# SpringServe UI username
+username: 'adops@avid.video'
+
+# SpringServe UI password
+password: 'adops@avid.video'
+
+# Tagcade publisher id
+publisher_id: 1
+
+# partner canonical name stored in core_partner
+partner_cname: 'springserve'
