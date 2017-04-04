@@ -25,11 +25,11 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
                 'Integration parameters (optional) as name:type, allow multiple parameters separated by comma. 
                 Supported types are: plainText (default), date (Y-m-d), dynamicDateRange (last 1,2,3... days) 
                 and secure (will be encrypted in database and not show value in ui). 
-                e.g. -p "username,password:secure,startDate:date"')
+                e.g. -p "username:user1@mail.com,password:12345678"')
             ->addOption('force', 'f', InputOption::VALUE_NONE,
                 'Run update integration without checking schedule')
             ->addOption('update-next-execute', 'u', InputOption::VALUE_NONE,
-                'Not update schedule of integration');
+                'Update schedule of integration');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
