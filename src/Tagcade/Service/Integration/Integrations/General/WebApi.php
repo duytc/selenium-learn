@@ -22,7 +22,7 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     const PARAM_PASSWORD = 'password';
 
     const PARAM_REPORT_URL = 'reportUrl'; // url for getting reports
-    const PARAM_API_TOKEN = 'apitoken';
+    const PARAM_API_TOKEN = 'apiToken';
     const PARAM_START_DATE = 'startDate';
     const PARAM_END_DATE = 'endDate';
     const PARAM_DATE_RANGE = 'dateRange';
