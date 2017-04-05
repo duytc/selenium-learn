@@ -37,6 +37,7 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     const XML_CONTENT_TYPE = 'application/xml';
     const JSON_CONTENT_TYPE = 'application/json';
+    const CSV_CONTENT_TYPE = 'text/csv';
 
     const URL = null;
 
@@ -202,6 +203,9 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
                 break;
             case self::JSON_CONTENT_TYPE:
                 $fileType = ".json";
+                break;
+            case self::CSV_CONTENT_TYPE:
+                $fileType = ".csv";
                 break;
             default:
                 $fileType = ".txt";
