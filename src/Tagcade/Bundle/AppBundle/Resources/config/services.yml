@@ -24,6 +24,7 @@ imports:
     - { resource: services/Video/springserve.yml }
     - { resource: services/Video/cedato.yml }
     - { resource: services/Video/streamrail.yml }
+    - { resource: services/General/web_api.yml }
 
 services:
     yaml:
@@ -145,3 +146,4 @@ services:
                 - '@tagcade.service.integration.integrations.video.springserve'
                 - '@tagcade.service.integration.integrations.video.cedato'
                 - '@tagcade.service.integration.integrations.video.streamrail'
+                - '@tagcade.service.integration.integrations.general.web_api'
