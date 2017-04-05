@@ -171,7 +171,6 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     {
         $curl = curl_init();
 
-        $this->logger->notice($this->reportUrl . implode(",", $params));
         $responseData = $this->executeQuery($curl, $this->reportUrl, $this->getMethod(), $this->getHeader(), $params);
 
         $this->handleResponse($curl, $responseData);
