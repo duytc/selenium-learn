@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher;
+namespace Tagcade\Service\Fetcher\Params\Cedato;
 
 interface CedatoPartnerParamInterface
 {

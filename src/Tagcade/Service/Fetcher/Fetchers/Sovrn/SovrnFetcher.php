@@ -4,7 +4,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\Sovrn;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Fetchers\Sovrn\Page\EarningPage;
 use Tagcade\Service\Fetcher\Fetchers\Sovrn\Page\HomePage;
 

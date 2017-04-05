@@ -5,11 +5,11 @@ namespace Tagcade\Service\Fetcher\Fetchers\Cedato;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\CedatoPartnerParams;
+use Tagcade\Service\Fetcher\Params\Cedato\CedatoPartnerParams;
 use Tagcade\Service\Fetcher\Fetchers\Cedato\Page\DeliveryReportPage;
 use Tagcade\Service\Fetcher\Fetchers\Cedato\Page\HomePage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class CedatoFetcher extends PartnerFetcherAbstract implements CedatoFetcherInterface
 {

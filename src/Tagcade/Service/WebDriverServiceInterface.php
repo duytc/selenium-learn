@@ -3,7 +3,7 @@
 namespace Tagcade\Service;
 
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 interface WebDriverServiceInterface
 {

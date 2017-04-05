@@ -6,6 +6,7 @@ namespace Tagcade\Service\Fetcher;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\DownloadFileHelperInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 interface PartnerFetcherInterface
 {

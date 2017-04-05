@@ -7,7 +7,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Gamut\Page\DeliveryReportPage;
 use Tagcade\Service\Fetcher\Fetchers\Gamut\Page\HomePage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class GamutFetcher extends PartnerFetcherAbstract implements GamutFetcherInterface
 {

@@ -7,7 +7,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Fetchers\YellowHammer\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\YellowHammer\Page\ReportingPage;
 

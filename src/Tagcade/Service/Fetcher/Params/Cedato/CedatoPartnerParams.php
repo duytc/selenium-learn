@@ -1,8 +1,9 @@
 <?php
 
-namespace Tagcade\Service\Fetcher;
+namespace Tagcade\Service\Fetcher\Params\Cedato;
 
 
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\Integration\ConfigInterface;
 
 class CedatoPartnerParams extends PartnerParams implements CedatoPartnerParamInterface

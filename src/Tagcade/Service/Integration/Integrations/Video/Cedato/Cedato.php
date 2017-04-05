@@ -2,7 +2,7 @@
 
 namespace Tagcade\Service\Integration\Integrations\Video\Cedato;
 
-use Tagcade\Service\Fetcher\CedatoPartnerParams;
+use Tagcade\Service\Fetcher\Params\Cedato\CedatoPartnerParams;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;

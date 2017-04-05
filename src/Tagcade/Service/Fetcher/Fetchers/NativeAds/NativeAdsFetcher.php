@@ -8,7 +8,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Fetchers\NativeAds\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\NativeAds\Page\ReportingPage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 
 class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetcherInterface {

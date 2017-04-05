@@ -9,7 +9,7 @@ use Tagcade\Service\Fetcher\Fetchers\SpringServe\Page\DeliveryReportingPage;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Page\HomePage;
 use Tagcade\Service\Fetcher\Params\SpringServe\SpringServePartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Facebook\WebDriver\WebDriverBy;
 
 class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFetcherInterface

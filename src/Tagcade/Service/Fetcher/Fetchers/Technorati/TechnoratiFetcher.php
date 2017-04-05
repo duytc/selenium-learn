@@ -7,7 +7,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Technorati\Page\ReportingPage;
 use Tagcade\Service\Fetcher\Fetchers\Technorati\Page\HomePage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Facebook\WebDriver\WebDriverBy;
 
 class TechnoratiFetcher extends PartnerFetcherAbstract implements TechnoratiFetcherInterface

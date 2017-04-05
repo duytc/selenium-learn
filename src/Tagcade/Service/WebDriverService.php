@@ -7,7 +7,7 @@ use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\WebDriverFactoryInterface;
 
 class WebDriverService implements WebDriverServiceInterface

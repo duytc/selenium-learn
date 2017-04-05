@@ -2,7 +2,7 @@
 
 namespace Tagcade\Service\Integration\Integrations;
 
-use Tagcade\Service\Fetcher\PartnerParams;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\WebDriverServiceInterface;

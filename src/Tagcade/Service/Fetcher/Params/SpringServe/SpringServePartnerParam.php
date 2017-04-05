@@ -3,7 +3,7 @@
 namespace Tagcade\Service\Fetcher\Params\SpringServe;
 
 
-use Tagcade\Service\Fetcher\PartnerParams;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\Integration\ConfigInterface;
 
 class SpringServePartnerParam extends PartnerParams implements SpringServePartnerParamInterface

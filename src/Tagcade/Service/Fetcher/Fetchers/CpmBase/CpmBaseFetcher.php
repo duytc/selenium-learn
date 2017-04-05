@@ -8,7 +8,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Fetchers\CpmBase\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\CpmBase\Page\ReportingPage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class CpmBaseFetcher extends PartnerFetcherAbstract implements CpmBaseFetcherInterface
 {

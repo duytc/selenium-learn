@@ -8,7 +8,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Fetchers\Epom\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\Epom\Page\Reportingpage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetcherInterface
 {

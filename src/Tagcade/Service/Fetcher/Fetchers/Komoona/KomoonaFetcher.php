@@ -7,7 +7,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Fetchers\Komoona\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\Komoona\Page\IncomeReportPage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class KomoonaFetcher extends PartnerFetcherAbstract implements KomoonaFetcherInterface
 {

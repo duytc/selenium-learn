@@ -7,7 +7,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Across33\Page\DeliveryReportPage;
 use Tagcade\Service\Fetcher\Fetchers\Across33\Page\HomePage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherInterface
 {
