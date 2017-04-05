@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Video_cedato;
+namespace Tagcade\Service\Fetcher\Fetchers\Cedato;
 
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 

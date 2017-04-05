@@ -6,7 +6,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Fetchers\DefyMedia\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\DefyMedia\Page\ReportingPage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class DefyMediaFetcher extends PartnerFetcherAbstract implements DefyMediaFetcherInterface
 {

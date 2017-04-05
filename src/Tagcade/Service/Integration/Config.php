@@ -260,7 +260,7 @@ class Config implements ConfigInterface
      * extract dynamic date range from dateRange value
      *
      * @param string $dynamicDateRange
-     * @return array [ <startDate>, <endDate> ]
+     * @return bool|array [ <startDate>, <endDate> ]
      */
     public static function extractDynamicDateRange($dynamicDateRange)
     {

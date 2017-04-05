@@ -8,7 +8,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Fetchers\Ads4Games\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\Ads4Games\Page\Reportingpage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class Ads4GamesFetcher extends PartnerFetcherAbstract implements Ads4GamesFetcherInterface
 {

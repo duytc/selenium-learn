@@ -21,3 +21,5 @@ parameters:
     fetcher_worker_tube: 'fetcher-worker'
     pheanstalk_ttr: 60
     pheanstalk_primary_host: 127.0.0.1
+    integration_log_file_dir: %kernel.root_dir%/../app/logs/integration
+    integration_temp_file_dir: %kernel.root_dir%/../app/temp/integration

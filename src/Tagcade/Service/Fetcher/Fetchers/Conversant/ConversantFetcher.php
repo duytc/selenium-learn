@@ -7,7 +7,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Conversant\Page\ReportingPage;
 use Tagcade\Service\Fetcher\Fetchers\Conversant\Page\HomePage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class ConversantFetcher extends PartnerFetcherAbstract implements ConversantFetcherInterface
 {
