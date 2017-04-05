@@ -8,10 +8,6 @@ interface PartnerParamInterface
      * @return String
      */
     public function getUsername();
-    /**
-     * @param String $username
-     */
-    public function setUsername($username);
 
     /**
      * @return String
@@ -19,19 +15,9 @@ interface PartnerParamInterface
     public function getPassword();
 
     /**
-     * @param String $password
-     */
-    public function setPassword($password);
-
-    /**
      * @return \DateTime
      */
     public function getStartDate();
-
-    /**
-     * @param \DateTime $startDate
-     */
-    public function setStartDate($startDate);
 
     /**
      * @return \DateTime
@@ -39,38 +25,22 @@ interface PartnerParamInterface
     public function getEndDate();
 
     /**
-     * @param \DateTime $endDate
-     */
-    public function setEndDate($endDate);
-
-    /**
      * @return mixed
      */
     public function getConfig();
 
     /**
-     * @param mixed $config
+     * @return int
      */
-    public function setConfig($config);
-
-    /**
-     * @return String
-     */
-    public function getReportType();
-
-    /**
-     * @param $reportType
-     */
-    public function setReportType($reportType);
+    public function getPublisherId();
 
     /**
      * @return string
      */
-    public function getAccount();
+    public function getIntegrationCName();
 
     /**
-     * @param string $account
-     * @return $this
+     * @return int
      */
-    public function setAccount($account);
+    public function getProcessId();
 }

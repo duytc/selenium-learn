@@ -1,12 +1,13 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Video_cedato;
+namespace Tagcade\Service\Fetcher\Fetchers\Cedato;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\Video_cedato\Page\DeliveryReportPage;
-use Tagcade\Service\Fetcher\Fetchers\Video_cedato\Page\HomePage;
+use Tagcade\Service\Fetcher\CedatoPartnerParams;
+use Tagcade\Service\Fetcher\Fetchers\Cedato\Page\DeliveryReportPage;
+use Tagcade\Service\Fetcher\Fetchers\Cedato\Page\HomePage;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 use Tagcade\Service\Fetcher\PartnerParamInterface;
 
@@ -21,6 +22,11 @@ class CedatoFetcher extends PartnerFetcherAbstract implements CedatoFetcherInter
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        if (!$params instanceof CedatoPartnerParams) {
+            $this->logger->error('expected CedatoPartnerParams');
+            return;
+        }
+
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
@@ -33,13 +39,10 @@ class CedatoFetcher extends PartnerFetcherAbstract implements CedatoFetcherInter
 
         $this->logger->info('end logging in');
 
-        usleep(10);
-
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
-
         $deliveryReportPage->navigateToReportPage($params->getReportType());
 
         $driver->wait()->until(

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Video_cedato\Page;
+namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
 
 use DateTime;
 use Facebook\WebDriver\WebDriverBy;
@@ -112,7 +112,7 @@ class DeliveryReportPage extends AbstractPage
     /**
      * navigate to ReportPage based on report type
      * @param string $reportType
-     *
+     * @throws \Exception
      */
     public function navigateToReportPage($reportType)
     {
@@ -123,14 +123,15 @@ class DeliveryReportPage extends AbstractPage
             case self::DEMAND_SOURCE_BY_SUPPLY_REPORT_TYPE:
                 $url = self::DEMAND_SOURCE_BY_SUPPLY_URL;
                 break;
-            case self::SUPPLY_URL:
+            case self::SUPPLY_REPORT_TYPE:
                 $url = self::SUPPLY_URL;
                 break;
             case self::SUPPLY_BY_DEMAND_SOURCES_REPORT_TYPE:
                 $url = self::SUPPLY_BY_DEMAND_SOURCES_URL;
                 break;
             default:
-                $url = self::SUPPLY_URL;
+                $this->logger->error(sprintf('cannot find report type: %s', $reportType));
+                throw new \Exception(sprintf('cannot find report type: %s', $reportType));
         }
 
         $this->driver->navigate()->to($url);

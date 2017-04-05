@@ -1,6 +1,6 @@
 services:
     tagcade.service.fetcher.fetchers.cedato:
-        class: Tagcade\Service\Fetcher\Fetchers\Video_cedato\CedatoFetcher
+        class: Tagcade\Service\Fetcher\Fetchers\Cedato\CedatoFetcher
         parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
     tagcade.service.integration.integrations.video.cedato:

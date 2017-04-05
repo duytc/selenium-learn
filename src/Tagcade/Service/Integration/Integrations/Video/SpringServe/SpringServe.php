@@ -3,6 +3,7 @@
 
 namespace Tagcade\Service\Integration\Integrations\Video\SpringServe;
 
+use Tagcade\Service\Fetcher\Params\SpringServe\SpringServePartnerParam;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
@@ -16,5 +17,15 @@ class SpringServe extends IntegrationVideoDemandPartnerAbstract implements Integ
     {
         parent::__construct($webDriverService);
         $this->partnerFetcher = $fetcher;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * override because of new param "reportType"
+     */
+    public function createPartnerParams($config)
+    {
+        return new SpringServePartnerParam($config);
     }
 }

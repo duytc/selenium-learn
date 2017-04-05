@@ -8,9 +8,6 @@ use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Fetcher\PartnerParamInterface;
-use Tagcade\Service\Fetcher\PartnerParams;
-use Tagcade\Service\Integration\Config;
-use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\WebDriverFactoryInterface;
 
 class WebDriverService implements WebDriverServiceInterface
@@ -46,75 +43,8 @@ class WebDriverService implements WebDriverServiceInterface
     /**
      * @inheritdoc
      */
-    public function doGetData(PartnerFetcherInterface $partnerFetcher, ConfigInterface $config)
+    public function doGetData(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $partnerParams)
     {
-        /** @var int publisherId */
-        $publisherId = $config->getPublisherId();
-        /** @var string $integrationCName */
-        $integrationCName = $config->getIntegrationCName();
-
-        $username = $config->getParamValue('username', null);
-        $password = $config->getParamValue('password', null);
-        $reportType = $config->getParamValue('reportType', null);
-        $account = $config->getParamValue('account', null);
-
-        //// important: try get startDate, endDate by backFill
-        if ($config->isNeedRunBackFill()) {
-            $startDate = $config->getStartDateFromBackFill();
-
-            if (!$startDate instanceof \DateTime) {
-                $this->logger->error('need run backFill but backFillStartDate is invalid');
-                throw new \Exception('need run backFill but backFillStartDate is invalid');
-            }
-
-            $startDateStr = $startDate->format('Y-m-d');
-            $endDateStr = 'yesterday';
-        } else {
-            // prefer dateRange than startDate - endDate
-            $dateRange = $config->getParamValue('dateRange', null);
-            if (!empty($dateRange)) {
-                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
-
-                if (!is_array($startDateEndDate)) {
-                    // use default 'yesterday'
-                    $startDateStr = 'yesterday';
-                    $endDateStr = 'yesterday';
-                } else {
-                    $startDateStr = $startDateEndDate[0];
-                    $endDateStr = $startDateEndDate[1];
-                }
-            } else {
-                // use user modified startDate, endDate
-                $startDateStr = $config->getParamValue('startDate', 'yesterday');
-                $endDateStr = $config->getParamValue('endDate', 'yesterday');
-
-                if (empty($startDateStr)) {
-                    $startDateStr = 'yesterday';
-                }
-
-                if (empty($endDateStr)) {
-                    $endDateStr = 'yesterday';
-                }
-            }
-        }
-
-        $params = [
-            'username' => $username,
-            'password' => $password,
-            'startDate' => $startDateStr,
-            'endDate' => $endDateStr,
-            'reportType' => $reportType,
-            'account' => $account
-        ];
-
-        $processId = getmypid();
-        $params['publisher_id'] = $publisherId;
-        $params['partner_cname'] = $integrationCName;
-        $params['process_id'] = $processId;
-
-        /** @var PartnerParamInterface $partnerParams */
-        $partnerParams = $this->createParams($params);
-
         $dataPath = $this->defaultDataPath;
         $isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
         $dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->symfonyAppDir, '/app'), ltrim($dataPath, './')) : $dataPath;
@@ -123,100 +53,31 @@ class WebDriverService implements WebDriverServiceInterface
             return 1;
         }
 
-        return $this->getDataForPublisher($partnerFetcher, $publisherId, $integrationCName, $partnerParams, $dataPath);
-    }
-
-    /**
-     * create PartnerParams from configs
-     *
-     * @param array $config
-     * @return PartnerParamInterface
-     * @throws \CannotPerformOperationException
-     * @throws \InvalidCiphertextException
-     * @throws \Exception
-     */
-    protected function createParams(array $config)
-    {
-        /** @var string $username */
-        $username = $config['username'];
-        $startDate = date_create($config['startDate']);
-        $endDate = date_create($config['endDate']);
-        $reportType = $config['reportType'];
-        $account = $config['account'];
-
-        if ($startDate > $endDate) {
-            throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
-        }
-
-        if (!array_key_exists('base64EncryptedPassword', $config) && !array_key_exists('password', $config)) {
-            throw new \Exception('Invalid configuration. Not found password or base64EncryptedPassword in the configuration');
-        }
-
-        if (array_key_exists('base64EncryptedPassword', $config) && !isset($config['publisher']['uuid'])) {
-            throw new \Exception('Missing key to decrypt publisher password');
-        }
-
-        if (array_key_exists('base64EncryptedPassword', $config)) {
-            // decrypt the hashed password
-            $base64EncryptedPassword = $config['base64EncryptedPassword'];
-            $encryptedPassword = base64_decode($base64EncryptedPassword);
-
-            $decryptKey = $this->getEncryptionKey($config['publisher']['uuid']);
-            $password = \Crypto::Decrypt($encryptedPassword, $decryptKey);
-        } else {
-            $password = $config['password'];
-        }
-
-        /**
-         * todo date should be configurable
-         */
-        return (new PartnerParams())
-            ->setUsername($username)
-            ->setPassword($password)
-            ->setStartDate(clone $startDate)
-            ->setEndDate(clone $endDate)
-            ->setConfig($config)
-            ->setReportType($reportType)
-            ->setAccount($account);
-    }
-
-    /**
-     * get Encryption Key
-     *
-     * @param $uuid
-     * @return string
-     */
-    protected function getEncryptionKey($uuid)
-    {
-        $uuid = preg_replace('[\-]', '', $uuid);
-        return substr($uuid, 0, 16);
+        return $this->getDataForPublisher($partnerFetcher, $partnerParams, $dataPath);
     }
 
     /**
      * get Data For Publisher
      *
      * @param PartnerFetcherInterface $partnerFetcher
-     * @param int $publisherId
-     * @param string $integrationCName
      * @param PartnerParamInterface $params
      * @param string $dataPath
      * @return int
      */
-    protected function getDataForPublisher(PartnerFetcherInterface $partnerFetcher, $publisherId, $integrationCName, PartnerParamInterface $params, $dataPath)
+    protected function getDataForPublisher(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, $dataPath)
     {
-        $processId = getmypid();
-        $config = [
-            'publisher_id' => $publisherId,
-            'partner_cname' => $integrationCName,
+        $webDriverConfig = [
+            'publisher_id' => $params->getPublisherId(),
+            'partner_cname' => $params->getIntegrationCName(),
             'force-new-session' => true, // TODO: get from params
             'quit-web-driver-after-run' => true, // TODO: get from params
-            'process_id' => $processId
+            'process_id' => $params->getProcessId()
         ];
 
-        $this->webDriverFactory->setConfig($config);
+        $this->webDriverFactory->setConfig($webDriverConfig);
         $this->webDriverFactory->setParams($params);
 
-        $forceNewSession = $config['force-new-session'];
+        $forceNewSession = $webDriverConfig['force-new-session'];
         $sessionId = null;
 
         if ($forceNewSession == false) {
@@ -257,7 +118,7 @@ class WebDriverService implements WebDriverServiceInterface
         }
 
         // todo check that chrome finished downloading all files before finishing
-        $quitWebDriverAfterRun = $config['quit-web-driver-after-run'];
+        $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
         if ($quitWebDriverAfterRun) {
             $driver->quit();
         }
