@@ -43,9 +43,4 @@ interface PartnerParamInterface
      * @return int
      */
     public function getProcessId();
-
-    /**
-     * @return string
-     */
-    public function getAccount();
 }

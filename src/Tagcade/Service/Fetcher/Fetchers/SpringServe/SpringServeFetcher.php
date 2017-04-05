@@ -7,6 +7,7 @@ use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Page\DeliveryReportingPage;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Page\HomePage;
+use Tagcade\Service\Fetcher\Params\SpringServe\SpringServePartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 use Tagcade\Service\Fetcher\PartnerParamInterface;
 use Facebook\WebDriver\WebDriverBy;
@@ -22,6 +23,11 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        if (!$params instanceof SpringServePartnerParamInterface) {
+            $this->logger->error('expected SpringServePartnerParam');
+            return;
+        }
+
         if (empty($params->getAccount()) || $params->getAccount() == '//i'){
             $this->logger->error('Account regex can not be empty');
             return;

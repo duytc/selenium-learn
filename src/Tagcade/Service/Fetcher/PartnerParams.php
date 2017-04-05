@@ -250,12 +250,4 @@ class PartnerParams implements PartnerParamInterface
         $uuid = preg_replace('[\-]', '', $uuid);
         return substr($uuid, 0, 16);
     }
-
-    /**
-     * @return string
-     */
-    public function getAccount()
-    {
-        return $this->account;
-    }
 }
