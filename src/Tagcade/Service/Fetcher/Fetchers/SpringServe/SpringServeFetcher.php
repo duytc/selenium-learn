@@ -22,10 +22,15 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        if (empty($params->getAccount()) || $params->getAccount() == '//i'){
+            $this->logger->error('Account regex can not be empty');
+            return;
+        }
+
         // Step 1: login
         $this->logger->info('enter login page');
         $homePage = new HomePage($driver, $this->logger);
-        usleep(10);
+
         $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
 
         if (!$login) {
@@ -34,8 +39,6 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
         }
 
         $this->logger->info('end logging in');
-
-        usleep(5);
 
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportingPage($driver, $this->logger);
@@ -47,38 +50,89 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             WebDriverExpectedCondition::titleContains('SpringServe')
         );
 
+        $length = $this->getTotalAccount($driver);
+
+        for ($accountIndex = 0; $accountIndex < $length; $accountIndex++) {
+            /**
+             * @var WebDriverElement $userAccountChosen
+             */
+            $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
+            $userAccountChosen->click();
+
+            /**
+             * @var WebDriverElement[] $liElements
+             */
+            $liElements = $userAccountChosen->findElements(WebDriverBy::tagName('li'));
+
+            foreach ($liElements as $key => $liElement) {
+                if ($key >= $accountIndex) {
+                    if (preg_match($params->getAccount(), $liElement->getText())) {
+                        $needElement = $liElement;
+                        $needElement->click();
+
+                        $driver->navigate()->to(DeliveryReportingPage::URL);
+
+                        $driver->wait()->until(
+                            WebDriverExpectedCondition::titleContains('SpringServe Reports')
+                        );
+
+                        $this->logger->info('Start downloading reports');
+                        $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
+                        $this->logger->info('Finish downloading reports');
+                        $accountIndex = $key;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $this->logoutSystem($driver);
+    }
+
+
+    /**
+     * @param RemoteWebDriver $driver
+     * @return integer
+     */
+    private function getTotalAccount(RemoteWebDriver $driver)
+    {
+        /**
+         * @var WebDriverElement $totalAccountChosen
+         */
+        $totalAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
+        $totalAccountChosen->click();
+
+        /**
+         * @var WebDriverElement[] $liElements
+         */
+        $liElements = $totalAccountChosen->findElements(WebDriverBy::tagName('li'));
+
+        $totalAccountChosen->click();
+
+        return count($liElements);
+    }
+
+    private function logoutSystem(RemoteWebDriver $driver)
+    {
+
         /**
          * @var WebDriverElement $userAccountChosen
          */
         $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
         $userAccountChosen->click();
 
+        $logOutChosen = $driver->findElement(WebDriverBy::id('navigation-toggle'));
+        $logOutChosen->click();
         /**
          * @var WebDriverElement[] $liElements
          */
-        $liElements = $userAccountChosen->findElements(WebDriverBy::tagName('li'));
-        $needElement = null;
+        $liElements = $logOutChosen->findElements(WebDriverBy::tagName('li'));
 
         foreach ($liElements as $liElement) {
-            if ($liElement->getText() == 'Division D (Supply)') {
-                $needElement = $liElement;
-                $needElement->click();
+            if ($liElement->getText() == 'Sign out') {
+                $liElement->click();
                 break;
             }
-        }
-
-        if ($needElement instanceof WebDriverElement) {
-            $driver->navigate()->to(DeliveryReportingPage::URL);
-
-            $driver->wait()->until(
-                WebDriverExpectedCondition::titleContains('SpringServe Reports')
-            );
-
-            $this->logger->info('Start downloading reports');
-            $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
-            $this->logger->info('Finish downloading reports');
-        } else {
-            $this->logger->info('Not found Division D partner');
         }
     }
 }
