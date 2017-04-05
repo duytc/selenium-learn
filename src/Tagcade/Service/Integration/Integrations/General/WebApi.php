@@ -5,7 +5,6 @@ namespace Tagcade\Service\Integration\Integrations\General;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
-use RestClient\CurlRestClient;
 use Tagcade\Service\FileStorageServiceInterface;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
@@ -131,7 +130,7 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     /**
      * @return mixed
      */
-    public function getApiToken()
+    protected function getApiToken()
     {
         return $this->apiToken;
     }
@@ -147,11 +146,11 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
     }
 
     /**
-     * @return null
+     * @return array
      */
     public function getHeader()
     {
-        return null;
+        return [];
     }
 
     /**
@@ -170,48 +169,103 @@ class WebApi extends IntegrationAbstract implements IntegrationInterface
      */
     protected function doGetData($params = array())
     {
-        $curl = new CurlRestClient();
-        $responseData = $curl->executeQuery($this->reportUrl, $this->getMethod(), $this->getHeader(), $params);
+        $curl = curl_init();
+
+        $this->logger->notice($this->reportUrl . implode(",", $params));
+        $responseData = $this->executeQuery($curl, $this->reportUrl, $this->getMethod(), $this->getHeader(), $params);
 
         $this->handleResponse($curl, $responseData);
+
+        // close curl
+        if (null !== $curl) {
+            curl_close($curl);
+            $curl = null;
+        }
     }
 
     /**
-     * @param CurlRestClient $curl
+     * @param resource $curl
+     * @param string $url
+     * @param string $method
+     * @param array $header
+     * @param array $data
+     * @param array $auth
+     * @return mixed
+     */
+    public function executeQuery($curl, $url, $method = 'GET', $header = array(), $data = array(), $auth = array())
+    {
+        if ($method == 'GET')
+            $url = $url . '?' . http_build_query($data);
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        if (!empty($auth)) {
+            curl_setopt($curl, CURLOPT_HTTPAUTH, $auth['CURLOPT_HTTPAUTH']);
+            curl_setopt($curl, CURLOPT_USERPWD, $auth['username'] . ':' . $auth['password']);
+        }
+
+        if ($method == 'POST') {
+            curl_setopt($curl, CURLOPT_POST, true);
+            if (!empty($data)) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+            } else {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, array());
+            }
+        } elseif ($method == 'PUT') {
+            curl_setopt($curl, CURLOPT_PUT, true);
+            if (!empty($data)) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+            } else {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, array());
+            }
+        } elseif ($method == 'DELETE') {
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            if (!empty($data)) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+            } else {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, array());
+            }
+        }
+
+        return curl_exec($curl);
+    }
+
+    /**
+     * @param resource $curl
      * @param $responseData
      * @throws Exception
      */
-    protected function handleResponse(CurlRestClient $curl, $responseData)
+    protected function handleResponse($curl, $responseData)
     {
-        $curlHttpCode = curl_getinfo($curl->getCurl(), CURLINFO_HTTP_CODE);
+        $curlHttpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if ($curlHttpCode !== 200) {
-            $this->logger->error('cannot get data from this url');
-            throw new Exception('cannot get data from this url');
+            throw new Exception(sprintf('cannot get data from this url, errorCode= %s', $curlHttpCode));
         }
 
-        $curlContentType = curl_getinfo($curl->getCurl(), CURLINFO_CONTENT_TYPE);
+        $curlContentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
 
         switch ($curlContentType) {
             case self::XLSX_CONTENT_TYPE:
-                $fileType = ".xlsx";
+                $fileType = '.xlsx';
                 break;
             case self::XLS_CONTENT_TYPE:
-                $fileType = ".xls";
+                $fileType = '.xls';
                 break;
             case self::XML_CONTENT_TYPE:
-                $fileType = ".xml";
+                $fileType = '.xml';
                 break;
             case self::JSON_CONTENT_TYPE:
-                $fileType = ".json";
+                $fileType = '.json';
                 break;
             case self::CSV_CONTENT_TYPE:
-                $fileType = ".csv";
+                $fileType = '.csv';
                 break;
             default:
-                $fileType = ".txt";
+                $fileType = '.txt';
         }
 
-        $curl->close();
         $fileName = sprintf('%s_%d%s', 'file', strtotime(date('Y-m-d')), $fileType);
         $path = $this->fileStorage->getDownloadPath($this->config, $fileName);
         file_put_contents($path, $responseData);
