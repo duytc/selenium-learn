@@ -89,11 +89,9 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     }
 
     /**
-     * @param RemoteWebElement $clickAbleElement
-     * @param $directoryStoreDownloadFile
-     * @return $this|mixed
+     * @inheritdoc
      */
-    public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile)
+    public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile, $subDirToMove = null)
     {
         if (!$clickAbleElement instanceof RemoteWebElement) {
             $this->logger->error("Invalid remove web element");
@@ -108,7 +106,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
         $this->logger->debug('Click to download element');
         $oldFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
         $clickAbleElement->click();
-        $this->waitFinishingDownload($directoryStoreDownloadFile, $oldFiles ) ;
+        $this->waitFinishingDownload($directoryStoreDownloadFile, $oldFiles) ;
 
         return $this;
     }
@@ -120,7 +118,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @internal param $totalOldFiles
      * @return $this
      */
-    public function waitFinishingDownload($directoryStoreDownloadFile, $oldFiles )
+    public function waitFinishingDownload($directoryStoreDownloadFile, $oldFiles)
     {
         $countOldFiles = count($oldFiles);
         $foundPartialFile = false;

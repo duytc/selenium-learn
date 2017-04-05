@@ -1,0 +1,11 @@
+services:
+    tagcade.service.fetcher.fetchers.cedato:
+        class: Tagcade\Service\Fetcher\Fetchers\Cedato\CedatoFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
+
+    tagcade.service.integration.integrations.video.cedato:
+        class: Tagcade\Service\Integration\Integrations\Video\Cedato\Cedato
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.cedato'

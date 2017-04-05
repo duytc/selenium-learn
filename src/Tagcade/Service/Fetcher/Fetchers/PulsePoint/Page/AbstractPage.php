@@ -344,23 +344,20 @@ abstract class AbstractPage
         $RunningCommandDate =  new \DateTime('now');
         $myProcessId =  array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
 
-        if (!is_dir($rootDirectory)) {
-            mkdir($rootDirectory);
-        }
-
         $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
-        if (!is_dir($publisherPath)) {
-            mkdir($publisherPath);
-        }
 
         $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
-        if (!is_dir($partnerPath)) {
-            mkdir($partnerPath);
-        }
 
-        $directory = sprintf('%s/%s-%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'), $myProcessId);
+        $directory = sprintf('%s/%s-%s-%s-%s',
+            $partnerPath ,
+            $RunningCommandDate->format('Ymd'),
+            $startDate->format('Ymd'),
+            $endDate->format('Ymd'),
+            $myProcessId
+        );
+
         if (!is_dir($directory)) {
-            mkdir($directory);
+            mkdir($directory, 0777, true);
         }
 
         return $directory;

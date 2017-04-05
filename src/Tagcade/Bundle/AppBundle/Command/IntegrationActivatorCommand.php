@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\LockHandler;
 use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
 class IntegrationActivatorCommand extends ContainerAwareCommand
@@ -25,6 +26,15 @@ class IntegrationActivatorCommand extends ContainerAwareCommand
         $this->createLogger();
 
         $this->logger->info('Start running integration activator');
+
+        // create lock and if other process is running
+        // this make sure only one integration activator process is running at a time
+        $lock = new LockHandler('ur:fetcher:integration-activator-run');
+
+        if (!$lock->lock()) {
+            $this->logger->info(sprintf('%s: The command is already running in another process.', $this->getName()));
+            return;
+        }
 
         /* run activator service */
         /** @var IntegrationActivatorInterface $activatorService */
