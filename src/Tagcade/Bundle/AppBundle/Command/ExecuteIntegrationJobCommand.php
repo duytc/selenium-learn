@@ -16,7 +16,8 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('tc:unified-report-fetcher:execute:integration:job')
+            ->setName('tc:unified-report-fetcher:integration:run')
+            ->setDescription('Run an integration using the supplied configuration')
             ->addArgument('integrationConfigFile', InputOption::VALUE_REQUIRED, 'integrationConfigFile');
     }
 

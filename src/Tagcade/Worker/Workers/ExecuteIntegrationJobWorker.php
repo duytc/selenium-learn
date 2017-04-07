@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 
 class ExecuteIntegrationJobWorker
 {
-    const RUN_COMMAND = 'tc:unified-report-fetcher:execute:integration:job';
+    const RUN_COMMAND = 'tc:unified-report-fetcher:integration:run';
     const TEM_FILE_NAME_PREFIX = 'integration_config_';
 
     /**
@@ -93,7 +93,8 @@ class ExecuteIntegrationJobWorker
 
     protected function getAppConsoleCommand()
     {
-        $command = sprintf('php %s/console --env=%s', $this->pathToSymfonyConsole, $this->environment);
+        $phpBin = PHP_BINARY;
+        $command = sprintf('%s %s/console --env=%s', $phpBin, $this->pathToSymfonyConsole, $this->environment);
 
         if (!$this->debug) {
             $command .= ' --no-debug';

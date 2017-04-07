@@ -164,7 +164,7 @@ class Config implements ConfigInterface
     public function getParamValue($paramKey, $defaultValue)
     {
         $paramArr = $this->getParamArr($paramKey);
-        if (!is_array($paramArr) || !array_key_exists(self::PARAM_KEY_VALUE, $paramArr)) {
+        if (!is_array($paramArr) || !array_key_exists(self::PARAM_KEY_VALUE, $paramArr) || $paramArr[self::PARAM_KEY_VALUE] === null) {
             return $defaultValue;
         }
 

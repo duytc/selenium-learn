@@ -17,7 +17,8 @@ class IntegrationActivatorCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('tc:unified-report-fetcher:activator:run');
+            ->setName('tc:unified-report-fetcher:activator:run')
+            ->setDescription('Check the schedule for all integrations that need to be run and create jobs');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

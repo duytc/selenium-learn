@@ -71,7 +71,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         foreach ($dataSourceIntegrationSchedules as $dataSourceIntegrationSchedule) {
             /* create new job for execution */
-            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule);
+            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule['dataSourceIntegration']);
 
             if (!$createJobResult) {
                 continue;
@@ -89,20 +89,69 @@ class IntegrationActivator implements IntegrationActivatorInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function createExecutionJobForDataSource($dataSourceId, $customParams = null, $isForceRun = false, $isUpdateNextExecute = false)
+    {
+        $dataSourceIntegration = null;
+
+        /* get all dataSource-integration-schedules from ur api */
+        /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
+        $dataSourceIntegrationSchedules = $isForceRun
+            /* get all dataSource-integration-schedules without schedule config */
+            ? $this->restClient->getDataSourceIntegrationSchedulesByDataSource($dataSourceId)
+            /* get all dataSource-integration-schedules with schedule config */
+            : $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId);
+
+        if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
+            return true;
+        }
+
+        $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedules[0];
+
+        if (array_key_exists('dataSourceIntegration', $dataSourceIntegrationSchedule)) {
+            $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
+        }
+
+        if (!is_array($dataSourceIntegration)) {
+            return true;
+        }
+
+        /* Overwrite by custom params if has */
+        if (is_array($customParams)) {
+            $dataSourceIntegration['originalParams'] = $customParams;
+        }
+
+        /* create new job for execution */
+        $this->createExecutionJob($dataSourceIntegration);
+
+        if ($isUpdateNextExecute) {
+            /* update next execution at */
+            $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
+
+            /* update backFill Executed if need */
+            $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
+            $this->updateBackFillExecuted($dataSourceIntegration);
+        }
+
+        return true;
+    }
+
+    /**
      * create execution job for dataSourceIntegration
      *
-     * @param $dataSourceIntegrationSchedule
+     * @param $dataSourceIntegration
      * @return bool
      */
-    private function createExecutionJob($dataSourceIntegrationSchedule)
+    private function createExecutionJob($dataSourceIntegration)
     {
         // TODO: validate key in array before processing...
-        $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
         $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
         $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
         $dataSourceId = $dataSourceIntegration['dataSource']['id'];
-        $params = $dataSourceIntegration['originalParams']; // original params as array of { key, value, type }
-        $paramKeys = $dataSourceIntegration['originalParams']; // param keys only
+        $params = $dataSourceIntegration['originalParams'];
+
+        $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
         $backFill = [
             'backFill' => $dataSourceIntegration['backFill'],
             'backFillStartDate' => $dataSourceIntegration['backFillStartDate'],

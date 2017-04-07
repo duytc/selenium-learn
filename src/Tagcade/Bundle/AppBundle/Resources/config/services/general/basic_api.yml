@@ -1,0 +1,6 @@
+services:
+    tagcade.service.integration.integrations.general.basic_api:
+        class: Tagcade\Service\Integration\Integrations\General\BasicApi
+        arguments:
+            - '@logger'
+            - '@tagcade.service.file_storage_service'
