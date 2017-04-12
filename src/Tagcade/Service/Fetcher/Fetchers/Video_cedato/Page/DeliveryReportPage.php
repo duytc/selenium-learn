@@ -91,8 +91,6 @@ class DeliveryReportPage extends AbstractPage
         $exportAllAsCsv = $this->driver->findElement(WebDriverBy::id('menuitem-1'));
         $this->sleep(1);
 
-        $subDirToMove = bin2hex(random_bytes(20));
-
         $this->downloadFileHelper->downloadThenWaitUntilComplete($exportAllAsCsv, $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig()));
     }
 

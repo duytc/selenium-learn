@@ -16,7 +16,7 @@ use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 class ReportingPage extends AbstractPage {
 
     const URL = 'https://nativeads.com/publisher/reports-widget.php';
-    const REPORT_FILE_NAME = 'report';
+    const REPORT_FILE_NAME = 'report.csv';
 
     /**
      * @param \DateTime $startDate
@@ -55,7 +55,7 @@ class ReportingPage extends AbstractPage {
         $dataToWrite = $this->createDataToWrite($headerData, $rangeDaysDatas);
 
         $this->logger->debug('Write data to file');
-        $path = $this->getPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
+        $path = $this->getDownloadPath($startDate, $endDate, $this->getConfig(), self::REPORT_FILE_NAME);
         $this->arrayToCSVFile($path, $dataToWrite);
         $this->logoutSystem();
     }

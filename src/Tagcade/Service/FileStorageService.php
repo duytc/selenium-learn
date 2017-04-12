@@ -42,41 +42,42 @@ class FileStorageService implements FileStorageServiceInterface
     /**
      * @inheritdoc
      */
-    public function getDownloadPath(ConfigInterface $config, $fileName): string
+    public function getDownloadPath(ConfigInterface $config, $fileName, $subDir = null): string
     {
         $rootDirectory = $this->getRootDirectory();
         $publisherId = $config->getPublisherId();
         $partnerCName = $config->getIntegrationCName();
 
-        $RunningCommandDate = new \DateTime('now');
+        $executionDate = new \DateTime('now');
         $myProcessId = getmypid();
 
-        if (!is_dir($rootDirectory)) {
-            mkdir($rootDirectory);
+        $downloadPath = sprintf(
+            '%s/%d/%s/%s-%s',
+            $rootDirectory,
+            $publisherId,
+            $partnerCName,
+            $executionDate->format('Ymd'),
+            $myProcessId
+        );
+
+        // append subDir if has
+        if (!empty($subDir)) {
+            $downloadPath = sprintf('%s/%s', $downloadPath, $subDir);
         }
 
-        $publisherPath = sprintf('%s/%s', $rootDirectory, $publisherId);
-        if (!is_dir($publisherPath)) {
-            mkdir($publisherPath);
+        if (!is_dir($downloadPath)) {
+            mkdir($downloadPath, 0777, true);
         }
 
-        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
-        if (!is_dir($partnerPath)) {
-            mkdir($partnerPath);
-        }
+        $path = sprintf('%s/%s', $downloadPath, $fileName);
 
-        $directory = sprintf('%s/%s-%s', $partnerPath, $RunningCommandDate->format('Ymd'), $myProcessId);
-        if (!is_dir($directory)) {
-            mkdir($directory);
-        }
-
-        $path = sprintf('%s/%s', $directory, $fileName);
-
+        // insert the file number when duplicate file name
+        // e.g: abc.csv => abc(1).csv, abc(2).csv, ...
         $duplicatedNumber = 1;
         while (file_exists($path)) {
             $fileNameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
             $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-            $path = sprintf('%s/%s(%d).%s', $directory, $fileNameWithoutExtension, $duplicatedNumber, $extension);
+            $path = sprintf('%s/%s(%d).%s', $downloadPath, $fileNameWithoutExtension, $duplicatedNumber, $extension);
             $duplicatedNumber++;
         }
 

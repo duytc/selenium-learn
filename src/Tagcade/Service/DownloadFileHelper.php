@@ -91,7 +91,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     /**
      * @inheritdoc
      */
-    public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile, $subDirToMove = null)
+    public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile)
     {
         if (!$clickAbleElement instanceof RemoteWebElement) {
             $this->logger->error("Invalid remove web element");

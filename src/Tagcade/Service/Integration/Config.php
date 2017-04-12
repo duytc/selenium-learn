@@ -10,6 +10,7 @@ class Config implements ConfigInterface
     const PARAM_START_DATE = 'startDate';
     const PARAM_END_DATE = 'endDate';
     const PARAM_DATE_RANGE = 'dateRange';
+    const PARAM_DAILY_BREAKDOWN = 'dailyBreakdown';
 
     /* all define keys-values of params of DataSourceIntegration */
     const PARAM_KEY_KEY = 'key';
@@ -21,6 +22,8 @@ class Config implements ConfigInterface
     const PARAM_TYPE_DYNAMIC_DATE_RANGE = 'dynamicDateRange'; // e.g dateRange, ...
     const PARAM_TYPE_SECURE = 'secure'; // e.g password, token, key, ...
     const PARAM_TYPE_REGEX = 'regex'; // e.g pattern, ...
+    const PARAM_TYPE_OPTION = 'option'; // e.g pattern, ...
+    const PARAM_TYPE_BOOL = 'bool'; // e.g true, false ...
 
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_YESTERDAY = 'yesterday';
     const PARAM_VALUE_DYNAMIC_DATE_RANGE_LAST_2_DAYS = 'last 2 days';
@@ -177,6 +180,9 @@ class Config implements ConfigInterface
 
         // build full regex if type is 'regex'. Default we support flag 'i' for case insensitive
         $value = ($type === self::PARAM_TYPE_REGEX) ? sprintf('/%s/i', $value) : $value;
+
+        // set param type to true|false if type is 'bool'
+        $value = ($type === self::PARAM_TYPE_BOOL) ? (strtolower($value) == 'true' || strtolower($value) == '1' ? true : false) : $value;
 
         return $value;
     }

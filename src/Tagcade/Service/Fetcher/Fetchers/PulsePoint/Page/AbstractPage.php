@@ -9,6 +9,7 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\DownloadFileHelperInterface;
+use Tagcade\Service\WebDriverService;
 
 abstract class AbstractPage
 {
@@ -124,7 +125,7 @@ abstract class AbstractPage
     }
 
 
-    public function getRootDirectory ()
+    public function getRootDirectory()
     {
         return $this->downloadFileHelper->getRootDirectory();
     }
@@ -132,7 +133,8 @@ abstract class AbstractPage
     /**
      * @return $this|mixed
      */
-    public  function deleteFilesByExtension() {
+    public function deleteFilesByExtension()
+    {
 
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
             return $this;
@@ -208,7 +210,7 @@ abstract class AbstractPage
      */
     public function sleep($seconds)
     {
-        $seconds = (double) $seconds;
+        $seconds = (double)$seconds;
 
         if ($seconds <= 0) {
             return;
@@ -250,7 +252,7 @@ abstract class AbstractPage
         $domain = $domain['host'];
 
         $host_names = explode(".", $domain);
-        $domain = $host_names[count($host_names)-2] . "." . $host_names[count($host_names)-1];
+        $domain = $host_names[count($host_names) - 2] . "." . $host_names[count($host_names) - 1];
 
         $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
         $this->logger->debug(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
@@ -272,7 +274,7 @@ abstract class AbstractPage
      */
     public function arrayToCSVFile($path, $dataRows)
     {
-        if(is_dir($path)) {
+        if (is_dir($path)) {
             throw new \Exception ('Path must be file');
         }
 
@@ -280,7 +282,7 @@ abstract class AbstractPage
             throw new \Exception ('Data to save csv file expect array type');
         }
 
-        $file = fopen($path,'w');
+        $file = fopen($path, 'w');
         foreach ($dataRows as $dataRow) {
             fputcsv($file, $dataRow);
         }
@@ -288,72 +290,88 @@ abstract class AbstractPage
     }
 
     /**
-     * Get path to store csv file
+     * Get path to store file
+     *
      * @param \DateTime $startDate
      * @param \DateTime $endDate
+     * @param array $config
+     * @param string $fileName filename with extension, e.g abc.csv
      * @return string
      */
-    protected function getPath(\DateTime $startDate, \DateTime $endDate, $config ,$fileName)
+    protected function getDownloadPath(\DateTime $startDate, \DateTime $endDate, array $config, $fileName)
     {
         $rootDirectory = $this->downloadFileHelper->getRootDirectory();
         $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
         $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
-        $RunningCommandDate =  new \DateTime('now');
-        $myProcessId =  array_key_exists('process_id', $config)? $config['process_id'] : getmypid();
+        $executionDate = new \DateTime('now');
+        $myProcessId = array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
 
-        if (!is_dir($rootDirectory)) {
-            mkdir($rootDirectory);
+        $downloadPath = sprintf(
+            '%s/%d/%s/%s-%s-%s-%s',
+            $rootDirectory,
+            $publisherId,
+            $partnerCName,
+            $executionDate->format('Ymd'),
+            $startDate->format('Ymd'),
+            $endDate->format('Ymd'),
+            $myProcessId
+        );
+
+        if (!is_dir($downloadPath)) {
+            mkdir($downloadPath, 0777, true);
         }
 
-        $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
-        if (!is_dir($publisherPath)) {
-            mkdir($publisherPath);
-        }
+        $path = sprintf('%s/%s.csv', $downloadPath, $fileName);
 
-        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
-        if (!is_dir($partnerPath)) {
-            mkdir($partnerPath);
-        }
-
-        $directory = sprintf('%s/%s-%s-%s-%s', $partnerPath , $RunningCommandDate->format('Ymd'), $startDate->format('Ymd'), $endDate->format('Ymd'), $myProcessId);
-        if (!is_dir($directory)) {
-            mkdir($directory);
-        }
-
-        $path = sprintf('%s/%s.csv', $directory, $fileName);
-
+        // insert the file number when duplicate file name
+        // e.g: abc.csv => abc(1).csv, abc(2).csv, ...
         $extension = 1;
         while (file_exists($path)) {
-            $path = sprintf('%s/%s(%d).csv', $directory, $fileName, $extension);
-            $extension ++;
+            $path = sprintf('%s/%s(%d).csv', $downloadPath, $fileName, $extension);
+            $extension++;
         }
+
         return $path;
     }
 
     /**
+     * get Directory Store DownloadFile.
+     * The path is built base on config and startDate, endDate such as:
+     * <rootDir>/<pubId>/<partner cname>/<run date>-<startDate>-<endDate>-<processId>
+     * If has subDir, the path = <path above>/<subDir>
+     *
      * @param \DateTime $startDate
      * @param \DateTime $endDate
-     * @param $config
+     * @param array $config
      * @return string
      */
-    public function getDirectoryStoreDownloadFile (\DateTime $startDate, \DateTime $endDate, $config)
+    public function getDirectoryStoreDownloadFile(\DateTime $startDate, \DateTime $endDate, array $config)
     {
         $rootDirectory = $this->downloadFileHelper->getRootDirectory();
         $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
         $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
-        $RunningCommandDate =  new \DateTime('now');
-        $myProcessId =  array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
+        $runningCommandDate = new \DateTime('now');
+        $myProcessId = array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
 
-        $publisherPath = sprintf('%s/%s', realpath($rootDirectory), $publisherId);
+        // append subDir if has
+        $subDir = null;
+        if (array_key_exists('subDir', $config)) {
+            $subDir = $config['subDir'];
 
-        $partnerPath = $tmpPath = sprintf('%s/%s', $publisherPath, $partnerCName);
+            if (empty($subDir)) {
+                $subDir = null;
+            }
+        }
 
-        $directory = sprintf('%s/%s-%s-%s-%s',
-            $partnerPath ,
-            $RunningCommandDate->format('Ymd'),
-            $startDate->format('Ymd'),
-            $endDate->format('Ymd'),
-            $myProcessId
+        $directory = WebDriverService::getDownloadPath(
+            $rootDirectory,
+            $publisherId,
+            $partnerCName,
+            $runningCommandDate,
+            $startDate,
+            $endDate,
+            $myProcessId,
+            $subDir
         );
 
         if (!is_dir($directory)) {
@@ -370,7 +388,7 @@ abstract class AbstractPage
      */
     public function getAllFileInDirectory($directory)
     {
-        if(!is_dir($directory)) {
+        if (!is_dir($directory)) {
             throw new \Exception(sprintf('This path is not directory, path is %s', $directory));
         }
         $filesInfo = $this->downloadFileHelper->getAllFilesInDirectory($directory);

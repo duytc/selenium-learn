@@ -90,6 +90,8 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
             throw new Exception(sprintf('The date format "%s" is invalid', $dateFormat));
         }
 
+        // TODO: handle dailyBreakdown if need...
+
         $apiUrl = str_replace(self::MACRO_START_DATE, $startDateString, $apiUrl);
         $apiUrl = str_replace(self::MACRO_END_DATE, $endDateString, $apiUrl);
 
@@ -98,7 +100,13 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
 
         $fileName = sprintf('%s_%d%s', 'file', strtotime(date('Y-m-d')), $this->getFileExtension($contentType));
 
-        $path = $this->fileStorage->getDownloadPath($config, $fileName);
+        // important: each file will be stored in separated dir,
+        // then metadata is stored in same this dir
+        // so that we know file and metadata file is in pair
+        $subDir = sprintf('%s-%s', $fileName, (new DateTime())->getTimestamp());
+
+        $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
+
         file_put_contents($path, $responseData);
     }
 

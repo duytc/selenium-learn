@@ -8,6 +8,7 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\WebDriverService;
 
 class WebDriverFactory implements WebDriverFactoryInterface
 {
@@ -63,7 +64,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             return false;
         }
 
-        $availableSessions = array_map(function(array $session) {
+        $availableSessions = array_map(function (array $session) {
             return $session['id'];
         }, RemoteWebDriver::getAllSessions($this->seleniumServerUrl));
 
@@ -99,9 +100,12 @@ class WebDriverFactory implements WebDriverFactoryInterface
         return array_key_exists('id', $lastSession) ? $lastSession['id'] : null;
     }
 
-    public function getWebDriver($identifier, $dataPath = null)
+    /**
+     * @inheritdoc
+     */
+    public function getWebDriver($identifier, $rootDownloadDir = null, $subDir = null)
     {
-        $this->logger->info(sprintf('identifier value=%s',$identifier));
+        $this->logger->info(sprintf('identifier value=%s', $identifier));
         if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {
             $driver = $this->getExistingSession($identifier);
 
@@ -113,11 +117,11 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $this->logger->info(sprintf('Could not create web driver from session %s. Try to clear session and create a new one now', $identifier));
             $this->clearAllSessions();
 
-            $identifier = $dataPath;
+            $identifier = $rootDownloadDir;
         }
 
         $this->logger->info(sprintf('Create web driver with identifier %s', $identifier));
-        $driver = $this->createWebDriver($identifier);
+        $driver = $this->createWebDriver($identifier, $subDir);
 
         $sessionId = $driver->getSessionID();
 
@@ -128,21 +132,24 @@ class WebDriverFactory implements WebDriverFactoryInterface
         return $driver;
     }
 
-    public function createWebDriver($dataPath)
+    /**
+     * @inheritdoc
+     */
+    public function createWebDriver($rootDownloadDir, $subDir = null)
     {
         $chromeOptions = new ChromeOptions();
-        $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile.%s', $dataPath, uniqid($prefix = '', $more_entropy = true))]);
+        $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile.%s', $rootDownloadDir, uniqid($prefix = '', $more_entropy = true))]);
         $executionDate = new \DateTime('today');
 
-        $defaultDownloadPath = sprintf(
-            '%s/%d/%s/%s-%s-%s-%s',
-            $dataPath,
+        $defaultDownloadPath = WebDriverService::getDownloadPath(
+            $rootDownloadDir,
             $this->config['publisher_id'],
             $this->config['partner_cname'],
-            $executionDate->format('Ymd'),
-            $this->params->getStartDate()->format('Ymd'),
-            $this->params->getEndDate()->format('Ymd'),
-            $this->config['process_id']
+            $executionDate,
+            $this->params->getStartDate(),
+            $this->params->getEndDate(),
+            $this->config['process_id'],
+            $subDir
         );
 
         $chromeOptions->setExperimentalOption('prefs', [
@@ -168,7 +175,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
     public function clearAllSessions()
     {
         $sessions = RemoteWebDriver::getAllSessions($this->seleniumServerUrl);
-        foreach($sessions as $session) {
+        foreach ($sessions as $session) {
             $driver = RemoteWebDriver::createBySessionID($session['id'], $this->seleniumServerUrl);
             try {
                 $driver->manage()->deleteAllCookies();

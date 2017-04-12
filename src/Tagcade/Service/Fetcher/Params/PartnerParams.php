@@ -12,6 +12,7 @@ class PartnerParams implements PartnerParamInterface
     const PARAM_KEY_PASSWORD = 'password';
     const PARAM_KEY_START_DATE = 'startDate';
     const PARAM_KEY_END_DATE = 'endDate';
+    const PARAM_KEY_DAILY_BREAKDOWN = 'dailyBreakdown';
 
     /* required params (information for webdriver run) */
     /**
@@ -23,6 +24,11 @@ class PartnerParams implements PartnerParamInterface
      * @var string $integrationCName
      */
     protected $integrationCName;
+
+    /**
+     * @var string $dataSourceId
+     */
+    protected $dataSourceId;
 
     /**
      * @var int publisherId
@@ -49,6 +55,9 @@ class PartnerParams implements PartnerParamInterface
      */
     protected $endDate;
 
+    /** @var  bool */
+    protected $dailyBreakdown;
+
     /* original integration config */
     /**
      * @var $config
@@ -61,10 +70,12 @@ class PartnerParams implements PartnerParamInterface
         $publisherId = $config->getPublisherId();
         /** @var string $integrationCName */
         $integrationCName = $config->getIntegrationCName();
+        $dataSourceId = $config->getDataSourceId();
         $processId = getmypid();
 
         $username = $config->getParamValue(self::PARAM_KEY_USERNAME, null);
         $password = $config->getParamValue(self::PARAM_KEY_PASSWORD, null);
+        $dailyBreakdown = $config->getParamValue(self::PARAM_KEY_DAILY_BREAKDOWN, null);
 
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
@@ -113,12 +124,14 @@ class PartnerParams implements PartnerParamInterface
             self::PARAM_KEY_USERNAME => $username,
             self::PARAM_KEY_PASSWORD => $password,
             self::PARAM_KEY_START_DATE => $startDateStr,
-            self::PARAM_KEY_END_DATE => $endDateStr
+            self::PARAM_KEY_END_DATE => $endDateStr,
+            self::PARAM_KEY_DAILY_BREAKDOWN => $dailyBreakdown
         ];
 
         /* set required params */
         $this->publisherId = $publisherId;
         $this->integrationCName = $integrationCName;
+        $this->dataSourceId = $dataSourceId;
         $this->processId = $processId;
 
         /* create common params */
@@ -136,6 +149,16 @@ class PartnerParams implements PartnerParamInterface
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setConfig(array $config)
+    {
+        $this->config = $config;
+
+        return $this;
     }
 
     /**
@@ -165,9 +188,37 @@ class PartnerParams implements PartnerParamInterface
     /**
      * @inheritdoc
      */
+    public function setStartDate(\DateTime $startDate)
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getEndDate()
     {
         return $this->endDate;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setEndDate(\DateTime $endDate)
+    {
+        $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isDailyBreakdown()
+    {
+        return $this->dailyBreakdown;
     }
 
     /**
@@ -184,6 +235,14 @@ class PartnerParams implements PartnerParamInterface
     public function getIntegrationCName()
     {
         return $this->integrationCName;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceId()
+    {
+        return $this->dataSourceId;
     }
 
     /**
@@ -208,6 +267,7 @@ class PartnerParams implements PartnerParamInterface
         $username = $config[self::PARAM_KEY_USERNAME];
         $startDate = date_create($config[self::PARAM_KEY_START_DATE]);
         $endDate = date_create($config[self::PARAM_KEY_END_DATE]);
+        $dailyBreakdown = $config[self::PARAM_KEY_DAILY_BREAKDOWN];
 
         if ($startDate > $endDate) {
             throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
@@ -237,6 +297,7 @@ class PartnerParams implements PartnerParamInterface
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->config = $config;
+        $this->dailyBreakdown = $dailyBreakdown;
     }
 
     /**

@@ -95,7 +95,8 @@ class ReportingPage extends AbstractPage  {
                 );
 
                 $tableElement = $this->driver->findElement(WebDriverBy::cssSelector('table[class="table"]'));
-                $this->saveToCSVFileFromTable($tableElement, $startDate, $endDate, $site);
+                $fileName = sprintf('%s.csv', $site);
+                $this->saveToCSVFileFromTable($tableElement, $startDate, $endDate, $fileName);
             } catch(NoSuchElementException $e) {
                 $this->logger->warning(sprintf('Exception when get data for site %s, exception message %s',$site, $e->getMessage()));
             }
@@ -163,14 +164,14 @@ class ReportingPage extends AbstractPage  {
      * @param RemoteWebElement $tableElement
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @param $fileName
+     * @param string $fileName
      * @throws InvalidSelectorException
      * @throws \Exception
      * @internal param $path
      */
     public function saveToCSVFileFromTable(RemoteWebElement $tableElement, \DateTime $startDate, \DateTime $endDate, $fileName)
     {
-        $path = $this->getPath($startDate,$endDate, $this->getConfig(), $fileName);
+        $path = $this->getDownloadPath($startDate,$endDate, $this->getConfig(), $fileName);
 
         if (!$tableElement instanceof RemoteWebElement) {
             $this->logger->warning('Invalid remove web element');

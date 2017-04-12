@@ -128,7 +128,12 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 continue;
             }
 
-            $path = $this->fileStorage->getDownloadPath($config, $fileName);
+            // important: each file will be stored in separated dir,
+            // then metadata is stored in same this dir
+            // so that we know file and metadata file is in pair
+            $subDir = sprintf('%s-%s', $fileName, (new DateTime())->getTimestamp());
+
+            $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
 
             // download file
             /** @var Result $result */
