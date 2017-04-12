@@ -35,18 +35,26 @@ Edit output dir config in app/config/parameters.yml, make sure the dir contains 
 ```
 
 
-Fetch data command
-------------------
+Commands to run fetcher
+-----------------------
 
-For all network partners
+**Run activator to execute fetchers for all scheduled data source integrations**  
 ```
-php app/console tc:unified-report-fetcher:get-data --start-date=YYYY-mm-dd --end-date=YYYY-mm-dd
+php app/console tc:unified-report-fetcher:activator:run -vvv
 ```
 
-For each supported partner:
+**Run single fetcher for a specific data source**  
 
 ```
-php app/console tc:{partner canonical name}:get-data --start-date=YYYY-mm-dd --end-date=YYYY-mm-dd
+php app/console tc:unified-report-fetcher:activator:datasource:run <data source id> [-p "<params separated by comma, format is name:type:value>"] [-f] [-u] -vvv
+```
+where: 
+- [-f]: force run without check scheduled
+- [-u]: also update scheduled time for data source integration
+
+E.g
+```
+php app/console tc:unified-report-fetcher:activator:datasource:run 36 -p "username:plainText:admin,password:plainText:123456,startDate:date:2017-04-07,endDate:date:2017-04-09,reportType:option:Demand,dailyBreakdown:bool:true" -f -vvv
 ```
 
 See help for more command options
