@@ -7,7 +7,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Media\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportingPage extends AbstractPage
 {
@@ -38,10 +38,6 @@ class ReportingPage extends AbstractPage
         $this->driver->wait()->until(
             WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::id('adTagStatsTab'))
         );
-//        $this->driver->wait()->until(
-//            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#adTagStatsTab > span'))
-//        );
-
 
         try {
             /** @var RemoteWebElement $downloadBtn */
@@ -84,4 +80,4 @@ class ReportingPage extends AbstractPage
         );
         $this->driver->findElement(WebDriverBy::xpath($logoutButtonCss))->click();
     }
-} 
+}

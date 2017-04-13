@@ -5,10 +5,11 @@ namespace Tagcade\Service\Fetcher\Fetchers\Epom;
 
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\Epom\Page\HomePage;
-use Tagcade\Service\Fetcher\Fetchers\Epom\Page\Reportingpage;
-use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
+use Tagcade\Service\Fetcher\Fetchers\Epom\Page\ReportingPage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetcherInterface
 {
@@ -18,19 +19,7 @@ class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetc
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        // Step 1: login
-        $this->logger->info('Enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-        $this->logger->info('Start logging in');
-
-        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
-        if(false == $isLogin) {
-            $this->logger->warning('Login system failed!');
-            return;
-        }
-        $this->logger->info('Finish logging in');
-
-        usleep(300);
+        // usleep(300);
 
         $this->logger->info('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
@@ -44,5 +33,13 @@ class EpomMarketFetcher extends PartnerFetcherAbstract implements EpomMarketFetc
         $this->logger->info('Start downloading reports');
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('Finish downloading reports');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return new HomePage($driver, $this->logger);
     }
 }

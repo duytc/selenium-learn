@@ -6,7 +6,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Komoona\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class IncomeReportPage extends AbstractPage
 {
@@ -24,8 +24,7 @@ class IncomeReportPage extends AbstractPage
         $this->logger->debug('Selecting date range');
         $this->selectDateRange($startDate, $endDate);
         $this->driver->findElement(WebDriverBy::id('get-tags-reprot'))
-            ->click()
-        ;
+            ->click();
 
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('tags-export-to-excel'))
@@ -34,8 +33,9 @@ class IncomeReportPage extends AbstractPage
         $this->logger->debug('downloading excel report');
 
         $downloadElement = $this->driver->findElement(WebDriverBy::id('tags-export-to-excel'));
-        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
+
         $this->logOutSystem();
     }
 

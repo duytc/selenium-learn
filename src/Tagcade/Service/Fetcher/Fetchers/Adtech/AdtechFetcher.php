@@ -5,10 +5,12 @@ namespace Tagcade\Service\Fetcher\Fetchers\Adtech;
 
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\Adtech\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\Adtech\Page\ReportingPage;
-use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class AdtechFetcher extends PartnerFetcherAbstract implements AdtechFetcherInterface
 {
@@ -18,18 +20,7 @@ class AdtechFetcher extends PartnerFetcherAbstract implements AdtechFetcherInter
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        // Step 1: login
-        $this->logger->info('Enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
-
-        if (false == $isLogin) {
-            $this->logger->warning('Login system failed');
-            return;
-        }
-
-        $this->logger->info('Finish logging in');
-        sleep(5);
+        // sleep(5);
 
         $this->logger->debug('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
@@ -43,5 +34,17 @@ class AdtechFetcher extends PartnerFetcherAbstract implements AdtechFetcherInter
         $this->logger->info('Start downloading reports');
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('Finish downloading reports');
+    }
+
+    /**
+     * get homepage for login
+     *
+     * @param RemoteWebDriver $driver
+     * @param LoggerInterface $logger
+     * @return AbstractHomePage
+     */
+    function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return new HomePage($driver, $this->logger);
     }
 }

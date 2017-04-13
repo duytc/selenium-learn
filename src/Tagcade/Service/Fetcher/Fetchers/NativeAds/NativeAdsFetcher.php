@@ -5,33 +5,22 @@ namespace Tagcade\Service\Fetcher\Fetchers\NativeAds;
 
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\NativeAds\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\NativeAds\Page\ReportingPage;
-use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 
-class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetcherInterface {
-
+class NativeAdsFetcher extends PartnerFetcherAbstract implements NativeAdsFetcherInterface
+{
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        // Step 1: login
-        $this->logger->info('Enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-        $this->logger->debug('Start logging in');
-
-        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
-
-        if (false == $isLogin) {
-            $this->logger->warning('Login system failed!');
-            return;
-        }
-
-        usleep(500);
+        // usleep(500);
 
         $this->logger->debug('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
@@ -48,4 +37,12 @@ class NativeAdsFetcher extends PartnerFetcherAbstract implements  NativeAdsFetch
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('Finish downloading reports');
     }
-} 
+
+    /**
+     * @inheritdoc
+     */
+    public function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return new HomePage($driver, $this->logger);
+    }
+}

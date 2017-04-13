@@ -5,9 +5,9 @@ namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'https://dashboard.cedato.com';
 
@@ -42,14 +42,20 @@ class HomePage extends AbstractPage
         sleep(2);
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
         $waitDriver = new WebDriverWait($this->driver, 60);
-        $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('navbar-collapse-1')));
-        return $this->isLoggedIn();
+
+        try {
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('navbar-collapse-1')));
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $headerMainmenus = $this->driver->findElements(WebDriverBy::id('usernameInNav'));
 
         return empty($headerMainmenus) ? false : true;
     }
-} 
+}

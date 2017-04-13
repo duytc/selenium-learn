@@ -9,6 +9,8 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
+use Tagcade\Exception\LoginFailException;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\WebDriverFactoryInterface;
@@ -30,15 +32,21 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var string */
     protected $integrationCName;
 
+    /** @var TagcadeRestClientInterface */
+    protected $tagcadeRestClient;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
+     * @param TagcadeRestClientInterface $tagcadeRestClient
+     * @param string $symfonyAppDir
      * @param string $defaultDataPath
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, $symfonyAppDir, $defaultDataPath)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
+        $this->tagcadeRestClient = $tagcadeRestClient;
         $this->symfonyAppDir = $symfonyAppDir;
         $this->defaultDataPath = $defaultDataPath;
     }
@@ -185,9 +193,22 @@ class WebDriverService implements WebDriverServiceInterface
             $this->handleGetDataByDateRange($partnerFetcher, $params, $driver);
 
             $this->logger->info(sprintf('Finished getting %s data', get_class($partnerFetcher)));
+        } catch (LoginFailException $loginFailException) {
+            $this->tagcadeRestClient->createAlertWhenLoginFail(
+                $loginFailException->getPublisherId(),
+                $loginFailException->getIntegrationCName(),
+                $loginFailException->getDataSourceId(),
+                $loginFailException->getStartDate(),
+                $loginFailException->getEndDate(),
+                $loginFailException->getExecutionDate()
+            );
+
+            return 1;
         } catch (\Exception $e) {
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
+
+            return 1;
         }
 
         // create metadata file
@@ -245,6 +266,13 @@ class WebDriverService implements WebDriverServiceInterface
      */
     protected function handleGetDataByDateRange(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        // step1. login
+        $partnerFetcher->doLogin($params, $driver);
+
+        // small delay
+        usleep(10);
+
+        // step2. get all report data
         $partnerFetcher->getAllData($params, $driver);
     }
 }

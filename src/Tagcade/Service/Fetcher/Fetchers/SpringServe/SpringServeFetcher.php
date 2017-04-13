@@ -3,14 +3,15 @@
 namespace Tagcade\Service\Fetcher\Fetchers\SpringServe;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Page\DeliveryReportingPage;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Page\HomePage;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Params\SpringServe\SpringServePartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
-use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
-use Facebook\WebDriver\WebDriverBy;
 
 class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFetcherInterface
 {
@@ -32,19 +33,6 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             $this->logger->error('Account regex can not be empty');
             return;
         }
-
-        // Step 1: login
-        $this->logger->info('enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-
-        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
-
-        if (!$login) {
-            $this->logger->warning('Login system failed');
-            return;
-        }
-
-        $this->logger->info('end logging in');
 
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportingPage($driver, $this->logger);
@@ -132,5 +120,13 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
 
         $userAccountChosen->click();
         return $needElements;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return new HomePage($driver, $this->logger);
     }
 }

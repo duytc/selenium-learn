@@ -7,11 +7,11 @@ namespace Tagcade\Service\Fetcher\Fetchers\Epom\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage {
-
-    const URL   =   'http://www.epommarket.com';
+class HomePage extends AbstractHomePage
+{
+    const URL = 'http://www.epommarket.com';
 
     /**
      * @param $username
@@ -42,14 +42,12 @@ class HomePage extends AbstractPage {
         $this->driver
             ->findElement(WebDriverBy::id('username'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('Click login button');
         $submitButtonLoginCss = '#loginForm > button:nth-child(10)';
@@ -62,12 +60,12 @@ class HomePage extends AbstractPage {
     /**
      * @return bool
      */
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
-        $signOutButtonCss= '#top-right-block > div.top-right-block.borderNone > div > span';
+        $signOutButtonCss = '#top-right-block > div.top-right-block.borderNone > div > span';
         #top-right-block > div:nth-child(5) > div > b
         $signOutElements = $this->driver->findElements(WebDriverBy::cssSelector($signOutButtonCss));
 
-        return empty($signOutElements) ? false:true;
+        return empty($signOutElements) ? false : true;
     }
-} 
+}

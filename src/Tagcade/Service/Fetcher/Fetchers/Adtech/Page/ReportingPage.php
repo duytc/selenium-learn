@@ -11,12 +11,12 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
 use Tagcade\Service\Fetcher\Fetchers\Adtech\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
-class ReportingPage extends AbstractPage {
-
-    const URL                                   = 'https://marketplace.adtechus.com/h2/set.do';
-    const PLACEMENT_FILL_RATE_REPORT_INDEX      = 3;
+class ReportingPage extends AbstractPage
+{
+    const URL = 'https://marketplace.adtechus.com/h2/set.do';
+    const PLACEMENT_FILL_RATE_REPORT_INDEX = 3;
 
     /**
      * @param \DateTime $startDate
@@ -30,8 +30,7 @@ class ReportingPage extends AbstractPage {
     {
         $reportingTabCssSelector = '#marketplaceNavigationbarForthTab > a';
         $this->driver->findElement(WebDriverBy::cssSelector($reportingTabCssSelector))
-            ->click()
-        ;
+            ->click();
 
         try {
             /** @var RemoteWebElement $orderReportIcon */
@@ -62,7 +61,7 @@ class ReportingPage extends AbstractPage {
             $trElements[self::PLACEMENT_FILL_RATE_REPORT_INDEX]->click();
 
             $this->logger->debug('Set date range for report');
-            $this->selectDateRange($startDate,$endDate);
+            $this->selectDateRange($startDate, $endDate);
 
             $this->logger->debug('Click to next step');
             $nextStepElement = $this->driver->findElement(WebDriverBy::cssSelector('#button_nextstep'));
@@ -86,22 +85,22 @@ class ReportingPage extends AbstractPage {
 
             $timeToWaiting = 0;
             do {
-                $timeToWaiting +=5;
+                $timeToWaiting += 5;
                 sleep(5);
                 $this->logger->debug(sprintf('Total time to waiting = %d', $timeToWaiting));
                 $waitingImageElements = $this->driver->findElements(WebDriverBy::cssSelector('img[src="/h2/img/themeone/img/status/busy.png"]'));
                 $this->logger->debug(sprintf('Count Waiting element = %d', count($waitingImageElements)));
-            } while (count($waitingImageElements) >0);
+            } while (count($waitingImageElements) > 0);
 
-           $mainWindow = $this->driver->getWindowHandle();
-           $this->logger->debug('Click to download button!');
-           $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector('img[src="https://marketplace.adtechus.com/h2/img/themeone/img/status/ready.png"]'));
-           $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
-           $this->downloadThenWaitUntilComplete($downloadBtn , $directoryStoreDownloadFile);
+            $mainWindow = $this->driver->getWindowHandle();
+            $this->logger->debug('Click to download button!');
+            $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector('img[src="https://marketplace.adtechus.com/h2/img/themeone/img/status/ready.png"]'));
+            $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+            $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
 
             $this->driver->switchTo()->window($mainWindow);
-           $this->logger->debug('Logout System!');
-           $this->logoutSystem();
+            $this->logger->debug('Logout System!');
+            $this->logoutSystem();
 
         } catch (NoSuchElementException $e) {
             $this->logger->warning(sprintf('Can not find element: %s', $e->getMessage()));
@@ -132,5 +131,4 @@ class ReportingPage extends AbstractPage {
         $confirmLogoutButtonsCss = '#button_caption\2e yes';
         $this->driver->findElement(WebDriverBy::cssSelector($confirmLogoutButtonsCss))->click();
     }
-
-} 
+}

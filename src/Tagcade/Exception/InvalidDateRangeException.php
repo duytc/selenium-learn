@@ -1,6 +1,7 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\PulsePoint\Exception;
+namespace Tagcade\Exception;
 
 class InvalidDateRangeException extends \InvalidArgumentException
-{}
+{
+}

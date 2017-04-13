@@ -4,9 +4,9 @@ namespace Tagcade\Service\Fetcher\Fetchers\Openx\Page;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'http://us-market.openx.com/#/reports?tab=my_reports';
 
@@ -29,14 +29,12 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('email'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->driver->manage()->timeouts()->setScriptTimeout(200);
         $this->driver->manage()->timeouts()->pageLoadTimeout(200);
@@ -45,13 +43,13 @@ class HomePage extends AbstractPage
 
         $errors = $this->driver->findElements(WebDriverBy::cssSelector('div[class="error"]'));
 
-        return count($errors) >0 ? false: true;
+        return count($errors) > 0 ? false : true;
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $reportings = $this->driver->findElements(WebDriverBy::id('reporting'));
 
-        return empty($reportings)? false:true;
+        return empty($reportings) ? false : true;
     }
-} 
+}

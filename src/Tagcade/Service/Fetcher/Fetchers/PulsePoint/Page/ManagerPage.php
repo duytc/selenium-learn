@@ -8,13 +8,15 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Exception\InvalidDateRangeException;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\ReportSelectorWidget;
+use Tagcade\Exception\InvalidDateRangeException;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\ExportButtonWidget;
+use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\ReportSelectorWidget;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ManagerPage extends AbstractPage
 {
     const URL = 'https://exchange.pulsepoint.com/Publisher/Reports.aspx#/Reports';
+
     /**
      * @var ReportSelectorWidget
      */
@@ -83,7 +85,7 @@ class ManagerPage extends AbstractPage
      */
     public function enableReceiveReportsByEmail($bool)
     {
-        $this->enableReceiveReportsByEmail = (bool) $bool;
+        $this->enableReceiveReportsByEmail = (bool)$bool;
 
         return $this;
     }
@@ -101,8 +103,7 @@ class ManagerPage extends AbstractPage
 
         $this->getReportSelectorWidget()
             ->getReportTypeWidget()
-            ->selectAccountManagement()
-        ;
+            ->selectAccountManagement();
 
         $success = $this->getReport($startDate, $endDate);
 
@@ -129,8 +130,7 @@ class ManagerPage extends AbstractPage
     {
         $this->getReportSelectorWidget()
             ->getReportTypeWidget()
-            ->selectImpressionDomains()
-        ;
+            ->selectImpressionDomains();
 
         $adTagFilterElement = $this->driver->findElement(WebDriverBy::id('ddlAdTagGroupAndAdTags'));
         $adTagFilter = new WebDriverSelect($adTagFilterElement);
@@ -138,7 +138,7 @@ class ManagerPage extends AbstractPage
 
         $numberOfReports = count($filterOptions);
 
-        foreach($filterOptions as $index => $option) {
+        foreach ($filterOptions as $index => $option) {
             $currentReportNumber = $index + 1;
 
             $optionText = $option->getText();
@@ -185,8 +185,7 @@ class ManagerPage extends AbstractPage
 
         $this->getReportSelectorWidget()
             ->getReportTypeWidget()
-            ->selectDailyStats()
-        ;
+            ->selectDailyStats();
 
         $success = $this->getReport($startDate, $endDate);
 
@@ -206,12 +205,10 @@ class ManagerPage extends AbstractPage
         $reportSelector = $this->getReportSelectorWidget();
 
         $reportSelector->getDateRangeWidget()
-            ->setDateRange($startDate, $endDate)
-        ;
+            ->setDateRange($startDate, $endDate);
 
         $reportSelector->getRunButtonWidget()
-            ->clickButton()
-        ;
+            ->clickButton();
 
         return $this->exportReport();
     }
@@ -234,7 +231,8 @@ class ManagerPage extends AbstractPage
                 }
                 return false;
             }
-        } catch (NoSuchElementException $e) {}
+        } catch (NoSuchElementException $e) {
+        }
 
         try {
             $exportButton = $this->getExportButtonWidget();
@@ -245,7 +243,8 @@ class ManagerPage extends AbstractPage
                 }
                 return true;
             }
-        } catch (NoSuchElementException $e) {}
+        } catch (NoSuchElementException $e) {
+        }
 
         try {
             $emailField = $this->driver->findElement(WebDriverBy::name('txtEmail'));
@@ -262,8 +261,7 @@ class ManagerPage extends AbstractPage
 
         $emailField
             ->clear()
-            ->sendKeys($this->emailAddress)
-        ;
+            ->sendKeys($this->emailAddress);
 
         $this->sleep(1);
 

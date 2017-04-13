@@ -8,23 +8,23 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Tagcade\Service\Fetcher\Fetchers\Epom\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 
-class ReportingPage extends AbstractPage {
+class ReportingPage extends AbstractPage
+{
+    const URL = 'https://www.epommarket.com/account/home.do#|publisherDashboard';
 
-    const URL     =     'https://www.epommarket.com/account/home.do#|publisherDashboard';
+    const  WAITING_DOWNLOAD_TIME_OUT = 240;
 
-    const  WAITING_DOWNLOAD_TIME_OUT                 =  240;
+    const  BREAK_DOWN_GROUP_KICK_DOWN_INDEX = 1;
+    const  BREAK_DOWN_GROUP_UL_INDEX = 1;
+    const  BREAK_DOWN_GROUP_DAY_OPTION_INDEX = 1;
 
-    const  BREAK_DOWN_GROUP_KICK_DOWN_INDEX          =   1;
-    const  BREAK_DOWN_GROUP_UL_INDEX                 =   1;
-    const  BREAK_DOWN_GROUP_DAY_OPTION_INDEX         =   1;
-
-    const  GROUP_BY_GROUP_KICK_DOWN_INDEX            =   1;
-    const  GROUP_BY_GROUP_UL_INDEX                   =   2;
-    const  GROUP_BY_GROUP_SITE_INDEX                 =   0;
-    const  GROUP_BY_GROUP_PLACEMENT_INDEX            =   2;
+    const  GROUP_BY_GROUP_KICK_DOWN_INDEX = 1;
+    const  GROUP_BY_GROUP_UL_INDEX = 2;
+    const  GROUP_BY_GROUP_SITE_INDEX = 0;
+    const  GROUP_BY_GROUP_PLACEMENT_INDEX = 2;
 
     /**
      * @param \DateTime $startDate
@@ -39,8 +39,7 @@ class ReportingPage extends AbstractPage {
         $this->logger->info('Clink to Analytic tab');
         $analyticCssSelector = '#tab-1015';
         $this->driver->findElement(WebDriverBy::cssSelector($analyticCssSelector))
-            ->click()
-        ;
+            ->click();
         sleep(5);
         $this->logger->info('Select date range');
         $this->selectDateRange($startDate, $endDate);
@@ -53,8 +52,8 @@ class ReportingPage extends AbstractPage {
         $this->waitLoadingBodyReport();
         $this->waitLoadingSummaryReport();
 
-        $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector('a[title="Export to CSV"]'));
-        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector('a[title="Export to CSV"]'));
+        $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
         $this->logoutSystem();
     }
@@ -80,7 +79,7 @@ class ReportingPage extends AbstractPage {
         $this->logger->debug('Click to Break down button.');
 
         $breakDownTableId = 'analytics-groupRange-triggerWrap';
-        $breakDownTableElement =  $this->driver->findElement(WebDriverBy::id($breakDownTableId));
+        $breakDownTableElement = $this->driver->findElement(WebDriverBy::id($breakDownTableId));
         $tdElements = $breakDownTableElement->findElements(WebDriverBy::cssSelector('td'));
         $tdElements[self::BREAK_DOWN_GROUP_KICK_DOWN_INDEX]->click();
 
@@ -126,19 +125,19 @@ class ReportingPage extends AbstractPage {
      */
     protected function waitLoadingBodyReport()
     {
-        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Grid'));
+        $report1GridElement = $this->driver->findElement(WebDriverBy::id('report1Grid'));
         $divLoadingElements = $report1GridElement->findElement(WebDriverBy::cssSelector('div[class="x-component x-mask-msg x-component-default"]'));
 
         $totalWaitingTime = 0;
         do {
             sleep(5);
-            $totalWaitingTime +=5;
+            $totalWaitingTime += 5;
             $styleValue = $divLoadingElements->getAttribute('style');
-            $isNoneValueInStyle = strpos($styleValue,'display: none;');
+            $isNoneValueInStyle = strpos($styleValue, 'display: none;');
 
-            $this->logger->debug(sprintf('Report in detail waiting: Css Value %s', $styleValue ));
-            $this->logger->debug(sprintf('Report in detail waiting: $isNoneValueInStyle Value %d', $isNoneValueInStyle ));
-            $this->logger->debug(sprintf('Report in detail waiting: Total waiting time: %d', $totalWaitingTime ));
+            $this->logger->debug(sprintf('Report in detail waiting: Css Value %s', $styleValue));
+            $this->logger->debug(sprintf('Report in detail waiting: $isNoneValueInStyle Value %d', $isNoneValueInStyle));
+            $this->logger->debug(sprintf('Report in detail waiting: Total waiting time: %d', $totalWaitingTime));
 
         } while (false == $isNoneValueInStyle);
     }
@@ -148,19 +147,19 @@ class ReportingPage extends AbstractPage {
      */
     protected function waitLoadingSummaryReport()
     {
-        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Tab-body'));
+        $report1GridElement = $this->driver->findElement(WebDriverBy::id('report1Tab-body'));
         $divLoadingElements = $report1GridElement->findElement(WebDriverBy::cssSelector('div[class="x-component x-mask-msg x-component-default"]'));
 
         $totalWaitingTime = 0;
         do {
             sleep(5);
-            $totalWaitingTime +=5;
+            $totalWaitingTime += 5;
             $styleValue = $divLoadingElements->getAttribute('style');
-            $isNoneValueInStyle = strpos($styleValue,'display: none;');
+            $isNoneValueInStyle = strpos($styleValue, 'display: none;');
 
-            $this->logger->debug(sprintf('Summary Report Waiting: Css Value %s', $styleValue ));
-            $this->logger->debug(sprintf('Summary Report Waiting: $isNoneValueInStyle Value %d', $isNoneValueInStyle ));
-            $this->logger->debug(sprintf('Summary Report Waiting: Total waiting time: %d', $totalWaitingTime ));
+            $this->logger->debug(sprintf('Summary Report Waiting: Css Value %s', $styleValue));
+            $this->logger->debug(sprintf('Summary Report Waiting: $isNoneValueInStyle Value %d', $isNoneValueInStyle));
+            $this->logger->debug(sprintf('Summary Report Waiting: Total waiting time: %d', $totalWaitingTime));
 
         } while (false == $isNoneValueInStyle);
     }
@@ -180,7 +179,7 @@ class ReportingPage extends AbstractPage {
         $downloadBtn->click();
 
         $this->logger->debug('Waiting for download complete');
-        $report1GridElement =  $this->driver->findElement(WebDriverBy::id('report1Grid'));
+        $report1GridElement = $this->driver->findElement(WebDriverBy::id('report1Grid'));
         $divLoadingElements = $report1GridElement->findElements(WebDriverBy::cssSelector('div[class="x-mask-msg"]'));
         $countLoadingElements = count($divLoadingElements);
         $totalWaitingTime = 0;
@@ -193,13 +192,13 @@ class ReportingPage extends AbstractPage {
             $countLoadingElements = count($divLoadingElements);
 
             $this->logger->debug(sprintf('Waiting for Download : Count loading element %d', $countLoadingElements));
-            $this->logger->debug(sprintf('Waiting for Download : Total waiting time: %d', $totalWaitingTime ));
+            $this->logger->debug(sprintf('Waiting for Download : Total waiting time: %d', $totalWaitingTime));
         }
 
         $FileAfterWaitingDownload = $this->downloadFileHelper->getAllFilesInDirectory($directoryStoreDownloadFile);
         $countFileAfterWaitingDownload = count($FileAfterWaitingDownload);
 
-        if($countFileAfterWaitingDownload > $countFileBeforeDownload) {
+        if ($countFileAfterWaitingDownload > $countFileBeforeDownload) {
             $this->logger->info('File has been download!');
         } else {
             $this->logger->warning('File has not been download after time out');

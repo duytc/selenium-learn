@@ -4,10 +4,11 @@ namespace Tagcade\Service\Fetcher\Fetchers\Across33;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\Across33\Page\DeliveryReportPage;
 use Tagcade\Service\Fetcher\Fetchers\Across33\Page\HomePage;
-use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherInterface
 {
@@ -20,20 +21,6 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        // Step 1: login
-        $this->logger->info('enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
-
-        if(false == $isLogin) {
-            $this->logger->warning('Login system failed');
-            return;
-        }
-
-        $this->logger->info('end logging in');
-
-        usleep(10);
-
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
@@ -52,5 +39,13 @@ class Across33Fetcher extends PartnerFetcherAbstract implements Across33FetcherI
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('Finish downloading reports');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return $homePage = new HomePage($driver, $this->logger);
     }
 }

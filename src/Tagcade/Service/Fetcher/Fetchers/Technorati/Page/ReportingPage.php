@@ -5,7 +5,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\Technorati\Page;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportingPage extends AbstractPage
 {

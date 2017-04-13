@@ -6,4 +6,4 @@ use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 
 interface Across33FetcherInterface extends PartnerFetcherInterface
 {
-} 
+}

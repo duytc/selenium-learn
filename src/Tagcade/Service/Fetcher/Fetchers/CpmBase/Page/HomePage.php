@@ -5,10 +5,10 @@ namespace Tagcade\Service\Fetcher\Fetchers\CpmBase\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage {
-
+class HomePage extends AbstractHomePage
+{
     const URL = 'http://cpmbase.com';
 
     /**
@@ -20,7 +20,6 @@ class HomePage extends AbstractPage {
      * @throws null
      * @return bool
      */
-
     public function doLogin($username, $password)
     {
         $this->navigateToPartnerDomain();
@@ -37,7 +36,7 @@ class HomePage extends AbstractPage {
             $this->navigate();
         }
 
-	    $this->logger->debug('find element login');
+        $this->logger->debug('find element login');
 
         $this->driver->findElement(WebDriverBy::cssSelector('body > div.wrap > div.menu > div > ul:nth-child(3) > li:nth-child(2) > a'))->click();
 
@@ -47,14 +46,12 @@ class HomePage extends AbstractPage {
         $this->driver
             ->findElement(WebDriverBy::name('email'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::name('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::name('login'))->click();
@@ -66,10 +63,10 @@ class HomePage extends AbstractPage {
     /**
      * @return bool
      */
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $reportings = $this->driver->findElements(WebDriverBy::cssSelector('div[class="logout"]'));
 
         return empty($reportings) ? false : true;
     }
-} 
+}

@@ -5,9 +5,9 @@ namespace Tagcade\Service\Fetcher\Fetchers\Streamrail\Page;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'http://partners.streamrail.com/';
 
@@ -23,6 +23,7 @@ class HomePage extends AbstractPage
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
+
         $this->logger->debug('filling credentials');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('ember730-input')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('ember751-input')));
@@ -41,15 +42,21 @@ class HomePage extends AbstractPage
         $this->driver->findElement(WebDriverBy::className('action-btn'))->click();
         sleep(2);
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
-        $waitDriver = new WebDriverWait($this->driver, 60);
-        $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('ember1172')));
-        return $this->isLoggedIn();
+        $waitDriver = new WebDriverWait($this->driver, 20);
+
+        try {
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('ember1172')));
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $headerMainmenus = $this->driver->findElements(WebDriverBy::id('ember1172'));
 
         return empty($headerMainmenus) ? false : true;
     }
-} 
+}

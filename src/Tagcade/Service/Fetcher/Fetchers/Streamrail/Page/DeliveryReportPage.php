@@ -5,7 +5,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\Streamrail\Page;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Streamrail\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class DeliveryReportPage extends AbstractPage
 {

@@ -6,7 +6,7 @@ use DateTime;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\DefyMedia\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class DeliveryReportPage extends AbstractPage
 {
@@ -95,4 +95,4 @@ class DeliveryReportPage extends AbstractPage
 		$logOutButtonCss = '#main-nav > ul > li.logout > a';
 		$this->driver->findElement(WebDriverBy::cssSelector($logOutButtonCss))->click();
 	}
-} 
+}

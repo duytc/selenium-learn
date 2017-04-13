@@ -3,6 +3,8 @@
 namespace Tagcade\Service\Core;
 
 
+use DateTime;
+
 interface TagcadeRestClientInterface
 {
     /**
@@ -44,4 +46,17 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId);
+
+    /**
+     * create Alert When Login Fail due to integrationConfig information
+     *
+     * @param int $publisherId
+     * @param string $integrationCName
+     * @param int $dataSourceId
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @param DateTime $executionDate
+     * @return mixed
+     */
+    public function createAlertWhenLoginFail($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, DateTime $executionDate);
 }

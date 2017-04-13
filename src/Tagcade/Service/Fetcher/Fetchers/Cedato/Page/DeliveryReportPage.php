@@ -5,9 +5,8 @@ namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
 use DateTime;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class DeliveryReportPage extends AbstractPage
 {
@@ -134,4 +133,4 @@ class DeliveryReportPage extends AbstractPage
 
         $this->driver->navigate()->to($url);
     }
-} 
+}

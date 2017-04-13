@@ -43,6 +43,7 @@ services:
         arguments:
             - '@logger'
             - '@tagcade.web_driver_factory'
+            - '@tagcade_app.rest_client'
             - '%kernel.root_dir%'
             - '%tagcade.default_data_path%'
 
@@ -71,6 +72,7 @@ services:
             - '%ur_get_list_integrations_by_datasource_url%'
             - '%ur_update_last_execution_time_for_integration_url%'
             - '%ur_update_backfill_executed_for_integration_url%'
+            - '%ur_create_alert_url%'
         calls:
             - [setLogger, ['@logger']]
 

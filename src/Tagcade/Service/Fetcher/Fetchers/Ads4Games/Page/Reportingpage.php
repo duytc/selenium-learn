@@ -8,11 +8,11 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Ads4Games\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
-class Reportingpage extends AbstractPage {
-
-    const URL     =     'https://traffic.a4g.com/www/admin/plugins/advancedStats/advancedStats-trafficker.php?entity=web';
+class Reportingpage extends AbstractPage
+{
+    const URL = 'https://traffic.a4g.com/www/admin/plugins/advancedStats/advancedStats-trafficker.php?entity=web';
 
     /**
      * @param \DateTime $startDate
@@ -28,8 +28,7 @@ class Reportingpage extends AbstractPage {
 
         $goButtonCssSelector = '#period_form > input:nth-child(9)';
         $this->driver->findElement(WebDriverBy::cssSelector($goButtonCssSelector))
-            ->click()
-        ;
+            ->click();
 
         $this->waitForJquery();
         sleep(2);
@@ -39,17 +38,16 @@ class Reportingpage extends AbstractPage {
 
         $actionCssSelector = '#thirdLevelTools > ul > li > div > span > span';
         $this->driver->findElement(WebDriverBy::cssSelector($actionCssSelector))
-            ->click()
-        ;
+            ->click();
 
         $zoneCssSelector = '.panel > div:nth-child(1) > ul:nth-child(1) > li:nth-child(2) > a:nth-child(1)';
         $this->driver->wait()->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector($zoneCssSelector))
         );
 
-        $downloadBtn =  $this->driver->findElement(WebDriverBy::cssSelector($zoneCssSelector));
-        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate,$endDate,$this->getConfig());
-        $this->downloadThenWaitUntilComplete($downloadBtn , $directoryStoreDownloadFile);
+        $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector($zoneCssSelector));
+        $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
         $this->logger->debug('Logout system');
         $this->logOutSystem();
     }
@@ -71,4 +69,4 @@ class Reportingpage extends AbstractPage {
     {
         $this->driver->navigate()->to('https://traffic.a4g.com/www/admin/logout.php');
     }
-} 
+}

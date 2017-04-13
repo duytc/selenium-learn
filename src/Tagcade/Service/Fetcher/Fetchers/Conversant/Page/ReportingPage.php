@@ -6,7 +6,7 @@ use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Conversant\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportingPage extends AbstractPage
 {
@@ -34,7 +34,8 @@ class ReportingPage extends AbstractPage
         }
     }
 
-    public function logout() {
+    public function logout()
+    {
         $this->driver->navigate()->to(static::LOGOUT);
 
         return $this;

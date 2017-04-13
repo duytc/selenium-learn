@@ -5,8 +5,8 @@ namespace Tagcade\Service\Fetcher\Fetchers\YellowHammer\Page;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 use Tagcade\Service\Fetcher\Fetchers\YellowHammer\Widget\DateSelectWidget;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportingPage extends AbstractPage
 {
@@ -18,7 +18,7 @@ class ReportingPage extends AbstractPage
         $this->driver->wait()->until(
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('s2id_time_period'))
         );
-        
+
         $timePeriodElement = $this->driver
             ->findElement(WebDriverBy::id('s2id_time_period'));
 
@@ -30,8 +30,7 @@ class ReportingPage extends AbstractPage
         }
 
         $customDateElement = $this->driver
-            ->findElement(WebDriverBy::id('time_period'))
-        ;
+            ->findElement(WebDriverBy::id('time_period'));
 
         (new WebDriverSelect($customDateElement))->selectByValue('custom');
 
@@ -43,14 +42,12 @@ class ReportingPage extends AbstractPage
 
         $selectedTimeZone = $this->driver
             ->findElement(WebDriverBy::cssSelector('#s2id_timezone a'))
-            ->getText()
-        ;
+            ->getText();
 
         if (strcasecmp($selectedTimeZone, 'US/Pacific') != 0) {
             $this->driver
                 ->findElement(WebDriverBy::id('s2id_timezone'))
-                ->click()
-            ;
+                ->click();
 
             $this->driver->wait()->until(
                 WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('timezone'))
@@ -63,18 +60,16 @@ class ReportingPage extends AbstractPage
 
         // Select tag breakdown
         $this->driver->findElement(WebDriverBy::cssSelector('.tag'))
-            ->click()
-        ;
+            ->click();
 
         // click run reports
         $this->driver->findElement(WebDriverBy::cssSelector('#builder .report-btn > button+button'))
-            ->click()
-        ;
+            ->click();
 
         $this->logger->debug('exporting reports');
         $exportActions = $this->driver->findElements(WebDriverBy::cssSelector('#builder .dropdown-menu a'));
         $exportCSV = null;
-        foreach($exportActions as $link) {
+        foreach ($exportActions as $link) {
             $txt = $link->getText();
             if ($txt == 'Export to CSV') {
                 $exportCSV = $link;
@@ -84,7 +79,7 @@ class ReportingPage extends AbstractPage
 
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOf($exportCSV));
         //$exportCSV->click();
-        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($exportCSV, $directoryStoreDownloadFile);
 
         //button-loader
@@ -113,4 +108,4 @@ class ReportingPage extends AbstractPage
         $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
 
     }
-} 
+}

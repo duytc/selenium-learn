@@ -9,7 +9,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\ReportSourceSelectWidget;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget\ReportTypeSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportPage extends AbstractPage
 {

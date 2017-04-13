@@ -4,10 +4,11 @@ namespace Tagcade\Service\Fetcher\Fetchers\Districtm;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\Districtm\Page\ReportingPage;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\Districtm\Page\HomePage;
-use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
+use Tagcade\Service\Fetcher\Fetchers\Districtm\Page\ReportingPage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetcherInterface
 {
@@ -20,18 +21,6 @@ class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetche
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        // Step 1: login
-        $this->logger->info('enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-        $login = $homePage->doLogin($params->getUsername(), $params->getPassword());
-
-        if(!$login) {
-            $this->logger->warning('Login system failed');
-            return;
-        }
-
-        $this->logger->info('end logging in');
-
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new ReportingPage($driver, $this->logger);
 
@@ -50,5 +39,13 @@ class DistrictmFetcher extends PartnerFetcherAbstract implements DistrictmFetche
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('Finish downloading reports');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return new HomePage($driver, $this->logger);
     }
 }

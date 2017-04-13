@@ -8,9 +8,9 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Pheanstalk\Exception;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'http://www.media.net';
     const CONTROL_PANEL_LINK = 'control.media.net//home';
@@ -24,7 +24,6 @@ class HomePage extends AbstractPage
      * @throws null
      * @return bool
      */
-
     public function doLogin($username, $password)
     {
         $this->navigateToPartnerDomain();
@@ -32,10 +31,6 @@ class HomePage extends AbstractPage
         if ($this->isLoggedIn()) {
             return true;
         }
-
-//        if (!$this->isCurrentUrl()) {
-//            $this->navigate();
-//        }
 
         $this->logger->info('Filling username and password');
 
@@ -58,23 +53,14 @@ class HomePage extends AbstractPage
         $this->sleep(2);
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
         $waitDriver = new WebDriverWait($this->driver, 60);
-        try {
-            $waitDriver->until(
-                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('reports')),
-                'Login Fail'
-            );
-        } catch (Exception $exception) {
-            $waitDriver->until(
-                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('reports')),
-                'Login Fail'
-            );
-        }
+
+        return $this->isLoggedIn();
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         if (true == $this->findAndClickLinkByHref(self::CONTROL_PANEL_LINK)) {
             return true;
@@ -86,12 +72,12 @@ class HomePage extends AbstractPage
             $this->driver->findElement(WebDriverBy::id('dashboard'))->click();
             return true;
         }
+
         return false;
     }
 
     public function findAndClickLinkByHref($findString)
     {
-
         /** @var RemoteWebElement[] $aElements */
         $aElements = $this->driver->findElements(WebDriverBy::tagName('a'));
 
@@ -102,6 +88,7 @@ class HomePage extends AbstractPage
                 return true;
             }
         }
+
         return false;
     }
-} 
+}

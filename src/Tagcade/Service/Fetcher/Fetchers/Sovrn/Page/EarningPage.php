@@ -4,8 +4,8 @@ namespace Tagcade\Service\Fetcher\Fetchers\Sovrn\Page;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 use Tagcade\Service\Fetcher\Fetchers\Sovrn\Widget\DateSelectWidget;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class EarningPage extends AbstractPage
 {
@@ -104,11 +104,14 @@ class EarningPage extends AbstractPage
         return $this;
     }
 
-
+    /**
+     * logout system
+     */
     protected function logOutSystem()
     {
         $userImageCss = '#user-menu-trigger > div.impersonated > div.profile-image-outer > img';
         $this->driver->findElement(WebDriverBy::cssSelector($userImageCss))->click();
+
         $loutOutButtonCss = '#user-menu-popup > ul > li:nth-child(2) > a';
         $this->driver->findElement(WebDriverBy::cssSelector($loutOutButtonCss))->click();
     }

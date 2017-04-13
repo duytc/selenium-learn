@@ -18,6 +18,7 @@ parameters:
     ur_update_last_execution_time_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/updateexecuteat'
     ur_update_backfill_executed_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/backfill'
     ur_post_datasource_import_json_data: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasources/entry'
+    ur_create_alert_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/alerts'
 
     fetcher_worker_tube: 'fetcher-worker'
     pheanstalk_ttr: 60

@@ -4,6 +4,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportPage extends AbstractPage
 {
@@ -21,8 +22,7 @@ class ReportPage extends AbstractPage
 
             // select
             $this->driver->findElement($reportDetailsHeaderSel)
-                ->click()
-            ;
+                ->click();
 
             $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('dateFrom')));
         }
@@ -30,28 +30,25 @@ class ReportPage extends AbstractPage
         $this->logger->debug('filling start date data');
         $this->driver->findElement(WebDriverBy::id('dateFrom'))
             ->clear()
-            ->sendKeys($startDate->format('m/d/Y'))
-        ;
+            ->sendKeys($startDate->format('m/d/Y'));
 
         usleep(200);
         $this->logger->debug('filling end date data');
         $this->driver->findElement(WebDriverBy::id('dateTo'))
             ->clear()
-            ->sendKeys($startDate->format('m/d/Y'))
-        ;
+            ->sendKeys($startDate->format('m/d/Y'));
         usleep(200);
 
         // run report
         $this->logger->debug('click run report button');
         $this->driver->findElement(WebDriverBy::id('btnContainer'))
-            ->click()
-        ;
+            ->click();
 
-        $this->driver->wait(120,250)->until(
+        $this->driver->wait(120, 250)->until(
             WebDriverExpectedCondition::not(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.block-ui-overlay')))
         );
 
-        $this->driver->wait(120,250)->until(
+        $this->driver->wait(120, 250)->until(
             WebDriverExpectedCondition::not(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('.block-ui-message-container')))
         );
 
@@ -59,16 +56,16 @@ class ReportPage extends AbstractPage
             WebDriverExpectedCondition::not(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('div.blockUI')))
         );
 
-        $this->driver->wait(120,250)->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
+        $this->driver->wait(120, 250)->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.exportBtn')));
         $exportButton = $this->driver->findElement(WebDriverBy::cssSelector('.exportBtn'));
         // click export to excel
         $this->logger->debug('start downloading reports');
         //$exportButton->click();
-        $directoryStoreDownloadFile =  $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
+        $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($exportButton, $directoryStoreDownloadFile);
+
         $this->logoutSystem();
         $this->logger->debug('Clicked downloading reports');
-
     }
 
     protected function logoutSystem()
@@ -76,5 +73,4 @@ class ReportPage extends AbstractPage
         $logoutButtonCss = '#menubar > ul > div.pull-right.loginTab > div:nth-child(4) > a';
         $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
     }
-
-} 
+}

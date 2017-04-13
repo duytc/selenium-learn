@@ -5,9 +5,9 @@ namespace Tagcade\Service\Fetcher\Fetchers\Across33\Page;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage 
+class HomePage extends AbstractHomePage
 {
     const URL = 'https://platform.33across.com/sessions/new';
 
@@ -29,14 +29,12 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('login'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
@@ -47,10 +45,10 @@ class HomePage extends AbstractPage
         return $this->isLoggedIn();
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
-       $headerMainmenus = $this->driver->findElements(WebDriverBy::cssSelector('a[href="/account/log_out"]'));
+        $headerMainmenus = $this->driver->findElements(WebDriverBy::cssSelector('a[href="/account/log_out"]'));
 
-        return empty($headerMainmenus)? false:true;
+        return empty($headerMainmenus) ? false : true;
     }
-} 
+}

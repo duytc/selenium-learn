@@ -7,10 +7,10 @@ namespace Tagcade\Service\Fetcher\Fetchers\Ads4Games\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage {
-
+class HomePage extends AbstractHomePage
+{
     const URL = 'https://traffic.a4g.com/www/admin/index.php';
 
     /**
@@ -42,14 +42,12 @@ class HomePage extends AbstractPage {
         $this->driver
             ->findElement(WebDriverBy::id('username'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('login'))->click();
@@ -60,10 +58,10 @@ class HomePage extends AbstractPage {
     /**
      * @return bool
      */
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
-       $logoutElements = $this->driver->findElements(WebDriverBy::cssSelector('li[class="buttonLogout"]'));
+        $logoutElements = $this->driver->findElements(WebDriverBy::cssSelector('li[class="buttonLogout"]'));
 
-       return empty($logoutElements)? false:true;
+        return empty($logoutElements) ? false : true;
     }
-} 
+}

@@ -4,9 +4,9 @@ namespace Tagcade\Service\Fetcher\Fetchers\DefyMedia\Page;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'https://pubportal.defymedia.com/auth/login';
 
@@ -29,14 +29,12 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::name('identity'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::name('credential'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn-orange'))->click();
@@ -46,11 +44,10 @@ class HomePage extends AbstractPage
 
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $userNameElements = $this->driver->findElements(WebDriverBy::cssSelector('.username'));
 
-        return empty($userNameElements) ? false:true;
-
+        return empty($userNameElements) ? false : true;
     }
-} 
+}

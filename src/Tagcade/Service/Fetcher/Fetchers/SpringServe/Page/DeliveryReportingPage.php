@@ -7,8 +7,8 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
 use Tagcade\Service\Fetcher\Fetchers\SpringServe\Widget\DateSelectWidget;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class DeliveryReportingPage extends AbstractPage
 {

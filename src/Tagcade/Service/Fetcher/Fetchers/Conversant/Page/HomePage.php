@@ -5,9 +5,9 @@ namespace Tagcade\Service\Fetcher\Fetchers\Conversant\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'https://admin.valueclickmedia.com/corp/login';
 
@@ -16,12 +16,13 @@ class HomePage extends AbstractPage
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {
-            return;
+            return true;
         }
 
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
+
         $this->logger->debug('filling credentials');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('login-user_name')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('#login-password-content > div > input')));
@@ -29,39 +30,35 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('login-user_name'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::cssSelector('#login-password-content > div > input'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.submit_input'))->click();
 
         $error = $this->driver->findElements(WebDriverBy::cssSelector('#login-password-errors'));
-        if(count($error) > 0) {
+        if (count($error) > 0) {
             return false;
         }
 
-        return true;
+        return $this->isLoggedIn();
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         try {
             $this->driver
-                ->findElement(WebDriverBy::id('page_header'))
-            ;
+                ->findElement(WebDriverBy::id('page_header'));
 
             return true;
-        }
-        catch (NoSuchElementException $ne) {
+        } catch (NoSuchElementException $ne) {
 
         }
 
         return false;
     }
-} 
+}

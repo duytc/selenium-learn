@@ -7,7 +7,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\Epom\Widget;
 use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\AbstractWidget;
 
 class DateSelectWidget extends AbstractWidget {
@@ -17,8 +17,9 @@ class DateSelectWidget extends AbstractWidget {
 
     /**
      * @param RemoteWebDriver $driver
+     * @param LoggerInterface $logger
      */
-    public function __construct(RemoteWebDriver $driver, Logger $logger)
+    public function __construct(RemoteWebDriver $driver, LoggerInterface $logger)
     {
         parent::__construct($driver, $logger);
     }

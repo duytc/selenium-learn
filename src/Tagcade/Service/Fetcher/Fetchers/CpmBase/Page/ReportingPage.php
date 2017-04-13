@@ -12,22 +12,22 @@ use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
 use Tagcade\Service\Fetcher\Fetchers\CpmBase\Widget\DateSelectWidget;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
-class ReportingPage extends AbstractPage  {
-
+class ReportingPage extends AbstractPage
+{
     const URL = 'http://publisher.cpmbase.com/reporting';
 
-    const GROUP_BY_SIZE_VALUE ='size';
+    const GROUP_BY_SIZE_VALUE = 'size';
     const GRANULARITY_DAY_VALUE = 'day';
     const NO_REPORT_DATA_FOUND = 'No report data found using the specified settings.';
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
         $this->driver->findElement(WebDriverBy::cssSelector('a[href="/reporting"]'))->click();
-		$this->logger->info('Select Granularity');
+        $this->logger->info('Select Granularity');
         $this->selectGranularity();
-	    $this->logger->info('Select date range');
+        $this->logger->info('Select date range');
         $this->selectDateRange($startDate, $endDate);
         $this->selectGroupBy();
 
@@ -53,7 +53,7 @@ class ReportingPage extends AbstractPage  {
     protected function getAllTagReportsForMultiSites(\DateTime $startDate, \DateTime $endDate)
     {
         $selectElement = new WebDriverSelect($this->driver->findElement(WebDriverBy::name('publisher')));
-        $sites = array_map(function(WebDriverElement $option) {
+        $sites = array_map(function (WebDriverElement $option) {
             return $option->getAttribute('value');
         }, $selectElement->getOptions());
 
@@ -97,8 +97,8 @@ class ReportingPage extends AbstractPage  {
                 $tableElement = $this->driver->findElement(WebDriverBy::cssSelector('table[class="table"]'));
                 $fileName = sprintf('%s.csv', $site);
                 $this->saveToCSVFileFromTable($tableElement, $startDate, $endDate, $fileName);
-            } catch(NoSuchElementException $e) {
-                $this->logger->warning(sprintf('Exception when get data for site %s, exception message %s',$site, $e->getMessage()));
+            } catch (NoSuchElementException $e) {
+                $this->logger->warning(sprintf('Exception when get data for site %s, exception message %s', $site, $e->getMessage()));
             }
         }
 
@@ -115,7 +115,7 @@ class ReportingPage extends AbstractPage  {
         foreach ($selectedOptions as $selectedOption) {
             $intervalValue = $selectedOption->getAttribute('value');
 
-            if ( 0 == strcmp($intervalValue, self::GRANULARITY_DAY_VALUE )) {
+            if (0 == strcmp($intervalValue, self::GRANULARITY_DAY_VALUE)) {
                 $selectedOption->click();
             }
         }
@@ -131,7 +131,7 @@ class ReportingPage extends AbstractPage  {
         foreach ($selectedOptions as $selectedOption) {
             $intervalValue = $selectedOption->getAttribute('value');
 
-            if ( 0 == strcmp($intervalValue, self::GROUP_BY_SIZE_VALUE)) {
+            if (0 == strcmp($intervalValue, self::GROUP_BY_SIZE_VALUE)) {
                 $selectedOption->click();
             }
         }
@@ -171,15 +171,15 @@ class ReportingPage extends AbstractPage  {
      */
     public function saveToCSVFileFromTable(RemoteWebElement $tableElement, \DateTime $startDate, \DateTime $endDate, $fileName)
     {
-        $path = $this->getDownloadPath($startDate,$endDate, $this->getConfig(), $fileName);
+        $path = $this->getDownloadPath($startDate, $endDate, $this->getConfig(), $fileName);
 
         if (!$tableElement instanceof RemoteWebElement) {
             $this->logger->warning('Invalid remove web element');
             throw new InvalidSelectorException('Invalid remove web element');
         }
 
-        if(is_dir($path)) {
-            $this->logger->warning(sprintf('The path is not file, path is %s',$path));
+        if (is_dir($path)) {
+            $this->logger->warning(sprintf('The path is not file, path is %s', $path));
             throw new \Exception ('Path must be file');
         }
 
@@ -200,14 +200,15 @@ class ReportingPage extends AbstractPage  {
      * @return array
      * @throws InvalidSelectorException
      */
-    public function getDataFromTable (RemoteWebElement $tableElement) {
+    public function getDataFromTable(RemoteWebElement $tableElement)
+    {
 
-        if(!$tableElement instanceof RemoteWebElement) {
+        if (!$tableElement instanceof RemoteWebElement) {
             throw new InvalidSelectorException('Invalid remove web element');
         }
 
-        $dataRows =[];
-        $oneRows =[];
+        $dataRows = [];
+        $oneRows = [];
 
         $this->logger->debug('Find table element');
         /** @var RemoteWebElement $tableRow */
@@ -225,7 +226,7 @@ class ReportingPage extends AbstractPage  {
                 }
 
                 $dataRows[] = $oneRows;
-                $oneRows =null;
+                $oneRows = null;
 
             } catch (StaleElementReferenceException $e) {
                 $this->logger->warning($e->getMessage());
@@ -242,7 +243,7 @@ class ReportingPage extends AbstractPage  {
      */
     public function arrayToCSVFile($path, $dataRows)
     {
-        if(is_dir($path)) {
+        if (is_dir($path)) {
             throw new \Exception ('Path must be file');
         }
 
@@ -250,9 +251,9 @@ class ReportingPage extends AbstractPage  {
             throw new \Exception ('Data to save csv file expect array type');
         }
 
-        $file = fopen($path,'w');
+        $file = fopen($path, 'w');
         foreach ($dataRows as $dataRow) {
-            fputcsv( $file, $dataRow);
+            fputcsv($file, $dataRow);
         }
 
         fclose($file);
@@ -263,4 +264,4 @@ class ReportingPage extends AbstractPage  {
         $logoutButtonCss = 'body > div > div.logged-in-as > div > div > a';
         $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
     }
-} 
+}

@@ -7,10 +7,10 @@ namespace Tagcade\Service\Fetcher\Fetchers\Adtech\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage {
-
+class HomePage extends AbstractHomePage
+{
     const URL = 'https://marketplace.adtechus.com/h2/index.do';
 
     /**
@@ -42,32 +42,28 @@ class HomePage extends AbstractPage {
         $this->driver
             ->findElement(WebDriverBy::id('username'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::cssSelector('.btn'))->click();
 
         sleep(2);
-       return $this->isLoggedIn();
-
+        return $this->isLoggedIn();
     }
 
     /**
      * @return bool
      */
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
-            $logOutButton = '#navLogoutItem';
-            $logOutElements = $this->driver->findElements(WebDriverBy::cssSelector($logOutButton));
+        $logOutButton = '#navLogoutItem';
+        $logOutElements = $this->driver->findElements(WebDriverBy::cssSelector($logOutButton));
 
-            return empty($logOutElements)? false:true;
+        return empty($logOutElements) ? false : true;
     }
-
 }

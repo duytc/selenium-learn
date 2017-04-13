@@ -5,7 +5,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\Openx\Page;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractPage;
 
 class ReportingPage extends AbstractPage
 {
@@ -13,7 +13,7 @@ class ReportingPage extends AbstractPage
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
-        $this->driver->wait(120,250)->until(
+        $this->driver->wait(120, 250)->until(
             WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::tagName("iframe"))
         );
 
@@ -27,7 +27,7 @@ class ReportingPage extends AbstractPage
 
         try {
             $iframePopup = $iframe->switchTo()->frame($iframe->findElement(WebDriverBy::cssSelector("#popupFrame > iframe")));
-            $iframePopup->wait(120,250)->until(
+            $iframePopup->wait(120, 250)->until(
                 WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector("#exportDropdown"))
             );
 

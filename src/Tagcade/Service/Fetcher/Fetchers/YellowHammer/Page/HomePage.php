@@ -4,12 +4,11 @@ namespace Tagcade\Service\Fetcher\Fetchers\YellowHammer\Page;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'http://publishers.yhmg.com/signin';
-
 
     public function doLogin($username, $password)
     {
@@ -29,14 +28,12 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('user_email'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('user_password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::name('commit'))->click();
@@ -45,11 +42,10 @@ class HomePage extends AbstractPage
         return $this->isLoggedIn();
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $dashboardElements = $this->driver->findElements(WebDriverBy::id('dashboard'));
-        return empty($dashboardElements) ? false: true;
+        return empty($dashboardElements) ? false : true;
 
     }
-
 }

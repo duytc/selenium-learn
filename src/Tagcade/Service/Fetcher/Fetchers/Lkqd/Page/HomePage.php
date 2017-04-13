@@ -1,11 +1,14 @@
 <?php
+
 namespace Tagcade\Service\Fetcher\Fetchers\Lkqd\Page;
+
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Facebook\WebDriver\WebDriverWait;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage
+class HomePage extends AbstractHomePage
 {
     const URL = 'https://ui.lkqd.com/login';
 
@@ -28,42 +31,34 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('username'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->driver->manage()->timeouts()->setScriptTimeout(200);
         $this->driver->manage()->timeouts()->pageLoadTimeout(200);
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::tagName('button'))->click();
 
-        $flash = $this->driver->findElement(WebDriverBy::cssSelector('div[id="flash"]'));
-        if ($flash) {
-            $error = $flash->findElement(WebDriverBy::tagName('div'));
-            if ($error) {
-                $class = $error->getAttribute('class');
-                if (strpos('alert-warning', $class)) {
-                    return false;
-                }
+        $this->driver->manage()->timeouts()->pageLoadTimeout(60);
+        $waitDriver = new WebDriverWait($this->driver, 60);
 
-                return true;
-            }
+        try {
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('reports')));
 
             return true;
+        } catch (\Exception $e) {
+            return false;
         }
-
-        return true;
     }
 
-    protected function isLoggedIn()
+    public function isLoggedIn()
     {
         $reportings = $this->driver->findElements(WebDriverBy::id('reports'));
 
-        return empty($reportings)? false:true;
+        return empty($reportings) ? false : true;
     }
 }

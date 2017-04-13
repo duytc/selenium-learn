@@ -5,12 +5,13 @@ namespace Tagcade\Service\Fetcher\Fetchers\SpringServe\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page\AbstractPage;
+use Facebook\WebDriver\WebDriverWait;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class HomePage extends AbstractPage 
+class HomePage extends AbstractHomePage
 {
     const URL = 'http://video.springserve.com/users/sign_in';
-    
+
     public function doLogin($username, $password)
     {
         $this->navigateToPartnerDomain();
@@ -29,39 +30,40 @@ class HomePage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::name('user[email]'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::name('user[password]'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::name('commit'))->click();
+        $this->driver->manage()->timeouts()->pageLoadTimeout(60);
+        $waitDriver = new WebDriverWait($this->driver, 60);
 
-        $error = $this->driver->findElements(WebDriverBy::id('flash_alert'));
-        if(count($error) == 0) {
+        try {
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('dashboard-icon')));
+
             return true;
+        } catch (\Exception $e) {
+            return false;
         }
-
-        return false;
     }
 
-    protected function isLoggedIn()
+    /**
+     * @inheritdoc
+     */
+    public function isLoggedIn()
     {
         try {
             $this->driver
-                ->findElement(WebDriverBy::cssSelector('dashboard-icon'))
-            ;
+                ->findElement(WebDriverBy::cssSelector('dashboard-icon'));
 
             return true;
-        }
-        catch (NoSuchElementException $ne) {
-
+        } catch (NoSuchElementException $ne) {
         }
 
         return false;
     }
-} 
+}

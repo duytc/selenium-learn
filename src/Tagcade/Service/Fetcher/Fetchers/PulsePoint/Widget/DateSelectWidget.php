@@ -8,7 +8,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
-use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Exception\InvalidDateRangeException;
+use Tagcade\Exception\InvalidDateRangeException;
 
 class DateSelectWidget extends AbstractWidget
 {

@@ -3,10 +3,11 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Media;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\Media\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\Media\Page\ReportingPage;
-use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class MediaNetFetcher extends PartnerFetcherAbstract implements MediaNetFetcherInterface
 {
@@ -16,14 +17,6 @@ class MediaNetFetcher extends PartnerFetcherAbstract implements MediaNetFetcherI
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
-        // Step 1: login
-        $this->logger->info('Enter login page');
-        $homePage = new HomePage($driver, $this->logger);
-        $this->logger->debug('Start logging in');
-
-        $homePage->doLogin($params->getUsername(), $params->getPassword());
-
-        $this->logger->debug('Finish logging in');
         $this->logger->info('Enter download report page');
         $reportingPage = new ReportingPage($driver, $this->logger);
         $reportingPage->setDownloadFileHelper($this->getDownloadFileHelper());
@@ -36,5 +29,13 @@ class MediaNetFetcher extends PartnerFetcherAbstract implements MediaNetFetcherI
         $this->logger->info('Start downloading reports');
         $reportingPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
         $this->logger->info('Finish downloading reports');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger)
+    {
+        return new HomePage($driver, $this->logger);
     }
 }

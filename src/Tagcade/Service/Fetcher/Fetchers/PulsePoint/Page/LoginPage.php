@@ -4,17 +4,16 @@ namespace Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
-class LoginPage extends AbstractPage
+class LoginPage extends AbstractHomePage
 {
     const URL = 'https://exchange.pulsepoint.com/AccountMgmt/Login.aspx';
 
     /**
-     * @param string $username
-     * @param string $password
-     * @return $this
+     * @inheritdoc
      */
-    public function login($username, $password)
+    public function doLogin($username, $password)
     {
         $this->navigateToPartnerDomain();
 
@@ -31,14 +30,12 @@ class LoginPage extends AbstractPage
         $this->driver
             ->findElement(WebDriverBy::id('UserName'))
             ->clear()
-            ->sendKeys($username)
-        ;
+            ->sendKeys($username);
 
         $this->driver
             ->findElement(WebDriverBy::id('Password'))
             ->clear()
-            ->sendKeys($password)
-        ;
+            ->sendKeys($password);
 
         $this->driver->manage()->timeouts()->pageLoadTimeout(200);
         $this->driver->manage()->timeouts()->setScriptTimeout(200);
@@ -54,6 +51,6 @@ class LoginPage extends AbstractPage
         $logoutCss = 'a[href="/Publisher/logout.aspx"]';
         $userNameElements = $this->driver->findElements(WebDriverBy::cssSelector($logoutCss));
 
-        return empty($userNameElements) ? false:true;
+        return empty($userNameElements) ? false : true;
     }
 }
