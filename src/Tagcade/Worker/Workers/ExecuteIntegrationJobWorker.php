@@ -56,41 +56,54 @@ class ExecuteIntegrationJobWorker
      */
     public function executeIntegration(stdClass $params)
     {
-        $executionRunId = strtotime("now");
-
-        if (!is_dir($this->logDir)) {
-            mkdir($this->logDir, 0777, true);
-        }
-
+        // create integration config file in temp dir
         if (!is_dir($this->tempFileDir)) {
             mkdir($this->tempFileDir, 0777, true);
         }
 
+        $executionRunId = strtotime('now');
+        $integrationConfigFileName = sprintf('%s%s.json', self::TEM_FILE_NAME_PREFIX, $executionRunId);
+        $integrationConfigFilePath = $this->createTempIntegrationConfigFile($integrationConfigFileName, $executionRunId);
+
+        //// write config to file
+        $fpIntegrationConfigFile = fopen($integrationConfigFilePath, 'w+');
+        fwrite($fpIntegrationConfigFile, json_encode($params));
+
+        // open log file file in log dir
+        if (!is_dir($this->logDir)) {
+            mkdir($this->logDir, 0777, true);
+        }
+
         $logFile = sprintf('%s/run_log_%d.log', $this->logDir, $executionRunId);
-        $tempFileName = sprintf('%s%s.json', self::TEM_FILE_NAME_PREFIX, $executionRunId);
-        $integrationConfigFile = sprintf('%s/%s', $this->tempFileDir, $tempFileName);
+        $fpLogger = fopen($logFile, 'a');
 
-        $fp = fopen($logFile, 'a');
-        $fp1 = fopen($integrationConfigFile, 'a');
-        fwrite($fp1, json_encode($params));
+        // create process to wrap command
+        $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $integrationConfigFilePath));
 
-        $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $tempFileName));
-
+        // run process
         try {
             $process->mustRun(
-                function ($type, $buffer) use (&$fp) {
-                    fwrite($fp, $buffer);
+                function ($type, $buffer) use (&$fpLogger) {
+                    fwrite($fpLogger, $buffer);
                 }
             );
         } catch (\Exception $e) {
             $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
         } finally {
-            fclose($fp);
-            fclose($fp1);
-            unlink($integrationConfigFile);
+            // close file
+            fclose($fpLogger);
+            fclose($fpIntegrationConfigFile);
+
+            // remove temp file
+            unlink($integrationConfigFilePath);
         }
     }
 
+    /**
+     * get App Console Command
+     *
+     * @return string
+     */
     protected function getAppConsoleCommand()
     {
         $phpBin = PHP_BINARY;
@@ -101,5 +114,23 @@ class ExecuteIntegrationJobWorker
         }
 
         return $command;
+    }
+
+    /**
+     * create Temp Integration Config File
+     *
+     * @param $fileName
+     * @param $suffix
+     * @return string
+     */
+    private function createTempIntegrationConfigFile($fileName, $suffix)
+    {
+        if (!is_dir($this->tempFileDir)) {
+            mkdir($this->tempFileDir, 0777, true);
+        }
+
+        $tempFileName = sprintf('%s_%s.json', $fileName, $suffix);
+        $integrationConfigFile = sprintf('%s/%s', $this->tempFileDir, $tempFileName);
+        return $integrationConfigFile;
     }
 }

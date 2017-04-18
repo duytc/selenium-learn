@@ -3,6 +3,7 @@
 namespace Tagcade\Bundle\AppBundle\Command;
 
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,16 +25,14 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $logger = $this->getContainer()->get('logger');
-        $logger->pushHandler(new StreamHandler("php://stderr", \Monolog\Logger::DEBUG));
+        $logger->pushHandler(new StreamHandler("php://stderr", Logger::DEBUG));
         $logger->info('starting integration test');
 
-        $tempFileDir = $this->getContainer()->getParameter('integration_temp_file_dir');
         $integrationConfigFile = $input->getArgument('integrationConfigFile');
-        $configFile = $tempFileDir . '/' . $integrationConfigFile;
-        $rawConfig = json_decode(file_get_contents($configFile), true);
+        $rawConfig = json_decode(file_get_contents($integrationConfigFile), true);
 
-        if (!file_exists($configFile)) {
-            echo $configFile . " does not exist\n";
+        if (!file_exists($integrationConfigFile)) {
+            echo $integrationConfigFile . " does not exist\n";
             exit(1);
         }
 
