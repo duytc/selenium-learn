@@ -53,6 +53,8 @@ class DeliveryReportPage extends AbstractPage
 
     protected function logOutSystem()
     {
+        $this->driver->findElement(WebDriverBy::cssSelector('#ember1163'))->click();
+        $this->sleep(3);
         $this->driver->findElement(WebDriverBy::id('ember616'))->click();
     }
 }

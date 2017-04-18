@@ -43,7 +43,7 @@ class HomePage extends AbstractHomePage
         $waitDriver = new WebDriverWait($this->driver, 60);
 
         try {
-            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('dashboard-icon')));
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('body > main > div > div.header-modern > h1 > span:nth-child(1)')));
 
             return true;
         } catch (\Exception $e) {
