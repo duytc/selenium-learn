@@ -3,6 +3,9 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
 
 use DateTime;
+use Exception;
+use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
@@ -79,9 +82,9 @@ class DeliveryReportPage extends AbstractPage
     /**
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @throws \Exception
-     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws Exception
+     * @throws NoSuchElementException
+     * @throws TimeOutException
      * @throws null
      * @internal param DateTime $startDatem
      */
@@ -109,7 +112,7 @@ class DeliveryReportPage extends AbstractPage
     /**
      * navigate to ReportPage based on report type
      * @param string $reportType
-     * @throws \Exception
+     * @throws Exception
      */
     public function navigateToReportPage($reportType)
     {
@@ -128,7 +131,7 @@ class DeliveryReportPage extends AbstractPage
                 break;
             default:
                 $this->logger->error(sprintf('cannot find report type: %s', $reportType));
-                throw new \Exception(sprintf('cannot find report type: %s', $reportType));
+                throw new Exception(sprintf('cannot find report type: %s', $reportType));
         }
 
         $this->driver->navigate()->to($url);

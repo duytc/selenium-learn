@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Lkqd\Page;
 
 
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
@@ -50,7 +51,7 @@ class HomePage extends AbstractHomePage
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('reports')));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

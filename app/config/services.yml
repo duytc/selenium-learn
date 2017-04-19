@@ -8,3 +8,4 @@ services:
             - %kernel.root_dir%
             - %kernel.environment%
             - %kernel.debug%
+            - %process.timeout.execute_integration_command%

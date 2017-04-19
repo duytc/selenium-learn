@@ -6,6 +6,7 @@ namespace Tagcade\Worker\Workers;
 // responsible for doing the background tasks assigned by the manager
 // all public methods on the class represent tasks that can be done
 
+use Exception;
 use Monolog\Logger;
 use stdClass;
 use Symfony\Component\Process\Process;
@@ -30,6 +31,8 @@ class ExecuteIntegrationJobWorker
 
     private $debug;
 
+    private $processTimeout;
+
     /**
      * GetPartnerReportWorker constructor.
      * @param Logger $logger
@@ -38,8 +41,9 @@ class ExecuteIntegrationJobWorker
      * @param $pathToSymfonyConsole
      * @param $environment
      * @param $debug
+     * @param int $processTimeout
      */
-    public function __construct(Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug)
+    public function __construct(Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug, $processTimeout)
     {
         $this->logger = $logger;
         $this->logDir = $logDir;
@@ -47,6 +51,7 @@ class ExecuteIntegrationJobWorker
         $this->pathToSymfonyConsole = $pathToSymfonyConsole;
         $this->environment = $environment;
         $this->debug = $debug;
+        $this->processTimeout = $processTimeout;
     }
 
     /**
@@ -79,15 +84,15 @@ class ExecuteIntegrationJobWorker
 
         // create process to wrap command
         $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $integrationConfigFilePath));
+        $process->setTimeout($this->processTimeout);
 
-        // run process
         try {
             $process->mustRun(
                 function ($type, $buffer) use (&$fpLogger) {
                     fwrite($fpLogger, $buffer);
                 }
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
         } finally {
             // close file

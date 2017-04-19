@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Conversant\Page;
 
+use Exception;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -29,7 +30,7 @@ class ReportingPage extends AbstractPage
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
         } catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
     }

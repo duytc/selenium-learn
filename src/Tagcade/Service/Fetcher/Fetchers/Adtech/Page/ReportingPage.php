@@ -4,6 +4,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Adtech\Page;
 
 
+use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
@@ -22,8 +23,8 @@ class ReportingPage extends AbstractPage
      * @param \DateTime $startDate
      * @param \DateTime $endDate
      * @throws TimeOutException
-     * @throws \Exception
-     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
+     * @throws Exception
+     * @throws NoSuchElementException
      * @throws null
      */
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
@@ -106,7 +107,7 @@ class ReportingPage extends AbstractPage
             $this->logger->warning(sprintf('Can not find element: %s', $e->getMessage()));
         } catch (TimeOutException $timeOutException) {
             $this->logger->warning('Time out exception');
-        } catch (\Exception $exp) {
+        } catch (Exception $exp) {
             $this->logger->warning('Exception!');
         }
     }

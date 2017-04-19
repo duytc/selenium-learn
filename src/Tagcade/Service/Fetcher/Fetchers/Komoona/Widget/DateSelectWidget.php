@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Komoona\Widget;
 
 use DateTime;
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -84,7 +85,7 @@ class DateSelectWidget extends AbstractWidget
         $expectDate = (int)$date->format('d');
         try {
             $this->driver->findElement(WebDriverBy::linkText((string)$expectDate))->click();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error(sprintf('Exception when set date =%s, exception meassage =%s',$date->format('Y-m-d'),$e->getMessage()));
             throw $e;
         }
@@ -98,7 +99,7 @@ class DateSelectWidget extends AbstractWidget
         return DateTime::createFromFormat('m/d/Y', $rawDate);
     }
 
-    public static function getYearOption(Datetime $date)
+    public static function getYearOption(DateTime $date)
     {
         return $date->format('Y');
     }

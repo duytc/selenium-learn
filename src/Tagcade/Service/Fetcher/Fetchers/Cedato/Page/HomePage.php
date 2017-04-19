@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
 
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
@@ -47,7 +48,7 @@ class HomePage extends AbstractHomePage
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('navbar-collapse-1')));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\PulsePoint\Page;
 
 use DateTime;
+use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
@@ -216,7 +217,7 @@ class ManagerPage extends AbstractPage
     /**
      * @return bool
      * @throws NoSuchElementException
-     * @throws \Exception
+     * @throws Exception
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
     protected function exportReport()
@@ -254,7 +255,7 @@ class ManagerPage extends AbstractPage
         }
 
         if (!$this->emailAddress) {
-            throw new \Exception('email address is not set');
+            throw new Exception('email address is not set');
         }
 
         $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('.sendButton a.button')));

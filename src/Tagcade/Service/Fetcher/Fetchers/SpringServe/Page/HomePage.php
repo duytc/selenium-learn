@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\SpringServe\Page;
 
+use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -46,7 +47,7 @@ class HomePage extends AbstractHomePage
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('body > main > div > div.header-modern > h1 > span:nth-child(1)')));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

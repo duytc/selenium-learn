@@ -3,6 +3,7 @@
 namespace Tagcade\Service;
 
 
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
@@ -44,15 +45,15 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     public function deleteFilesByExtension($fileExtensions = array ('crdownload'))
     {
         if ( !file_exists($this->downloadRootDirectory) ) {
-            throw new \Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
+            throw new Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
         }
 
         if (!is_dir($this->downloadRootDirectory)) {
-            throw new \Exception('This path is not directory');
+            throw new Exception('This path is not directory');
         }
 
         if(!is_array($fileExtensions)){
-            throw new \Exception(sprintf('File extension is not a array. This value is %s', $fileExtensions));
+            throw new Exception(sprintf('File extension is not a array. This value is %s', $fileExtensions));
         }
 
         $files = $this->getPartialDownloadFiles($fileExtensions);
@@ -72,15 +73,15 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     public function countFilesByExtension($fileExtensions = array ('crdownload'))
     {
         if ( !file_exists($this->downloadRootDirectory) ) {
-            throw new \Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
+            throw new Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
         }
 
         if (!is_dir($this->downloadRootDirectory)) {
-            throw new \Exception('This path is not directory');
+            throw new Exception('This path is not directory');
         }
 
         if (!is_array($fileExtensions)) {
-            throw new \Exception(sprintf('File extension is not a array. This value is %s', $fileExtensions));
+            throw new Exception(sprintf('File extension is not a array. This value is %s', $fileExtensions));
         }
 
         $files = $this->getPartialDownloadFiles($fileExtensions);
@@ -227,7 +228,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
     public function getAllFilesInDirectory($downloadDirectory)
     {
         if(!is_dir($downloadDirectory)) {
-            throw new \Exception(sprintf('This path is not directory, path is %s', $downloadDirectory));
+            throw new Exception(sprintf('This path is not directory, path is %s', $downloadDirectory));
         }
 
         $files = new \RecursiveIteratorIterator(

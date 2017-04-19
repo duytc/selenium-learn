@@ -3,6 +3,7 @@
 namespace Tagcade\Service;
 
 
+use Exception;
 use Tagcade\Service\Integration\ConfigInterface;
 
 class FileStorageService implements FileStorageServiceInterface
@@ -91,15 +92,15 @@ class FileStorageService implements FileStorageServiceInterface
     public function saveToCSVFile($path, $dataRows, $columnNames = null)
     {
         if (is_dir($path)) {
-            throw new \Exception ('Path must be file');
+            throw new Exception('Path must be file');
         }
 
         if (!is_array($columnNames)) {
-            throw  new \Exception('Column names must be an array');
+            throw  new Exception('Column names must be an array');
         }
 
         if (!is_array($dataRows)) {
-            throw new \Exception ('Data to save csv file expect array type');
+            throw new Exception ('Data to save csv file expect array type');
         }
 
         $dataRows = array_merge(array($columnNames), $dataRows);

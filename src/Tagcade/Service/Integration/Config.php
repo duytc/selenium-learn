@@ -257,7 +257,7 @@ class Config implements ConfigInterface
             $backFillStartDate = date_create($backFillStartDateString);
 
             return $backFillStartDate;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -277,7 +277,7 @@ class Config implements ConfigInterface
         try {
             $startDate = date('Y-m-d', strtotime(self::$SUPPORTED_PARAM_VALUE_DYNAMIC_DATE_RANGES[$dynamicDateRange]));
             $endDate = date('Y-m-d', strtotime('-1 day'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 

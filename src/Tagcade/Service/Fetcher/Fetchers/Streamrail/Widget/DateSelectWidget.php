@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Streamrail\Widget;
 
 use DateTime;
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverSelect;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\AbstractWidget;
@@ -64,7 +65,7 @@ class DateSelectWidget extends AbstractWidget
 
     /**
      * @param DateTime $endDate
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setEndDate(DateTime $endDate)
     {
@@ -100,7 +101,7 @@ class DateSelectWidget extends AbstractWidget
         try {
             $buttonClose = $this->driver->findElement(WebDriverBy::cssSelector('#ember1420-input_root > div > div > div > div > div.picker__footer > button.btn-flat.picker__close'));
             $buttonClose->click();
-        } catch (\Exception $exp) {
+        } catch (Exception $exp) {
 
         }
 

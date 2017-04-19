@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Core;
 
 use DateTime;
+use Exception;
 use Psr\Log\LoggerInterface;
 use RestClient\CurlRestClient;
 
@@ -105,10 +106,10 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('json decoding for token error');
+            throw new Exception('json decoding for token error');
         }
         if (!array_key_exists('token', $token)) {
-            throw new \Exception(sprintf('Could not authenticate user %s', $this->username));
+            throw new Exception(sprintf('Could not authenticate user %s', $this->username));
         }
 
         $this->token = $token['token'];

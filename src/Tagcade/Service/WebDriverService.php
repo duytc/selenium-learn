@@ -5,6 +5,7 @@ namespace Tagcade\Service;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
@@ -144,6 +145,8 @@ class WebDriverService implements WebDriverServiceInterface
      * @param string $rootDownloadDir
      * @param null|string $subDir the sub dir (last dir) before the file. This is for metadata comprehension mechanism
      * @return int
+     * @throws Exception
+     * @throws LoginFailException
      */
     protected function getDataForPublisher(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, $rootDownloadDir, $subDir = null)
     {
@@ -203,12 +206,26 @@ class WebDriverService implements WebDriverServiceInterface
                 $loginFailException->getExecutionDate()
             );
 
-            return 1;
-        } catch (\Exception $e) {
+            // todo check that chrome finished downloading all files before finishing
+            $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
+            if ($quitWebDriverAfterRun) {
+                $driver->quit();
+            }
+
+            // re-throw for retry handle
+            throw $loginFailException;
+        } catch (Exception $e) {
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
 
-            return 1;
+            // todo check that chrome finished downloading all files before finishing
+            $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
+            if ($quitWebDriverAfterRun) {
+                $driver->quit();
+            }
+
+            // re-throw for retry handle
+            throw $e;
         }
 
         // create metadata file

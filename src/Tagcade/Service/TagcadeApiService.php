@@ -3,6 +3,7 @@
 namespace Tagcade\Service;
 
 
+use Exception;
 use RestClient\CurlRestClient;
 
 class TagcadeApiService implements TagcadeApiServiceInterface
@@ -24,11 +25,11 @@ class TagcadeApiService implements TagcadeApiServiceInterface
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('json decoding for token error');
+            throw new Exception('json decoding for token error');
         }
 
         if (!array_key_exists('token', $token)) {
-            throw new \Exception(sprintf('Could not authenticate user %s', $username));
+            throw new Exception(sprintf('Could not authenticate user %s', $username));
         }
         $token = $token['token'];
 

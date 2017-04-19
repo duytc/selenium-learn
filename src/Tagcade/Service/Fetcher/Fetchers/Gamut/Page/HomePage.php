@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Gamut\Page;
 
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
@@ -47,7 +48,7 @@ class HomePage extends AbstractHomePage
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('ctl00_ctl00_appHeader_signOutLinkButton')));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

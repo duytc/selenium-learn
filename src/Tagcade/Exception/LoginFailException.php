@@ -4,8 +4,9 @@ namespace Tagcade\Exception;
 
 
 use DateTime;
+use Exception;
 
-class LoginFailException extends \Exception
+class LoginFailException extends Exception
 {
     /** @var int */
     protected $publisherId;

@@ -5,6 +5,7 @@ namespace Tagcade\Service\Integration\Integrations\General;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\FileStorageServiceInterface;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
@@ -13,9 +14,10 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
 class BasicApi extends IntegrationAbstract implements IntegrationInterface
 {
-    /* Command to create:
-    php app/console ur:integration:create "Basic Api" general-basic-api -a -p apiUrl,dateFormat,dateRange:dynamicDateRange -vv
-    */
+    /*
+     * Command to create:
+     * php app/console ur:integration:create "Basic Api" general-basic-api -a -p apiUrl,dateFormat,dateRange:dynamicDateRange -vv
+     */
 
     const INTEGRATION_C_NAME = 'general-basic-api';
 
@@ -71,13 +73,13 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
         $startDate = $startDateEndDate[Config::PARAM_START_DATE];
 
         if (!$startDate instanceof DateTime) {
-            throw new Exception('startDate must be a DateTime');
+            throw new Exception('The startDate must be a DateTime');
         }
 
         $endDate = $startDateEndDate[Config::PARAM_END_DATE];
 
         if (!$endDate instanceof DateTime) {
-            throw new Exception('endDate must be a DateTime');
+            throw new Exception('The endDate must be a DateTime');
         }
 
         $apiUrl = $config->getParamValue(self::PARAM_API_URL, null);
@@ -127,7 +129,8 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
         $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         if ($statusCode !== 200) {
-            throw new Exception(sprintf('cannot get data from this url, errorCode= %s', $statusCode));
+            // will be retry
+            throw new RuntimeException(sprintf('Cannot get data from this url, errorCode = %s', $statusCode));
         }
 
         $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);

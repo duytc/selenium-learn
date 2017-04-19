@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Streamrail\Page;
 
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\Streamrail\Widget\DateSelectWidget;
@@ -43,7 +44,7 @@ class DeliveryReportPage extends AbstractPage
     {
         $now = new \DateTime();
         if ($now->format('Ymd') === $startDate->format('Ymd') || $now->format('Ymd') === $endDate->format('Ymd')) {
-            throw new \Exception('not supported startDate or endDate equal today');
+            throw new Exception('not supported startDate or endDate equal today');
         }
 
         $dateWidget = new DateSelectWidget($this->driver);

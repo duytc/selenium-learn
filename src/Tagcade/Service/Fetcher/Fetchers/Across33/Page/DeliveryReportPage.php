@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Across33\Page;
 
 use DateTime;
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\DefyMedia\Widget\DateSelectWidget;
@@ -57,7 +58,7 @@ class DeliveryReportPage extends AbstractPage
 	/**
 	 * @param DateTime $startDate
 	 * @param DateTime $endDate
-	 * @throws \Exception
+	 * @throws Exception
 	 * @throws \Facebook\WebDriver\Exception\NoSuchElementException
 	 * @throws \Facebook\WebDriver\Exception\TimeOutException
 	 * @throws null

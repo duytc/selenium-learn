@@ -2,6 +2,7 @@
 
 namespace Tagcade;
 
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
@@ -32,7 +33,7 @@ interface WebDriverFactoryInterface
 
     /**
      * @param array $config
-     * @throws \Exception
+     * @throws Exception
      */
     public function setConfig(array $config);
 

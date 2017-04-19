@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\Districtm\Page;
 
+use Exception;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
@@ -31,7 +32,7 @@ class ReportingPage extends AbstractPage
 
         } catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
     }

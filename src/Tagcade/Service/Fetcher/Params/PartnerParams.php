@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Params;
 
 
+use Exception;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
 
@@ -82,7 +83,7 @@ class PartnerParams implements PartnerParamInterface
             $startDate = $config->getStartDateFromBackFill();
 
             if (!$startDate instanceof \DateTime) {
-                throw new \Exception('need run backFill but backFillStartDate is invalid');
+                throw new Exception('need run backFill but backFillStartDate is invalid');
             }
 
             $startDateStr = $startDate->format('Y-m-d');
@@ -259,7 +260,7 @@ class PartnerParams implements PartnerParamInterface
      * @param array $config
      * @throws \CannotPerformOperationException
      * @throws \InvalidCiphertextException
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createParams(array $config)
     {
@@ -274,11 +275,11 @@ class PartnerParams implements PartnerParamInterface
         }
 
         if (!array_key_exists('base64EncryptedPassword', $config) && !array_key_exists(self::PARAM_KEY_PASSWORD, $config)) {
-            throw new \Exception('Invalid configuration. Not found password or base64EncryptedPassword in the configuration');
+            throw new Exception('Invalid configuration. Not found password or base64EncryptedPassword in the configuration');
         }
 
         if (array_key_exists('base64EncryptedPassword', $config) && !isset($config['publisher']['uuid'])) {
-            throw new \Exception('Missing key to decrypt publisher password');
+            throw new Exception('Missing key to decrypt publisher password');
         }
 
         if (array_key_exists('base64EncryptedPassword', $config)) {

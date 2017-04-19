@@ -4,6 +4,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Ads4Games\Page;
 
 
+use Exception;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -18,7 +19,7 @@ class Reportingpage extends AbstractPage
      * @param \DateTime $startDate
      * @param \DateTime $endDate
      * @throws TimeOutException
-     * @throws \Exception
+     * @throws Exception
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws null
      */

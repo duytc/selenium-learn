@@ -6,10 +6,12 @@ namespace Tagcade\Service\Integration\Integrations\AWS;
 
 use Aws\Api\DateTimeResult;
 use Aws\Result;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\FileStorageService;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
@@ -18,6 +20,11 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
 class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 {
+    /*
+     * Command to create:
+     * php app/console ur:integration:create "Amazon S3" aws-s3 -a -p "bucket,pattern:regex,awsKey:secure,awsSecret:secure,awsRegion,dateRange:dynamicDateRange" -vv
+     */
+
     const INTEGRATION_C_NAME = 'aws-s3';
 
     const PARAM_BUCKET = 'bucket';
@@ -103,69 +110,80 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             throw new Exception('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
         }
 
-        // create new S3Client instance
-        $s3 = new S3Client([
-            'credentials' => [
-                'key' => $awsKey,
-                'secret' => $awsSecret,
-            ],
-            'region' => $awsRegion,
-            'version' => self::VALUE_VERSION_DEFAULT,
-        ]);
+        try {
+            // create new S3Client instance
+            $s3 = new S3Client([
+                'credentials' => [
+                    'key' => $awsKey,
+                    'secret' => $awsSecret,
+                ],
+                'region' => $awsRegion,
+                'version' => self::VALUE_VERSION_DEFAULT,
+            ]);
 
-        // do get files from aws
-        $iterator = $s3->getIterator('ListObjects', array('Bucket' => $bucket));
+            // do get files from aws
+            $iterator = $s3->getIterator('ListObjects', array('Bucket' => $bucket));
 
-        foreach ($iterator as $object) {
-            $fileName = $object['Key'];
-            if (!preg_match($filePattern, $fileName, $matches)) {
-                continue;
+            foreach ($iterator as $object) {
+                $fileName = $object['Key'];
+                if (!preg_match($filePattern, $fileName, $matches)) {
+                    continue;
+                }
+
+                /** @var DateTimeResult $lastModified */
+                $lastModified = $object['LastModified'];
+                if (!$this->isNewFile($startDate, $endDate, $lastModified)) {
+                    continue;
+                }
+
+                // important: each file will be stored in separated dir,
+                // then metadata is stored in same this dir
+                // so that we know file and metadata file is in pair
+                $subDir = sprintf('%s-%s', $fileName, (new DateTime())->getTimestamp());
+
+                $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
+
+                // download file
+                /** @var Result $result */
+                $result = $s3->getObject(array(
+                    'Bucket' => $bucket,
+                    'Key' => $fileName,
+                    'SaveAs' => $path
+                ));
+
+                // check result
+                if (!is_array($result['@metadata'])) {
+                    $this->logger->warning(sprintf('Can not verify downloading of file %s because missing @metadata from AWS Result', $fileName));
+                    continue;
+                }
+
+                $statusCode = $result['@metadata']['statusCode'];
+                if ($statusCode !== 200) {
+                    $this->logger->error(sprintf('Download file %s failed, status code %d', $fileName, $statusCode));
+                    continue;
+                }
+
+                // create metadata file.
+                // metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
+                $metadata = [
+                    'module' => 'integration',
+                    'publisherId' => $config->getPublisherId(),
+                    'dataSourceId' => $config->getDataSourceId(),
+                    'integrationCName' => $config->getIntegrationCName(),
+                    'pattern' => $filePattern,
+                    'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
+                ];
+                $metadataFilePath = $path . '.meta';
+                file_put_contents($metadataFilePath, json_encode($metadata));
+            }
+        } catch (Exception $ex) {
+            if ($ex instanceof S3Exception) {
+                // throw RuntimeException for retry
+                throw new RuntimeException($ex->getMessage());
             }
 
-            /** @var DateTimeResult $lastModified */
-            $lastModified = $object['LastModified'];
-            if (!$this->isNewFile($startDate, $endDate, $lastModified)) {
-                continue;
-            }
-
-            // important: each file will be stored in separated dir,
-            // then metadata is stored in same this dir
-            // so that we know file and metadata file is in pair
-            $subDir = sprintf('%s-%s', $fileName, (new DateTime())->getTimestamp());
-
-            $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
-
-            // download file
-            /** @var Result $result */
-            $result = $s3->getObject(array(
-                'Bucket' => $bucket,
-                'Key' => $fileName,
-                'SaveAs' => $path
-            ));
-
-            // check result
-            if (!is_array($result['@metadata'])) {
-                $this->logger->warning(sprintf('Can not verify downloading of file %s because missing @metadata from AWS Result', $fileName));
-                continue;
-            }
-
-            $statusCode = $result['@metadata']['statusCode'];
-            if ($statusCode !== 200) {
-                $this->logger->error(sprintf('Download file %s failed, status code %d', $fileName, $statusCode));
-            }
-
-            // create metadata file.
-            // metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
-            $metadata = [
-                'module' => 'integration',
-                'publisherId' => $config->getPublisherId(),
-                'dataSourceId' => $config->getDataSourceId(),
-                'integrationCName' => $config->getIntegrationCName(),
-                'pattern' => $filePattern,
-                'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
-            ];
-            $metadataFilePath = $path . '.meta';
-            file_put_contents($metadataFilePath, json_encode($metadata));
+            // other exceptions will not be retried
+            throw $ex;
         }
     }
 

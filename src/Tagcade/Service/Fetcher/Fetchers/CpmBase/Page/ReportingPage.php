@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\CpmBase\Page;
 
 use DateTime;
+use Exception;
 use Facebook\WebDriver\Exception\InvalidSelectorException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
@@ -180,7 +181,7 @@ class ReportingPage extends AbstractPage
 
         if (is_dir($path)) {
             $this->logger->warning(sprintf('The path is not file, path is %s', $path));
-            throw new \Exception ('Path must be file');
+            throw new Exception ('Path must be file');
         }
 
         $dataRows = $this->getDataFromTable($tableElement);
@@ -244,11 +245,11 @@ class ReportingPage extends AbstractPage
     public function arrayToCSVFile($path, $dataRows)
     {
         if (is_dir($path)) {
-            throw new \Exception ('Path must be file');
+            throw new Exception ('Path must be file');
         }
 
         if (!is_array($dataRows)) {
-            throw new \Exception ('Data to save csv file expect array type');
+            throw new Exception ('Data to save csv file expect array type');
         }
 
         $file = fopen($path, 'w');

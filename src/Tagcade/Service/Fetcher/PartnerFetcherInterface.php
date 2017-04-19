@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher;
 
 
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\DownloadFileHelperInterface;
@@ -26,7 +27,7 @@ interface PartnerFetcherInterface
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
      * @return bool true if logged in successfully
-     * @throws \Exception when login fail or other exception
+     * @throws Exception when login fail or other exception
      */
     public function doLogin(PartnerParamInterface $params, RemoteWebDriver $driver);
 

@@ -4,6 +4,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Adtech\Page;
 
 
+use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -17,7 +18,7 @@ class HomePage extends AbstractHomePage
      * @param $username
      * @param $password
      * @throws NoSuchElementException
-     * @throws \Exception
+     * @throws Exception
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      * @throws null
      * @return bool

@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Pages;
 
+use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
@@ -149,7 +150,7 @@ abstract class AbstractPage
      * to be removed before proceeding
      *
      * @throws NoSuchElementException
-     * @throws \Exception
+     * @throws Exception
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
     public function waitForData()
@@ -270,16 +271,16 @@ abstract class AbstractPage
     /**
      * @param $path
      * @param $dataRows
-     * @throws \Exception
+     * @throws Exception
      */
     public function arrayToCSVFile($path, $dataRows)
     {
         if (is_dir($path)) {
-            throw new \Exception ('Path must be file');
+            throw new Exception ('Path must be file');
         }
 
         if (!is_array($dataRows)) {
-            throw new \Exception ('Data to save csv file expect array type');
+            throw new Exception ('Data to save csv file expect array type');
         }
 
         $file = fopen($path, 'w');
@@ -384,12 +385,12 @@ abstract class AbstractPage
     /**
      * @param $directory
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAllFileInDirectory($directory)
     {
         if (!is_dir($directory)) {
-            throw new \Exception(sprintf('This path is not directory, path is %s', $directory));
+            throw new Exception(sprintf('This path is not directory, path is %s', $directory));
         }
         $filesInfo = $this->downloadFileHelper->getAllFilesInDirectory($directory);
 

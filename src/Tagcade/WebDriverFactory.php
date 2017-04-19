@@ -2,6 +2,7 @@
 
 namespace Tagcade;
 
+use Exception;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Exception\UnknownServerException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
@@ -38,12 +39,12 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
     /**
      * @param array $config
-     * @throws \Exception
+     * @throws Exception
      */
     public function setConfig(array $config)
     {
         if (!array_key_exists('publisher_id', $config) || !array_key_exists('partner_cname', $config)) {
-            throw new \Exception('Missing configuration for either publisher id or partner canonical name');
+            throw new Exception('Missing configuration for either publisher id or partner canonical name');
         }
 
         $this->config = $config;
@@ -179,7 +180,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $driver = RemoteWebDriver::createBySessionID($session['id'], $this->seleniumServerUrl);
             try {
                 $driver->manage()->deleteAllCookies();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->info("Failed to delete cookies for browser");
             }
             $driver->quit();
