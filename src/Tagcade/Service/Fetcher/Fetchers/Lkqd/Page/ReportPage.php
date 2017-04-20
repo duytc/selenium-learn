@@ -135,7 +135,7 @@ class ReportPage extends AbstractPage
 
         $isFound = false;
         foreach ($aElements as $aElement) {
-            if (strtolower($aElement->getText()) === strtolower($text)) {
+            if (strtolower(trim($aElement->getText())) === strtolower(trim($text))) {
                 $aElement->click();
                 $isFound = true;
                 break;
