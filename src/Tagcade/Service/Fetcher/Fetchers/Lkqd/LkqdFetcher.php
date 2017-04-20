@@ -8,6 +8,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Page\HomePage;
 use Tagcade\Service\Fetcher\Fetchers\Lkqd\Page\ReportPage;
+use Tagcade\Service\Fetcher\Params\Lkqd\LkqdPartnerParams;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
@@ -21,13 +22,18 @@ class LkqdFetcher extends PartnerFetcherAbstract implements LkqdFetcherInterface
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
+        if (!$params instanceof LkqdPartnerParams) {
+            $this->logger->error('expected LkqdPartnerParams');
+            return;
+        }
+
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new ReportPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
 
         $this->logger->info('start downloading reports');
-        $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
+        $deliveryReportPage->getAllTagReports($params);
     }
 
     /**

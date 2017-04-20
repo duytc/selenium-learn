@@ -10,6 +10,7 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
 {
     const PARAM_KEY_REPORT_TYPE = 'timezone';
     const PARAM_KEY_DIMENSIONS = 'dimensions';
+    const DEFAULT_TIME_ZONE = 'UTC';
 
     /**
      * @var string
@@ -25,8 +26,8 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
     public function __construct(ConfigInterface $config)
     {
         parent::__construct($config);
-        $this->timezone = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
-        $this->dimensions = $config->getParamValue(self::PARAM_KEY_DIMENSIONS, null);
+        $this->timezone = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, self::DEFAULT_TIME_ZONE);
+        $this->dimensions = $config->getParamValue(self::PARAM_KEY_DIMENSIONS, []);
     }
 
     /**
