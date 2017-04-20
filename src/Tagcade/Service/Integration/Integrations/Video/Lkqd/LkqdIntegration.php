@@ -1,8 +1,9 @@
 <?php
 
 
-namespace Tagcade\Service\Integration\Integrations\Video\LkqdIntegration;
+namespace Tagcade\Service\Integration\Integrations\Video\Lkqd;
 
+use Tagcade\Service\Fetcher\Params\Lkqd\LkqdPartnerParams;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
@@ -16,5 +17,15 @@ class LkqdIntegration extends IntegrationVideoDemandPartnerAbstract implements I
     {
         parent::__construct($webDriverService);
         $this->partnerFetcher = $fetcher;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * override because of new param "reportType"
+     */
+    public function createPartnerParams($config)
+    {
+        return new LkqdPartnerParams($config);
     }
 }
