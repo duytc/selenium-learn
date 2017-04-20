@@ -4,6 +4,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Lkqd\Page;
 
 
+use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -124,17 +125,27 @@ class ReportPage extends AbstractPage
     /**
      * @param WebDriverElement $driverElement
      * @param $text
+     * @throws Exception
      */
     private function choseDimension(WebDriverElement $driverElement, $text)
     {
         $driverElement->click();
 
         $aElements = $driverElement->findElements(WebDriverBy::tagName('a'));
+
+        $isFound = false;
         foreach ($aElements as $aElement) {
-            if ($aElement->getText() === $text) {
+            if (strtolower($aElement->getText()) === strtolower($text)) {
                 $aElement->click();
+                $isFound = true;
                 break;
             }
+        }
+
+        //if dimension not found throw exception
+        if (!$isFound) {
+            $this->logger->error(sprintf('cannot find dimension: %s', $text));
+            throw new Exception(sprintf('cannot find dimension: %s', $text));
         }
     }
 }

@@ -8,7 +8,7 @@ use Tagcade\Service\Integration\ConfigInterface;
 
 class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterface
 {
-    const PARAM_KEY_REPORT_TYPE = 'timezone';
+    const PARAM_KEY_TIMEZONE = 'timezone';
     const PARAM_KEY_DIMENSIONS = 'dimensions';
     const DEFAULT_TIME_ZONE = 'UTC';
 
@@ -26,7 +26,7 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
     public function __construct(ConfigInterface $config)
     {
         parent::__construct($config);
-        $this->timezone = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, self::DEFAULT_TIME_ZONE);
+        $this->timezone = $config->getParamValue(self::PARAM_KEY_TIMEZONE, self::DEFAULT_TIME_ZONE);
         $this->dimensions = $config->getParamValue(self::PARAM_KEY_DIMENSIONS, []);
     }
 

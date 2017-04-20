@@ -15,6 +15,7 @@ class HomePage extends AbstractHomePage
 
     public function doLogin($username, $password)
     {
+        $this->driver->manage()->timeouts()->pageLoadTimeout(30);
         $this->navigateToPartnerDomain();
 
         if ($this->isLoggedIn()) {

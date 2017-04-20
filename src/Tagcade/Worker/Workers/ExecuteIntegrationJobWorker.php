@@ -68,7 +68,7 @@ class ExecuteIntegrationJobWorker
 
         $executionRunId = strtotime('now');
         $integrationConfigFileName = sprintf('%s%s.json', self::TEM_FILE_NAME_PREFIX, $executionRunId);
-        $integrationConfigFilePath = $this->createTempIntegrationConfigFile($integrationConfigFileName, $executionRunId);
+        $integrationConfigFilePath = $this->createTempIntegrationConfigFile($integrationConfigFileName);
 
         //// write config to file
         $fpIntegrationConfigFile = fopen($integrationConfigFilePath, 'w+');
@@ -125,17 +125,15 @@ class ExecuteIntegrationJobWorker
      * create Temp Integration Config File
      *
      * @param $fileName
-     * @param $suffix
      * @return string
      */
-    private function createTempIntegrationConfigFile($fileName, $suffix)
+    private function createTempIntegrationConfigFile($fileName)
     {
         if (!is_dir($this->tempFileDir)) {
             mkdir($this->tempFileDir, 0777, true);
         }
 
-        $tempFileName = sprintf('%s_%s.json', $fileName, $suffix);
-        $integrationConfigFile = sprintf('%s/%s', $this->tempFileDir, $tempFileName);
+        $integrationConfigFile = sprintf('%s/%s', $this->tempFileDir, $fileName);
         return $integrationConfigFile;
     }
 }
