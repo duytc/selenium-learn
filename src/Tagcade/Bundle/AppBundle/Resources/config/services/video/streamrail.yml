@@ -1,10 +1,10 @@
 services:
     tagcade.service.fetcher.fetchers.streamrail:
-        class: Tagcade\Service\Fetcher\Fetchers\Streamrail\StreamrailFetcher
+        class: Tagcade\Service\Fetcher\Fetchers\StreamRail\StreamRailFetcher
         parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
     tagcade.service.integration.integrations.video.streamrail:
-        class: Tagcade\Service\Integration\Integrations\Video\Streamrail\Streamrail
+        class: Tagcade\Service\Integration\Integrations\Video\StreamRail\StreamRail
         parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
         arguments:
             - '@tagcade.service.integration.integrations.web_driver_service'

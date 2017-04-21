@@ -1,13 +1,14 @@
 <?php
 
-namespace Tagcade\Service\Integration\Integrations\Video\Streamrail;
+namespace Tagcade\Service\Integration\Integrations\Video\StreamRail;
 
+use Tagcade\Service\Fetcher\Params\StreamRail\StreamRailPartnerParam;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationDemandPartnerAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\WebDriverServiceInterface;
 
-class Streamrail extends IntegrationDemandPartnerAbstract implements IntegrationInterface
+class StreamRail extends IntegrationDemandPartnerAbstract implements IntegrationInterface
 {
     const INTEGRATION_C_NAME = 'video-streamrail';
 
@@ -21,5 +22,14 @@ class Streamrail extends IntegrationDemandPartnerAbstract implements Integration
     {
         parent::__construct($webDriverService);
         $this->partnerFetcher = $fetcher;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     */
+    public function createPartnerParams($config)
+    {
+        return new StreamRailPartnerParam($config);
     }
 }

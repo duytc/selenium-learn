@@ -1,15 +1,15 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Streamrail;
+namespace Tagcade\Service\Fetcher\Fetchers\StreamRail;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
-use Tagcade\Service\Fetcher\Fetchers\Streamrail\Page\DeliveryReportPage;
-use Tagcade\Service\Fetcher\Fetchers\Streamrail\Page\HomePage;
+use Tagcade\Service\Fetcher\Fetchers\StreamRail\Page\DeliveryReportPage;
+use Tagcade\Service\Fetcher\Fetchers\StreamRail\Page\HomePage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
-class StreamrailFetcher extends PartnerFetcherAbstract implements StreamrailFetcherInterface
+class StreamRailFetcher extends PartnerFetcherAbstract implements StreamRailFetcherInterface
 {
     /**
      * @param PartnerParamInterface $params
@@ -28,7 +28,7 @@ class StreamrailFetcher extends PartnerFetcherAbstract implements StreamrailFetc
         $deliveryReportPage->setConfig($params->getConfig());
 
         $this->logger->info('Start downloading reports');
-        $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
+        $deliveryReportPage->getAllTagReports($params);
         $this->logger->info('Finish downloading reports');
     }
 

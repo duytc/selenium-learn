@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Streamrail\Page;
+namespace Tagcade\Service\Fetcher\Fetchers\StreamRail\Page;
 
 use Exception;
 use Facebook\WebDriver\WebDriverBy;
@@ -46,7 +46,7 @@ class HomePage extends AbstractHomePage
         $waitDriver = new WebDriverWait($this->driver, 20);
 
         try {
-            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('ember1172')));
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('main-container')));
 
             return true;
         } catch (Exception $e) {
