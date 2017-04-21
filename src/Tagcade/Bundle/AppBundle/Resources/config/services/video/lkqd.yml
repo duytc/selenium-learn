@@ -4,7 +4,7 @@ services:
         parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
 
     tagcade.service.integration.integrations.video.lkqd:
-        class: Tagcade\Service\Integration\Integrations\Video\LkqdIntegration\LkqdIntegration
+        class: Tagcade\Service\Integration\Integrations\Video\Lkqd\LkqdIntegration
         parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
         arguments:
             - '@tagcade.service.integration.integrations.web_driver_service'
