@@ -23,14 +23,27 @@ class DeliveryReportPage extends AbstractPage
         $this->sleep(2);
         $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('modal-overlays')));
 
-        $this->selectFirstDimension($param->getFirstDimension());
-        $this->selectSecondDimension($param->getSecondDimension());
+        $pageSource = $this->driver->getPageSource();
+        $posFirstDimension = strpos($pageSource, 'div aria-haspopup="" aria-controls="ember-basic-dropdown-content-ember');
+        $posSecondDimension = strpos($pageSource, 'div aria-haspopup="" aria-controls="ember-basic-dropdown-content-ember', $posFirstDimension + 10);
+        $posDateRange = strpos($pageSource, 'div aria-haspopup="" aria-controls="ember-basic-dropdown-content-ember', $posSecondDimension + 10);
+
+        $idFirstDimensionBox = substr($pageSource, $posFirstDimension + 70, 4);
+        $idSecondDimensionBox = substr($pageSource, $posSecondDimension + 70, 4);
+        $idDateRangeBox = substr($pageSource, $posDateRange + 70, 4);
+
+        $this->selectFirstDimension($param->getFirstDimension(), $idFirstDimensionBox);
+        $this->selectSecondDimension($param->getSecondDimension(), $idSecondDimensionBox);
+
+        if (!(int)$idDateRangeBox) {
+            $idDateRangeBox = 1713;
+        }
 
         // select date range
         try {
-            $this->driver->findElement(WebDriverBy::id('ember-basic-dropdown-trigger-ember1713'))->click();
-            $this->driver->findElement(WebDriverBy::cssSelector('#ember-power-select-options-ember1713 > li:nth-child(5)'))->click();
-        } catch (\Exception $e){
+            $this->driver->findElement(WebDriverBy::id(sprintf('ember-basic-dropdown-trigger-ember%s', $idDateRangeBox)))->click();
+            $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#ember-power-select-options-ember%s > li:nth-child(5)', $idDateRangeBox)))->click();
+        } catch (\Exception $e) {
             $this->driver->findElement(WebDriverBy::id('ember-basic-dropdown-trigger-ember1247'))->click();
             $this->driver->findElement(WebDriverBy::cssSelector('#ember-power-select-options-ember1247 > li:nth-child(5)'))->click();
         }
@@ -75,9 +88,17 @@ class DeliveryReportPage extends AbstractPage
 
     protected function logOutSystem()
     {
+        $pageSource = $this->driver->getPageSource();
+        $posAvatar = strpos($pageSource, 'sr-account-image full-height ember-view');
+        $idAvatar = substr($pageSource, $posAvatar - 13, 4);
+
+        if (!(int)$idAvatar) {
+            $idAvatar = 1581;
+        }
+
         try {
-            $this->driver->findElement(WebDriverBy::cssSelector('#ember1581'))->click();
-        } catch(\Exception $e){
+            $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#ember%s', $idAvatar)))->click();
+        } catch (\Exception $e) {
             $this->driver->findElement(WebDriverBy::cssSelector('#ember1163'))->click();
         }
 
@@ -87,13 +108,17 @@ class DeliveryReportPage extends AbstractPage
 
     /**
      * @param $firstDimension
+     * @param $id
      */
-    private function selectFirstDimension($firstDimension)
+    private function selectFirstDimension($firstDimension, $id)
     {
+        if (!(int) $id) {
+            $id = 1662;
+        }
         try {
-            $triggerIds = "ember-basic-dropdown-trigger-ember1662";
+            $triggerIds = sprintf("ember-basic-dropdown-trigger-ember%s", $id);
 
-            $selectIds = "ember-power-select-options-ember1662";
+            $selectIds = sprintf("ember-power-select-options-ember%s", $id);
 
             $triggerDimensionsChosen = $this->driver->findElement(WebDriverBy::id($triggerIds));
             $triggerDimensionsChosen->click();
@@ -107,20 +132,25 @@ class DeliveryReportPage extends AbstractPage
                     break;
                 }
             }
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
 
         }
     }
 
     /**
      * @param $secondDimension
+     * @param $id
      */
-    private function selectSecondDimension($secondDimension)
+    private function selectSecondDimension($secondDimension, $id)
     {
-        try {
-            $triggerIds = "ember-basic-dropdown-trigger-ember1701";
+        if (!(int)($id)) {
+            $id = 1701;
+        }
 
-            $selectIds = "ember-power-select-options-ember1701";
+        try {
+            $triggerIds = sprintf("ember-basic-dropdown-trigger-ember%s", $id);
+
+            $selectIds = sprintf("ember-power-select-options-ember%s", $id);
 
             $triggerDimensionsChosen = $this->driver->findElement(WebDriverBy::id($triggerIds));
             $triggerDimensionsChosen->click();

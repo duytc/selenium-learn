@@ -10,7 +10,7 @@ use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\AbstractWidget;
 
 class DateSelectWidget extends AbstractWidget
 {
-    const START_DATE_ELEMENT_ID = [1419, 1957, 1597, 1980];
+    private $startDateElementIds = [null, 1419, 1957, 1597, 1980];
 
     /**
      * @param DateTime $startDate
@@ -19,6 +19,10 @@ class DateSelectWidget extends AbstractWidget
      */
     public function setDateRange(DateTime $startDate, DateTime $endDate)
     {
+        $pageSource = $this->driver->getPageSource();
+        $posStartDate = strpos($pageSource, 'report-date input-field no-today no-clear sr-date-range--start no-margin no-error ember-view');
+        $this->startDateElementIds[0] = (int) substr($pageSource, $posStartDate - 13, 4);
+
         $this->setStartDate($startDate);
         $this->setEndDate($endDate);
         return $this;
@@ -35,11 +39,12 @@ class DateSelectWidget extends AbstractWidget
         do {
             try {
                 $index++;
-                $this->selectStartDateWithCustomId($startDate, self::START_DATE_ELEMENT_ID[$index]);
+                $this->selectStartDateWithCustomId($startDate, $this->startDateElementIds[$index]);
+                break;
             } catch (\Exception $e){
 
             }
-        } while ($index < count(self::START_DATE_ELEMENT_ID));
+        } while ($index < count($this->startDateElementIds));
     }
 
     /**
@@ -54,11 +59,12 @@ class DateSelectWidget extends AbstractWidget
         do {
             try {
                 $index++;
-                $this->selectEndDateWithCustomId($endDate, self::START_DATE_ELEMENT_ID[$index]);
+                $this->selectEndDateWithCustomId($endDate, $this->startDateElementIds[$index]);
+                break;
             } catch (\Exception $e){
 
             }
-        } while ($index < count(self::START_DATE_ELEMENT_ID));
+        } while ($index < count($this->startDateElementIds));
     }
 
     /**
