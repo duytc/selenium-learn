@@ -400,4 +400,62 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         return true;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function createAlertWhenTimeOut($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, $executionDate)
+    {
+        $this->logger->info(sprintf('Creating an alert time out for Integration %s', $integrationCName));
+
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        $data = [
+            'code' => 2002,
+            'detail' => [
+                'integrationName' => $integrationCName,
+                'integrationCName' => $integrationCName,
+                'dataSourceId' => $dataSourceId,
+                'startDate' => $startDate->format('Y-m-d'),
+                'endDate' => $endDate->format('Y-m-d'),
+                'executionDate' => $executionDate
+            ],
+            'publisher' => $publisherId
+        ];
+
+        $result = $this->curl->executeQuery(
+            $this->urCreateAlertUrl,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (empty($result)) {
+            return true;
+        }
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 201) {
+            $message = array_key_exists('message', $result) ? $result['message'] : '';
+            $this->logger->error(sprintf('Creating an alert time out  for Integration %s got error, code: %d, message: %s',
+                $integrationCName,
+                $result['code'],
+                $message
+            ));
+            return false;
+        }
+
+        $this->logger->info('finished created alert time out');
+
+        return true;
+    }
 }

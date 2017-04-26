@@ -6,6 +6,7 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Exception;
+use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
@@ -204,6 +205,24 @@ class WebDriverService implements WebDriverServiceInterface
                 $loginFailException->getStartDate(),
                 $loginFailException->getEndDate(),
                 $loginFailException->getExecutionDate()
+            );
+
+            // todo check that chrome finished downloading all files before finishing
+            $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
+            if ($quitWebDriverAfterRun) {
+                $driver->quit();
+            }
+
+            // re-throw for retry handle
+            throw $loginFailException;
+        } catch (TimeOutException $loginFailException) {
+            $this->tagcadeRestClient->createAlertWhenTimeOut(
+                $params->getPublisherId(),
+                $params->getIntegrationCName(),
+                $params->getDataSourceId(),
+                $params->getStartDate(),
+                $params->getEndDate(),
+                date("Y-m-d H:i:s")
             );
 
             // todo check that chrome finished downloading all files before finishing
