@@ -59,4 +59,17 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function createAlertWhenLoginFail($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, DateTime $executionDate);
+
+    /**
+     * create Alert When time out due to 3rd party website
+     *
+     * @param int $publisherId
+     * @param string $integrationCName
+     * @param int $dataSourceId
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @param $executionDate
+     * @return mixed
+     */
+    public function createAlertWhenTimeOut($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, $executionDate);
 }

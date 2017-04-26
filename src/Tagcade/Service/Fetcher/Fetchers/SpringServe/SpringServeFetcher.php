@@ -68,7 +68,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             );
 
             $this->logger->info('Start downloading reports');
-            $deliveryReportPage->getAllTagReports($params->getStartDate(), $params->getEndDate());
+            $deliveryReportPage->getAllTagReports($params);
             $this->logger->info('Finish downloading reports');
         }
 
@@ -83,7 +83,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
         $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
         $userAccountChosen->click();
 
-        $logOutChosen = $driver->findElement(WebDriverBy::id('navigation-toggle'));
+        $logOutChosen = $driver->findElement(WebDriverBy::cssSelector('#navbar-fixed-top > div > div.collapse.navbar-collapse > ul > li:nth-child(4)'));
         $logOutChosen->click();
         /**
          * @var WebDriverElement[] $liElements
@@ -91,7 +91,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
         $liElements = $logOutChosen->findElements(WebDriverBy::tagName('li'));
 
         foreach ($liElements as $liElement) {
-            if ($liElement->getText() == 'Sign out') {
+            if ($liElement->getText() == 'SIGN OUT') {
                 $liElement->click();
                 break;
             }

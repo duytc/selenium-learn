@@ -33,6 +33,12 @@ class DateSelectWidget extends AbstractWidget
         $dateRangeElement = $this->driver->findElement(WebDriverBy::id('date_range_chosen'));
         $dateRangeElement->click();
 
+        if ($startDate == $endDate && $startDate == date_create('yesterday')){
+            $yesterday = $this->driver->findElement(WebDriverBy::cssSelector('#date_range_chosen > div > ul > li:nth-child(2)'));
+            $yesterday->click();
+            return $this;
+        }
+
         /**
          * @var WebDriverElement[] $liElements
          */
