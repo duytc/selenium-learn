@@ -32,8 +32,8 @@ class DeliveryReportPage extends AbstractPage
         $idSecondDimensionBox = substr($pageSource, $posSecondDimension + 70, 4);
         $idDateRangeBox = substr($pageSource, $posDateRange + 70, 4);
 
-        $this->selectFirstDimension($param->getFirstDimension(), $idFirstDimensionBox);
-        $this->selectSecondDimension($param->getSecondDimension(), $idSecondDimensionBox);
+        $this->selectFirstDimension($param->getPrimaryDimension(), $idFirstDimensionBox);
+        $this->selectSecondDimension($param->getSecondaryDimension(), $idSecondDimensionBox);
 
         if (!(int)$idDateRangeBox) {
             $idDateRangeBox = 1713;

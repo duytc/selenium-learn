@@ -7,10 +7,10 @@ interface StreamRailPartnerParamInterface
     /**
      * @return string
      */
-    public function getFirstDimension();
+    public function getPrimaryDimension();
 
     /**
      * @return string
      */
-    public function getSecondDimension();
+    public function getSecondaryDimension();
 }

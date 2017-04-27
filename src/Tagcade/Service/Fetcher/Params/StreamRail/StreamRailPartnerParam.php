@@ -8,18 +8,18 @@ use Tagcade\Service\Integration\ConfigInterface;
 
 class StreamRailPartnerParam extends PartnerParams implements StreamRailPartnerParamInterface
 {
-    const PARAM_KEY_FIRST_DIMENSION = 'firstDimension';
-    const PARAM_KEY_SECOND_DIMENSION = 'secondDimension';
+    const PARAM_KEY_PRIMARY_DIMENSION = 'primaryDimension';
+    const PARAM_KEY_SECONDARY_DIMENSION = 'secondaryDimension';
 
     /**
      * @var string
      */
-    protected $firstDimension;
+    protected $primaryDimension;
 
     /**
      * @var string
      */
-    protected $secondDimension;
+    protected $secondaryDimension;
 
     /**
      * SpringServePartnerParam constructor.
@@ -28,23 +28,23 @@ class StreamRailPartnerParam extends PartnerParams implements StreamRailPartnerP
     public function __construct(ConfigInterface $config)
     {
         parent::__construct($config);
-        $this->firstDimension = $config->getParamValue(self::PARAM_KEY_FIRST_DIMENSION, null);
-        $this->secondDimension = $config->getParamValue(self::PARAM_KEY_SECOND_DIMENSION, null);
+        $this->primaryDimension = $config->getParamValue(self::PARAM_KEY_PRIMARY_DIMENSION, null);
+        $this->secondaryDimension = $config->getParamValue(self::PARAM_KEY_SECONDARY_DIMENSION, null);
     }
 
     /**
      * @return string
      */
-    public function getFirstDimension()
+    public function getPrimaryDimension()
     {
-        return $this->firstDimension;
+        return $this->primaryDimension;
     }
 
     /**
      * @return string
      */
-    public function getSecondDimension()
+    public function getSecondaryDimension()
     {
-        return $this->secondDimension;
+        return $this->secondaryDimension;
     }
 }

@@ -65,11 +65,11 @@ class DateSelectWidget extends AbstractWidget
                 /**
                  * @var WebDriverElement[] $liElements
                  */
-                $liElements = $applyButtons->findElements(WebDriverBy::tagName('button'));
+                $applyLiElements = $applyButtons->findElements(WebDriverBy::tagName('button'));
 
-                foreach ($liElements as $liElement) {
-                    if ($liElement->getText() == 'Apply') {
-                        $liElement->click();
+                foreach ($applyLiElements as $applyLiElement) {
+                    if ($applyLiElement->getText() == 'Apply') {
+                        $applyLiElement->click();
                         break;
                     }
                 }
