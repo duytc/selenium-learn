@@ -6,12 +6,14 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Exception;
+use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
 use Tagcade\Exception\LoginFailException;
+use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
@@ -215,7 +217,7 @@ class WebDriverService implements WebDriverServiceInterface
 
             // re-throw for retry handle
             throw $loginFailException;
-        } catch (TimeOutException $loginFailException) {
+        } catch (TimeOutException $timeoutException) {
             $this->tagcadeRestClient->createAlertWhenTimeOut(
                 $params->getPublisherId(),
                 $params->getIntegrationCName(),
@@ -231,8 +233,13 @@ class WebDriverService implements WebDriverServiceInterface
                 $driver->quit();
             }
 
+            // any timeout (by wait util...) is retryable
             // re-throw for retry handle
-            throw $loginFailException;
+            throw new RuntimeException($timeoutException->getMessage());
+        } catch (NoSuchElementException $noSuchElementException) {
+            // element may be not existed due to timeout or temporarily changed
+            // this is retryable
+            throw new RuntimeException($noSuchElementException->getMessage());
         } catch (Exception $e) {
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
