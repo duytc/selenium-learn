@@ -39,6 +39,16 @@ class DeliveryReportPage extends AbstractPage
             $idDateRangeBox = 1713;
         }
 
+        if ($idDateRangeBox == $idFirstDimensionBox || $idDateRangeBox == $idSecondDimensionBox){
+            try {
+                $this->driver->findElement(WebDriverBy::id(sprintf('ember-basic-dropdown-trigger-ember%s', $idDateRangeBox)))->click();
+            } catch (\Exception $e) {
+                $this->driver->findElement(WebDriverBy::id('ember-basic-dropdown-trigger-ember1247'))->click();
+            }
+        }
+
+        $this->sleep(3);
+
         // select date range
         try {
             $this->driver->findElement(WebDriverBy::id(sprintf('ember-basic-dropdown-trigger-ember%s', $idDateRangeBox)))->click();
