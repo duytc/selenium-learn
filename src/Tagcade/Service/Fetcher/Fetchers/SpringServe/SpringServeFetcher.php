@@ -29,9 +29,14 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             return;
         }
 
-        if (empty($params->getAccount()) || $params->getAccount() == '//i') {
-            $this->logger->error('Account regex can not be empty');
-            return;
+        try {
+            $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
+            if (empty($params->getAccount()) || $params->getAccount() == '//i') {
+                $this->logger->error('Account regex can not be empty');
+                return;
+            }
+        } catch (\Exception $e){
+
         }
 
         $this->logger->debug('enter download report page');
@@ -44,23 +49,14 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             WebDriverExpectedCondition::titleContains('SpringServe')
         );
 
-        $accountPositions = $this->getAccountPositionsByFilterRegex($params, $driver);
+        $accountPositions = [];
+        try {
+            $accountPositions = $this->getAccountPositionsByFilterRegex($params, $driver);
+        } catch (\Exception $e) {
 
-        foreach ($accountPositions as $pos) {
-            /**
-             * @var WebDriverElement $userAccountChosen
-             */
-            $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
-            $userAccountChosen->click();
+        }
 
-            /**
-             * @var WebDriverElement[] $liElements
-             */
-            $liElements = $userAccountChosen->findElements(WebDriverBy::tagName('li'));
-
-            $needElement = $liElements[$pos];
-            $needElement->click();
-
+        if (count($accountPositions) == 0) {
             $driver->navigate()->to(DeliveryReportingPage::URL);
 
             $driver->wait()->until(
@@ -70,6 +66,32 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             $this->logger->info('Start downloading reports');
             $deliveryReportPage->getAllTagReports($params);
             $this->logger->info('Finish downloading reports');
+        } else {
+            foreach ($accountPositions as $pos) {
+                /**
+                 * @var WebDriverElement $userAccountChosen
+                 */
+                $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
+                $userAccountChosen->click();
+
+                /**
+                 * @var WebDriverElement[] $liElements
+                 */
+                $liElements = $userAccountChosen->findElements(WebDriverBy::tagName('li'));
+
+                $needElement = $liElements[$pos];
+                $needElement->click();
+
+                $driver->navigate()->to(DeliveryReportingPage::URL);
+
+                $driver->wait()->until(
+                    WebDriverExpectedCondition::titleContains('SpringServe Reports')
+                );
+
+                $this->logger->info('Start downloading reports');
+                $deliveryReportPage->getAllTagReports($params);
+                $this->logger->info('Finish downloading reports');
+            }
         }
 
         $this->logoutSystem($driver);
@@ -77,14 +99,35 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
 
     private function logoutSystem(RemoteWebDriver $driver)
     {
-        /**
-         * @var WebDriverElement $userAccountChosen
-         */
-        $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
-        $userAccountChosen->click();
+        try {
+            /**
+             * @var WebDriverElement $userAccountChosen
+             */
+            $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
+            $userAccountChosen->click();
 
-        $logOutChosen = $driver->findElement(WebDriverBy::cssSelector('#navbar-fixed-top > div > div.collapse.navbar-collapse > ul > li:nth-child(4)'));
-        $logOutChosen->click();
+        } catch (\Exception $e) {
+
+        }
+
+        $index = 0;
+        $logOutChosen = null;
+        for ($logOutIndex = 2; $logOutIndex < 20; $logOutIndex++) {
+            try {
+                $logOutChosen = $driver->findElement(WebDriverBy::cssSelector(sprintf('#navbar-fixed-top > div > div.collapse.navbar-collapse > ul > li:nth-child(%s)', $logOutIndex)));
+            } catch (\Exception $e) {
+                $index = $logOutIndex - 1;
+                break;
+            }
+        }
+
+        try {
+            $logOutChosen = $driver->findElement(WebDriverBy::cssSelector(sprintf('#navbar-fixed-top > div > div.collapse.navbar-collapse > ul > li:nth-child(%s)', $index)));
+            $logOutChosen->click();
+        } catch (\Exception $e) {
+
+        }
+
         /**
          * @var WebDriverElement[] $liElements
          */
