@@ -81,7 +81,8 @@ while (true) {
     try {
         $worker->$task($params); // dynamic method call
         stdOut(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
-        $queue->delete($job);
+        $job = $queue->peek($job->getId());
+        if ($job) $queue->delete($job);
 // task finished successfully
     } catch (Exception $e) {
         stdOut(
@@ -93,7 +94,8 @@ while (true) {
                 $e->getMessage()
             )
         );
-        $queue->bury($job);
+        $job = $queue->peek($job->getId());
+        if ($job) $queue->bury($job);
     }
     gc_collect_cycles();
 }

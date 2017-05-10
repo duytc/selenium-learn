@@ -100,7 +100,9 @@ class ExecuteIntegrationJobWorker
             fclose($fpIntegrationConfigFile);
 
             // remove temp file
-            unlink($integrationConfigFilePath);
+            if (is_file($integrationConfigFilePath)) {
+                unlink($integrationConfigFilePath);
+            }
         }
     }
 

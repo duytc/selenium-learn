@@ -5,6 +5,7 @@ namespace Tagcade\Service;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use DirectoryIterator;
 use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeOutException;
@@ -12,6 +13,8 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Tagcade\Exception\LoginFailException;
 use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
@@ -288,12 +291,23 @@ class WebDriverService implements WebDriverServiceInterface
             $subDir
         );
 
+        // check that chrome finished downloading all files before finishing
+        sleep(5);
+
+        do {
+            $fileSize1 = $this->getDirSize($downloadPath);  // check file size
+            sleep(10);
+            $fileSize2 = $this->getDirSize($downloadPath);
+        } while ($fileSize1 != $fileSize2);
+
+        sleep(5);
+
         $metadataFilePath = sprintf('%s/%s', $downloadPath, $metadataFileName);
         file_put_contents($metadataFilePath, json_encode($metadata));
 
-        // todo check that chrome finished downloading all files before finishing
         $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
         if ($quitWebDriverAfterRun) {
+            $this->removeSessionFolders();
             $driver->quit();
         }
 
@@ -317,5 +331,52 @@ class WebDriverService implements WebDriverServiceInterface
 
         // step2. get all report data
         $partnerFetcher->getAllData($params, $driver);
+    }
+
+    /**
+     * @param $directory
+     * @return int
+     */
+    private function getDirSize($directory)
+    {
+        $size = 0;
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file) {
+            $size += $file->getSize();
+        }
+        return $size;
+    }
+
+    /**
+     * Remove old session folders
+     */
+    private function removeSessionFolders()
+    {
+        $iterator = new DirectoryIterator($this->defaultDataPath . '/.chrome');
+        foreach ($iterator as $sessionFolder) {
+            $modifiedDate = new DateTime(date('Y/m/d', $sessionFolder->getMTime()));
+            $today = new DateTime();
+
+            $diff = $today->diff($modifiedDate);
+
+            if ($diff->y || $diff->m || $diff->d > 1) {
+                $this->recursiveRemoveDirectory($sessionFolder->getRealPath());
+            }
+        }
+    }
+
+    /**
+     * @param $directory
+     */
+    private function recursiveRemoveDirectory($directory)
+    {
+        foreach(glob("{$directory}/*") as $file)
+        {
+            if(is_dir($file)) {
+                $this->recursiveRemoveDirectory($file);
+            } else {
+                unlink($file);
+            }
+        }
+        rmdir($directory);
     }
 }

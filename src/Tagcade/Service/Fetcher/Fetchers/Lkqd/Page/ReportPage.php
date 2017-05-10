@@ -103,7 +103,11 @@ class ReportPage extends AbstractPage
         foreach ($dimensions as $dimension) {
             $dimensionIndex++;
             if ($dimensionIndex > 1) {
-                $dimensionSelector = $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#reports > div > div.report-controls.ng-scope > div.row-2 > div:nth-child(%d) > div', $dimensionIndex)));
+                try {
+                    $dimensionSelector = $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#reports > div > div.report-controls.ng-scope > div.row-2 > div:nth-child(%d) > div', $dimensionIndex)));
+                } catch (\Exception $e) {
+
+                }
             }
 
             $this->choseDimension($dimensionSelector, $dimension);
@@ -145,7 +149,6 @@ class ReportPage extends AbstractPage
         //if dimension not found throw exception
         if (!$isFound) {
             $this->logger->error(sprintf('cannot find dimension: %s', $text));
-            throw new Exception(sprintf('cannot find dimension: %s', $text));
         }
     }
 }

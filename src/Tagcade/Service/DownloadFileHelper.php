@@ -4,14 +4,12 @@ namespace Tagcade\Service;
 
 
 use Exception;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
-use Facebook\WebDriver\WebDriverBy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
-class DownloadFileHelper implements DownloadFileHelperInterface  {
-
+class DownloadFileHelper implements DownloadFileHelperInterface
+{
     const RESCAN_TIME_IN_SECONDS = 5;
     const NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS = 0.25;
     /**
@@ -26,25 +24,25 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @var LoggerInterface
      */
     private $logger;
-	/**
-	 * @var
-	 */
-	private $rootKernelDirectory;
+    /**
+     * @var
+     */
+    private $rootKernelDirectory;
 
-	function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger, $rootKernelDirectory)
+    function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger, $rootKernelDirectory)
     {
         $this->downloadRootDirectory = sprintf('%s/', $downloadRootDirectory);
         $this->downloadTimeout = $downloadTimeout;
         $this->logger = $logger;
-	    $this->rootKernelDirectory = $rootKernelDirectory;
+        $this->rootKernelDirectory = $rootKernelDirectory;
     }
 
     /**
      * @inheritdoc
      */
-    public function deleteFilesByExtension($fileExtensions = array ('crdownload'))
+    public function deleteFilesByExtension($fileExtensions = array('crdownload'))
     {
-        if ( !file_exists($this->downloadRootDirectory) ) {
+        if (!file_exists($this->downloadRootDirectory)) {
             throw new Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
         }
 
@@ -52,12 +50,12 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
             throw new Exception('This path is not directory');
         }
 
-        if(!is_array($fileExtensions)){
+        if (!is_array($fileExtensions)) {
             throw new Exception(sprintf('File extension is not a array. This value is %s', $fileExtensions));
         }
 
         $files = $this->getPartialDownloadFiles($fileExtensions);
-        foreach($files as $file) {
+        foreach ($files as $file) {
             unlink($file);
         }
     }
@@ -70,9 +68,9 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @return int
      * @throws \Exception
      */
-    public function countFilesByExtension($fileExtensions = array ('crdownload'))
+    public function countFilesByExtension($fileExtensions = array('crdownload'))
     {
-        if ( !file_exists($this->downloadRootDirectory) ) {
+        if (!file_exists($this->downloadRootDirectory)) {
             throw new Exception(sprintf('This folder system %s does not exist', $this->downloadRootDirectory));
         }
 
@@ -105,9 +103,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
         }
 
         $this->logger->debug('Click to download element');
-        $oldFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
         $clickAbleElement->click();
-        $this->waitFinishingDownload($directoryStoreDownloadFile, $oldFiles) ;
 
         return $this;
     }
@@ -144,7 +140,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
                 $allFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
                 $countCurrentFiles = count($allFiles);
 
-	            $this->logger->debug(sprintf('path store file %s', $directoryStoreDownloadFile));
+                $this->logger->debug(sprintf('path store file %s', $directoryStoreDownloadFile));
                 $this->logger->debug(sprintf('Now total files = %d', $countCurrentFiles));
 
                 if ($countCurrentFiles > $countOldFiles) {
@@ -166,7 +162,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
 
             $this->logger->debug(sprintf('Found %d partial download files', $currentPartialDownloadCount));
 
-            if ( $foundPartialFile == true && $currentPartialDownloadCount ==0 ) { // download complete
+            if ($foundPartialFile == true && $currentPartialDownloadCount == 0) { // download complete
                 $this->logger->debug('Download complete');
                 break;
             }
@@ -177,8 +173,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
             $totalWaitTime += self::RESCAN_TIME_IN_SECONDS;
 
             $this->logger->debug(sprintf('Wait complete due to timeout (yes/no) %d', $totalWaitTime >= $this->downloadTimeout));
-        }
-        while ($totalWaitTime < $this->downloadTimeout);
+        } while ($totalWaitTime < $this->downloadTimeout);
 
         return $this;
     }
@@ -188,7 +183,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      * @param array $fileExtensions
      * @return array
      */
-    private function getPartialDownloadFiles($downloadDirectory, $fileExtensions = array ('crdownload'))
+    private function getPartialDownloadFiles($downloadDirectory, $fileExtensions = array('crdownload'))
     {
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($downloadDirectory, \RecursiveDirectoryIterator::SKIP_DOTS)
@@ -207,17 +202,17 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
         return $expectFiles;
     }
 
-	/**
-	 * @return string
-	 */
-	public function getRootDirectory()
-	{
-		$dataPath = $this->downloadRootDirectory;
-		$isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
-		$dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->rootKernelDirectory, '/app'), ltrim($dataPath, './')) : $dataPath;
+    /**
+     * @return string
+     */
+    public function getRootDirectory()
+    {
+        $dataPath = $this->downloadRootDirectory;
+        $isRelativeToProjectRootDir = (strpos($dataPath, './') === 0 || strpos($dataPath, '/') !== 0);
+        $dataPath = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->rootKernelDirectory, '/app'), ltrim($dataPath, './')) : $dataPath;
 
-		return $dataPath;
-	}
+        return $dataPath;
+    }
 
 
     /**
@@ -227,7 +222,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface  {
      */
     public function getAllFilesInDirectory($downloadDirectory)
     {
-        if(!is_dir($downloadDirectory)) {
+        if (!is_dir($downloadDirectory)) {
             throw new Exception(sprintf('This path is not directory, path is %s', $downloadDirectory));
         }
 
