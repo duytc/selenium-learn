@@ -305,11 +305,8 @@ class WebDriverService implements WebDriverServiceInterface
         $metadataFilePath = sprintf('%s/%s', $downloadPath, $metadataFileName);
         file_put_contents($metadataFilePath, json_encode($metadata));
 
-        $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
-        if ($quitWebDriverAfterRun) {
-            $this->removeSessionFolders();
-            $driver->quit();
-        }
+        $this->removeSessionFolders();
+        $driver->quit();
 
         return 0;
     }

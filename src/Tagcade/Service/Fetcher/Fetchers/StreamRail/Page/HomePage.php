@@ -11,6 +11,7 @@ use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 class HomePage extends AbstractHomePage
 {
     const URL = 'http://partners.streamrail.com/';
+    protected $ids = [717, 730];
 
     public function doLogin($username, $password)
     {
@@ -25,17 +26,31 @@ class HomePage extends AbstractHomePage
             $this->navigate();
         }
 
+        $this->sleep(2);
+
         $this->logger->debug('filling credentials');
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('ember730-input')));
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('ember751-input')));
+
+        $index = 0;
+        $usernameId = 717;
+
+        do {
+            try {
+                $id = $this->ids[$index];
+                $this->driver->findElement(WebDriverBy::id(sprintf('ember%s-input', $id)));
+                $usernameId = $id;
+                break;
+            } catch (\Exception $e) {
+                $index++;
+            }
+        } while ($index < count($this->ids));
 
         $this->driver
-            ->findElement(WebDriverBy::id('ember730-input'))
+            ->findElement(WebDriverBy::id(sprintf('ember%s-input', $usernameId)))
             ->clear()
             ->sendKeys($username);
 
         $this->driver
-            ->findElement(WebDriverBy::id('ember751-input'))
+            ->findElement(WebDriverBy::id(sprintf('ember%s-input', $usernameId + 21)))
             ->clear()
             ->sendKeys($password);
 
