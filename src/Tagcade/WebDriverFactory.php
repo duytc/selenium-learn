@@ -31,10 +31,14 @@ class WebDriverFactory implements WebDriverFactoryInterface
      */
     private $config;
 
-    public function __construct($seleniumServerUrl = 'http://localhost:4444/wd/hub', LoggerInterface $logger = null)
+    /** @var  string */
+    private $chromeFolderPath;
+
+    public function __construct($seleniumServerUrl = 'http://localhost:4444/wd/hub', LoggerInterface $logger = null, $chromeFolderPath)
     {
         $this->logger = $logger;
         $this->seleniumServerUrl = $seleniumServerUrl;
+        $this->chromeFolderPath = $chromeFolderPath;
     }
 
     /**
@@ -139,7 +143,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
     public function createWebDriver($rootDownloadDir, $subDir = null)
     {
         $chromeOptions = new ChromeOptions();
-        $chromeOptions->addArguments([sprintf('user-data-dir=%s/.chrome/profile.%s', $rootDownloadDir, uniqid($prefix = '', $more_entropy = true))]);
+        $chromeOptions->addArguments([sprintf('user-data-dir=%s/profile.%s', $this->chromeFolderPath, uniqid($prefix = '', $more_entropy = true))]);
         $executionDate = new \DateTime('today');
 
         $defaultDownloadPath = WebDriverService::getDownloadPath(

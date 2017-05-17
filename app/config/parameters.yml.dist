@@ -32,3 +32,4 @@ parameters:
 
     # process timeout
     process.timeout.execute_integration_command: 3600
+    chrome_folder_path: '/media/tagcade/tagcade-unified-report-fetcher/.chrome'

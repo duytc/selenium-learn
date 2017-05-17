@@ -35,6 +35,7 @@ services:
         arguments:
             - %selenium_server_url%
             - @logger
+            - %chrome_folder_path%
     curl:
         class: anlutro\cURL\cURL
 
@@ -46,6 +47,7 @@ services:
             - '@tagcade_app.rest_client'
             - '%kernel.root_dir%'
             - '%tagcade.default_data_path%'
+            - '%chrome_folder_path%'
 
     tagcade.service.integration.integrations.demand_partner.fetcher.helper:
         class: Tagcade\Service\DownloadFileHelper

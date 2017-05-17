@@ -44,6 +44,9 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var TagcadeRestClientInterface */
     protected $tagcadeRestClient;
 
+    /** @var  string */
+    private $chromeFolderPath;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
@@ -51,13 +54,14 @@ class WebDriverService implements WebDriverServiceInterface
      * @param string $symfonyAppDir
      * @param string $defaultDataPath
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
         $this->tagcadeRestClient = $tagcadeRestClient;
         $this->symfonyAppDir = $symfonyAppDir;
         $this->defaultDataPath = $defaultDataPath;
+        $this->chromeFolderPath = $chromeFolderPath;
     }
 
     /**
@@ -374,7 +378,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function removeSessionFolders()
     {
-        $iterator = new DirectoryIterator($this->defaultDataPath . '/.chrome');
+        $iterator = new DirectoryIterator($this->chromeFolderPath);
         foreach ($iterator as $sessionFolder) {
             $modifiedDate = new DateTime(date('Y/m/d', $sessionFolder->getMTime()));
             $today = new DateTime();
