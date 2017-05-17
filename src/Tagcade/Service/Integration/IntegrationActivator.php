@@ -107,7 +107,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
             return true;
         }
 
-        $dataSourceIntegrationSchedule = $dataSourceIntegrationSchedules[0];
+        $dataSourceIntegrationSchedule = array_values($dataSourceIntegrationSchedules) [0];
 
         if (array_key_exists('dataSourceIntegration', $dataSourceIntegrationSchedule)) {
             $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];

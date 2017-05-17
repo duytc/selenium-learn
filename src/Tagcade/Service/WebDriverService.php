@@ -8,7 +8,9 @@ use DateTime;
 use DirectoryIterator;
 use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Exception\NoSuchWindowException;
 use Facebook\WebDriver\Exception\TimeOutException;
+use Facebook\WebDriver\Exception\WebDriverCurlException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
@@ -212,11 +214,7 @@ class WebDriverService implements WebDriverServiceInterface
                 $loginFailException->getExecutionDate()
             );
 
-            // todo check that chrome finished downloading all files before finishing
-            $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
-            if ($quitWebDriverAfterRun) {
-                $driver->quit();
-            }
+            $driver->quit();
 
             // re-throw for retry handle
             throw $loginFailException;
@@ -230,11 +228,7 @@ class WebDriverService implements WebDriverServiceInterface
                 date("Y-m-d H:i:s")
             );
 
-            // todo check that chrome finished downloading all files before finishing
-            $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
-            if ($quitWebDriverAfterRun) {
-                $driver->quit();
-            }
+            $driver->quit();
 
             // any timeout (by wait util...) is retryable
             // re-throw for retry handle
@@ -243,6 +237,36 @@ class WebDriverService implements WebDriverServiceInterface
             // element may be not existed due to timeout or temporarily changed
             // this is retryable
             throw new RuntimeException($noSuchElementException->getMessage());
+        } catch (WebDriverCurlException $webDriverCurlException) {
+            $this->tagcadeRestClient->createAlertWhenTimeOut(
+                $params->getPublisherId(),
+                $params->getIntegrationCName(),
+                $params->getDataSourceId(),
+                $params->getStartDate(),
+                $params->getEndDate(),
+                date("Y-m-d H:i:s")
+            );
+
+            $driver->quit();
+
+            // any timeout (by wait util...) is retryable
+            // re-throw for retry handle
+            throw new RuntimeException($webDriverCurlException->getMessage());
+        } catch (NoSuchWindowException $noSuchWindowException) {
+            $this->tagcadeRestClient->createAlertWhenLoginFail(
+                $params->getPublisherId(),
+                $params->getIntegrationCName(),
+                $params->getDataSourceId(),
+                $params->getStartDate(),
+                $params->getEndDate(),
+                date("Y-m-d H:i:s")
+            );
+
+            $driver->quit();
+
+            // any timeout (by wait util...) is retryable
+            // re-throw for retry handle
+            throw new RuntimeException($noSuchWindowException->getMessage());
         } catch (Exception $e) {
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
@@ -301,6 +325,8 @@ class WebDriverService implements WebDriverServiceInterface
         } while ($fileSize1 != $fileSize2);
 
         sleep(5);
+
+        $this->renameDownloadFilesFromFolder($downloadPath, $params);
 
         $metadataFilePath = sprintf('%s/%s', $downloadPath, $metadataFileName);
         file_put_contents($metadataFilePath, json_encode($metadata));
@@ -366,14 +392,56 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function recursiveRemoveDirectory($directory)
     {
-        foreach(glob("{$directory}/*") as $file)
-        {
-            if(is_dir($file)) {
+        foreach (glob("{$directory}/*") as $file) {
+            if (is_dir($file)) {
                 $this->recursiveRemoveDirectory($file);
             } else {
                 unlink($file);
             }
         }
-        rmdir($directory);
+        if (!is_dir($directory) && !is_file($directory)) {
+            mkdir($directory);
+        }
+        if (count(scandir($directory)) <= 2) {
+            rmdir($directory);
+        }
+    }
+
+    /**
+     * @param $folder
+     * @param PartnerParamInterface $param
+     */
+    private function renameDownloadFilesFromFolder($folder, PartnerParamInterface $param)
+    {
+        $subFiles = scandir($folder);
+
+        $subFiles = array_map(function ($subFile) use ($folder) {
+            return $folder . '/' . $subFile;
+        }, $subFiles);
+
+        $subFiles = array_filter($subFiles, function ($file) {
+            return is_file($file);
+        });
+
+        $time = sprintf('DTS-%s-From-%s-To-%s', $param->getDataSourceId(), $param->getStartDate()->format('Y-m-d'), $param->getEndDate()->format('Y-m-d'));
+
+        foreach ($subFiles as $subFile) {
+            $subFile = new \SplFileInfo($subFile);
+            if ($subFile->getExtension() != 'meta') {
+                $path = $subFile->getRealPath();
+                if (strpos($path, $time)) {
+                    continue;
+                }
+
+                $dotPos = strpos($path, '.');
+                if ($dotPos) {
+                    $newName = sprintf("%s_%s%s",
+                        substr($path, 0, $dotPos),
+                        $time,
+                        substr($path, $dotPos));
+                    rename($subFile->getRealPath(), $newName);
+                }
+            }
+        }
     }
 }

@@ -25,7 +25,7 @@ class HomePage extends AbstractHomePage
             $this->navigate();
         }
         $this->logger->debug('filling credentials');
-        $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('user[email]')));
+        $this->driver->wait(30)->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('user[email]')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('user[password]')));
 
         $this->driver

@@ -26,7 +26,7 @@ class HomePage extends AbstractHomePage
             $this->navigate();
         }
 
-        $this->sleep(2);
+        $this->sleep(4);
 
         $this->logger->debug('filling credentials');
 
@@ -56,12 +56,17 @@ class HomePage extends AbstractHomePage
 
         $this->logger->debug('click login button');
         $this->driver->findElement(WebDriverBy::className('action-btn'))->click();
-        sleep(2);
+        sleep(4);
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
         $waitDriver = new WebDriverWait($this->driver, 20);
 
         try {
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('main-container')));
+            $userNotFound = $this->filterElementByTagNameAndText('small', 'User not found');
+            $invalidUserNamePassword = $this->filterElementByTagNameAndText('small', 'Invalid username or password');
+            if (!empty($userNotFound) || !empty($invalidUserNamePassword)) {
+                return false;
+            }
 
             return true;
         } catch (Exception $e) {

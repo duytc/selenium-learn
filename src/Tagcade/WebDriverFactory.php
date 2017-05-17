@@ -168,7 +168,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $capabilities = DesiredCapabilities::chrome();
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
-        $driver = RemoteWebDriver::create($this->seleniumServerUrl, $capabilities);
+        $driver = RemoteWebDriver::create($this->seleniumServerUrl, $capabilities, 60 * 1000, 60 * 1000);
 
         return $driver;
     }

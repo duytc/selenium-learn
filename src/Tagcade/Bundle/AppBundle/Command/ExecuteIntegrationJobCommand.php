@@ -91,6 +91,12 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
             $backFill
         );
 
+        $logger->info(
+            sprintf("Config\tPublisherId: %s\tDataSourceId: %s\tIntegration cName: %s",
+                $config->getPublisherId(),
+                $config->getDataSourceId(),
+                $config->getIntegrationCName()));
+
         /** @var IntegrationManagerInterface $fetcherManager */
         $fetcherManager = $this->getContainer()->get('tagcade.service.integration.integration_manager');
 

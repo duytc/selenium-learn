@@ -66,9 +66,14 @@ class DeliveryReportPage extends AbstractPage
         $rangeInput->findElement(WebDriverBy::className('applyBtn'))->click();
         $this->sleep(1);
 
-        $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('ui-grid-menu-button')));
+        try {
+            $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('ui-grid-menu-button')));
+            $grid_menu = $this->driver->findElement(WebDriverBy::className('ui-grid-menu-button'));
+        } catch (\Exception $e) {
+            $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('ui-grid-icon-menu')));
+            $grid_menu = $this->driver->findElement(WebDriverBy::className('ui-grid-icon-menu'));
+        }
 
-        $grid_menu = $this->driver->findElement(WebDriverBy::className('ui-grid-menu-button'));
         $grid_menu->click();
         $this->sleep(1);
 

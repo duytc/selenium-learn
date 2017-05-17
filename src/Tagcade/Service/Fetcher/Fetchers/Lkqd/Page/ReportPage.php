@@ -70,7 +70,11 @@ class ReportPage extends AbstractPage
     protected function logOutSystem()
     {
         $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "navbar-right")]/li[contains(@class, "navigation-bar-item")]/div/a[contains(@class, "caret-button")]/span'))->click();
-        $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "account-dropdown-items") and contains(@class, "dropdown-menu")]/li[4]'))->click();
+
+        $logOutButton = $this->filterElementByTagNameAndText('li', 'Logout');
+        if ($logOutButton) {
+            $logOutButton->click();
+        }
         return $this;
     }
 
