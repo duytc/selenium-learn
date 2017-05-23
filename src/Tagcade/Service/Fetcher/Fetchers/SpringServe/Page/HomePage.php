@@ -67,4 +67,9 @@ class HomePage extends AbstractHomePage
 
         return false;
     }
+
+    public function doLogout()
+    {
+        // TODO: Implement doLogout() method.
+    }
 }

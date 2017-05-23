@@ -41,6 +41,4 @@ interface WebDriverFactoryInterface
      * @param PartnerParamInterface $params
      */
     public function setParams($params);
-
-    public function clearAllSessions();
 }

@@ -194,6 +194,21 @@ class IntegrationActivator implements IntegrationActivatorInterface
      */
     private function updateNextExecuteAt($dataSourceIntegrationSchedule)
     {
+        if (!is_array($dataSourceIntegrationSchedule)
+            || !array_key_exists('dataSourceIntegration', $dataSourceIntegrationSchedule)
+            || !array_key_exists('id', $dataSourceIntegrationSchedule)
+        ) {
+            return true;
+        }
+
+        $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
+
+        // skip if need backFill
+        // notice: important, do not update next executedAt if run backfill
+        if ($this->isNeedRunBackFill($dataSourceIntegration)) {
+            return true;
+        }
+
         $dataSourceIntegrationScheduleId = $dataSourceIntegrationSchedule['id'];
 
         return $this->restClient->updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
@@ -209,21 +224,43 @@ class IntegrationActivator implements IntegrationActivatorInterface
     {
         if (!is_array($dataSourceIntegration)
             || !array_key_exists('id', $dataSourceIntegration)
-            || !array_key_exists('backFill', $dataSourceIntegration)
-            || !array_key_exists('backFillExecuted', $dataSourceIntegration)
         ) {
             return true;
         }
 
         // skip if not need backFill
-        $isBackFill = (bool)$dataSourceIntegration['backFill'];
-        $isBackFillExecuted = (bool)$dataSourceIntegration['backFillExecuted'];
-        if (!$isBackFill || $isBackFillExecuted) {
+        if (!$this->isNeedRunBackFill($dataSourceIntegration)) {
             return true;
         }
 
         // update backFill executed to true
         $dataSourceIntegrationId = $dataSourceIntegration['id'];
         return $this->restClient->updateBackFillExecutedForIntegration($dataSourceIntegrationId);
+    }
+
+    /**
+     * check if is Need Run BackFill
+     *
+     * @param $dataSourceIntegration
+     * @return mixed
+     */
+    private function isNeedRunBackFill($dataSourceIntegration)
+    {
+        if (!is_array($dataSourceIntegration)
+            || !array_key_exists('id', $dataSourceIntegration)
+            || !array_key_exists('backFill', $dataSourceIntegration)
+            || !array_key_exists('backFillExecuted', $dataSourceIntegration)
+        ) {
+            return false;
+        }
+
+        // skip if not need backFill
+        $isBackFill = (bool)$dataSourceIntegration['backFill'];
+        $isBackFillExecuted = (bool)$dataSourceIntegration['backFillExecuted'];
+        if (!$isBackFill || $isBackFillExecuted) {
+            return false;
+        }
+
+        return true;
     }
 }

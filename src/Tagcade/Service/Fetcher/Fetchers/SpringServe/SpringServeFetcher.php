@@ -15,6 +15,7 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFetcherInterface
 {
+    const REPORT_PAGE_URL = 'https://video.springserve.com/reports';
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
@@ -93,11 +94,9 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
                 $this->logger->info('Finish downloading reports');
             }
         }
-
-        $this->logoutSystem($driver);
     }
 
-    private function logoutSystem(RemoteWebDriver $driver)
+    public function logoutSystem(RemoteWebDriver $driver)
     {
         try {
             /**

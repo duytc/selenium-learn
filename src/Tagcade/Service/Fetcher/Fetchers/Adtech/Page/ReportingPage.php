@@ -100,8 +100,6 @@ class ReportingPage extends AbstractPage
             $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
 
             $this->driver->switchTo()->window($mainWindow);
-            $this->logger->debug('Logout System!');
-            $this->logoutSystem();
 
         } catch (NoSuchElementException $e) {
             $this->logger->warning(sprintf('Can not find element: %s', $e->getMessage()));
@@ -123,13 +121,5 @@ class ReportingPage extends AbstractPage
         $dateWidget->setDateRange($startDate, $endDate);
 
         return $this;
-    }
-
-    protected function logoutSystem()
-    {
-        $logoutButtonCss = '#navLogoutItem';
-        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
-        $confirmLogoutButtonsCss = '#button_caption\2e yes';
-        $this->driver->findElement(WebDriverBy::cssSelector($confirmLogoutButtonsCss))->click();
     }
 }

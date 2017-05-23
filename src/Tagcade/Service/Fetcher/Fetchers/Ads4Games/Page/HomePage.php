@@ -65,4 +65,9 @@ class HomePage extends AbstractHomePage
 
         return empty($logoutElements) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $this->driver->navigate()->to('https://traffic.a4g.com/www/admin/logout.php');
+    }
 }

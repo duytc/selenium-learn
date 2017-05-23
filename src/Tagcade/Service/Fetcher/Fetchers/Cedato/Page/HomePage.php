@@ -11,7 +11,7 @@ use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 class HomePage extends AbstractHomePage
 {
     const URL = 'https://dashboard.cedato.com';
-
+    const LOG_OUT_URL = 'https://dashboard.cedato.com/#/login';
     public function doLogin($username, $password)
     {
         $this->driver->manage()->timeouts()->pageLoadTimeout(30);
@@ -58,5 +58,10 @@ class HomePage extends AbstractHomePage
         $headerMainmenus = $this->driver->findElements(WebDriverBy::id('usernameInNav'));
 
         return empty($headerMainmenus) ? false : true;
+    }
+
+    public function doLogout()
+    {
+        $this->driver->navigate()->to(self::LOG_OUT_URL);
     }
 }

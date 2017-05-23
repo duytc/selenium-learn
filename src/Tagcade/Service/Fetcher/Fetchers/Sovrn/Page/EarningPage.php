@@ -76,8 +76,6 @@ class EarningPage extends AbstractPage
             }
         }
         $this->sleep(2);
-        $this->logger->debug('Log out system');
-        $this->logOutSystem();
     }
 
     /**
@@ -103,16 +101,4 @@ class EarningPage extends AbstractPage
 
         return $this;
     }
-
-    /**
-     * logout system
-     */
-    protected function logOutSystem()
-    {
-        $userImageCss = '#user-menu-trigger > div.impersonated > div.profile-image-outer > img';
-        $this->driver->findElement(WebDriverBy::cssSelector($userImageCss))->click();
-
-        $loutOutButtonCss = '#user-menu-popup > ul > li:nth-child(2) > a';
-        $this->driver->findElement(WebDriverBy::cssSelector($loutOutButtonCss))->click();
-    }
-} 
+}

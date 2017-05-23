@@ -51,4 +51,10 @@ class HomePage extends AbstractHomePage
 
         return empty($headerMainmenus) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $logOutButtonCss = '#main-nav > ul > li.logout > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logOutButtonCss))->click();
+    }
 }

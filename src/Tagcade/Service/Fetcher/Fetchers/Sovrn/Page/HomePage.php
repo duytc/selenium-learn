@@ -59,4 +59,13 @@ class HomePage extends AbstractHomePage
 
         return empty($logoutElements) ? false : true;
     }
-} 
+
+    public function doLogout()
+    {
+        $userImageCss = '#user-menu-trigger > div.impersonated > div.profile-image-outer > img';
+        $this->driver->findElement(WebDriverBy::cssSelector($userImageCss))->click();
+
+        $loutOutButtonCss = '#user-menu-popup > ul > li:nth-child(2) > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($loutOutButtonCss))->click();
+    }
+}

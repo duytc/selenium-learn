@@ -64,13 +64,6 @@ class ReportPage extends AbstractPage
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($exportButton, $directoryStoreDownloadFile);
 
-        $this->logoutSystem();
         $this->logger->debug('Clicked downloading reports');
-    }
-
-    protected function logoutSystem()
-    {
-        $logoutButtonCss = '#menubar > ul > div.pull-right.loginTab > div:nth-child(4) > a';
-        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
     }
 }

@@ -69,4 +69,10 @@ class HomePage extends AbstractHomePage
 
         return empty($reportings) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $logoutButtonCss = 'body > div > div.logged-in-as > div > div > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+    }
 }

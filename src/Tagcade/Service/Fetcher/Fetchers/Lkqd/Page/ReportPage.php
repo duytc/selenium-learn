@@ -41,9 +41,6 @@ class ReportPage extends AbstractPage
         $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "download-button")]')));
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
-
-        $this->logger->debug('Logout system');
-        $this->logOutSystem();
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
@@ -64,17 +61,6 @@ class ReportPage extends AbstractPage
     {
         $reportSourceWidget = new ReportSourceSelectWidget($this->driver, $this->logger);
         $reportSourceWidget->setReportSource(self::SUPPLY_SOURCE_INDEX);
-        return $this;
-    }
-
-    protected function logOutSystem()
-    {
-        $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "navbar-right")]/li[contains(@class, "navigation-bar-item")]/div/a[contains(@class, "caret-button")]/span'))->click();
-
-        $logOutButton = $this->filterElementByTagNameAndText('li', 'Logout');
-        if ($logOutButton) {
-            $logOutButton->click();
-        }
         return $this;
     }
 

@@ -57,6 +57,12 @@ class HomePage extends AbstractHomePage
         return $this->isLoggedIn();
     }
 
+    public function doLogout()
+    {
+        $logoutAreaCss = '#top-right-block > div.top-right-block.borderNone > div > span';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
+    }
+
     /**
      * @return bool
      */

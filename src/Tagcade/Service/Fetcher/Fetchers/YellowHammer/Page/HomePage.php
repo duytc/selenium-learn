@@ -48,4 +48,13 @@ class HomePage extends AbstractHomePage
         return empty($dashboardElements) ? false : true;
 
     }
+
+    public function doLogout()
+    {
+        $logoutAreaCss = '#username > ul > li > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
+
+        $logoutButtonCss = '#username > ul > li > ul > li:nth-child(9) > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+    }
 }

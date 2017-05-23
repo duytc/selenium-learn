@@ -14,6 +14,7 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class CedatoFetcher extends PartnerFetcherAbstract implements CedatoFetcherInterface
 {
+    const REPORT_PAGE_URL = 'https://dashboard.cedato.com/#/players/reports/0/0/0/';
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver

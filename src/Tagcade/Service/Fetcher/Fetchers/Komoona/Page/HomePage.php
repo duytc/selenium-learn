@@ -54,4 +54,10 @@ class HomePage extends AbstractHomePage
 
         return empty($logoutElements) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $logOutCss = '#submit > input[type="submit"]';
+        $this->driver->findElement(WebDriverBy::cssSelector($logOutCss))->click();
+    }
 }

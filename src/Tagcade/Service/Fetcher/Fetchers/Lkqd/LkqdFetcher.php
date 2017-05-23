@@ -14,6 +14,7 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class LkqdFetcher extends PartnerFetcherAbstract implements LkqdFetcherInterface
 {
+    const REPORT_PAGE_URL = 'https://ui.lkqd.com/reports';
     /**
      * download report data based on given params and save report files to pre-configured directory
      * @param PartnerParamInterface $params

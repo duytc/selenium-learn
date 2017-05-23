@@ -15,6 +15,11 @@ abstract class AbstractHomePage extends AbstractPage
     public abstract function doLogin($username, $password);
 
     /**
+     * @return mixed
+     */
+    public abstract function doLogout();
+
+    /**
      * check if is logged in
      *
      * @return mixed

@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\StreamRail\Page;
 
 use Exception;
+use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Fetchers\StreamRail\Widget\DateSelectWidget;
@@ -31,13 +32,8 @@ class DeliveryReportPage extends AbstractPage
         $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('modal-overlays')));
 
         $this->selectFirstDimension($param->getPrimaryDimension());
-        $this->sleep(3);
         $this->selectSecondDimension($param->getSecondaryDimension());
-
-        $this->sleep(3);
-
         $this->clickDateRange();
-
         $this->selectDateRange($param->getStartDate(), $param->getEndDate());
 
         $this->sleep(2);
@@ -52,9 +48,6 @@ class DeliveryReportPage extends AbstractPage
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($param->getStartDate(), $param->getEndDate(), $this->getConfig());
 
         $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
-
-        $this->logger->debug('Logout system');
-        $this->logOutSystem();
     }
 
     /**
@@ -113,14 +106,13 @@ class DeliveryReportPage extends AbstractPage
             return;
         }
 
-        $adSourceElement = $this->filterElementByTagNameAndText('span', 'Ad Source');
-        if ($adSourceElement) {
-            $adSourceElement->click();
-        }
-
-        $dimensionElement = $this->filterElementByTagNameAndText('li', $firstDimension);
-        if ($dimensionElement) {
-            $dimensionElement->click();
+        $firstDimensionElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[1]/div[2]/div[1]'));
+        if ($firstDimensionElement) {
+            $firstDimensionElement->click();
+            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "%s")]', $firstDimension)));
+            if ($dropDownElement) {
+                $dropDownElement->click();
+            }
         }
     }
 
@@ -138,14 +130,13 @@ class DeliveryReportPage extends AbstractPage
             return;
         }
 
-        $adSourceElement = $this->filterElementByTagNameAndText('span', 'Select Dimension');
-        if ($adSourceElement) {
-            $adSourceElement->click();
-        }
-
-        $dimensionElement = $this->filterElementByTagNameAndText('li', $secondDimension);
-        if ($dimensionElement) {
-            $dimensionElement->click();
+        $secondDimensionElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[2]/div[2]/div[1]/div[1]'));
+        if ($secondDimensionElement) {
+            $secondDimensionElement->click();
+            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "%s")]', $secondDimension)));
+            if ($dropDownElement) {
+                $dropDownElement->click();
+            }
         }
     }
 
@@ -154,14 +145,24 @@ class DeliveryReportPage extends AbstractPage
      */
     private function clickDateRange()
     {
-        $toDayElement = $this->filterElementByTagNameAndText('span', 'Today');
-        if ($toDayElement) {
-            $toDayElement->click();
-        }
-
-        $customElement = $this->filterElementByTagNameAndText('li', 'Custom');
-        if ($customElement) {
-            $customElement->click();
+        try {
+            $dateElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[3]/div[2]/div[1]/div[1]'));
+            if ($dateElement) {
+                $dateElement->click();
+                $dropDownElement = $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "Custom")]'));
+                if ($dropDownElement) {
+                    $dropDownElement->click();
+                }
+            }
+        } catch (NoSuchElementException $noSuchElementException) {
+            $dateElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[1]/div[2]/div[1]/div[1]'));
+            if ($dateElement) {
+                $dateElement->click();
+                $dropDownElement = $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "Custom")]'));
+                if ($dropDownElement) {
+                    $dropDownElement->click();
+                }
+            }
         }
     }
 }

@@ -55,7 +55,6 @@ class ReportingPage extends AbstractPage
         $downloadBtn = $this->driver->findElement(WebDriverBy::cssSelector('a[title="Export to CSV"]'));
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
         $this->downloadThenWaitUntilComplete($downloadBtn, $directoryStoreDownloadFile);
-        $this->logoutSystem();
     }
 
     /**
@@ -203,12 +202,5 @@ class ReportingPage extends AbstractPage
         } else {
             $this->logger->warning('File has not been download after time out');
         }
-    }
-
-    protected function logoutSystem()
-    {
-        $logoutAreaCss = '#top-right-block > div.top-right-block.borderNone > div > span';
-        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
-
     }
 }

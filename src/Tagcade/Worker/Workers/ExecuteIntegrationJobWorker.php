@@ -14,7 +14,20 @@ use Symfony\Component\Process\Process;
 class ExecuteIntegrationJobWorker
 {
     const RUN_COMMAND = 'tc:unified-report-fetcher:integration:run';
-    const TEM_FILE_NAME_PREFIX = 'integration_config_';
+
+    /**
+     * %s %s is {data source id} {timestamps}
+     *
+     * e.g integration_config_datasource_123_4283432948923.json
+     */
+    const TEM_FILE_NAME_TEMPLATE = 'integration_config_datasource_%d_%s.json';
+
+    /**
+     * %s is {data source id}. Write all log to only one file for each data source
+     *
+     * e.g run_log_datasource_123.log
+     */
+    const LOG_FILE_NAME_TEMPLATE = 'run_log_datasource_%d.log';
 
     /**
      * @var Logger $logger
@@ -66,8 +79,9 @@ class ExecuteIntegrationJobWorker
             mkdir($this->tempFileDir, 0777, true);
         }
 
+        $dataSourceId = $params->dataSourceId ? $params->dataSourceId : 0; // 0 is unknown...
         $executionRunId = strtotime('now');
-        $integrationConfigFileName = sprintf('%s%s.json', self::TEM_FILE_NAME_PREFIX, $executionRunId);
+        $integrationConfigFileName = sprintf(self::TEM_FILE_NAME_TEMPLATE, $dataSourceId, $executionRunId);
         $integrationConfigFilePath = $this->createTempIntegrationConfigFile($integrationConfigFileName);
 
         //// write config to file
@@ -79,7 +93,7 @@ class ExecuteIntegrationJobWorker
             mkdir($this->logDir, 0777, true);
         }
 
-        $logFile = sprintf('%s/run_log_%d.log', $this->logDir, $executionRunId);
+        $logFile = sprintf('%s/%s', $this->logDir, sprintf(self::LOG_FILE_NAME_TEMPLATE, $dataSourceId));
         $fpLogger = fopen($logFile, 'a');
 
         // create process to wrap command

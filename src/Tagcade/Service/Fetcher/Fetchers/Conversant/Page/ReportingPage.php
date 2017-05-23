@@ -35,13 +35,6 @@ class ReportingPage extends AbstractPage
         }
     }
 
-    public function logout()
-    {
-        $this->driver->navigate()->to(static::LOGOUT);
-
-        return $this;
-    }
-
     /**
      * @param \DateTime $startDate
      * @param \DateTime $endDate

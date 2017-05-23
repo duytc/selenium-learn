@@ -11,6 +11,8 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class StreamRailFetcher extends PartnerFetcherAbstract implements StreamRailFetcherInterface
 {
+    const REPORT_PAGE_URL = 'http://partners.streamrail.com/#/report';
+
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver

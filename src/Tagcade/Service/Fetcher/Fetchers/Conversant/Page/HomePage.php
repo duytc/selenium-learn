@@ -10,6 +10,7 @@ use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 class HomePage extends AbstractHomePage
 {
     const URL = 'https://admin.valueclickmedia.com/corp/login';
+    const LOGOUT = 'https://admin.valueclickmedia.com/corp/login';
 
     public function doLogin($username, $password)
     {
@@ -60,5 +61,12 @@ class HomePage extends AbstractHomePage
         }
 
         return false;
+    }
+
+    public function doLogout()
+    {
+        $this->driver->navigate()->to(static::LOGOUT);
+
+        return $this;
     }
 }

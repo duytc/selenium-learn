@@ -51,10 +51,6 @@ class DeliveryReportPage extends AbstractPage
             $noDataError = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_dateSelector_valiationLabel'));
             $this->logger->error($noDataError->getText());
         }
-
-
-        $this->logger->debug('Logout system');
-        $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_appHeader_signOutLinkButton'))->click();
     }
 
     /**
@@ -109,11 +105,5 @@ class DeliveryReportPage extends AbstractPage
         $dateWidget = new DateSelectWidget($this->driver);
         $dateWidget->setDateRange($startDate, $endDate);
         return $this;
-    }
-
-    protected function logOutSystem()
-    {
-        $logOutButtonCss = '#main-nav > ul > li.logout > a';
-        $this->driver->findElement(WebDriverBy::cssSelector($logOutButtonCss))->click();
     }
 }

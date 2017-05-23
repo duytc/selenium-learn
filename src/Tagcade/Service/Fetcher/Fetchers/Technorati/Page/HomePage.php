@@ -59,4 +59,12 @@ class HomePage extends AbstractHomePage
 
         return false;
     }
+
+    public function doLogout()
+    {
+        $logoutAreaCss = '#usernav > div > span.name.ng-binding';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
+
+        $this->driver->findElement(WebDriverBy::cssSelector('a[ng-click="logout()"]'))->click();
+    }
 }

@@ -86,7 +86,6 @@ class ReportingPage extends AbstractPage
         $this->driver->manage()->timeouts()->implicitlyWait(0);
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('notification')));
 
-        $this->logoutSystem();
         return $this;
     }
 
@@ -97,15 +96,5 @@ class ReportingPage extends AbstractPage
         $dateWidget->setDate($endDate, 'end_date');
 
         return $this;
-    }
-
-    protected function logoutSystem()
-    {
-        $logoutAreaCss = '#username > ul > li > a';
-        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
-
-        $logoutButtonCss = '#username > ul > li > ul > li:nth-child(9) > a';
-        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
-
     }
 }

@@ -26,10 +26,18 @@ interface PartnerFetcherInterface
      *
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
+     * @param $needToLogin
      * @return bool true if logged in successfully
      * @throws Exception when login fail or other exception
      */
-    public function doLogin(PartnerParamInterface $params, RemoteWebDriver $driver);
+    public function doLogin(PartnerParamInterface $params, RemoteWebDriver $driver, $needToLogin = false);
+
+    /**
+     * @param PartnerParamInterface $params
+     * @param RemoteWebDriver $driver
+     * @return mixed
+     */
+    public function doLogout(PartnerParamInterface $params, RemoteWebDriver $driver);
 
     /**
      * download report data based on given params and save report files to pre-configured directory

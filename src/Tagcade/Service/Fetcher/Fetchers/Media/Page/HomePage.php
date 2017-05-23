@@ -91,4 +91,16 @@ class HomePage extends AbstractHomePage
 
         return false;
     }
+
+    public function doLogout()
+    {
+        $logOutAreaCss = '#headband > div.branding.clearfix > div.branding-container.clearfix > div.userWraper > div.username.clearfix > p';
+        $this->driver->findElement(WebDriverBy::cssSelector($logOutAreaCss))->click();
+
+        $logoutButtonCss = '//*[@id="userWrapper"]/div[2]/div/div[2]/a';
+        $this->driver->wait()->until(
+            WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::xpath($logoutButtonCss))
+        );
+        $this->driver->findElement(WebDriverBy::xpath($logoutButtonCss))->click();
+    }
 }

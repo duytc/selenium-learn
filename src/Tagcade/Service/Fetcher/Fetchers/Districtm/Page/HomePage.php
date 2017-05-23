@@ -64,4 +64,13 @@ class HomePage extends AbstractHomePage
 
         return false;
     }
+
+    public function doLogout()
+    {
+        $logoutAreaCss = '#mobile-menu > ul > li.dropdown > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
+
+        $logoutButtonCss = '#mobile-menu > ul > li.dropdown.open > ul > li:nth-child(3) > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+    }
 }

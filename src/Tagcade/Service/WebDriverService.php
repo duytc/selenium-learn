@@ -69,6 +69,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     public function doGetData(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $partnerParams)
     {
+        $driver = null;
         $rootDownloadDir = $this->defaultDataPath;
         $isRelativeToProjectRootDir = (strpos($rootDownloadDir, './') === 0 || strpos($rootDownloadDir, '/') !== 0);
         $rootDownloadDir = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->symfonyAppDir, '/app'), ltrim($rootDownloadDir, './')) : $rootDownloadDir;
@@ -76,6 +77,34 @@ class WebDriverService implements WebDriverServiceInterface
             $this->logger->error(sprintf('Cannot write to data-path %s', $rootDownloadDir));
             return 1;
         }
+
+        $this->logger->info(sprintf('Creating web driver with identifier param %s', $rootDownloadDir));
+        $webDriverConfig = [
+            'publisher_id' => $partnerParams->getPublisherId(),
+            'partner_cname' => $partnerParams->getIntegrationCName(),
+            'force-new-session' => array_key_exists('force-new-session', $partnerParams->getConfig()) ? $partnerParams->getConfig()['force-new-session'] : true,
+            'quit-web-driver-after-run' => array_key_exists('quit-web-driver-after-run', $partnerParams->getConfig()) ? $partnerParams->getConfig()['quit-web-driver-after-run'] : true,
+            'process_id' => $partnerParams->getProcessId()
+        ];
+
+        $this->webDriverFactory->setConfig($webDriverConfig);
+        $this->webDriverFactory->setParams($partnerParams);
+        $driver = $this->webDriverFactory->getWebDriver($rootDownloadDir, $rootDownloadDir);
+
+        if (!$driver) {
+            $this->logger->critical('Failed to create web driver from session');
+            return 1;
+        }
+
+        $defaultDownloadPath = WebDriverService::getDownloadPath(
+            $rootDownloadDir,
+            $partnerParams->getPublisherId(),
+            $partnerParams->getIntegrationCName(),
+            new \DateTime(),
+            $partnerParams->getStartDate(),
+            $partnerParams->getEndDate(),
+            $partnerParams->getProcessId()
+        );
 
         // do get report breakdown by day if has
         if ($partnerParams->isDailyBreakdown()) {
@@ -86,7 +115,7 @@ class WebDriverService implements WebDriverServiceInterface
             $interval = new DateInterval('P1D');
             $dateRange = new DatePeriod($startDate, $interval, $endDate);
 
-            foreach ($dateRange as $singleDate) {
+            foreach ($dateRange as $i => $singleDate) {
                 // override startDate/endDate by singleDate
                 /** @var DateTime $singleDate */
                 $partnerParamsWithSingleDate = clone $partnerParams;
@@ -107,12 +136,31 @@ class WebDriverService implements WebDriverServiceInterface
 
                 $partnerParamsWithSingleDate->setConfig($newConfig);
 
-                $this->getDataForPublisher($partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $subDir);
+                $metaDataFolder = $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $i == 0 ? true : false);
+
+                $subFiles = scandir($defaultDownloadPath);
+
+                $subFiles = array_filter($subFiles, function ($subFile) use ($defaultDownloadPath) {
+                    return is_file($defaultDownloadPath . '/' . $subFile);
+                });
+
+                array_walk($subFiles, function ($file) use ($defaultDownloadPath, $metaDataFolder) {
+                    rename($defaultDownloadPath . '/' . $file, $metaDataFolder . '/' . $file);
+                });
             }
+            //remove default download directory
+            rmdir($defaultDownloadPath);
         } else {
             // do get report by full date range
-            $this->getDataForPublisher($partnerFetcher, $partnerParams, $rootDownloadDir);
+            $this->getDataForPublisher($driver, $partnerFetcher, $partnerParams, $rootDownloadDir, $defaultDownloadPath);
         }
+
+        if ($driver instanceof RemoteWebDriver) {
+            $partnerFetcher->doLogout($partnerParams, $driver);
+            $driver->quit();
+        }
+
+        $this->removeSessionFolders();
 
         return 1;
     }
@@ -152,15 +200,18 @@ class WebDriverService implements WebDriverServiceInterface
     /**
      * get Data For Publisher
      *
+     * @param RemoteWebDriver $driver
      * @param PartnerFetcherInterface $partnerFetcher
      * @param PartnerParamInterface $params
      * @param string $rootDownloadDir
      * @param null|string $subDir the sub dir (last dir) before the file. This is for metadata comprehension mechanism
-     * @return int
+     * @param bool $needToLogin
+     * @param $downloadFolder
+     * @return string
      * @throws Exception
      * @throws LoginFailException
      */
-    protected function getDataForPublisher(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, $rootDownloadDir, $subDir = null)
+    protected function getDataForPublisher(RemoteWebDriver $driver, PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, $rootDownloadDir, $downloadFolder, $subDir = null, $needToLogin = true)
     {
         $webDriverConfig = [
             'publisher_id' => $params->getPublisherId(),
@@ -172,26 +223,6 @@ class WebDriverService implements WebDriverServiceInterface
 
         $this->webDriverFactory->setConfig($webDriverConfig);
         $this->webDriverFactory->setParams($params);
-
-        $forceNewSession = $webDriverConfig['force-new-session'];
-        $sessionId = null;
-
-        if ($forceNewSession == false) {
-            $sessionId = $this->webDriverFactory->getLastSessionId();
-        } else {
-            $this->webDriverFactory->clearAllSessions();
-        }
-
-        $identifier = $sessionId != null ? $sessionId : $rootDownloadDir;
-
-        $this->logger->info(sprintf('Creating web driver with identifier param %s', $identifier));
-        $driver = $this->webDriverFactory->getWebDriver($identifier, $rootDownloadDir, $subDir);
-        // you could clear cache and cookies here if using the same profile
-
-        if (!$driver) {
-            $this->logger->critical('Failed to create web driver from session');
-            return 1;
-        }
 
         try {
             $driver->manage()
@@ -205,7 +236,7 @@ class WebDriverService implements WebDriverServiceInterface
 
             $this->logger->info('Fetcher starts to get data');
 
-            $this->handleGetDataByDateRange($partnerFetcher, $params, $driver);
+            $this->handleGetDataByDateRange($partnerFetcher, $params, $driver, $needToLogin);
 
             $this->logger->info(sprintf('Finished getting %s data', get_class($partnerFetcher)));
         } catch (LoginFailException $loginFailException) {
@@ -275,11 +306,7 @@ class WebDriverService implements WebDriverServiceInterface
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
 
-            // todo check that chrome finished downloading all files before finishing
-            $quitWebDriverAfterRun = $webDriverConfig['quit-web-driver-after-run'];
-            if ($quitWebDriverAfterRun) {
-                $driver->quit();
-            }
+            $driver->quit();
 
             // re-throw for retry handle
             throw $e;
@@ -308,7 +335,7 @@ class WebDriverService implements WebDriverServiceInterface
             'meta'
         );
 
-        $downloadPath = WebDriverService::getDownloadPath(
+        $metaDataFolder = WebDriverService::getDownloadPath(
             $rootDownloadDir,
             $params->getPublisherId(),
             $params->getIntegrationCName(),
@@ -323,22 +350,19 @@ class WebDriverService implements WebDriverServiceInterface
         sleep(5);
 
         do {
-            $fileSize1 = $this->getDirSize($downloadPath);  // check file size
-            sleep(10);
-            $fileSize2 = $this->getDirSize($downloadPath);
+            $fileSize1 = $this->getDirSize($downloadFolder);  // check file size
+            sleep(5);
+            $fileSize2 = $this->getDirSize($downloadFolder);
         } while ($fileSize1 != $fileSize2);
 
-        sleep(5);
+        sleep(3);
 
-        $this->renameDownloadFilesFromFolder($downloadPath, $params);
+        $this->renameDownloadFilesFromFolder($downloadFolder, $params);
 
-        $metadataFilePath = sprintf('%s/%s', $downloadPath, $metadataFileName);
+        $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
         file_put_contents($metadataFilePath, json_encode($metadata));
 
-        $this->removeSessionFolders();
-        $driver->quit();
-
-        return 0;
+        return $metaDataFolder;
     }
 
     /**
@@ -347,11 +371,12 @@ class WebDriverService implements WebDriverServiceInterface
      * @param PartnerFetcherInterface $partnerFetcher
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
+     * @param $needToLogin
      */
-    protected function handleGetDataByDateRange(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, RemoteWebDriver $driver)
+    protected function handleGetDataByDateRange(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, RemoteWebDriver $driver, $needToLogin = false)
     {
         // step1. login
-        $partnerFetcher->doLogin($params, $driver);
+        $partnerFetcher->doLogin($params, $driver, $needToLogin);
 
         // small delay
         usleep(10);
@@ -380,13 +405,24 @@ class WebDriverService implements WebDriverServiceInterface
     {
         $iterator = new DirectoryIterator($this->chromeFolderPath);
         foreach ($iterator as $sessionFolder) {
+            if ($sessionFolder->isDot()) {
+                // ignore current directory '.' and parent directory '..'
+                continue;
+            }
+
+            $folderPath = $sessionFolder->getRealPath();
+            if (strpos($folderPath, $this->chromeFolderPath) !== 0) {
+                // critical sanity check, folders must contain the chrome folder path
+                continue;
+            }
+
             $modifiedDate = new DateTime(date('Y/m/d', $sessionFolder->getMTime()));
             $today = new DateTime();
 
             $diff = $today->diff($modifiedDate);
 
             if ($diff->y || $diff->m || $diff->d > 1) {
-                $this->recursiveRemoveDirectory($sessionFolder->getRealPath());
+                $this->recursiveRemoveDirectory($folderPath);
             }
         }
     }

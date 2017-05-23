@@ -80,4 +80,28 @@ class HomePage extends AbstractHomePage
 
         return empty($headerMainmenus) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $pageSource = $this->driver->getPageSource();
+        $posAvatar = strpos($pageSource, 'sr-account-image full-height ember-view');
+        $idAvatar = substr($pageSource, $posAvatar - 13, 4);
+
+        if (!(int)$idAvatar) {
+            $idAvatar = 1581;
+        }
+
+        try {
+            $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#ember%s', $idAvatar)))->click();
+        } catch (\Exception $e) {
+            $this->driver->findElement(WebDriverBy::cssSelector('#ember1163'))->click();
+        }
+
+        $this->sleep(3);
+
+        $logOutElement = $this->filterElementByTagNameAndText('li', 'Log out');
+        if ($logOutElement) {
+            $logOutElement->click();
+        }
+    }
 }

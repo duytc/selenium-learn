@@ -120,7 +120,6 @@ class WebDriverFactory implements WebDriverFactoryInterface
             }
 
             $this->logger->info(sprintf('Could not create web driver from session %s. Try to clear session and create a new one now', $identifier));
-            $this->clearAllSessions();
 
             $identifier = $rootDownloadDir;
         }
@@ -164,7 +163,8 @@ class WebDriverFactory implements WebDriverFactoryInterface
             'profile.default_content_settings.popups' => 0,
             'profile.content_settings.pattern_pairs.*.multiple-automatic-downloads' => 1,
             'profile.password_manager_enabled' => false,
-            'credentials_enable_service' => false
+            'credentials_enable_service' => false,
+            'dns-prefetch-disable' => true
         ]);
 
         $this->logger->debug(sprintf('Path to store data =%s', $defaultDownloadPath));
@@ -175,20 +175,5 @@ class WebDriverFactory implements WebDriverFactoryInterface
         $driver = RemoteWebDriver::create($this->seleniumServerUrl, $capabilities, 60 * 1000, 60 * 1000);
 
         return $driver;
-    }
-
-    public function clearAllSessions()
-    {
-//        $sessions = RemoteWebDriver::getAllSessions($this->seleniumServerUrl);
-//        foreach ($sessions as $session) {
-//            $driver = RemoteWebDriver::createBySessionID($session['id'], $this->seleniumServerUrl);
-//            try {
-//                $driver->manage()->deleteAllCookies();
-//            } catch (Exception $e) {
-//                $this->logger->info("Failed to delete cookies for browser");
-//            }
-//            $driver->quit();
-//            $this->logger->info(sprintf("Cleared Session: %s\n", $session['id']));
-//        }
     }
 }

@@ -55,7 +55,7 @@ interface TagcadeRestClientInterface
      * @param int $dataSourceId
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @param DateTime $executionDate
+     * @param $executionDate
      * @return mixed
      */
     public function createAlertWhenLoginFail($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, DateTime $executionDate);

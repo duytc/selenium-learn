@@ -29,20 +29,10 @@ class ReportingPage extends AbstractPage
 
             $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
-            $this->logoutSystem();
-
         } catch (TimeOutException $te) {
             $this->logger->error('No data available for selected date range.');
         } catch (Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
-    }
-
-    protected function logoutSystem()
-    {
-        $logoutAreaCss = '#usernav > div > span.name.ng-binding';
-        $this->driver->findElement(WebDriverBy::cssSelector($logoutAreaCss))->click();
-
-        $this->driver->findElement(WebDriverBy::cssSelector('a[ng-click="logout()"]'))->click();
     }
 }

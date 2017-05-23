@@ -59,4 +59,9 @@ class HomePage extends AbstractHomePage
 
         return empty($headerMainmenus) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_appHeader_signOutLinkButton'))->click();
+    }
 }

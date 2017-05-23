@@ -52,4 +52,11 @@ class HomePage extends AbstractHomePage
 
         return empty($reportings) ? false : true;
     }
+
+    public function doLogout()
+    {
+        // TODO: Implement doLogout() method.
+    }
+
+
 }

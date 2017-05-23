@@ -53,4 +53,10 @@ class LoginPage extends AbstractHomePage
 
         return empty($userNameElements) ? false : true;
     }
+
+    public function doLogout()
+    {
+        $logoutButtonCss = '#menubar > ul > div.pull-right.loginTab > div:nth-child(4) > a';
+        $this->driver->findElement(WebDriverBy::cssSelector($logoutButtonCss))->click();
+    }
 }
