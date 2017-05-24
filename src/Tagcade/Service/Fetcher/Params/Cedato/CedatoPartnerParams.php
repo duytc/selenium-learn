@@ -32,4 +32,9 @@ class CedatoPartnerParams extends PartnerParams implements CedatoPartnerParamInt
     {
         return $this->reportType;
     }
+
+    public function isDailyBreakdown()
+    {
+        return true;
+    }
 }
