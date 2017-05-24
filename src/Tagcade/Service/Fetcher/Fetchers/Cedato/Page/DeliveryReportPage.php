@@ -20,11 +20,11 @@ class DeliveryReportPage extends AbstractPage
     const DEMAND_REPORT_TYPE = 'demand';
     const DOMAIN_REPORT_TYPE = 'domains';
 
-    const SUPPLY_URL = 'https://dashboard.cedato.com/#/players/reports/0/0/';
-    const SUPPLY_BY_DEMAND_SOURCES_URL = 'https://dashboard.cedato.com/#/players/report/ByVast/all/0/0/';
-    const DEMAND_SOURCE_BY_SUPPLY_URL = 'https://dashboard.cedato.com/#/vasts/report/ByPlayer/all/0/0/';
-    const DEMAND_URL = 'https://dashboard.cedato.com/#/vasts/reports/0/0';
-    const DOMAIN_URL = 'https://dashboard.cedato.com/#/reports/domains/all/0/0';
+    const SUPPLY_URL = 'https://dashboard.cedato.com/#/players/reports/0/0/0/';
+    const SUPPLY_BY_DEMAND_SOURCES_URL = 'https://dashboard.cedato.com/#/players/report/ByVast/all/0/0/0/';
+    const DEMAND_SOURCE_BY_SUPPLY_URL = 'https://dashboard.cedato.com/#/vasts/report/ByPlayer/all/0/0/0/';
+    const DEMAND_URL = 'https://dashboard.cedato.com/#/vasts/reports/0/0/0';
+    const DOMAIN_URL = 'https://dashboard.cedato.com/#/reports/domains/all/0/0/0';
     const LOG_OUT_URL = 'https://dashboard.cedato.com/#/login';
 
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
