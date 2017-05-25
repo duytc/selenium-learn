@@ -88,6 +88,8 @@ class PartnerParams implements PartnerParamInterface
 
             $startDateStr = $startDate->format('Y-m-d');
             $endDateStr = 'yesterday';
+
+            $dailyBreakdown = true;
         } else {
             // prefer dateRange than startDate - endDate
             $dateRange = $config->getParamValue('dateRange', null);
