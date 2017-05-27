@@ -55,20 +55,16 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
 
         $this->logger->info('Start running integration activator');
 
-        // create lock and if other process is running
-        // this make sure only one integration activator process is running at a time
-        $lock = new LockHandler($this->getName());
-
-        if (!$lock->lock()) {
-            $this->logger->info(sprintf('%s: The command is already running in another process.', $this->getName()));
-            return;
-        }
-
         /* run activator service */
         /** @var IntegrationActivatorInterface $activatorService */
         $activatorService = $this->getContainer()->get('tagcade.service.integration_activator');
 
-        $result = $activatorService->createExecutionJobForDataSource($dataSourceId, $customParams, $isForceRun, $isUpdateNextExecute);
+        $result = $activatorService->createExecutionJobForDataSource(
+            $dataSourceId,
+            $customParams,
+            $isForceRun,
+            $isUpdateNextExecute
+        );
 
         if (!$result) {
             $this->logger->error('Complete running integration activator with error');
