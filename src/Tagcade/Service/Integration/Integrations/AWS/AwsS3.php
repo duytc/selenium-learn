@@ -75,13 +75,16 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
             $startDate = $config->getStartDateFromBackFill();
+            $endDate = $config->getEndDateFromBackFill();
 
             if (!$startDate instanceof DateTime) {
                 $this->logger->error('need run backFill but backFillStartDate is invalid');
                 throw new Exception('need run backFill but backFillStartDate is invalid');
             }
 
-            $endDate = new DateTime('yesterday');
+            if (!$endDate instanceof DateTime) {
+                $endDate = new DateTime('yesterday');
+            }
         } else {
             // prefer dateRange than startDate - endDate
             $dateRange = $config->getParamValue(self::PARAM_DATE_RANGE, null);

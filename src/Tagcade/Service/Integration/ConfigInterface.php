@@ -95,6 +95,11 @@ interface ConfigInterface
     public function getStartDateFromBackFill();
 
     /**
+     * @return \DateTime|false
+     */
+    public function getEndDateFromBackFill();
+
+    /**
      * @return array [ startDate => <startDate>, endDate => <endDate> ]
      */
     public function getStartDateEndDate();

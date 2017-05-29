@@ -81,13 +81,19 @@ class PartnerParams implements PartnerParamInterface
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
             $startDate = $config->getStartDateFromBackFill();
+            $endDate = $config->getEndDateFromBackFill();
 
             if (!$startDate instanceof \DateTime) {
                 throw new Exception('need run backFill but backFillStartDate is invalid');
             }
 
             $startDateStr = $startDate->format('Y-m-d');
-            $endDateStr = 'yesterday';
+
+            if ($endDate instanceof \DateTime) {
+                $endDateStr = $endDate->format('Y-m-d');
+            } else {
+                $endDateStr = 'yesterday';
+            }
 
             $dailyBreakdown = true;
         } else {

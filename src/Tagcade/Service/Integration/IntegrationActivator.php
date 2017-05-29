@@ -155,6 +155,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $backFill = [
             'backFill' => $dataSourceIntegration['backFill'],
             'backFillStartDate' => $dataSourceIntegration['backFillStartDate'],
+            'backFillEndDate' => $dataSourceIntegration['backFillEndDate'],
             'backFillForce' => $dataSourceIntegration['backFillForce'],
             'backFillExecuted' => $dataSourceIntegration['backFillExecuted']
         ];

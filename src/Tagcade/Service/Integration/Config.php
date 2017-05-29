@@ -36,6 +36,7 @@ class Config implements ConfigInterface
     /* all define keys-values of backfill feature of DataSource */
     const DATA_SOURCE_BACKFILL = 'backFill';
     const DATA_SOURCE_BACKFILL_START_DATE = 'backFillStartDate';
+    const DATA_SOURCE_BACKFILL_END_DATE = 'backFillEndDate';
     const DATA_SOURCE_BACKFILL_EXECUTED = 'backFillExecuted';
 
     /* supported params types */
@@ -263,6 +264,24 @@ class Config implements ConfigInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getEndDateFromBackFill()
+    {
+        if (!is_array($this->backFill) || !array_key_exists(self::DATA_SOURCE_BACKFILL_END_DATE, $this->backFill)) {
+            return false;
+        }
+
+        $backFillEndDateString = $this->backFill[self::DATA_SOURCE_BACKFILL_END_DATE];
+
+        if (empty($backFillEndDateString)) {
+            return date_create('yesterday');
+        } else {
+            return date_create($backFillEndDateString);
+        }
+    }
+
+    /**
      * extract dynamic date range from dateRange value
      *
      * @param string $dynamicDateRange
@@ -292,12 +311,15 @@ class Config implements ConfigInterface
         //// important: try get startDate, endDate by backFill
         if ($this->isNeedRunBackFill()) {
             $startDate = $this->getStartDateFromBackFill();
+            $endDate = $this->getEndDateFromBackFill();
 
             if (!$startDate instanceof DateTime) {
                 throw new Exception('need run backFill but backFillStartDate is invalid');
             }
 
-            $endDate = new DateTime('yesterday');
+            if (!$endDate instanceof DateTime) {
+                $endDate = new DateTime('yesterday');
+            }
         } else {
             // prefer dateRange than startDate - endDate
             $dateRange = $this->getParamValue(self::PARAM_DATE_RANGE, null);
