@@ -14,8 +14,11 @@ pcntl_signal(SIGTERM, function () use (&$requestStop, $pid, &$logger) {
 });
 // exit successfully after this time, supervisord will then restart
 // this is to prevent any memory leaks from running PHP for a long time
+use Monolog\Handler\StreamHandler;
+use Pheanstalk\PheanstalkInterface;
 const WORKER_TIME_LIMIT = 10800; // 3 hours
 const RESERVE_TIMEOUT = 10; // seconds
+const JOB_DELAY_TIME = 30;
 // Set the start time
 $startTime = time();
 $loader = require_once __DIR__ . '/../app/autoload.php';
@@ -91,10 +94,14 @@ while (true) {
     }
     $logger->notice(sprintf('Received job %s (ID: %s) with payload %s', $task, $job->getId(), $rawPayload));
     try {
-        $worker->$task($params); // dynamic method call
-        $logger->notice(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
-        $job = $queue->peek($job->getId());
-        if ($job) $queue->delete($job);
+        $result = $worker->$task($params); // dynamic method call
+        if ($result == 0) {
+            $logger->notice(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
+            $job = $queue->peek($job->getId());
+            if ($job) $queue->delete($job);
+        } else {
+            $queue->release($job, PheanstalkInterface::DEFAULT_PRIORITY, JOB_DELAY_TIME);
+        }
 // task finished successfully
     } catch (Exception $e) {
         $logger->warning(

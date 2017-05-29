@@ -7,8 +7,10 @@ namespace Tagcade\Worker\Workers;
 // all public methods on the class represent tasks that can be done
 
 use Exception;
+use Leezy\PheanstalkBundle\Proxy\PheanstalkProxyInterface;
 use Monolog\Logger;
 use stdClass;
+use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Component\Process\Process;
 
 class ExecuteIntegrationJobWorker
@@ -46,8 +48,17 @@ class ExecuteIntegrationJobWorker
 
     private $processTimeout;
 
+    private $queue;
+
+    private $tube;
+
+    private $jobDelay;
+
+    private $ttr;
+
     /**
      * GetPartnerReportWorker constructor.
+     * @param PheanstalkProxyInterface $queue
      * @param Logger $logger
      * @param $logDir
      * @param $tempFileDir
@@ -55,8 +66,9 @@ class ExecuteIntegrationJobWorker
      * @param $environment
      * @param $debug
      * @param int $processTimeout
+     * @param $tube
      */
-    public function __construct(Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug, $processTimeout)
+    public function __construct(PheanstalkProxyInterface $queue, Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug, $processTimeout, $tube, $jobDelay, $ttr)
     {
         $this->logger = $logger;
         $this->logDir = $logDir;
@@ -65,18 +77,36 @@ class ExecuteIntegrationJobWorker
         $this->environment = $environment;
         $this->debug = $debug;
         $this->processTimeout = $processTimeout;
+        $this->queue = $queue;
+        $this->tube = $tube;
+        $this->jobDelay = $jobDelay;
+        $this->ttr = $ttr;
     }
 
     /**
      * get Partner Report
      *
      * @param stdClass $params
+     * @return int
      */
     public function executeIntegration(stdClass $params)
     {
         // create integration config file in temp dir
         if (!is_dir($this->tempFileDir)) {
             mkdir($this->tempFileDir, 0777, true);
+        }
+
+        if (!isset($params->integrationCName)) {
+            $this->logger->error(sprintf('missing integration CName in params %s', serialize($params)));
+            return 1;
+        }
+
+        $cname = $params->integrationCName;
+        $lock = new LockHandler(sprintf('integration-%s-lock', $cname));
+
+        if (!$lock->lock()) {
+            $this->logger->notice(sprintf('integration cname %s is currently locked', $cname));
+            return 1;
         }
 
         $dataSourceId = $params->dataSourceId ? $params->dataSourceId : 0; // 0 is unknown...
@@ -97,7 +127,7 @@ class ExecuteIntegrationJobWorker
         $fpLogger = fopen($logFile, 'a');
 
         // create process to wrap command
-        $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $integrationConfigFilePath));
+        $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $integrationConfigFilePath), $this->ttr);
         $process->setTimeout($this->processTimeout);
 
         try {
@@ -106,8 +136,10 @@ class ExecuteIntegrationJobWorker
                     fwrite($fpLogger, $buffer);
                 }
             );
+            return 0;
         } catch (Exception $e) {
             $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
+            return 1;
         } finally {
             // close file
             fclose($fpLogger);

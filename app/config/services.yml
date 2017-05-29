@@ -2,6 +2,7 @@ services:
     tagcade.worker.workers.execute_integration_job_worker:
         class: Tagcade\Worker\Workers\ExecuteIntegrationJobWorker
         arguments:
+            - '@leezy.pheanstalk'
             - '@monolog.logger'
             - '%integration_log_file_dir%'
             - %integration_temp_file_dir%
@@ -9,3 +10,6 @@ services:
             - %kernel.environment%
             - %kernel.debug%
             - %process.timeout.execute_integration_command%
+            - %fetcher_worker_tube%
+            - %delay_time_before_job_become_ready%
+            - %pheanstalk_ttr%
