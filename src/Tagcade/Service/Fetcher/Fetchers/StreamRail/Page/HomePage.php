@@ -64,12 +64,19 @@ class HomePage extends AbstractHomePage
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('main-container')));
             $userNotFound = $this->filterElementByTagNameAndText('small', 'User not found');
             $invalidUserNamePassword = $this->filterElementByTagNameAndText('small', 'Invalid username or password');
-            if (!empty($userNotFound) || !empty($invalidUserNamePassword)) {
+            if (!empty($userNotFound)) {
+                $this->logger->debug('User not found');
+                return false;
+            }
+
+            if (!empty($invalidUserNamePassword)) {
+                $this->logger->debug('Invalid username or password');
                 return false;
             }
 
             return true;
         } catch (Exception $e) {
+            $this->logger->debug($e);
             return false;
         }
     }
