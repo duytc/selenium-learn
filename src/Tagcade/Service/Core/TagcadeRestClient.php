@@ -362,6 +362,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                 'endDate' => $endDate->format('Y-m-d'),
                 'executionDate' => $executionDate->format('Y-m-d')
             ],
+            'dataSource' => $dataSourceId,
             'publisher' => $publisherId
         ];
 
@@ -420,6 +421,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                 'endDate' => $endDate->format('Y-m-d'),
                 'executionDate' => $executionDate
             ],
+            'dataSource' => $dataSourceId,
             'publisher' => $publisherId
         ];
 
