@@ -15,6 +15,10 @@ use Symfony\Component\Process\Process;
 
 class ExecuteIntegrationJobWorker
 {
+    const JOB_FAILED_CODE = 1;
+    const JOB_DONE_CODE = 0;
+    const JOB_LOCKED_CODE = 455;
+
     const RUN_COMMAND = 'tc:unified-report-fetcher:integration:run';
 
     /**
@@ -98,7 +102,7 @@ class ExecuteIntegrationJobWorker
 
         if (!isset($params->integrationCName)) {
             $this->logger->error(sprintf('missing integration CName in params %s', serialize($params)));
-            return 1;
+            return self::JOB_FAILED_CODE;
         }
 
         $cname = $params->integrationCName;
@@ -106,7 +110,7 @@ class ExecuteIntegrationJobWorker
 
         if (!$lock->lock()) {
             $this->logger->notice(sprintf('integration cname %s is currently locked', $cname));
-            return 1;
+            return self::JOB_LOCKED_CODE;
         }
 
         $dataSourceId = $params->dataSourceId ? $params->dataSourceId : 0; // 0 is unknown...
@@ -136,10 +140,10 @@ class ExecuteIntegrationJobWorker
                     fwrite($fpLogger, $buffer);
                 }
             );
-            return 0;
+            return self::JOB_DONE_CODE;
         } catch (Exception $e) {
             $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
-            return 1;
+            return self::JOB_FAILED_CODE;
         } finally {
             // close file
             fclose($fpLogger);

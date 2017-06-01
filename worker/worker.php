@@ -16,6 +16,7 @@ pcntl_signal(SIGTERM, function () use (&$requestStop, $pid, &$logger) {
 // this is to prevent any memory leaks from running PHP for a long time
 use Monolog\Handler\StreamHandler;
 use Pheanstalk\PheanstalkInterface;
+use Tagcade\Worker\Workers\ExecuteIntegrationJobWorker;
 const WORKER_TIME_LIMIT = 10800; // 3 hours
 const RESERVE_TIMEOUT = 10; // seconds
 const JOB_DELAY_TIME = 30;
@@ -93,16 +94,21 @@ while (true) {
         continue;
     }
     $logger->notice(sprintf('Received job %s (ID: %s) with payload %s', $task, $job->getId(), $rawPayload));
+
     try {
         $result = $worker->$task($params); // dynamic method call
+        if ($result == ExecuteIntegrationJobWorker::JOB_LOCKED_CODE) {
+            $queue->release($job, PheanstalkInterface::DEFAULT_PRIORITY, JOB_DELAY_TIME);
+            continue;
+        }
+
+        // task finished successfully
         if ($result == 0) {
             $logger->notice(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
-            $job = $queue->peek($job->getId());
-            if ($job) $queue->delete($job);
-        } else {
-            $queue->release($job, PheanstalkInterface::DEFAULT_PRIORITY, JOB_DELAY_TIME);
         }
-// task finished successfully
+
+        $job = $queue->peek($job->getId());
+        if ($job) $queue->delete($job);
     } catch (Exception $e) {
         $logger->warning(
             sprintf(
