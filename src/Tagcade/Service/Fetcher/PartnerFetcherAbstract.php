@@ -65,7 +65,13 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
 
         if (false == $isLogin) {
             $this->logger->warning(sprintf('Login system failed for integration %s', $params->getIntegrationCName()));
-            $driver->quit();
+
+            // critical error
+            // do not call driver quit here, this is already called when handle exception for retry
+            // TODO: remove when stable
+            // $driver->quit();
+            // end notice
+
             throw new LoginFailException(
                 $params->getPublisherId(),
                 $params->getIntegrationCName(),
