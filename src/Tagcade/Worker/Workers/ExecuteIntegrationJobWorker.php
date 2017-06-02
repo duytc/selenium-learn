@@ -145,6 +145,8 @@ class ExecuteIntegrationJobWorker
             $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
             return self::JOB_FAILED_CODE;
         } finally {
+            $this->logger->info('Release lock');
+            $lock->release();
             // close file
             fclose($fpLogger);
             fclose($fpIntegrationConfigFile);
