@@ -47,14 +47,19 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var  string */
     private $chromeFolderPath;
 
+    /** @var DeleteFileService  */
+    private $deleteFileService;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
      * @param TagcadeRestClientInterface $tagcadeRestClient
      * @param string $symfonyAppDir
      * @param string $defaultDataPath
+     * @param $chromeFolderPath
+     * @param DeleteFileService $deleteFileService
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
@@ -62,6 +67,7 @@ class WebDriverService implements WebDriverServiceInterface
         $this->symfonyAppDir = $symfonyAppDir;
         $this->defaultDataPath = $defaultDataPath;
         $this->chromeFolderPath = $chromeFolderPath;
+        $this->deleteFileService = $deleteFileService;
     }
 
     /**
@@ -136,20 +142,10 @@ class WebDriverService implements WebDriverServiceInterface
 
                 $partnerParamsWithSingleDate->setConfig($newConfig);
 
-                $metaDataFolder = $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $i == 0 ? true : false);
-
-                $subFiles = scandir($defaultDownloadPath);
-
-                $subFiles = array_filter($subFiles, function ($subFile) use ($defaultDownloadPath) {
-                    return is_file($defaultDownloadPath . '/' . $subFile);
-                });
-
-                array_walk($subFiles, function ($file) use ($defaultDownloadPath, $metaDataFolder) {
-                    rename($defaultDownloadPath . '/' . $file, $metaDataFolder . '/' . $file);
-                });
+                $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $i == 0 ? true : false);
             }
             //remove default download directory
-            rmdir($defaultDownloadPath);
+            $this->deleteFileService->removeFileOrFolder($defaultDownloadPath);
         } else {
             // do get report by full date range
             $this->getDataForPublisher($driver, $partnerFetcher, $partnerParams, $rootDownloadDir, $defaultDownloadPath);
@@ -194,6 +190,10 @@ class WebDriverService implements WebDriverServiceInterface
             $downloadPath = sprintf('%s/%s', $downloadPath, $subDir);
         }
 
+        if (!is_dir($downloadPath)) {
+            mkdir($downloadPath, 0777, true);
+        }
+
         return $downloadPath;
     }
 
@@ -207,7 +207,7 @@ class WebDriverService implements WebDriverServiceInterface
      * @param null|string $subDir the sub dir (last dir) before the file. This is for metadata comprehension mechanism
      * @param bool $needToLogin
      * @param $downloadFolder
-     * @return string
+     * @return bool
      * @throws Exception
      * @throws LoginFailException
      */
@@ -312,57 +312,15 @@ class WebDriverService implements WebDriverServiceInterface
             throw $e;
         }
 
-        // create metadata file
-        $metadata = [
-            'module' => 'integration',
-            'publisherId' => $params->getPublisherId(),
-            'dataSourceId' => $params->getDataSourceId(),
-            'integrationCName' => $params->getIntegrationCName(),
-            // 'date' => ...set later if single date...,
-            'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
-        ];
+        $metaDataFolder = $this->saveMetaDataFile($params, $rootDownloadDir, $subDir);
 
-        //// date in metadata is only available if startDate equal endDate (day by day breakdown)
-        if ($params->getStartDate() == $params->getEndDate()) {
-            $metadata['date'] = $params->getStartDate()->format('Y-m-d');
-        }
+        $this->waitDownloadComplete($downloadFolder);
 
-        // create metadata file
-        $metadataFileName = sprintf('%s-%s-%s.%s',
-            $params->getIntegrationCName(),
-            $params->getStartDate()->format('Ymd'),
-            $params->getEndDate()->format('Ymd'),
-            'meta'
-        );
+        $this->addStartDateEndDateToDownloadFiles($downloadFolder, $params);
 
-        $metaDataFolder = WebDriverService::getDownloadPath(
-            $rootDownloadDir,
-            $params->getPublisherId(),
-            $params->getIntegrationCName(),
-            $executionDate = new \DateTime(),
-            $params->getStartDate(),
-            $params->getEndDate(),
-            $params->getProcessId(),
-            $subDir
-        );
+        $this->moveDownloadFilesToMetaDataFolder($downloadFolder, $metaDataFolder);
 
-        // check that chrome finished downloading all files before finishing
-        sleep(5);
-
-        do {
-            $fileSize1 = $this->getDirSize($downloadFolder);  // check file size
-            sleep(5);
-            $fileSize2 = $this->getDirSize($downloadFolder);
-        } while ($fileSize1 != $fileSize2);
-
-        sleep(3);
-
-        $this->renameDownloadFilesFromFolder($downloadFolder, $params);
-
-        $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
-        file_put_contents($metadataFilePath, json_encode($metadata));
-
-        return $metaDataFolder;
+        return true;
     }
 
     /**
@@ -422,28 +380,8 @@ class WebDriverService implements WebDriverServiceInterface
             $diff = $today->diff($modifiedDate);
 
             if ($diff->y || $diff->m || $diff->d > 1) {
-                $this->recursiveRemoveDirectory($folderPath);
+                $this->deleteFileService->removeFileOrFolder($folderPath);
             }
-        }
-    }
-
-    /**
-     * @param $directory
-     */
-    private function recursiveRemoveDirectory($directory)
-    {
-        foreach (glob("{$directory}/*") as $file) {
-            if (is_dir($file)) {
-                $this->recursiveRemoveDirectory($file);
-            } else {
-                unlink($file);
-            }
-        }
-        if (!is_dir($directory) && !is_file($directory)) {
-            mkdir($directory);
-        }
-        if (count(scandir($directory)) <= 2) {
-            rmdir($directory);
         }
     }
 
@@ -451,7 +389,7 @@ class WebDriverService implements WebDriverServiceInterface
      * @param $folder
      * @param PartnerParamInterface $param
      */
-    private function renameDownloadFilesFromFolder($folder, PartnerParamInterface $param)
+    private function addStartDateEndDateToDownloadFiles($folder, PartnerParamInterface $param)
     {
         $subFiles = scandir($folder);
 
@@ -483,5 +421,87 @@ class WebDriverService implements WebDriverServiceInterface
                 }
             }
         }
+    }
+
+    /**
+     * @param PartnerParamInterface $params
+     * @param $rootDownloadDir
+     * @param $subDir
+     * @return string
+     */
+    private function saveMetaDataFile(PartnerParamInterface $params, $rootDownloadDir, $subDir)
+    {
+        // create metadata file
+        $metadata = [
+            'module' => 'integration',
+            'publisherId' => $params->getPublisherId(),
+            'dataSourceId' => $params->getDataSourceId(),
+            'integrationCName' => $params->getIntegrationCName(),
+            // 'date' => ...set later if single date...,
+            'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
+        ];
+
+        //// date in metadata is only available if startDate equal endDate (day by day breakdown)
+        if ($params->getStartDate() == $params->getEndDate()) {
+            $metadata['date'] = $params->getStartDate()->format('Y-m-d');
+        }
+
+        // create metadata file
+        $metadataFileName = sprintf('%s-%s-%s.%s',
+            $params->getIntegrationCName(),
+            $params->getStartDate()->format('Ymd'),
+            $params->getEndDate()->format('Ymd'),
+            'meta'
+        );
+
+        $metaDataFolder = WebDriverService::getDownloadPath(
+            $rootDownloadDir,
+            $params->getPublisherId(),
+            $params->getIntegrationCName(),
+            $executionDate = new \DateTime(),
+            $params->getStartDate(),
+            $params->getEndDate(),
+            $params->getProcessId(),
+            $subDir
+        );
+
+        $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
+        file_put_contents($metadataFilePath, json_encode($metadata));
+
+        return $metaDataFolder;
+    }
+
+    /**
+     * @param $downloadFolder
+     * @param $metaDataFolder
+     */
+    private function moveDownloadFilesToMetaDataFolder($downloadFolder, $metaDataFolder)
+    {
+        $subFiles = scandir($downloadFolder);
+
+        $subFiles = array_filter($subFiles, function ($subFile) use ($downloadFolder) {
+            return is_file($downloadFolder . '/' . $subFile);
+        });
+
+        array_walk($subFiles, function ($file) use ($downloadFolder, $metaDataFolder) {
+            rename($downloadFolder . '/' . $file, $metaDataFolder . '/' . $file);
+        });
+    }
+
+    /**
+     * @param $downloadFolder
+     */
+    private function waitDownloadComplete($downloadFolder)
+    {
+        // check that chrome finished downloading all files before finishing
+        sleep(5);
+
+        do {
+            $fileSize1 = $this->getDirSize($downloadFolder);  // check file size
+            sleep(5);
+            $fileSize2 = $this->getDirSize($downloadFolder);
+        } while ($fileSize1 != $fileSize2);
+
+        sleep(3);
     }
 }

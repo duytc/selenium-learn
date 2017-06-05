@@ -29,12 +29,16 @@ class DownloadFileHelper implements DownloadFileHelperInterface
      */
     private $rootKernelDirectory;
 
-    function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger, $rootKernelDirectory)
+    /* @var DeleteFileService  */
+    private $deleteFileService;
+
+    function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger, $rootKernelDirectory, DeleteFileService $deleteFileService)
     {
         $this->downloadRootDirectory = sprintf('%s/', $downloadRootDirectory);
         $this->downloadTimeout = $downloadTimeout;
         $this->logger = $logger;
         $this->rootKernelDirectory = $rootKernelDirectory;
+        $this->deleteFileService = $deleteFileService;
     }
 
     /**
@@ -56,7 +60,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface
 
         $files = $this->getPartialDownloadFiles($fileExtensions);
         foreach ($files as $file) {
-            unlink($file);
+            $this->deleteFileService->removeFileOrFolder($file);
         }
     }
 

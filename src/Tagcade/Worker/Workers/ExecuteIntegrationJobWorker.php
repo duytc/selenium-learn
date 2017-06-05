@@ -12,6 +12,7 @@ use Monolog\Logger;
 use stdClass;
 use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Component\Process\Process;
+use Tagcade\Service\DeleteFileService;
 
 class ExecuteIntegrationJobWorker
 {
@@ -60,6 +61,9 @@ class ExecuteIntegrationJobWorker
 
     private $ttr;
 
+    /* @var DeleteFileService  */
+    private $deleteFileService;
+
     /**
      * GetPartnerReportWorker constructor.
      * @param PheanstalkProxyInterface $queue
@@ -72,7 +76,7 @@ class ExecuteIntegrationJobWorker
      * @param int $processTimeout
      * @param $tube
      */
-    public function __construct(PheanstalkProxyInterface $queue, Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug, $processTimeout, $tube, $jobDelay, $ttr)
+    public function __construct(PheanstalkProxyInterface $queue, Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug, $processTimeout, $tube, $jobDelay, $ttr, DeleteFileService $deleteFileService)
     {
         $this->logger = $logger;
         $this->logDir = $logDir;
@@ -85,6 +89,7 @@ class ExecuteIntegrationJobWorker
         $this->tube = $tube;
         $this->jobDelay = $jobDelay;
         $this->ttr = $ttr;
+        $this->deleteFileService = $deleteFileService;
     }
 
     /**
@@ -153,7 +158,7 @@ class ExecuteIntegrationJobWorker
 
             // remove temp file
             if (is_file($integrationConfigFilePath)) {
-                unlink($integrationConfigFilePath);
+                $this->deleteFileService->removeFileOrFolder($integrationConfigFilePath);
             }
         }
     }

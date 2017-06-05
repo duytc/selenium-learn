@@ -103,9 +103,7 @@ class HomePage extends AbstractHomePage
         } catch (\Exception $e) {
             $this->driver->findElement(WebDriverBy::cssSelector('#ember1163'))->click();
         }
-
-        $this->sleep(3);
-
+        
         $logOutElement = $this->filterElementByTagNameAndText('li', 'Log out');
         if ($logOutElement) {
             $logOutElement->click();

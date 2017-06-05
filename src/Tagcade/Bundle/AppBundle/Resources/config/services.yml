@@ -48,6 +48,7 @@ services:
             - '%kernel.root_dir%'
             - '%tagcade.default_data_path%'
             - '%chrome_folder_path%'
+            - '@tagcade.service.integration.delete_file_service'
 
     tagcade.service.integration.integrations.demand_partner.fetcher.helper:
         class: Tagcade\Service\DownloadFileHelper
@@ -56,6 +57,12 @@ services:
             - '%tagcade_download_time_out%'
             - '@logger'
             - '%kernel.root_dir%'
+            - '@tagcade.service.integration.delete_file_service'
+
+    tagcade.service.integration.delete_file_service:
+        class: Tagcade\Service\DeleteFileService
+        arguments:
+            - '@logger'
 
     ### rest client
     rest.client:

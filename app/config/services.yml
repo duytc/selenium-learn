@@ -13,3 +13,4 @@ services:
             - %fetcher_worker_tube%
             - %delay_time_before_job_become_ready%
             - %pheanstalk_ttr%
+            - '@tagcade.service.integration.delete_file_service'

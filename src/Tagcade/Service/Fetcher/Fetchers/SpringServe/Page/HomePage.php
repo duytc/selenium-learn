@@ -11,7 +11,7 @@ use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
 class HomePage extends AbstractHomePage
 {
-    const URL = 'http://video.springserve.com/users/sign_in';
+    const URL = 'https://video.springserve.com/';
 
     public function doLogin($username, $password)
     {
