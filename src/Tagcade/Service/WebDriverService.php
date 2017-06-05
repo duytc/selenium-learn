@@ -190,10 +190,6 @@ class WebDriverService implements WebDriverServiceInterface
             $downloadPath = sprintf('%s/%s', $downloadPath, $subDir);
         }
 
-        if (!is_dir($downloadPath)) {
-            mkdir($downloadPath, 0777, true);
-        }
-
         return $downloadPath;
     }
 
@@ -464,7 +460,9 @@ class WebDriverService implements WebDriverServiceInterface
             $params->getProcessId(),
             $subDir
         );
-
+        if(!is_dir($metaDataFolder)){
+            mkdir($metaDataFolder, 0755, true);
+        }
         $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
         file_put_contents($metadataFilePath, json_encode($metadata));
 
