@@ -253,8 +253,12 @@ abstract class AbstractPage
         $domain = $domain['host'];
 
         $host_names = explode(".", $domain);
-        $domain = $host_names[count($host_names) - 2] . "." . $host_names[count($host_names) - 1];
 
+        if (count($host_names) - 2 > -1) {
+            $domain = $host_names[count($host_names) - 2] . "." . $host_names[count($host_names) - 1];
+        } else {
+            $domain = $domain['host'];
+        }
         $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
         $this->logger->debug(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
 
