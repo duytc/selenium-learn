@@ -96,7 +96,7 @@ class DeliveryReportPage extends AbstractPage
 
                 $this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.ok'))->click();
 
-                $defaultPathDownload = $this->getDownloadFileHelper()->getRootDirectory();
+                $defaultPathDownload = $this->downloadFileHelper->getRootDirectory();
                 $defaultDownloadPath = WebDriverService::getDownloadPath(
                     $defaultPathDownload,
                     $params->getPublisherId(),
