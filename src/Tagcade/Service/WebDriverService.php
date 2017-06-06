@@ -47,7 +47,7 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var  string */
     private $chromeFolderPath;
 
-    /** @var DeleteFileService  */
+    /** @var DeleteFileService */
     private $deleteFileService;
 
     /**
@@ -144,8 +144,10 @@ class WebDriverService implements WebDriverServiceInterface
 
                 $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $i == 0 ? true : false);
             }
-            //remove default download directory
-            $this->deleteFileService->removeFileOrFolder($defaultDownloadPath);
+            if ($partnerParams->getStartDate() != $partnerParams->getEndDate()) {
+                //remove default download directory
+                $this->deleteFileService->removeFileOrFolder($defaultDownloadPath);
+            }
         } else {
             // do get report by full date range
             $this->getDataForPublisher($driver, $partnerFetcher, $partnerParams, $rootDownloadDir, $defaultDownloadPath);
@@ -460,7 +462,7 @@ class WebDriverService implements WebDriverServiceInterface
             $params->getProcessId(),
             $subDir
         );
-        if(!is_dir($metaDataFolder)){
+        if (!is_dir($metaDataFolder)) {
             mkdir($metaDataFolder, 0755, true);
         }
         $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
