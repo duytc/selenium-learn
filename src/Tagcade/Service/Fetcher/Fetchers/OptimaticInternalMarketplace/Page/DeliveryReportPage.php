@@ -95,24 +95,6 @@ class DeliveryReportPage extends AbstractPage
                 $this->logger->error('No data was found.');
 
                 $this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.ok'))->click();
-
-                $defaultPathDownload = $this->downloadFileHelper->getRootDirectory();
-                $defaultDownloadPath = WebDriverService::getDownloadPath(
-                    $defaultPathDownload,
-                    $params->getPublisherId(),
-                    $params->getIntegrationCName(),
-                    new DateTime(),
-                    $params->getStartDate(),
-                    $params->getEndDate(),
-                    $this->config['process_id'],
-                    null
-                );
-
-                if(!is_dir($defaultDownloadPath)){
-                    mkdir($defaultDownloadPath, 0755, true);
-                }
-                touch(sprintf('%s/datawasnotfound.csv', $defaultDownloadPath));
-
             }
         } catch (Exception $ex) {
 
