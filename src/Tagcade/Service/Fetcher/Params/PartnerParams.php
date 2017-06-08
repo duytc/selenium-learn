@@ -331,4 +331,14 @@ class PartnerParams implements PartnerParamInterface
         $uuid = preg_replace('[\-]', '', $uuid);
         return substr($uuid, 0, 16);
     }
+
+    /**
+     * @param boolean $dailyBreakdown
+     * @return self
+     */
+    public function setDailyBreakdown($dailyBreakdown)
+    {
+        $this->dailyBreakdown = $dailyBreakdown;
+        return $this;
+    }
 }

@@ -24,8 +24,10 @@ imports:
     - { resource: services/video/springserve.yml }
     - { resource: services/video/cedato.yml }
     - { resource: services/video/streamrail.yml }
-    - { resource: services/video/optimaticinternalmarketplace.yml }
     - { resource: services/general/basic_api.yml }
+    - { resource: services/video/optimaticinternalmarketplace.yml }
+    - { resource: services/video/vertainternal.yml }
+
 
 services:
     yaml:
@@ -161,3 +163,4 @@ services:
                 - '@tagcade.service.integration.integrations.video.streamrail'
                 - '@tagcade.service.integration.integrations.general.basic_api'
                 - '@tagcade.service.integration.integrations.video.optimaticinternalmarketplace'
+                - '@tagcade.service.integration.integrations.video.verta_internal'

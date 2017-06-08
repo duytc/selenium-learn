@@ -225,8 +225,8 @@ class WebDriverService implements WebDriverServiceInterface
         try {
             $driver->manage()
                 ->timeouts()
-                ->implicitlyWait(3)
-                ->pageLoadTimeout(10);
+                ->implicitlyWait(4)
+                ->pageLoadTimeout(20);
 
             $driver->manage()->window()->setPosition(new WebDriverPoint(0, 0));
             // todo make this configurable

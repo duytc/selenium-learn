@@ -54,31 +54,27 @@ abstract class AbstractWidget
     /**
      * @param string $tagName
      * @param $text
-     * @param int $index
      * @return RemoteWebElement
      */
-    public function filterElementByTagNameAndText($tagName = 'li', $text, $index = 0)
+    public function filterElementByTagNameAndText($tagName = 'li', $text)
     {
         $classElements = $this->driver->findElements(WebDriverBy::tagName($tagName));
         if (count($classElements) < 1) {
             return null;
         }
 
-        $filterElements = array_filter($classElements, function ($element) use ($text) {
-            /** @var RemoteWebElement $element */
-            return $element->isDisplayed() && strtolower($element->getText()) == strtolower($text);
-        });
-
-        if (count($filterElements) < 1) {
-            return null;
+        foreach ($classElements as $element) {
+            if (!$element instanceof RemoteWebElement) {
+                continue;
+            }
+            if (!$element->isDisplayed()) {
+                continue;
+            }
+            if (strtolower($element->getText()) == strtolower($text)) {
+                return $element;
+            }
         }
 
-        $filterElements = array_values($filterElements);
-
-        if (array_key_exists($index, $filterElements)) {
-            return $filterElements[$index];
-        }
-
-        return $filterElements[count($filterElements) - 1];
+        return null;
     }
 }
