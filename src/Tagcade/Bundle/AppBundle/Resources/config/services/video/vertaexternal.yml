@@ -1,0 +1,11 @@
+services:
+    tagcade.service.fetcher.fetchers.verta_external:
+        class: Tagcade\Service\Fetcher\Fetchers\VertaExternal\VertaExternalFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
+
+    tagcade.service.integration.integrations.video.verta_external:
+        class: Tagcade\Service\Integration\Integrations\Video\VertaExternal\VertaExternal
+        parent: tagcade.service.integration.integrations.video_demand_partner.integration_video_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.verta_external'
