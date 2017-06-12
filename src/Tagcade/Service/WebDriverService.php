@@ -146,6 +146,7 @@ class WebDriverService implements WebDriverServiceInterface
             }
             if ($partnerParams->getStartDate() != $partnerParams->getEndDate()) {
                 //remove default download directory
+                $this->logger->info('Remove default download directory');
                 $this->deleteFileService->removeFileOrFolder($defaultDownloadPath);
             }
         } else {
