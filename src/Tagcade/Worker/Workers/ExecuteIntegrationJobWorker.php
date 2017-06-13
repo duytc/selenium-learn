@@ -7,12 +7,15 @@ namespace Tagcade\Worker\Workers;
 // all public methods on the class represent tasks that can be done
 
 use Exception;
-use Leezy\PheanstalkBundle\Proxy\PheanstalkProxyInterface;
 use Monolog\Logger;
+use RuntimeException;
 use stdClass;
 use Symfony\Component\Filesystem\LockHandler;
-use Symfony\Component\Process\Process;
-use Tagcade\Service\DeleteFileService;
+use Tagcade\Exception\LoginFailException;
+use Tagcade\Service\Integration\Config;
+use Tagcade\Service\Integration\ConfigInterface;
+use Tagcade\Service\Integration\IntegrationManagerInterface;
+use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
 class ExecuteIntegrationJobWorker
 {
@@ -20,76 +23,28 @@ class ExecuteIntegrationJobWorker
     const JOB_DONE_CODE = 0;
     const JOB_LOCKED_CODE = 455;
 
-    const RUN_COMMAND = 'tc:unified-report-fetcher:integration:run';
-
-    /**
-     * %s %s is {data source id} {timestamps}
-     *
-     * e.g integration_config_datasource_123_4283432948923.json
-     */
-    const TEM_FILE_NAME_TEMPLATE = 'integration_config_datasource_%d_%s.json';
-
-    /**
-     * %s is {data source id}. Write all log to only one file for each data source
-     *
-     * e.g run_log_datasource_123.log
-     */
-    const LOG_FILE_NAME_TEMPLATE = 'run_log_datasource_%d.log';
-
     /**
      * @var Logger $logger
      */
     private $logger;
 
-    private $logDir;
+    private $fetcherManager;
 
-    private $tempFileDir;
+    private $maxRetriesNumber;
 
-    private $pathToSymfonyConsole;
-
-    private $environment;
-
-    private $debug;
-
-    private $processTimeout;
-
-    private $queue;
-
-    private $tube;
-
-    private $jobDelay;
-
-    private $ttr;
-
-    /* @var DeleteFileService  */
-    private $deleteFileService;
+    private $delayBeforeRetry;
 
     /**
      * GetPartnerReportWorker constructor.
-     * @param PheanstalkProxyInterface $queue
      * @param Logger $logger
-     * @param $logDir
-     * @param $tempFileDir
-     * @param $pathToSymfonyConsole
-     * @param $environment
-     * @param $debug
-     * @param int $processTimeout
-     * @param $tube
+     * @param IntegrationManagerInterface $fetcherManager
      */
-    public function __construct(PheanstalkProxyInterface $queue, Logger $logger, $logDir, $tempFileDir, $pathToSymfonyConsole, $environment, $debug, $processTimeout, $tube, $jobDelay, $ttr, DeleteFileService $deleteFileService)
+    public function __construct(Logger $logger, IntegrationManagerInterface $fetcherManager, $maxRetriesNumber, $delayBeforeRetry)
     {
         $this->logger = $logger;
-        $this->logDir = $logDir;
-        $this->tempFileDir = $tempFileDir;
-        $this->pathToSymfonyConsole = $pathToSymfonyConsole;
-        $this->environment = $environment;
-        $this->debug = $debug;
-        $this->processTimeout = $processTimeout;
-        $this->queue = $queue;
-        $this->tube = $tube;
-        $this->jobDelay = $jobDelay;
-        $this->ttr = $ttr;
-        $this->deleteFileService = $deleteFileService;
+        $this->fetcherManager = $fetcherManager;
+        $this->maxRetriesNumber = $maxRetriesNumber;
+        $this->delayBeforeRetry = $delayBeforeRetry;
     }
 
     /**
@@ -100,11 +55,6 @@ class ExecuteIntegrationJobWorker
      */
     public function executeIntegration(stdClass $params)
     {
-        // create integration config file in temp dir
-        if (!is_dir($this->tempFileDir)) {
-            mkdir($this->tempFileDir, 0777, true);
-        }
-
         if (!isset($params->integrationCName)) {
             $this->logger->error(sprintf('missing integration CName in params %s', serialize($params)));
             return self::JOB_FAILED_CODE;
@@ -119,80 +69,60 @@ class ExecuteIntegrationJobWorker
         }
 
         $dataSourceId = $params->dataSourceId ? $params->dataSourceId : 0; // 0 is unknown...
-        $executionRunId = strtotime('now');
-        $integrationConfigFileName = sprintf(self::TEM_FILE_NAME_TEMPLATE, $dataSourceId, $executionRunId);
-        $integrationConfigFilePath = $this->createTempIntegrationConfigFile($integrationConfigFileName);
+        /** @var ConfigInterface $config */
+        $config = new Config($params->publisherId, $cname, $dataSourceId, json_decode($params->params, true), json_decode($params->backFill, true));
 
-        //// write config to file
-        $fpIntegrationConfigFile = fopen($integrationConfigFilePath, 'w+');
-        fwrite($fpIntegrationConfigFile, json_encode($params));
+        /** @var IntegrationInterface $integration */
+        $integration = $this->fetcherManager->getIntegration($config);
 
-        // open log file file in log dir
-        if (!is_dir($this->logDir)) {
-            mkdir($this->logDir, 0777, true);
+        /* run integration, supported retry mechanism */
+        // get params
+        if (!is_integer($this->maxRetriesNumber) || $this->maxRetriesNumber < 0) {
+            $this->logger->error(sprintf('missing or invalid parameter retry_when_fail_max_retries_number. Expected a positive integer value.'));
+            return self::JOB_LOCKED_CODE;
         }
 
-        $logFile = sprintf('%s/%s', $this->logDir, sprintf(self::LOG_FILE_NAME_TEMPLATE, $dataSourceId));
-        $fpLogger = fopen($logFile, 'a');
+        if (!is_integer($this->delayBeforeRetry) || $this->delayBeforeRetry < 0) {
+            $this->logger->error(sprintf('missing or invalid parameter retry_when_fail_delay_before_retry. Expected a positive integer value (in seconds).'));
+            return self::JOB_LOCKED_CODE;
+        }
 
-        // create process to wrap command
-        $process = new Process(sprintf('%s %s %s', $this->getAppConsoleCommand(), self::RUN_COMMAND, $integrationConfigFilePath), $this->ttr);
-        $process->setTimeout($this->processTimeout);
+        // run
+        $retriedNumber = 0;
+        do {
+            try {
+                if ($retriedNumber > 0) {
+                    // delay retry
+                    sleep($this->delayBeforeRetry);
 
-        try {
-            $process->mustRun(
-                function ($type, $buffer) use (&$fpLogger) {
-                    fwrite($fpLogger, $buffer);
+                    $this->logger->info(sprintf('Integration run retry [%d].', $retriedNumber));
                 }
-            );
-            return self::JOB_DONE_CODE;
-        } catch (Exception $e) {
-            $this->logger->warning(sprintf('Execution run failed (exit code %d), please see %s for more details', $process->getExitCode(), $logFile));
-            return self::JOB_FAILED_CODE;
-        } finally {
-            $this->logger->info('Release lock');
-            $lock->release();
-            // close file
-            fclose($fpLogger);
-            fclose($fpIntegrationConfigFile);
 
-            // remove temp file
-            if (is_file($integrationConfigFilePath)) {
-                $this->deleteFileService->removeFileOrFolder($integrationConfigFilePath);
+                $integration->run($config);
+
+                break; // break while loop if success (no exception is threw)
+            } catch (LoginFailException $loginFailException) {
+                $retriedNumber++;
+
+                $this->logger->error(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
+            } catch (RuntimeException $runtimeException) {
+                $retriedNumber++;
+
+                $this->logger->error(sprintf('Integration run got RuntimeException: %s.', $runtimeException->getMessage()));
+            } catch (Exception $ex) {
+                // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
+                // so the retry is invalid
+                $this->logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
+
+                break; // break while loop if other errors
             }
-        }
-    }
+        } while ($retriedNumber <= $this->maxRetriesNumber);
 
-    /**
-     * get App Console Command
-     *
-     * @return string
-     */
-    protected function getAppConsoleCommand()
-    {
-        $phpBin = PHP_BINARY;
-        $command = sprintf('%s %s/console --env=%s', $phpBin, $this->pathToSymfonyConsole, $this->environment);
-
-        if (!$this->debug) {
-            $command .= ' --no-debug';
+        if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
+            $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
         }
 
-        return $command;
-    }
-
-    /**
-     * create Temp Integration Config File
-     *
-     * @param $fileName
-     * @return string
-     */
-    private function createTempIntegrationConfigFile($fileName)
-    {
-        if (!is_dir($this->tempFileDir)) {
-            mkdir($this->tempFileDir, 0777, true);
-        }
-
-        $integrationConfigFile = sprintf('%s/%s', $this->tempFileDir, $fileName);
-        return $integrationConfigFile;
+        $this->logger->info('Release lock');
+        $lock->release();
     }
 }
