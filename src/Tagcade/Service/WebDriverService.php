@@ -112,6 +112,10 @@ class WebDriverService implements WebDriverServiceInterface
             $partnerParams->getProcessId()
         );
 
+        $newConfig = $partnerParams->getConfig();
+        $newConfig['defaultDownloadPath'] = $defaultDownloadPath;
+        $partnerParams->setConfig($newConfig);
+
         // do get report breakdown by day if has
         if ($partnerParams->isDailyBreakdown()) {
             $startDate = clone $partnerParams->getStartDate();
