@@ -139,6 +139,7 @@ class WebDriverService implements WebDriverServiceInterface
 
                 $newConfig['startDate'] = $singleDate->format('Y-m-d');
                 $newConfig['endDate'] = $singleDate->format('Y-m-d');
+                $newConfig['defaultDownloadPath'] = $defaultDownloadPath;
 
                 $partnerParamsWithSingleDate->setConfig($newConfig);
 

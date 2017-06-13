@@ -67,21 +67,22 @@ class DeliveryReportPage extends AbstractPage
         $endDateElement = $this->driver->findElement(WebDriverBy::id("ContentPlaceHolder_Body_txtEndDate"));
         $endDateElement->clear();
         $endDateElement->sendKeys($endDateString);
-
+        $config = $params->getConfig();
         $this->sleep(1);
         /* Get path download default to create an empty file for no data was found exeception */
-        $defaultPathDownload = $this->downloadFileHelper->getRootDirectory();
-        $defaultDownloadPath = WebDriverService::getDownloadPath(
-            $defaultPathDownload,
-            $params->getPublisherId(),
-            $params->getIntegrationCName(),
-            new DateTime(),
-            $params->getStartDate(),
-            $params->getEndDate(),
-            $this->config['process_id'],
-            null
-        );
+//        $defaultPathDownload = $this->downloadFileHelper->getRootDirectory();
+//        $defaultDownloadPath = WebDriverService::getDownloadPath(
+//            $defaultPathDownload,
+//            $params->getPublisherId(),
+//            $params->getIntegrationCName(),
+//            new DateTime(),
+//            $params->getStartDate(),
+//            $params->getEndDate(),
+//            $this->config['process_id'],
+//            null
+//        );
 
+        $defaultDownloadPath = $config['defaultDownloadPath'];
         /*
          * For each report type has select option different
          * So have to make function to click select option for each report type
@@ -293,6 +294,9 @@ class DeliveryReportPage extends AbstractPage
         $this->driver->findElement(WebDriverBy::cssSelector('#webform > div.mainContainer > div > div.filter > button'))->click();
 
         $this->logger->debug('Wait until download process is finished');
+        if (!is_dir($defaultDownloadPath)) {
+            mkdir($defaultDownloadPath, 0755, true);
+        }
         $this->waitDownloadComplete($defaultDownloadPath);
 
         $this->logger->debug('Convert file from csv to xls');
