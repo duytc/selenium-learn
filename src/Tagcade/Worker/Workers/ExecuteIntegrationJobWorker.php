@@ -38,6 +38,8 @@ class ExecuteIntegrationJobWorker
      * GetPartnerReportWorker constructor.
      * @param Logger $logger
      * @param IntegrationManagerInterface $fetcherManager
+     * @param $maxRetriesNumber
+     * @param $delayBeforeRetry
      */
     public function __construct(Logger $logger, IntegrationManagerInterface $fetcherManager, $maxRetriesNumber, $delayBeforeRetry)
     {
