@@ -2,15 +2,7 @@ services:
     tagcade.worker.workers.execute_integration_job_worker:
         class: Tagcade\Worker\Workers\ExecuteIntegrationJobWorker
         arguments:
-            - '@leezy.pheanstalk'
             - '@monolog.logger'
-            - '%integration_log_file_dir%'
-            - %integration_temp_file_dir%
-            - %kernel.root_dir%
-            - %kernel.environment%
-            - %kernel.debug%
-            - %process.timeout.execute_integration_command%
-            - %fetcher_worker_tube%
-            - %delay_time_before_job_become_ready%
-            - %pheanstalk_ttr%
-            - '@tagcade.service.integration.delete_file_service'
+            - '@tagcade.service.integration.integration_manager'
+            - %retry_when_fail_max_retries_number%
+            - %retry_when_fail_delay_before_retry%
