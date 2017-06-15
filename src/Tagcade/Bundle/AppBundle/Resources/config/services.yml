@@ -29,7 +29,7 @@ imports:
     - { resource: services/video/vertaexternal.yml }
     - { resource: services/video/optimaticinternalmarketplace.yml }
     - { resource: services/video/optimaticinternaldemand.yml }
-
+    - { resource: services/video/optimaticexternal.yml }
 
 
 services:
@@ -169,4 +169,4 @@ services:
                 - '@tagcade.service.integration.integrations.video.verta_external'
                 - '@tagcade.service.integration.integrations.video.optimaticinternalmarketplace'
                 - '@tagcade.service.integration.integrations.video.optimaticinternaldemand'
-
+                - '@tagcade.service.integration.integrations.video.optimaticexternal'

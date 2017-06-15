@@ -1,0 +1,11 @@
+services:
+    tagcade.service.fetcher.fetchers.optimaticexternal:
+        class: Tagcade\Service\Fetcher\Fetchers\OptimaticExternal\OptimaticExternalFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
+
+    tagcade.service.integration.integrations.video.optimaticexternal:
+        class: Tagcade\Service\Integration\Integrations\Video\OptimaticExternal\OptimaticExternal
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.optimaticexternal'
