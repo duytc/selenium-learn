@@ -194,7 +194,9 @@ class DeliveryReportPage extends AbstractPage
 
         $optionElements = $advertiserElement->findElements(WebDriverBy::tagName('option'));
         foreach ($optionElements as $optionElement) {
-
+            if (empty($advertiser)) {
+                $advertiser = '/[a-z0-9A-Z\-]+/i';
+            }
             if (preg_match($advertiser, $optionElement->getText())) {
                 $advertiserElement->sendKeys($optionElement->getText());
                 break;
