@@ -5,3 +5,4 @@ services:
             - '@curl'
             - '@logger'
             - '@tagcade.service.file_storage_service'
+            - '@tagcade_app.rest_client'

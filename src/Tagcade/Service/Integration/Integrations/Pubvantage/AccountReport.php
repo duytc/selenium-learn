@@ -4,6 +4,8 @@ namespace Tagcade\Service\Integration\Integrations\Pubvantage;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\FileStorageService;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
@@ -34,12 +36,16 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
      */
     private $URApiService;
 
-    public function __construct(FileStorageService $fileStorage, TagcadeApiService $tagcadeApi, LoggerInterface $logger, URApiService $URApiService)
+    /** @var TagcadeRestClientInterface */
+    protected $restClient;
+
+    public function __construct(FileStorageService $fileStorage, TagcadeApiService $tagcadeApi, LoggerInterface $logger, URApiService $URApiService, TagcadeRestClientInterface $restClient)
     {
         $this->fileStorage = $fileStorage;
         $this->tagcadeApi = $tagcadeApi;
         $this->logger = $logger;
         $this->URApiService = $URApiService;
+        $this->restClient = $restClient;
     }
 
     /**
@@ -95,9 +101,13 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
 
         $fileName = sprintf('%s.csv', bin2hex(random_bytes(10)));
         $path = $this->fileStorage->getDownloadPath($config, $fileName);
-        return $this->fileStorage->saveToCSVFile($path, $this->getRows($reports), $this->getColumns($reports));
+        $this->fileStorage->saveToCSVFile($path, $this->getRows($reports), $this->getColumns($reports));
 
       //  return $this->URApiService->addJsonDataToDataSource($config->getDataSourceId(), $this->getRows($reports), $header);
+
+        $this->restClient->updateIntegrationLastExecutedAndBackFill(new PartnerParams($config));
+
+        return true;
     }
 
     /**

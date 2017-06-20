@@ -7,3 +7,4 @@ services:
             - '@tagcade.service.tagcade_api_service'
             - '@logger'
             - '@tagcade.service.ur_api_service'
+            - '@tagcade_app.rest_client'

@@ -5,6 +5,8 @@ namespace Tagcade\Service\Integration\Integrations\DemandPartner\AdMeta;
 use anlutro\cURL\cURL;
 use DateTime;
 use Psr\Log\LoggerInterface;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\FileStorageServiceInterface;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\DemandPartner\AdMeta\Exception\BadResponseException;
@@ -40,17 +42,22 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
      */
     protected $fileStorageService;
 
+    /** @var TagcadeRestClientInterface */
+    protected $restClient;
+
     /**
      * AdMeta constructor.
      * @param cURL $curl
      * @param LoggerInterface $logger
      * @param FileStorageServiceInterface $fileStorageService
+     * @param TagcadeRestClientInterface $restClient
      */
-    public function __construct(cURL $curl, LoggerInterface $logger, FileStorageServiceInterface $fileStorageService)
+    public function __construct(cURL $curl, LoggerInterface $logger, FileStorageServiceInterface $fileStorageService, TagcadeRestClientInterface $restClient)
     {
         $this->logger = $logger;
         $this->curl = $curl;
         $this->fileStorageService = $fileStorageService;
+        $this->restClient  = $restClient;
     }
 
     /**
@@ -95,6 +102,8 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
         $fileName = sprintf('%s.csv', bin2hex(random_bytes(10)));
         $filePath = $this->fileStorageService->getDownloadPath($config, $fileName);
         $this->fileStorageService->saveToCSVFile($filePath, $data, null);
+
+        $this->restClient->updateIntegrationLastExecutedAndBackFill(new PartnerParams($config));
     }
 
     public function getAdvertisers()

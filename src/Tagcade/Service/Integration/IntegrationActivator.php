@@ -71,18 +71,11 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         foreach ($dataSourceIntegrationSchedules as $dataSourceIntegrationSchedule) {
             /* create new job for execution */
-            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule['dataSourceIntegration']);
+            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule['dataSourceIntegration'], $dataSourceIntegrationSchedule['id']);
 
             if (!$createJobResult) {
                 continue;
             }
-
-            /* update next execution at */
-            $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
-
-            /* update backFill Executed if need */
-            $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
-            $this->updateBackFillExecuted($dataSourceIntegration);
         }
 
         return true;
@@ -109,7 +102,9 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         $dataSourceIntegrationSchedule = array_values($dataSourceIntegrationSchedules) [0];
 
+        $scheduleId = '';
         if (array_key_exists('dataSourceIntegration', $dataSourceIntegrationSchedule)) {
+            $scheduleId = $dataSourceIntegrationSchedule['id'];
             $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
         }
 
@@ -123,16 +118,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         }
 
         /* create new job for execution */
-        $this->createExecutionJob($dataSourceIntegration);
-
-        if ($isUpdateNextExecute) {
-            /* update next execution at */
-            $this->updateNextExecuteAt($dataSourceIntegrationSchedule);
-
-            /* update backFill Executed if need */
-            $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
-            $this->updateBackFillExecuted($dataSourceIntegration);
-        }
+        $this->createExecutionJob($dataSourceIntegration, $scheduleId);
 
         return true;
     }
@@ -141,9 +127,10 @@ class IntegrationActivator implements IntegrationActivatorInterface
      * create execution job for dataSourceIntegration
      *
      * @param $dataSourceIntegration
+     * @param $scheduleId
      * @return bool
      */
-    private function createExecutionJob($dataSourceIntegration)
+    private function createExecutionJob($dataSourceIntegration, $scheduleId)
     {
         // TODO: validate key in array before processing...
         $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
@@ -153,6 +140,8 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
         $backFill = [
+            'dataSourceIntegrationId' => $dataSourceIntegration['id'],
+            'dataSourceIntegrationScheduleId' => $scheduleId,
             'backFill' => $dataSourceIntegration['backFill'],
             'backFillStartDate' => $dataSourceIntegration['backFillStartDate'],
             'backFillEndDate' => $dataSourceIntegration['backFillEndDate'],
@@ -183,84 +172,6 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PheanstalkInterface::DEFAULT_DELAY,
                 $this->pheanstalkTTR
             );
-
-        return true;
-    }
-
-    /**
-     * update Next Execution At
-     *
-     * @param $dataSourceIntegrationSchedule
-     * @return mixed
-     */
-    private function updateNextExecuteAt($dataSourceIntegrationSchedule)
-    {
-        if (!is_array($dataSourceIntegrationSchedule)
-            || !array_key_exists('dataSourceIntegration', $dataSourceIntegrationSchedule)
-            || !array_key_exists('id', $dataSourceIntegrationSchedule)
-        ) {
-            return true;
-        }
-
-        $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
-
-        // skip if need backFill
-        // notice: important, do not update next executedAt if run backfill
-        if ($this->isNeedRunBackFill($dataSourceIntegration)) {
-            return true;
-        }
-
-        $dataSourceIntegrationScheduleId = $dataSourceIntegrationSchedule['id'];
-
-        return $this->restClient->updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
-    }
-
-    /**
-     * update BackFill Executed
-     *
-     * @param $dataSourceIntegration
-     * @return mixed
-     */
-    private function updateBackFillExecuted($dataSourceIntegration)
-    {
-        if (!is_array($dataSourceIntegration)
-            || !array_key_exists('id', $dataSourceIntegration)
-        ) {
-            return true;
-        }
-
-        // skip if not need backFill
-        if (!$this->isNeedRunBackFill($dataSourceIntegration)) {
-            return true;
-        }
-
-        // update backFill executed to true
-        $dataSourceIntegrationId = $dataSourceIntegration['id'];
-        return $this->restClient->updateBackFillExecutedForIntegration($dataSourceIntegrationId);
-    }
-
-    /**
-     * check if is Need Run BackFill
-     *
-     * @param $dataSourceIntegration
-     * @return mixed
-     */
-    private function isNeedRunBackFill($dataSourceIntegration)
-    {
-        if (!is_array($dataSourceIntegration)
-            || !array_key_exists('id', $dataSourceIntegration)
-            || !array_key_exists('backFill', $dataSourceIntegration)
-            || !array_key_exists('backFillExecuted', $dataSourceIntegration)
-        ) {
-            return false;
-        }
-
-        // skip if not need backFill
-        $isBackFill = (bool)$dataSourceIntegration['backFill'];
-        $isBackFillExecuted = (bool)$dataSourceIntegration['backFillExecuted'];
-        if (!$isBackFill || $isBackFillExecuted) {
-            return false;
-        }
 
         return true;
     }

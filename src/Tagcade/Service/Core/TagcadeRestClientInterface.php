@@ -4,6 +4,7 @@ namespace Tagcade\Service\Core;
 
 
 use DateTime;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 interface TagcadeRestClientInterface
 {
@@ -43,9 +44,11 @@ interface TagcadeRestClientInterface
      * update backfill executed for integration
      *
      * @param string $dataSourceIntegrationScheduleId
+     * @param $backFillStartDate
+     * @param $backFillEndDate
      * @return mixed
      */
-    public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId);
+    public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId, $backFillStartDate, $backFillEndDate);
 
     /**
      * create Alert When Login Fail due to integrationConfig information
@@ -72,4 +75,9 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function createAlertWhenTimeOut($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, $executionDate);
+
+    /**
+     * @param PartnerParamInterface $partnerParams
+     */
+    public function updateIntegrationLastExecutedAndBackFill($partnerParams);
 }

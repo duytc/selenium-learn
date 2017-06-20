@@ -75,4 +75,48 @@ interface PartnerParamInterface
      * @return int
      */
     public function getProcessId();
+
+    /**
+     * @return mixed
+     */
+    public function getBackFillStartDate();
+
+    /**
+     * @param mixed $backFillStartDate
+     * @return self
+     */
+    public function setBackFillStartDate($backFillStartDate);
+
+    /**
+     * @return mixed
+     */
+    public function getBackFillEndDate();
+
+    /**
+     * @param mixed $backFillEndDate
+     * @return self
+     */
+    public function setBackFillEndDate($backFillEndDate);
+
+    /**
+     * @return mixed
+     */
+    public function getDataSourceIntegrationId();
+
+    /**
+     * @param mixed $dataSourceIntegrationId
+     * @return self
+     */
+    public function setDataSourceIntegrationId($dataSourceIntegrationId);
+
+    /**
+     * @return mixed
+     */
+    public function getDataSourceIntegrationScheduleId();
+
+    /**
+     * @param mixed $dataSourceIntegrationScheduleId
+     * @return self
+     */
+    public function setDataSourceIntegrationScheduleId($dataSourceIntegrationScheduleId);
 }

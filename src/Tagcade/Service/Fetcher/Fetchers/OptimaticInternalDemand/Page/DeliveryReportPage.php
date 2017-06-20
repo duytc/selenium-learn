@@ -2,14 +2,12 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\OptimaticInternalDemand\Page;
 
-use DateTime;
 use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use PHPExcel_IOFactory;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Pages\AbstractPage;
 use Tagcade\Service\Fetcher\Params\OptimaticInternalDemand\OptimaticInternalDemandPartnerParamsInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
@@ -70,18 +68,6 @@ class DeliveryReportPage extends AbstractPage
         $config = $params->getConfig();
         $this->sleep(1);
         /* Get path download default to create an empty file for no data was found exeception */
-//        $defaultPathDownload = $this->downloadFileHelper->getRootDirectory();
-//        $defaultDownloadPath = WebDriverService::getDownloadPath(
-//            $defaultPathDownload,
-//            $params->getPublisherId(),
-//            $params->getIntegrationCName(),
-//            new DateTime(),
-//            $params->getStartDate(),
-//            $params->getEndDate(),
-//            $this->config['process_id'],
-//            null
-//        );
-
         $defaultDownloadPath = $config['defaultDownloadPath'];
         /*
          * For each report type has select option different
@@ -117,13 +103,6 @@ class DeliveryReportPage extends AbstractPage
 
         $this->sleep(10);
 
-    }
-
-    protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
-    {
-        $dateWidget = new DateSelectWidget($this->driver);
-        $dateWidget->setDateRange($startDate, $endDate);
-        return $this;
     }
 
     /**
@@ -323,10 +302,6 @@ class DeliveryReportPage extends AbstractPage
 
                 $this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.ok'))->click();
 
-//                if (!is_dir($defaultDownloadPath)) {
-//                    mkdir($defaultDownloadPath, 0755, true);
-//                }
-//                touch(sprintf('%s/datawasnotfound.csv', $defaultDownloadPath));
                 $this->sleep(2);
             }
         } catch (Exception $ex) {

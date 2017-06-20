@@ -15,6 +15,11 @@ class PartnerParams implements PartnerParamInterface
     const PARAM_KEY_END_DATE = 'endDate';
     const PARAM_KEY_DAILY_BREAKDOWN = 'dailyBreakdown';
 
+    const PARAM_KEY_BACK_FILL_START_DATE = 'backFillStartDate';
+    const PARAM_KEY_BACK_FILL_END_DATE = 'backFillEndDate';
+    const PARAM_KEY_DATA_SOURCE_INTEGRATION_ID = 'dataSourceIntegrationId';
+    const PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID = 'dataSourceIntegrationScheduleId';
+
     /* required params (information for webdriver run) */
     /**
      * @var int publisherId
@@ -58,6 +63,18 @@ class PartnerParams implements PartnerParamInterface
 
     /** @var  bool */
     protected $dailyBreakdown;
+    
+    /** @var   */
+    protected $backFillStartDate;
+    
+    /** @var   */
+    protected $backFillEndDate;
+    
+    /** @var   */
+    protected $dataSourceIntegrationId;
+
+    /** @var   */
+    protected $dataSourceIntegrationScheduleId;
 
     /* original integration config */
     /**
@@ -142,6 +159,13 @@ class PartnerParams implements PartnerParamInterface
         $this->integrationCName = $integrationCName;
         $this->dataSourceId = $dataSourceId;
         $this->processId = $processId;
+        $backFill = $config->getBackFill();
+
+        $this->backFillStartDate = $backFill[self::PARAM_KEY_BACK_FILL_START_DATE];
+        $this->backFillEndDate = $backFill[self::PARAM_KEY_BACK_FILL_END_DATE];
+
+        $this->dataSourceIntegrationId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_ID];
+        $this->dataSourceIntegrationScheduleId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID];
 
         /* create common params */
         $this->createParams($configParams);
@@ -339,6 +363,74 @@ class PartnerParams implements PartnerParamInterface
     public function setDailyBreakdown($dailyBreakdown)
     {
         $this->dailyBreakdown = $dailyBreakdown;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBackFillStartDate()
+    {
+        return $this->backFillStartDate;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setBackFillStartDate($backFillStartDate)
+    {
+        $this->backFillStartDate = $backFillStartDate;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBackFillEndDate()
+    {
+        return $this->backFillEndDate;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setBackFillEndDate($backFillEndDate)
+    {
+        $this->backFillEndDate = $backFillEndDate;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDataSourceIntegrationId()
+    {
+        return $this->dataSourceIntegrationId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDataSourceIntegrationId($dataSourceIntegrationId)
+    {
+        $this->dataSourceIntegrationId = $dataSourceIntegrationId;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationScheduleId()
+    {
+        return $this->dataSourceIntegrationScheduleId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDataSourceIntegrationScheduleId($dataSourceIntegrationScheduleId)
+    {
+        $this->dataSourceIntegrationScheduleId = $dataSourceIntegrationScheduleId;
         return $this;
     }
 }

@@ -6,6 +6,8 @@ use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Tagcade\Exception\RuntimeException;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\FileStorageServiceInterface;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
@@ -48,15 +50,20 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
      */
     protected $fileStorage;
 
+    /** @var TagcadeRestClientInterface */
+    protected $restClient;
+
     /**
      * GeneralIntegrationAbstract constructor.
      * @param LoggerInterface $logger
      * @param FileStorageServiceInterface $fileStorage
+     * @param TagcadeRestClientInterface $restClient
      */
-    public function __construct(LoggerInterface $logger, FileStorageServiceInterface $fileStorage)
+    public function __construct(LoggerInterface $logger, FileStorageServiceInterface $fileStorage, TagcadeRestClientInterface $restClient)
     {
         $this->logger = $logger;
         $this->fileStorage = $fileStorage;
+        $this->restClient = $restClient;
     }
 
     /**
@@ -110,6 +117,8 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
         $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
 
         file_put_contents($path, $responseData);
+
+        $this->restClient->updateIntegrationLastExecutedAndBackFill(new PartnerParams($config));
     }
 
     /**

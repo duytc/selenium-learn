@@ -50,6 +50,9 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var DeleteFileService */
     private $deleteFileService;
 
+    /** @var TagcadeRestClientInterface */
+    protected $restClient;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
@@ -58,8 +61,9 @@ class WebDriverService implements WebDriverServiceInterface
      * @param string $defaultDataPath
      * @param $chromeFolderPath
      * @param DeleteFileService $deleteFileService
+     * @param TagcadeRestClientInterface $restClient
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService, TagcadeRestClientInterface $restClient)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
@@ -68,6 +72,7 @@ class WebDriverService implements WebDriverServiceInterface
         $this->defaultDataPath = $defaultDataPath;
         $this->chromeFolderPath = $chromeFolderPath;
         $this->deleteFileService = $deleteFileService;
+        $this->restClient = $restClient;
     }
 
     /**
@@ -165,6 +170,8 @@ class WebDriverService implements WebDriverServiceInterface
         }
 
         $this->removeSessionFolders();
+
+        $this->restClient->updateIntegrationLastExecutedAndBackFill($partnerParams);
 
         return 1;
     }

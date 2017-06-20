@@ -232,15 +232,13 @@ class Config implements ConfigInterface
     {
         if (!is_array($this->backFill)
             || !array_key_exists(self::DATA_SOURCE_BACKFILL, $this->backFill)
-            || !array_key_exists(self::DATA_SOURCE_BACKFILL_EXECUTED, $this->backFill)
         ) {
             return false;
         }
 
         $isBackFill = (bool)$this->backFill[self::DATA_SOURCE_BACKFILL];
-        $isBackFillExecuted = (bool)$this->backFill[self::DATA_SOURCE_BACKFILL_EXECUTED];
 
-        return $isBackFill && !$isBackFillExecuted;
+        return $isBackFill;
     }
 
     /**

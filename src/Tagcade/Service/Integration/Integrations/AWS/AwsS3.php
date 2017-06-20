@@ -12,6 +12,8 @@ use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Tagcade\Exception\RuntimeException;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\FileStorageService;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
@@ -49,15 +51,20 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
      */
     private $fileStorage;
 
+    /** @var TagcadeRestClientInterface */
+    protected $restClient;
+
     /**
      * AwsS3 constructor.
      * @param LoggerInterface $logger
      * @param FileStorageService $fileStorage
+     * @param TagcadeRestClientInterface $restClient
      */
-    public function __construct(LoggerInterface $logger, FileStorageService $fileStorage)
+    public function __construct(LoggerInterface $logger, FileStorageService $fileStorage, TagcadeRestClientInterface $restClient)
     {
         $this->logger = $logger;
         $this->fileStorage = $fileStorage;
+        $this->restClient = $restClient;
     }
 
     /**
@@ -179,6 +186,9 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 $metadataFilePath = $path . '.meta';
                 file_put_contents($metadataFilePath, json_encode($metadata));
             }
+
+            $this->restClient->updateIntegrationLastExecutedAndBackFill(new PartnerParams($config));
+            
         } catch (Exception $ex) {
             if ($ex instanceof S3Exception) {
                 // throw RuntimeException for retry

@@ -6,6 +6,7 @@ use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use RestClient\CurlRestClient;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class TagcadeRestClient implements TagcadeRestClientInterface
 {
@@ -303,7 +304,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId)
+    public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId, $backFillStartDate, $backFillEndDate)
     {
         $this->logger->info(sprintf('Updating backfill executed'));
 
@@ -313,6 +314,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         /* post update to ur api */
         $data = [
             'id' => $dataSourceIntegrationScheduleId,
+            'backFillStartDate' => $backFillStartDate,
+            'backFillEndDate' => $backFillEndDate,
         ];
 
         $url = $this->updateBackFillExecutedForDataSourceIntegrationScheduleUrl;
@@ -459,5 +462,35 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->logger->info('finished created alert time out');
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateIntegrationLastExecutedAndBackFill($partnerParams)
+    {
+        if (!$partnerParams instanceof PartnerParamInterface) {
+            return;
+        }
+
+        /** Add try catch to prevent exception make fetcher fail */
+        $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
+        try {
+            if (!empty($scheduleId)) {
+                $this->updateNextExecuteAtForIntegrationSchedule($scheduleId);
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning(sprintf('Update last executed fail for schedule id %s', $scheduleId));
+        }
+
+        /** Add try catch to prevent exception make fetcher fail */
+        $dataSourceIntegrationId = $partnerParams->getDataSourceIntegrationId();
+        try {
+            if (!empty($dataSourceIntegrationId)) {
+                $this->updateBackFillExecutedForIntegration($dataSourceIntegrationId, $partnerParams->getBackFillStartDate(), $partnerParams->getBackFillEndDate());
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning(sprintf('Update back fill fail data source integration id %s', $scheduleId));
+        }
     }
 }
