@@ -8,6 +8,11 @@ parameters:
     secret:            ThisTokenIsNotSoSecretChangeIt
     selenium_server_url: 'http://localhost:4444/wd/hub'
 
+    redis_app_cache_host: 127.0.0.1
+    redis_app_cache_port: 6379 # default
+    lock_key_prefix: fetcher_ur_lock_
+    lock_key_ttl: 3600
+
     tagcade_user_name: admin
     tagcade_user_password: '123456'
     tagcade_download_time_out: 3600

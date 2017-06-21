@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\LockHandler;
 use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
 class IntegrationActivatorCommand extends ContainerAwareCommand
@@ -28,25 +27,28 @@ class IntegrationActivatorCommand extends ContainerAwareCommand
 
         $this->logger->info('Start running integration activator');
 
-        // create lock and if other process is running
-        // this make sure only one integration activator process is running at a time
-        $lock = new LockHandler('ur:fetcher:integration-activator-run');
+        $container = $this->getContainer();
 
-        if (!$lock->lock()) {
+        $lockService = $container->get('tagcade.service.lock.lock_service');
+
+        $lock = $lockService->lock('integration-activator-run');
+
+        if ($lock === false) {
             $this->logger->info(sprintf('%s: The command is already running in another process.', $this->getName()));
             return;
         }
 
-        /* run activator service */
-        /** @var IntegrationActivatorInterface $activatorService */
-        $activatorService = $this->getContainer()->get('tagcade.service.integration_activator');
+        try {
+            /* run activator service */
+            /** @var IntegrationActivatorInterface $activatorService */
+            $activatorService = $container->get('tagcade.service.integration_activator');
 
-        $result = $activatorService->createExecutionJobs();
-
-        if (!$result) {
-            $this->logger->error('Complete running integration activator with error');
-        } else {
+            $activatorService->createExecutionJobs();
             $this->logger->info('Complete running integration activator with no error');
+        } catch (\Exception $e) {
+            $this->logger->error($e);
+        } finally {
+            $lockService->unlock($lock);
         }
     }
 

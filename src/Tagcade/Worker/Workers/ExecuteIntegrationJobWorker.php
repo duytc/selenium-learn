@@ -8,9 +8,9 @@ namespace Tagcade\Worker\Workers;
 
 use Exception;
 use Monolog\Logger;
+use Tagcade\Service\Lock\LockServiceInterface;
 use RuntimeException;
 use stdClass;
-use Symfony\Component\Filesystem\LockHandler;
 use Tagcade\Exception\LoginFailException;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
@@ -28,6 +28,8 @@ class ExecuteIntegrationJobWorker
      */
     private $logger;
 
+    private $lockService;
+
     private $fetcherManager;
 
     private $maxRetriesNumber;
@@ -37,13 +39,15 @@ class ExecuteIntegrationJobWorker
     /**
      * GetPartnerReportWorker constructor.
      * @param Logger $logger
+     * @param LockServiceInterface $lockService
      * @param IntegrationManagerInterface $fetcherManager
      * @param $maxRetriesNumber
      * @param $delayBeforeRetry
      */
-    public function __construct(Logger $logger, IntegrationManagerInterface $fetcherManager, $maxRetriesNumber, $delayBeforeRetry)
+    public function __construct(Logger $logger, LockServiceInterface $lockService, IntegrationManagerInterface $fetcherManager, $maxRetriesNumber, $delayBeforeRetry)
     {
         $this->logger = $logger;
+        $this->lockService = $lockService;
         $this->fetcherManager = $fetcherManager;
         $this->maxRetriesNumber = $maxRetriesNumber;
         $this->delayBeforeRetry = $delayBeforeRetry;
@@ -63,9 +67,10 @@ class ExecuteIntegrationJobWorker
         }
 
         $cname = $params->integrationCName;
-        $lock = new LockHandler(sprintf('integration-%s-lock', $cname));
 
-        if (!$lock->lock()) {
+        $lock = $this->lockService->lock(sprintf('integration-%s-lock', $cname));
+
+        if ($lock === false) {
             $this->logger->notice(sprintf('integration cname %s is currently locked', $cname));
             return self::JOB_LOCKED_CODE;
         }
@@ -125,6 +130,6 @@ class ExecuteIntegrationJobWorker
         }
 
         $this->logger->info('Release lock');
-        $lock->release();
+        $this->lockService->unlock($lock);
     }
 }
