@@ -119,4 +119,15 @@ interface PartnerParamInterface
      * @return self
      */
     public function setDataSourceIntegrationScheduleId($dataSourceIntegrationScheduleId);
+
+    /**
+     * @return mixed
+     */
+    public function getBackFill();
+
+    /**
+     * @param mixed $backFill
+     * @return self
+     */
+    public function setBackFill($backFill);
 }

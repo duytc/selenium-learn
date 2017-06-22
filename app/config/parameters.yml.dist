@@ -39,3 +39,6 @@ parameters:
     process.timeout.execute_integration_command: 3600
     chrome_folder_path: '/media/tagcade/tagcade-unified-report-fetcher/.chrome'
     delay_time_before_job_become_ready: 15
+
+    ur_update_is_running_for_schedule_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/isrunning'
+    ur_update_is_running_for_backfill_history_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrations/backfill/isrunning'

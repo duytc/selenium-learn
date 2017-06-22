@@ -89,6 +89,9 @@ services:
             - '%ur_update_last_execution_time_for_integration_url%'
             - '%ur_update_backfill_executed_for_integration_url%'
             - '%ur_create_alert_url%'
+            - '%ur_update_is_running_for_schedule_url%'
+            - '%ur_update_is_running_for_backfill_history_url%'
+
         calls:
             - [setLogger, ['@logger']]
 

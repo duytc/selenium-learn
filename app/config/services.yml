@@ -24,3 +24,4 @@ services:
             - '@tagcade.service.integration.integration_manager'
             - %retry_when_fail_max_retries_number%
             - %retry_when_fail_delay_before_retry%
+            - '@tagcade_app.rest_client'

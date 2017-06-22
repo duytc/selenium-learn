@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tagcade\Exception\LoginFailException;
 use Tagcade\Exception\RuntimeException;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\IntegrationManagerInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
@@ -33,7 +34,10 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var Logger $logger */
         $logger = $this->getContainer()->get('logger');
+        $restClient = $this->getContainer()->get('tagcade_app.rest_client');
+
         $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
         $logger->info('Starting integration run');
 
@@ -143,13 +147,14 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
                 $logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
-
+                $restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
                 break; // break while loop if other errors
             }
         } while ($retriedNumber <= $maxRetriesNumber);
 
         if ($retriedNumber > 0 && $retriedNumber > $maxRetriesNumber) {
             $logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $maxRetriesNumber));
+            $restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
         }
 
         return 0;

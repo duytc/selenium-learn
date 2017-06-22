@@ -163,16 +163,29 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $payload->task = 'executeIntegration';
         $payload->params = $job;
 
-        /** @var PheanstalkInterface $pheanstalk */
-        $this->pheanstalk
-            ->useTube($this->fetcherWorkerTube)
-            ->put(
-                json_encode($payload),
-                PheanstalkInterface::DEFAULT_PRIORITY,
-                PheanstalkInterface::DEFAULT_DELAY,
-                $this->pheanstalkTTR
-            );
+        try {
+            /** @var PheanstalkInterface $pheanstalk */
+            $this->pheanstalk
+                ->useTube($this->fetcherWorkerTube)
+                ->put(
+                    json_encode($payload),
+                    PheanstalkInterface::DEFAULT_PRIORITY,
+                    PheanstalkInterface::DEFAULT_DELAY,
+                    $this->pheanstalkTTR
+                );
 
+            if (array_key_exists('backFill', $dataSourceIntegration) && $dataSourceIntegration['backFill'] == true) {
+                $this->restClient->updateIsRunningForBackFillHistory($dataSourceIntegration['id'],
+                    $dataSourceIntegration['backFillStartDate'],
+                    $dataSourceIntegration['backFillEndDate'],
+                    $isRunning = true);
+            } else {
+                $this->restClient->updateIsRunningForIntegrationSchedule($scheduleId, $isRunning = true);
+            }
+
+        } catch (\Exception $e) {
+
+        }
         return true;
     }
 }

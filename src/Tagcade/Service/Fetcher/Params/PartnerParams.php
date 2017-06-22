@@ -15,6 +15,7 @@ class PartnerParams implements PartnerParamInterface
     const PARAM_KEY_END_DATE = 'endDate';
     const PARAM_KEY_DAILY_BREAKDOWN = 'dailyBreakdown';
 
+    const PARAM_KEY_BACK_FILL = 'backFill';
     const PARAM_KEY_BACK_FILL_START_DATE = 'backFillStartDate';
     const PARAM_KEY_BACK_FILL_END_DATE = 'backFillEndDate';
     const PARAM_KEY_DATA_SOURCE_INTEGRATION_ID = 'dataSourceIntegrationId';
@@ -81,6 +82,8 @@ class PartnerParams implements PartnerParamInterface
      * @var $config
      */
     protected $config;
+
+    protected $backFill;
 
     public function __construct(ConfigInterface $config)
     {
@@ -161,6 +164,7 @@ class PartnerParams implements PartnerParamInterface
         $this->processId = $processId;
         $backFill = $config->getBackFill();
 
+        $this->backFill = $backFill[self::PARAM_KEY_BACK_FILL];
         $this->backFillStartDate = $backFill[self::PARAM_KEY_BACK_FILL_START_DATE];
         $this->backFillEndDate = $backFill[self::PARAM_KEY_BACK_FILL_END_DATE];
 
@@ -303,7 +307,9 @@ class PartnerParams implements PartnerParamInterface
         $dailyBreakdown = $config[self::PARAM_KEY_DAILY_BREAKDOWN];
 
         if ($startDate > $endDate) {
-            throw new \InvalidArgumentException(sprintf('Invalid date range startDate=%s, endDate=%s', $startDate->format('Ymd'), $endDate->format('Ymd')));
+            $clone = clone $startDate;
+            $startDate = clone $endDate;
+            $endDate = clone $clone;
         }
 
         if (!array_key_exists('base64EncryptedPassword', $config) && !array_key_exists(self::PARAM_KEY_PASSWORD, $config)) {
@@ -431,6 +437,25 @@ class PartnerParams implements PartnerParamInterface
     public function setDataSourceIntegrationScheduleId($dataSourceIntegrationScheduleId)
     {
         $this->dataSourceIntegrationScheduleId = $dataSourceIntegrationScheduleId;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBackFill()
+    {
+        return $this->backFill;
+    }
+
+    /**
+     * @param mixed $backFill
+     * @return self
+     */
+    public function setBackFill($backFill)
+    {
+        $this->backFill = $backFill;
+        
         return $this;
     }
 }

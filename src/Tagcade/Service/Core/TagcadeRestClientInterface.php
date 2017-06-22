@@ -80,4 +80,25 @@ interface TagcadeRestClientInterface
      * @param PartnerParamInterface $partnerParams
      */
     public function updateIntegrationLastExecutedAndBackFill($partnerParams);
+
+    /**
+     * @param $partnerParams
+     */
+    public function updateIntegrationIsRunningToFalse($partnerParams);
+
+    /**
+     * @param $dataSourceIntegrationScheduleId
+     * @param $backFillStartDate
+     * @param $backFillEndDate
+     * @param $isRunning
+     * @return mixed
+     */
+    public function updateIsRunningForBackFillHistory($dataSourceIntegrationScheduleId, $backFillStartDate, $backFillEndDate, $isRunning = false);
+
+    /**
+     * @param $dataSourceIntegrationScheduleId
+     * @param $isRunning
+     * @return mixed
+     */
+    public function updateIsRunningForIntegrationSchedule($dataSourceIntegrationScheduleId, $isRunning = false);
 }

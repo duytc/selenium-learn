@@ -8,6 +8,8 @@ namespace Tagcade\Worker\Workers;
 
 use Exception;
 use Monolog\Logger;
+use Tagcade\Service\Core\TagcadeRestClient;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\Lock\LockServiceInterface;
 use RuntimeException;
 use stdClass;
@@ -36,6 +38,9 @@ class ExecuteIntegrationJobWorker
 
     private $delayBeforeRetry;
 
+    /** @var TagcadeRestClient  */
+    private $restClient;
+
     /**
      * GetPartnerReportWorker constructor.
      * @param Logger $logger
@@ -43,14 +48,16 @@ class ExecuteIntegrationJobWorker
      * @param IntegrationManagerInterface $fetcherManager
      * @param $maxRetriesNumber
      * @param $delayBeforeRetry
+     * @param TagcadeRestClient $restClient
      */
-    public function __construct(Logger $logger, LockServiceInterface $lockService, IntegrationManagerInterface $fetcherManager, $maxRetriesNumber, $delayBeforeRetry)
+    public function __construct(Logger $logger, LockServiceInterface $lockService, IntegrationManagerInterface $fetcherManager, $maxRetriesNumber, $delayBeforeRetry, TagcadeRestClient $restClient)
     {
         $this->logger = $logger;
         $this->lockService = $lockService;
         $this->fetcherManager = $fetcherManager;
         $this->maxRetriesNumber = $maxRetriesNumber;
         $this->delayBeforeRetry = $delayBeforeRetry;
+        $this->restClient = $restClient;
     }
 
     /**
@@ -116,17 +123,18 @@ class ExecuteIntegrationJobWorker
                 $retriedNumber++;
 
                 $this->logger->error(sprintf('Integration run got RuntimeException: %s.', $runtimeException->getMessage()));
-            } catch (Exception $ex) {
+            } catch (\Exception $ex) {
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
                 $this->logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
-
+                $this->restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
                 break; // break while loop if other errors
             }
         } while ($retriedNumber <= $this->maxRetriesNumber);
 
         if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
             $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
+            $this->restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
         }
 
         $this->logger->info('Release lock');
