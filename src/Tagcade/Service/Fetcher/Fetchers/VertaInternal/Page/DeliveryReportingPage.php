@@ -52,7 +52,7 @@ class DeliveryReportingPage extends AbstractPage
     private function selectReportType($reportType)
     {
         try {
-            $reportTypeBtn = $this->filterElementByTagNameAndText('div', 'All');
+            $reportTypeBtn = $this->filterElementByTagNameAndText('label', 'All');
             if ($reportTypeBtn) {
                 if (preg_match('/([a-zA-Z]*)-([0-9]+)/', $reportTypeBtn->getAttribute('id'), $matches)) {
                     $this->specialId = $matches[2];

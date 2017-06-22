@@ -58,6 +58,10 @@ abstract class AbstractWidget
      */
     public function filterElementByTagNameAndText($tagName = 'li', $text)
     {
+        /**
+         * Good performance: tagName as label, li, button...
+         * Bad performance if tagName = div
+         */
         $classElements = $this->driver->findElements(WebDriverBy::tagName($tagName));
         if (count($classElements) < 1) {
             return null;
