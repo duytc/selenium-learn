@@ -32,7 +32,7 @@ parameters:
     integration_temp_file_dir: %kernel.root_dir%/../app/temp/integration
 
     # retry when fail
-    retry_when_fail_max_retries_number: 3 # positive integer
+    retry_when_fail_max_retries_number: 1 # positive integer
     retry_when_fail_delay_before_retry: 30 # in second
 
     # process timeout
