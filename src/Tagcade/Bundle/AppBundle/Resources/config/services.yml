@@ -30,6 +30,7 @@ imports:
     - { resource: services/video/optimaticinternalmarketplace.yml }
     - { resource: services/video/optimaticinternaldemand.yml }
     - { resource: services/video/optimaticexternal.yml }
+    - { resource: services/video/optimaticinternalsupply.yml }
 
 
 services:
@@ -174,3 +175,4 @@ services:
                 - '@tagcade.service.integration.integrations.video.optimaticinternalmarketplace'
                 - '@tagcade.service.integration.integrations.video.optimaticinternaldemand'
                 - '@tagcade.service.integration.integrations.video.optimaticexternal'
+                - '@tagcade.service.integration.integrations.video.optimaticinternalsupply'
