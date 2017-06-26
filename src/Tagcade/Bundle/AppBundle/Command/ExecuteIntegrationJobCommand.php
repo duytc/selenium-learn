@@ -61,16 +61,16 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
         if (!is_array($rawConfig)
             || !array_key_exists('publisherId', $rawConfig)
             || !array_key_exists('integrationCName', $rawConfig)
-            || !array_key_exists('dataSourceId', $rawConfig)
-            || !array_key_exists('params', $rawConfig)
-            || !array_key_exists('backFill', $rawConfig)
+            || !array_key_exists(PartnerParams::PARAM_KEY_DATA_SOURCE_ID, $rawConfig)
+            || !array_key_exists(PartnerParams::PARAM_KEY_PARAMS, $rawConfig)
+            || !array_key_exists(PartnerParams::PARAM_KEY_BACK_FILL, $rawConfig)
         ) {
             $logger->error(sprintf('Integration config file contains invalid json content.'));
             return 1;
         }
 
         //// parse params
-        $params = json_decode($rawConfig['params'], true);
+        $params = json_decode($rawConfig[PartnerParams::PARAM_KEY_PARAMS], true);
         if (json_last_error() !== JSON_ERROR_NONE
             || !is_array($params)
         ) {
@@ -79,7 +79,7 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
         }
 
         //// parse backFill
-        $backFill = json_decode($rawConfig['backFill'], true);
+        $backFill = json_decode($rawConfig[PartnerParams::PARAM_KEY_BACK_FILL], true);
         if (json_last_error() !== JSON_ERROR_NONE
             || !is_array($backFill)
         ) {
@@ -90,7 +90,7 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
         $config = new Config(
             $rawConfig['publisherId'],
             $rawConfig['integrationCName'],
-            $rawConfig['dataSourceId'],
+            $rawConfig[PartnerParams::PARAM_KEY_DATA_SOURCE_ID],
             $params,
             $backFill
         );
@@ -147,14 +147,14 @@ class ExecuteIntegrationJobCommand extends ContainerAwareCommand
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
                 $logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
-                $restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
+                $restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
                 break; // break while loop if other errors
             }
         } while ($retriedNumber <= $maxRetriesNumber);
 
         if ($retriedNumber > 0 && $retriedNumber > $maxRetriesNumber) {
             $logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $maxRetriesNumber));
-            $restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
+            $restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
         }
 
         return 0;

@@ -5,6 +5,8 @@ namespace Tagcade\Service\Integration;
 
 use Pheanstalk\PheanstalkInterface;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 
 class IntegrationActivator implements IntegrationActivatorInterface
 {
@@ -42,19 +44,19 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *       'scheduleType' => 'checkEvery|checkAt',
          *       'executeAt' => 1,
          *       dataSourceIntegration = [
-         *           'dataSource' => [
+         *           PartnerParams::PARAM_KEY_DATA_SOURCE => [
          *               'id' => 1
          *           ],
-         *           'integration' => [
+         *           PartnerParams::PARAM_KEY_INTEGRATION => [
          *               'id' => 2,
-         *               'canonicalName' => 'rubicon',
-         *               'params' => [
+         *               PartnerParams::PARAM_KEY_CANONICAL_NAME => 'rubicon',
+         *               PartnerParams::PARAM_KEY_PARAMS => [
          *                    [ 'key' => 'username', 'type' => 'plainText' ],
          *                    [ 'key' => 'password', 'type' => 'secure' ],
          *                    ...
          *               ]
          *           ],
-         *           'originalParams' => [
+         *           PartnerParams::PARAM_KEY_ORIGINAL_PARAMS => [
          *               [ 'key' => 'username', 'type' => 'plainText', 'value' => 'admin' ],
          *               [ 'key' => 'password', 'type' => 'secure', 'value' => '1A2B3C4D5E6F' ],
          *               ...
@@ -64,18 +66,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *    ...
          * ];
          */
-        $dataSourceIntegrationSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
-        if (!is_array($dataSourceIntegrationSchedules)) {
+        $fetcherSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
+        if (!is_array($fetcherSchedules)) {
             return false;
         }
 
-        foreach ($dataSourceIntegrationSchedules as $dataSourceIntegrationSchedule) {
-            /* create new job for execution */
-            $createJobResult = $this->createExecutionJob($dataSourceIntegrationSchedule['dataSourceIntegration'], $dataSourceIntegrationSchedule['id']);
-
-            if (!$createJobResult) {
-                continue;
-            }
+        foreach ($fetcherSchedules as $fetcherSchedule) {
+            $this->createExecutionJob($fetcherSchedule);
         }
 
         return true;
@@ -90,35 +87,34 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         /* get all dataSource-integration-schedules from ur api */
         /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
-        $dataSourceIntegrationSchedules = $isForceRun
+        $fetcherSchedules = $isForceRun
             /* get all dataSource-integration-schedules without schedule config */
             ? $this->restClient->getDataSourceIntegrationSchedulesByDataSource($dataSourceId)
             /* get all dataSource-integration-schedules with schedule config */
             : $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId);
 
-        if (!is_array($dataSourceIntegrationSchedules) || count($dataSourceIntegrationSchedules) < 1) {
+        if (!is_array($fetcherSchedules) || count($fetcherSchedules) < 1) {
             return true;
         }
 
-        $dataSourceIntegrationSchedule = array_values($dataSourceIntegrationSchedules) [0];
+        foreach ($fetcherSchedules as $fetcherSchedule) {
+            /* Overwrite by custom params if has */
+            if (is_array($customParams)) {
+                if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
+                    $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
+                    $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION] = $dataSourceIntegration;
+                    $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] = $customParams;
+                } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
+                    $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
+                    $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] = $customParams;
+                    $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION] = $dataSourceIntegration;
+                }
+            }
 
-        $scheduleId = '';
-        if (array_key_exists('dataSourceIntegration', $dataSourceIntegrationSchedule)) {
-            $scheduleId = $dataSourceIntegrationSchedule['id'];
-            $dataSourceIntegration = $dataSourceIntegrationSchedule['dataSourceIntegration'];
+            /* create new job for execution */
+            $this->createExecutionJob($fetcherSchedule);
         }
 
-        if (!is_array($dataSourceIntegration)) {
-            return true;
-        }
-
-        /* Overwrite by custom params if has */
-        if (is_array($customParams)) {
-            $dataSourceIntegration['originalParams'] = $customParams;
-        }
-
-        /* create new job for execution */
-        $this->createExecutionJob($dataSourceIntegration, $scheduleId);
 
         return true;
     }
@@ -126,28 +122,47 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * create execution job for dataSourceIntegration
      *
-     * @param $dataSourceIntegration
-     * @param $scheduleId
+     * @param $fetcherSchedule
      * @return bool
      */
-    private function createExecutionJob($dataSourceIntegration, $scheduleId)
+    private function createExecutionJob($fetcherSchedule)
     {
-        // TODO: validate key in array before processing...
-        $publisherId = $dataSourceIntegration['dataSource']['publisher']['id'];
-        $integrationCName = $dataSourceIntegration['integration']['canonicalName'];
-        $dataSourceId = $dataSourceIntegration['dataSource']['id'];
-        $params = $dataSourceIntegration['originalParams'];
+        if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
+            $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
 
-        $paramKeys = $dataSourceIntegration['integration']['params']; // param keys only
-        $backFill = [
-            'dataSourceIntegrationId' => $dataSourceIntegration['id'],
-            'dataSourceIntegrationScheduleId' => $scheduleId,
-            'backFill' => $dataSourceIntegration['backFill'],
-            'backFillStartDate' => $dataSourceIntegration['backFillStartDate'],
-            'backFillEndDate' => $dataSourceIntegration['backFillEndDate'],
-            'backFillForce' => $dataSourceIntegration['backFillForce'],
-            'backFillExecuted' => $dataSourceIntegration['backFillExecuted']
-        ];
+            $backFill = [
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_ID => $dataSourceIntegration[PartnerParams::PARAM_KEY_ID],
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID => $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_ID],
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID => null,
+                PartnerParams::PARAM_KEY_BACK_FILL => false,
+                PartnerParams::PARAM_KEY_BACK_FILL_START_DATE => null,
+                PartnerParams::PARAM_KEY_BACK_FILL_END_DATE => null,
+            ];
+        } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
+            $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
+            $dataSourceIntegration[PartnerParams::PARAM_KEY_BACK_FILL_START_DATE] = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_START_DATE];
+            $dataSourceIntegration[PartnerParams::PARAM_KEY_BACK_FILL_END_DATE] = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_END_DATE];
+
+            $backFill = [
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_ID => $dataSourceIntegration[PartnerParams::PARAM_KEY_ID],
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID => null,
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID => $backFillHistoryId = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_ID],
+                PartnerParams::PARAM_KEY_BACK_FILL => true,
+                PartnerParams::PARAM_KEY_BACK_FILL_START_DATE => $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_START_DATE],
+                PartnerParams::PARAM_KEY_BACK_FILL_END_DATE => $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_END_DATE],
+            ];
+
+        } else {
+            return false;
+        }
+
+        // TODO: validate key in array before processing...
+        $publisherId = $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_PUBLISHER][PartnerParams::PARAM_KEY_ID];
+        $integrationCName = $dataSourceIntegration[PartnerParams::PARAM_KEY_INTEGRATION][PartnerParams::PARAM_KEY_CANONICAL_NAME];
+        $dataSourceId = $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_ID];
+        $params = $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS];
+
+        $paramKeys = $dataSourceIntegration[PartnerParams::PARAM_KEY_INTEGRATION][PartnerParams::PARAM_KEY_PARAMS]; // param keys only
 
         /* create job data */
         $job = new \stdClass();
@@ -158,7 +173,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $job->paramKeys = $paramKeys; // TODO: for validate params only
         $job->backFill = json_encode($backFill);
 
-        /* create job payload. 'task' and 'params' keys are due to worker code base */
+        /* create job payload. 'task' and PartnerParams::PARAM_KEY_PARAMS keys are due to worker code base */
         $payload = new \stdClass();
         $payload->task = 'executeIntegration';
         $payload->params = $job;
@@ -174,13 +189,10 @@ class IntegrationActivator implements IntegrationActivatorInterface
                     $this->pheanstalkTTR
                 );
 
-            if (array_key_exists('backFill', $dataSourceIntegration) && $dataSourceIntegration['backFill'] == true) {
-                $this->restClient->updateIsRunningForBackFillHistory($dataSourceIntegration['id'],
-                    $dataSourceIntegration['backFillStartDate'],
-                    $dataSourceIntegration['backFillEndDate'],
-                    $isRunning = true);
+            if (array_key_exists(PartnerParams::PARAM_KEY_BACK_FILL, $backFill) && $backFill[PartnerParams::PARAM_KEY_BACK_FILL] == true) {
+                $this->restClient->updateBackFillHistory($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID], $pending = true, $executedAt = null);
             } else {
-                $this->restClient->updateIsRunningForIntegrationSchedule($scheduleId, $isRunning = true);
+                $this->restClient->updateIntegrationSchedule($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID], $pending = true);
             }
 
         } catch (\Exception $e) {

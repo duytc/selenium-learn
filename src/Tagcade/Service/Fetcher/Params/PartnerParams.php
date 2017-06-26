@@ -15,12 +15,28 @@ class PartnerParams implements PartnerParamInterface
     const PARAM_KEY_END_DATE = 'endDate';
     const PARAM_KEY_DAILY_BREAKDOWN = 'dailyBreakdown';
 
+    const PARAM_KEY_ID = 'id';
+    const PARAM_KEY_DATA_SOURCE = 'dataSource';
+    const PARAM_KEY_DATA_SOURCE_ID = 'dataSourceId';
+    const PARAM_KEY_INTEGRATION = 'integration';
+    const PARAM_KEY_CANONICAL_NAME = 'canonicalName';
+    const PARAM_KEY_PUBLISHER = 'publisher';
+    const PARAM_KEY_PARAMS = 'params';
+    const PARAM_KEY_ORIGINAL_PARAMS = 'originalParams';
+    const PARAM_KEY_BACK_FILL_HISTORY = 'backFillHistory';
+    const PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE = 'dataSourceIntegrationSchedule';
+    const PARAM_KEY_DATA_SOURCE_INTEGRATION = 'dataSourceIntegration';
+
     const PARAM_KEY_BACK_FILL = 'backFill';
     const PARAM_KEY_BACK_FILL_START_DATE = 'backFillStartDate';
     const PARAM_KEY_BACK_FILL_END_DATE = 'backFillEndDate';
     const PARAM_KEY_DATA_SOURCE_INTEGRATION_ID = 'dataSourceIntegrationId';
     const PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID = 'dataSourceIntegrationScheduleId';
+    const PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID = 'dataSourceIntegrationBackFillHistoryId';
 
+    const PARAM_KEY_DATE_RANGE = 'dateRange';
+    const PARAM_KEY_PUBLISHER_ID = 'publisher_id';
+    
     /* required params (information for webdriver run) */
     /**
      * @var int publisherId
@@ -77,6 +93,9 @@ class PartnerParams implements PartnerParamInterface
     /** @var   */
     protected $dataSourceIntegrationScheduleId;
 
+    /** @var   */
+    protected $dataSourceIntegrationBackFillHistoryId;
+
     /* original integration config */
     /**
      * @var $config
@@ -118,7 +137,7 @@ class PartnerParams implements PartnerParamInterface
             $dailyBreakdown = true;
         } else {
             // prefer dateRange than startDate - endDate
-            $dateRange = $config->getParamValue('dateRange', null);
+            $dateRange = $config->getParamValue(self::PARAM_KEY_DATE_RANGE, null);
             if (!empty($dateRange)) {
                 $startDateEndDate = Config::extractDynamicDateRange($dateRange);
 
@@ -147,7 +166,7 @@ class PartnerParams implements PartnerParamInterface
 
         $configParams = [
             // TODO: remove duplicate definitions of publisherId, integrationCName and processId
-            'publisher_id' => $publisherId,
+            self::PARAM_KEY_PUBLISHER_ID => $publisherId,
             'partner_cname' => $integrationCName,
             'process_id' => $processId,
             self::PARAM_KEY_USERNAME => $username,
@@ -170,6 +189,7 @@ class PartnerParams implements PartnerParamInterface
 
         $this->dataSourceIntegrationId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_ID];
         $this->dataSourceIntegrationScheduleId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID];
+        $this->dataSourceIntegrationBackFillHistoryId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID];
 
         /* create common params */
         $this->createParams($configParams);
@@ -456,6 +476,24 @@ class PartnerParams implements PartnerParamInterface
     {
         $this->backFill = $backFill;
         
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationBackFillHistoryId()
+    {
+        return $this->dataSourceIntegrationBackFillHistoryId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDataSourceIntegrationBackFillHistoryId($dataSourceIntegrationBackFillHistoryId)
+    {
+        $this->dataSourceIntegrationBackFillHistoryId = $dataSourceIntegrationBackFillHistoryId;
+
         return $this;
     }
 }

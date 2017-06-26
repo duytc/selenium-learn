@@ -7,12 +7,12 @@ services:
     tagcade.service.lock.red_lock:
         class: Tagcade\Service\Lock\RedLock
         arguments:
-            - [@redis.app_cache]
+            - ['@redis.app_cache']
 
     tagcade.service.lock.lock_service:
         class: Tagcade\Service\Lock\LockService
         arguments:
-            - @tagcade.service.lock.red_lock
+            - '@tagcade.service.lock.red_lock'
             - %lock_key_prefix%
             - %lock_key_ttl%
 

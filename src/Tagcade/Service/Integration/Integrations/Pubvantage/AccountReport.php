@@ -103,9 +103,7 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
         $path = $this->fileStorage->getDownloadPath($config, $fileName);
         $this->fileStorage->saveToCSVFile($path, $this->getRows($reports), $this->getColumns($reports));
 
-      //  return $this->URApiService->addJsonDataToDataSource($config->getDataSourceId(), $this->getRows($reports), $header);
-
-        $this->restClient->updateIntegrationLastExecutedAndBackFill(new PartnerParams($config));
+        $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
 
         return true;
     }

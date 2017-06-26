@@ -38,17 +38,7 @@ interface TagcadeRestClientInterface
      * @param string $dataSourceIntegrationScheduleId
      * @return mixed
      */
-    public function updateNextExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
-
-    /**
-     * update backfill executed for integration
-     *
-     * @param string $dataSourceIntegrationScheduleId
-     * @param $backFillStartDate
-     * @param $backFillEndDate
-     * @return mixed
-     */
-    public function updateBackFillExecutedForIntegration($dataSourceIntegrationScheduleId, $backFillStartDate, $backFillEndDate);
+    public function updateExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
 
     /**
      * create Alert When Login Fail due to integrationConfig information
@@ -79,26 +69,25 @@ interface TagcadeRestClientInterface
     /**
      * @param PartnerParamInterface $partnerParams
      */
-    public function updateIntegrationLastExecutedAndBackFill($partnerParams);
+    public function updateIntegrationWhenDownloadSuccess($partnerParams);
 
     /**
      * @param $partnerParams
      */
-    public function updateIntegrationIsRunningToFalse($partnerParams);
+    public function updateIntegrationWhenRunFail($partnerParams);
+
+    /**
+     * @param $dataSourceIntegrationBackFillHistoryId
+     * @param bool $pending
+     * @param bool|null $lastExecutedAt
+     * @return mixed
+     */
+    public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $lastExecutedAt = null);
 
     /**
      * @param $dataSourceIntegrationScheduleId
-     * @param $backFillStartDate
-     * @param $backFillEndDate
-     * @param $isRunning
+     * @param $pending
      * @return mixed
      */
-    public function updateIsRunningForBackFillHistory($dataSourceIntegrationScheduleId, $backFillStartDate, $backFillEndDate, $isRunning = false);
-
-    /**
-     * @param $dataSourceIntegrationScheduleId
-     * @param $isRunning
-     * @return mixed
-     */
-    public function updateIsRunningForIntegrationSchedule($dataSourceIntegrationScheduleId, $isRunning = false);
+    public function updateIntegrationSchedule($dataSourceIntegrationScheduleId, $pending = false);
 }

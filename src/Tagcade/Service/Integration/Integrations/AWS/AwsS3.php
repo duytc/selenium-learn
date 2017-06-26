@@ -186,8 +186,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
                 $metadataFilePath = $path . '.meta';
                 file_put_contents($metadataFilePath, json_encode($metadata));
             }
-
-            $this->restClient->updateIntegrationLastExecutedAndBackFill(new PartnerParams($config));
+            $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
             
         } catch (Exception $ex) {
             if ($ex instanceof S3Exception) {

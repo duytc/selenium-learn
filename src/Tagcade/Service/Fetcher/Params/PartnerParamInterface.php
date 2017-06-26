@@ -130,4 +130,15 @@ interface PartnerParamInterface
      * @return self
      */
     public function setBackFill($backFill);
+
+    /**
+     * @return mixed
+     */
+    public function getDataSourceIntegrationBackFillHistoryId();
+
+    /**
+     * @param mixed $dataSourceIntegrationBackFillHistoryId
+     * @return self
+     */
+    public function setDataSourceIntegrationBackFillHistoryId($dataSourceIntegrationBackFillHistoryId);
 }

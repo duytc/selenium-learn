@@ -171,7 +171,7 @@ class WebDriverService implements WebDriverServiceInterface
 
         $this->removeSessionFolders();
 
-        $this->restClient->updateIntegrationLastExecutedAndBackFill($partnerParams);
+        $this->restClient->updateIntegrationWhenDownloadSuccess($partnerParams);
 
         return 1;
     }

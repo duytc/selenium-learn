@@ -127,14 +127,14 @@ class ExecuteIntegrationJobWorker
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
                 $this->logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
-                $this->restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
+                $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
                 break; // break while loop if other errors
             }
         } while ($retriedNumber <= $this->maxRetriesNumber);
 
         if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
             $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
-            $this->restClient->updateIntegrationIsRunningToFalse(new PartnerParams($config));
+            $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
         }
 
         $this->logger->info('Release lock');
