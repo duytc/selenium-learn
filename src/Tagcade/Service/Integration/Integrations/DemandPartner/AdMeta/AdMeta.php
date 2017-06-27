@@ -102,7 +102,7 @@ class AdMeta extends IntegrationAbstract implements IntegrationInterface
         $fileName = sprintf('%s.csv', bin2hex(random_bytes(10)));
         $filePath = $this->fileStorageService->getDownloadPath($config, $fileName);
         $this->fileStorageService->saveToCSVFile($filePath, $data, null);
-        
+
         $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
     }
 

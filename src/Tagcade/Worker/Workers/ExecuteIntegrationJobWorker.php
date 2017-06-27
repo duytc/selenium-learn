@@ -107,8 +107,7 @@ class ExecuteIntegrationJobWorker
             try {
                 if ($retriedNumber > 0) {
                     // delay retry
-                    sleep($this->delayBeforeRetry);
-
+                    //  sleep($this->delayBeforeRetry);
                     $this->logger->info(sprintf('Integration run retry [%d].', $retriedNumber));
                 }
 
@@ -116,13 +115,19 @@ class ExecuteIntegrationJobWorker
 
                 break; // break while loop if success (no exception is threw)
             } catch (LoginFailException $loginFailException) {
-                $retriedNumber++;
-
+//                $retriedNumber++;
                 $this->logger->error(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
+                $this->logger->info('Change status Pending from true to false and update lastExecutedAt field eventhough username and password incorrect');
+                $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
+                break;
             } catch (RuntimeException $runtimeException) {
                 $retriedNumber++;
-
                 $this->logger->error(sprintf('Integration run got RuntimeException: %s.', $runtimeException->getMessage()));
+
+                if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
+                    $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
+                    $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
+                }
             } catch (\Exception $ex) {
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid

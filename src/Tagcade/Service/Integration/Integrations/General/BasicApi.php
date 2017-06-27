@@ -117,7 +117,7 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
         $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
 
         file_put_contents($path, $responseData);
-        
+
         $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
     }
 
