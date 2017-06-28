@@ -566,7 +566,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
      */
     public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url)
     {
-        $this->logger->info(sprintf('Creating an alert login fail for Integration %s', $integrationCName));
+        $this->logger->info(sprintf('Creating an alert remind the customer update password for Integration %s', $integrationCName));
+
 
         $header = array('Authorization: Bearer ' . $this->getToken());
 
@@ -607,7 +608,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         if (array_key_exists('code', $result) && $result['code'] != 201) {
             $message = array_key_exists('message', $result) ? $result['message'] : '';
-            $this->logger->error(sprintf('Creating an alert login fail for Integration %s got error, code: %d, message: %s',
+            $this->logger->error(sprintf('Creating an alert remind the customer update password for Integration %s got error, code: %d, message: %s',
                 $integrationCName,
                 $result['code'],
                 $message
