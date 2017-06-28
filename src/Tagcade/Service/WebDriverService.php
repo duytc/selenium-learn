@@ -282,6 +282,8 @@ class WebDriverService implements WebDriverServiceInterface
         } catch (NoSuchElementException $noSuchElementException) {
             // element may be not existed due to timeout or temporarily changed
             // this is retryable
+            $driver->quit();
+
             throw new RuntimeException($noSuchElementException->getMessage());
         } catch (WebDriverCurlException $webDriverCurlException) {
             $this->tagcadeRestClient->createAlertWhenTimeOut(

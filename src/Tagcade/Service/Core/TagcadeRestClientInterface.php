@@ -90,4 +90,20 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function updateIntegrationSchedule($dataSourceIntegrationScheduleId, $pending = false);
+//    public function updateIsRunningForIntegrationSchedule($dataSourceIntegrationScheduleId, $isRunning = false);
+
+    /**
+     * create Alert When has update password
+     *
+     * @param $publisherId
+     * @param string $integrationCName
+     * @param $dataSourceId
+     * @param $message
+     * @param DateTime $executionDate
+     * @param $username
+     * @param $url
+     * @return mixed
+     * @internal param $username
+     */
+    public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url);
 }

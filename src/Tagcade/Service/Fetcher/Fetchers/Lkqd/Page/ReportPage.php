@@ -33,7 +33,8 @@ class ReportPage extends AbstractPage
         $this->selectDimensions($params->getDimensions());
 
         $runReportElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]'));
-        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]')));
+
+        //$this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]')));
         $runReportElement->click();
 
         /** RemoveWebDriver $downloadElement */

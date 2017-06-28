@@ -124,6 +124,7 @@ services:
         arguments:
             - '@logger'
             - '@tagcade.service.integration.integrations.demand_partner.fetcher.helper'
+            - '@tagcade_app.rest_client'
 
     tagcade.service.integration.integrations.demand_partner.integration_web_driver_abstract:
         class: Tagcade\Service\Integration\Integrations\IntegrationWebDriverAbstract

@@ -5,6 +5,7 @@ namespace Tagcade\Service\Fetcher;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Psr\Log\LoggerInterface;
 use Tagcade\Exception\LoginFailException;
+use Tagcade\Service\Core\TagcadeRestClientInterface;
 use Tagcade\Service\DownloadFileHelperInterface;
 use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
@@ -20,15 +21,20 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
     /** @var DownloadFileHelperInterface */
     protected $downloadFileHelper;
 
+    /** @var TagcadeRestClientInterface */
+    protected $tagcadeRestClient;
+
     /**
      * PartnerFetcherAbstract constructor.
      * @param LoggerInterface $logger
      * @param DownloadFileHelperInterface $downloadFileHelper
+     * @param TagcadeRestClientInterface $tagcadeRestClient
      */
-    public function __construct(LoggerInterface $logger, DownloadFileHelperInterface $downloadFileHelper)
+    public function __construct(LoggerInterface $logger, DownloadFileHelperInterface $downloadFileHelper, TagcadeRestClientInterface $tagcadeRestClient)
     {
         $this->logger = $logger;
         $this->downloadFileHelper = $downloadFileHelper;
+        $this->tagcadeRestClient = $tagcadeRestClient;
     }
 
     /**
@@ -56,12 +62,34 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
 
         if (!$needToLogin) {
             $driver->navigate()->to($this->getReportPageUrl());
+            if ($this instanceof UpdatingPasswordInterface) {
+                $this->ignoreUpdatingPassword($driver);
+            }
             return;
         }
 
         /** @var AbstractHomePage $homePage */
         $homePage = $this->getHomePage($driver, $this->logger);
         $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+
+        // check need to update password
+        if ($this instanceof UpdatingPasswordInterface) {
+            $this->ignoreUpdatingPassword($driver);
+            $cname = $params->getIntegrationCName();
+            $username = $params->getUsername();
+
+            // create alert to notify customer update password
+            $message = sprintf('Password expires on data source %s, please change password for username:  %s via URL %s', $params->getDataSourceId(), $username, $homePage->getPageUrl());
+            $this->tagcadeRestClient->createAlertWhenAppearUpdatePassword(
+                $params->getPublisherId(),
+                $integrationCName = $cname,
+                $params->getDataSourceId(),
+                $message,
+                date_create(),
+                $username,
+                $homePage->getPageUrl()
+            );
+        }
 
         if (false == $isLogin) {
             $this->logger->warning(sprintf('Login system failed for integration %s', $params->getIntegrationCName()));

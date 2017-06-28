@@ -6,7 +6,6 @@ namespace Tagcade\Service\Fetcher\Fetchers\Lkqd\Page;
 use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverWait;
 use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
 class HomePage extends AbstractHomePage
@@ -46,15 +45,8 @@ class HomePage extends AbstractHomePage
         $this->driver->findElement(WebDriverBy::tagName('button'))->click();
 
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
-        $waitDriver = new WebDriverWait($this->driver, 60);
 
-        try {
-            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('reports')));
-
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
+        return true;
     }
 
     public function isLoggedIn()

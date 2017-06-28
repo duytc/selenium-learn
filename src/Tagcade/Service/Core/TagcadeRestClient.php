@@ -560,4 +560,63 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         return (bool)$result;
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url)
+    {
+        $this->logger->info(sprintf('Creating an alert login fail for Integration %s', $integrationCName));
+
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        $data = [
+            'code' => 2003,
+            'detail' => [
+                'integrationCName' => $integrationCName,
+                PartnerParams::PARAM_KEY_DATA_SOURCE_ID => $dataSourceId,
+                'message' => $message,
+                'executionDate' => $executionDate->format('Y-m-d'),
+                'username' => $username,
+                'url' => $url
+            ],
+            PartnerParams::PARAM_KEY_DATA_SOURCE => $dataSourceId,
+            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId
+        ];
+
+        $result = $this->curl->executeQuery(
+            $this->urCreateAlertUrl,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (empty($result)) {
+            return true;
+        }
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 201) {
+            $message = array_key_exists('message', $result) ? $result['message'] : '';
+            $this->logger->error(sprintf('Creating an alert login fail for Integration %s got error, code: %d, message: %s',
+                $integrationCName,
+                $result['code'],
+                $message
+            ));
+            return false;
+        }
+
+        $this->logger->info('finished created alert Password expiry');
+
+        return true;
+    }
 }
