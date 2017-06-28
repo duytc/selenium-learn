@@ -86,6 +86,12 @@ class ExecuteIntegrationJobWorker
         /** @var ConfigInterface $config */
         $config = new Config($params->publisherId, $cname, $dataSourceId, json_decode($params->params, true), json_decode($params->backFill, true));
 
+        $this->logger->info(
+            sprintf("Config\tPublisherId: %s\tDataSourceId: %s\tIntegration cName: %s",
+                $config->getPublisherId(),
+                $config->getDataSourceId(),
+                $config->getIntegrationCName()));
+
         /** @var IntegrationInterface $integration */
         $integration = $this->fetcherManager->getIntegration($config);
 
