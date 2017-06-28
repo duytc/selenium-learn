@@ -17,6 +17,12 @@ class LockService implements LockServiceInterface
      */
     private $lockKeyTTL;
 
+    /**
+     * LockService constructor.
+     * @param RedLock $redLock
+     * @param string $lockKeyPrefix
+     * @param int $lockKeyTTL in milliseconds
+     */
     public function __construct(RedLock $redLock, $lockKeyPrefix = 'fetcher_ur_lock_', $lockKeyTTL = 3600)
     {
         $this->redLock = $redLock;

@@ -19,6 +19,12 @@ class RedLock
         $this->quorum  = min(count($servers), (count($servers) / 2 + 1));
     }
 
+    /**
+     * @param $resource
+     * @param int $ttl in milliseconds
+     * @param array $metadata
+     * @return array|bool
+     */
     public function lock($resource, $ttl, array $metadata = [])
     {
         $this->initInstances();
