@@ -2,7 +2,8 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\OptimaticInternalSupply\Page;
 
-class HomePage extends \Tagcade\Service\Fetcher\Fetchers\OptimaticInternalMarketplace\Page\HomePage
-{
+use Tagcade\Service\Fetcher\Fetchers\OptimaticInternalMarketplace\Page\HomePage as OptimaticInternalMarketplaceHomePage;
 
+class HomePage extends OptimaticInternalMarketplaceHomePage
+{
 }

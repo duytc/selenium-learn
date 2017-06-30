@@ -14,8 +14,6 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class OptimaticInternalDemandFetcher extends PartnerFetcherAbstract implements OptimaticInternalDemandFetcherInterface
 {
-    const REPORT_PAGE_URL = 'https://publishers.optimatic.com/Portal2/default.aspx';
-
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver

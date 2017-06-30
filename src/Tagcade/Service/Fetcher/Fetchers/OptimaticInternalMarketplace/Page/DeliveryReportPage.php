@@ -12,7 +12,6 @@ use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Pages\AbstractPage;
 use Tagcade\Service\Fetcher\Params\OptimaticInternalMarketplace\OptimaticInternalMarketplacePartnerParamsInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
-use Tagcade\Service\WebDriverService;
 
 class DeliveryReportPage extends AbstractPage
 {
@@ -49,7 +48,7 @@ class DeliveryReportPage extends AbstractPage
          * select date
          */
         $startDateString = $params->getStartDate()->format('m/d/Y');
-        $endDateString =  $params->getEndDate()->format('m/d/Y');
+        $endDateString = $params->getEndDate()->format('m/d/Y');
 
         $startDateElement = $this->driver->findElement(WebDriverBy::id("ContentPlaceHolder_Body_txtStartDate"));
         $startDateElement->clear();
@@ -71,7 +70,7 @@ class DeliveryReportPage extends AbstractPage
         } else {
             $paramsOption = $params->getPartners();
         }
-        
+
         $optionElements = $dpPlacementsElement->findElements(WebDriverBy::tagName('option'));
         foreach ($optionElements as $optionElement) {
 
@@ -91,7 +90,7 @@ class DeliveryReportPage extends AbstractPage
         $this->sleep(3);
 
         try {
-            if ($this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.content > div'))){
+            if ($this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.content > div'))) {
                 $this->logger->error('No data was found.');
 
                 $this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.ok'))->click();

@@ -13,8 +13,8 @@ services:
         class: Tagcade\Service\Lock\LockService
         arguments:
             - '@tagcade.service.lock.red_lock'
-            - %lock_key_prefix%
-            - %lock_key_ttl%
+            - '%lock_key_prefix%'
+            - '%lock_key_ttl%'
 
     tagcade.worker.workers.execute_integration_job_worker:
         class: Tagcade\Worker\Workers\ExecuteIntegrationJobWorker
@@ -22,6 +22,6 @@ services:
             - '@monolog.logger'
             - '@tagcade.service.lock.lock_service'
             - '@tagcade.service.integration.integration_manager'
-            - %retry_when_fail_max_retries_number%
-            - %retry_when_fail_delay_before_retry%
+            - '%retry_when_fail_max_retries_number%'
+            - '%retry_when_fail_delay_before_retry%'
             - '@tagcade_app.rest_client'

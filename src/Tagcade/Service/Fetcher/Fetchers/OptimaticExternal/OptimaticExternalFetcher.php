@@ -3,8 +3,6 @@
 namespace Tagcade\Service\Fetcher\Fetchers\OptimaticExternal;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\OptimaticExternal\Page\DeliveryReportPage;
 use Tagcade\Service\Fetcher\Fetchers\OptimaticExternal\Page\HomePage;
@@ -14,8 +12,6 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class OptimaticExternalFetcher extends PartnerFetcherAbstract implements OptimaticExternalFetcherInterface
 {
-    const REPORT_PAGE_URL = 'https://publishers.optimatic.com/Portal2/';
-
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
@@ -35,10 +31,11 @@ class OptimaticExternalFetcher extends PartnerFetcherAbstract implements Optimat
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
 
-//        $driver->wait()->until(
-//            WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('dp_placements')),
-//            'Cannot find  dp_placements element in report page'
-//        );
+        // common step of other fetchers,
+        // but here not need, it already in DeliveryReportPage
+        //if (!$deliveryReportPage->isCurrentUrl()) {
+        //    $deliveryReportPage->navigate();
+        //}
 
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params);
