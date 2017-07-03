@@ -9,6 +9,7 @@ use DirectoryIterator;
 use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\NoSuchWindowException;
+use Facebook\WebDriver\Exception\ScriptTimeoutException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Exception\WebDriverCurlException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -152,8 +153,10 @@ class WebDriverService implements WebDriverServiceInterface
 
                 $partnerParamsWithSingleDate->setConfig($newConfig);
 
-                $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $i == 0 ? true : false);
+                $needToLogin = $i == 0 ? true : false;
+                $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $needToLogin);
             }
+
             if ($partnerParams->getStartDate() != $partnerParams->getEndDate()) {
                 //remove default download directory
                 $this->logger->info('Remove default download directory');
@@ -273,6 +276,23 @@ class WebDriverService implements WebDriverServiceInterface
                 $params->getEndDate(),
                 date("Y-m-d H:i:s")
             );
+
+            $driver->quit();
+
+            // any timeout (by wait util...) is retryable
+            // re-throw for retry handle
+            throw new RuntimeException($timeoutException->getMessage());
+        } catch (ScriptTimeoutException $timeoutException) {
+            $this->tagcadeRestClient->createAlertWhenTimeOut(
+                $params->getPublisherId(),
+                $params->getIntegrationCName(),
+                $params->getDataSourceId(),
+                $params->getStartDate(),
+                $params->getEndDate(),
+                date("Y-m-d H:i:s")
+            );
+
+            $this->logger->info('Script Timeout exception');
 
             $driver->quit();
 

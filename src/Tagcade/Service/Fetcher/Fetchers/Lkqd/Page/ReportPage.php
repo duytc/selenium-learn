@@ -17,6 +17,7 @@ use Tagcade\Service\Fetcher\Params\Lkqd\LkqdPartnerParams;
 class ReportPage extends AbstractPage
 {
     const URL = 'https://ui.lkqd.com/reports';
+
     const DAILY_REPORT_INDEX = 3;
     const SUPPLY_SOURCE_INDEX = 2;
     const DOWNLOAD_BUTTON_INDEX = 5;

@@ -12,6 +12,7 @@ class HomePage extends AbstractHomePage
 {
     const URL = 'https://dashboard.cedato.com';
     const LOG_OUT_URL = 'https://dashboard.cedato.com/#/login';
+
     public function doLogin($username, $password)
     {
         $this->driver->manage()->timeouts()->pageLoadTimeout(30);

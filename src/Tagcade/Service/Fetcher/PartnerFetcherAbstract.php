@@ -12,7 +12,6 @@ use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
 {
-    const REPORT_PAGE_URL = '';
     /**
      * @var LoggerInterface
      */
@@ -61,37 +60,14 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
         $this->logger->info(sprintf('Entering login page for integration %s', $params->getIntegrationCName()));
 
         if (!$needToLogin) {
-            $driver->navigate()->to($this->getReportPageUrl());
-            if ($this instanceof UpdatingPasswordInterface) {
-                $this->ignoreUpdatingPassword($driver);
-            }
             return;
         }
 
         /** @var AbstractHomePage $homePage */
         $homePage = $this->getHomePage($driver, $this->logger);
-        $isLogin = $homePage->doLogin($params->getUsername(), $params->getPassword());
+        $isLoggedIn = $homePage->doLogin($params->getUsername(), $params->getPassword());
 
-        // check need to update password
-        if ($this instanceof UpdatingPasswordInterface) {
-            $this->ignoreUpdatingPassword($driver);
-            $cname = $params->getIntegrationCName();
-            $username = $params->getUsername();
-
-            // create alert to notify customer update password
-            $message = sprintf('Password expires on data source %s, please change password for username:  %s via URL %s', $params->getDataSourceId(), $username, $homePage->getPageUrl());
-            $this->tagcadeRestClient->createAlertWhenAppearUpdatePassword(
-                $params->getPublisherId(),
-                $integrationCName = $cname,
-                $params->getDataSourceId(),
-                $message,
-                date_create(),
-                $username,
-                $homePage->getPageUrl()
-            );
-        }
-
-        if (false == $isLogin) {
+        if (false == $isLoggedIn) {
             $this->logger->warning(sprintf('Login system failed for integration %s', $params->getIntegrationCName()));
 
             // critical error
@@ -111,6 +87,9 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doLogout(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         $this->logger->info(sprintf('Logging out for integration %s', $params->getIntegrationCName()));
@@ -124,7 +103,6 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
         $homePage->doLogout();
     }
 
-
     /**
      * get homepage for login
      *
@@ -133,9 +111,4 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
      * @return AbstractHomePage
      */
     abstract function getHomePage(RemoteWebDriver $driver, LoggerInterface $logger);
-
-    protected function getReportPageUrl()
-    {
-        return static::REPORT_PAGE_URL;
-    }
 }

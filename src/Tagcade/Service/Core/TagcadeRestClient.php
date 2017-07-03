@@ -364,12 +364,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateIntegrationWhenDownloadSuccess($partnerParams)
+    public function updateIntegrationWhenDownloadSuccess(PartnerParamInterface $partnerParams)
     {
-        if (!$partnerParams instanceof PartnerParamInterface) {
-            return;
-        }
-
         $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
         $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
 
@@ -399,12 +395,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateIntegrationWhenRunFail($partnerParams)
+    public function updateIntegrationWhenRunFail(PartnerParamInterface $partnerParams)
     {
-        if (!$partnerParams instanceof PartnerParamInterface) {
-            return;
-        }
-
         $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
         $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
 
@@ -560,14 +552,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         return (bool)$result;
     }
 
-
     /**
      * @inheritdoc
      */
     public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url)
     {
         $this->logger->info(sprintf('Creating an alert remind the customer update password for Integration %s', $integrationCName));
-
 
         $header = array('Authorization: Bearer ' . $this->getToken());
 

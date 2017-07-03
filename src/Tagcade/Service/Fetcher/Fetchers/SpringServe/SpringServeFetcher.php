@@ -15,7 +15,6 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFetcherInterface
 {
-    const REPORT_PAGE_URL = 'https://video.springserve.com/reports';
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
@@ -30,15 +29,16 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             return;
         }
 
-        try {
-            $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
-            if (empty($params->getAccount()) || $params->getAccount() == '//i') {
-                $this->logger->error('Account regex can not be empty');
-                return;
-            }
-        } catch (\Exception $e){
-
-        }
+        // unused code. TODO: remove
+        //try {
+        //    $userAccountChosen = $driver->findElement(WebDriverBy::id('user_account_id_chosen'));
+        //    if (empty($params->getAccount()) || $params->getAccount() == '//i') {
+        //        $this->logger->error('Account regex can not be empty');
+        //        return;
+        //    }
+        //} catch (\Exception $e){
+        //
+        //}
 
         $this->logger->debug('enter download report page');
         $deliveryReportPage = new DeliveryReportingPage($driver, $this->logger);
@@ -46,19 +46,25 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
 
-        $driver->wait()->until(
-            WebDriverExpectedCondition::titleContains('SpringServe')
-        );
+        // not need here. It's for homepage only
+        //$driver->wait()->until(
+        //    WebDriverExpectedCondition::titleContains('SpringServe')
+        //);
 
         $accountPositions = [];
         try {
             $accountPositions = $this->getAccountPositionsByFilterRegex($params, $driver);
         } catch (\Exception $e) {
-
+            // TODO: log or throw exception here about error
         }
 
         if (count($accountPositions) == 0) {
+            // TODO: should replace below line
             $driver->navigate()->to(DeliveryReportingPage::URL);
+            // TODO: by lines:
+            //if (!$deliveryReportPage->isCurrentUrl()) {
+            //    $deliveryReportPage->navigate();
+            //}
 
             $driver->wait()->until(
                 WebDriverExpectedCondition::titleContains('SpringServe Reports')
@@ -106,7 +112,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             $userAccountChosen->click();
 
         } catch (\Exception $e) {
-
+            // TODO: log or throw exception here about error
         }
 
         $index = 0;
@@ -124,7 +130,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
             $logOutChosen = $driver->findElement(WebDriverBy::cssSelector(sprintf('#navbar-fixed-top > div > div.collapse.navbar-collapse > ul > li:nth-child(%s)', $index)));
             $logOutChosen->click();
         } catch (\Exception $e) {
-
+            // TODO: log or throw exception here about error
         }
 
         /**

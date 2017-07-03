@@ -14,12 +14,17 @@ interface TagcadeRestClientInterface
      */
     public function getToken($force = false);
 
+    /**
+     * @param string $partnerCName
+     * @param int $publisherId
+     * @return mixed
+     */
     public function getPartnerConfigurationForAllPublishers($partnerCName, $publisherId);
 
     /**
      * get all integrations to be executed
      *
-     * @param $dataSourceId
+     * @param int|null $dataSourceId
      * @return mixed
      */
     public function getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId = null);
@@ -27,7 +32,7 @@ interface TagcadeRestClientInterface
     /**
      * get all integrations to be executed
      *
-     * @param $dataSourceId
+     * @param int $dataSourceId
      * @return mixed
      */
     public function getDataSourceIntegrationSchedulesByDataSource($dataSourceId);
@@ -48,7 +53,7 @@ interface TagcadeRestClientInterface
      * @param int $dataSourceId
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @param $executionDate
+     * @param DateTime $executionDate
      * @return mixed
      */
     public function createAlertWhenLoginFail($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, DateTime $executionDate);
@@ -61,7 +66,7 @@ interface TagcadeRestClientInterface
      * @param int $dataSourceId
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @param $executionDate
+     * @param DateTime $executionDate
      * @return mixed
      */
     public function createAlertWhenTimeOut($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, $executionDate);
@@ -69,41 +74,39 @@ interface TagcadeRestClientInterface
     /**
      * @param PartnerParamInterface $partnerParams
      */
-    public function updateIntegrationWhenDownloadSuccess($partnerParams);
+    public function updateIntegrationWhenDownloadSuccess(PartnerParamInterface $partnerParams);
 
     /**
-     * @param $partnerParams
+     * @param PartnerParamInterface $partnerParams
      */
-    public function updateIntegrationWhenRunFail($partnerParams);
+    public function updateIntegrationWhenRunFail(PartnerParamInterface $partnerParams);
 
     /**
-     * @param $dataSourceIntegrationBackFillHistoryId
+     * @param int $dataSourceIntegrationBackFillHistoryId
      * @param bool $pending
-     * @param bool|null $lastExecutedAt
+     * @param string|null $lastExecutedAt
      * @return mixed
      */
     public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $lastExecutedAt = null);
 
     /**
-     * @param $dataSourceIntegrationScheduleId
-     * @param $pending
+     * @param int $dataSourceIntegrationScheduleId
+     * @param bool $pending
      * @return mixed
      */
     public function updateIntegrationSchedule($dataSourceIntegrationScheduleId, $pending = false);
-//    public function updateIsRunningForIntegrationSchedule($dataSourceIntegrationScheduleId, $isRunning = false);
 
     /**
      * create Alert When has update password
      *
-     * @param $publisherId
+     * @param int $publisherId
      * @param string $integrationCName
-     * @param $dataSourceId
-     * @param $message
+     * @param int $dataSourceId
+     * @param string $message
      * @param DateTime $executionDate
-     * @param $username
-     * @param $url
+     * @param string $username
+     * @param string $url
      * @return mixed
-     * @internal param $username
      */
     public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url);
 }

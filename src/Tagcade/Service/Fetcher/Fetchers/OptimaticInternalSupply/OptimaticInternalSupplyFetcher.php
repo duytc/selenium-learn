@@ -3,8 +3,6 @@
 namespace Tagcade\Service\Fetcher\Fetchers\OptimaticInternalSupply;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\Fetcher\Fetchers\OptimaticInternalSupply\Page\DeliveryReportPage;
 use Tagcade\Service\Fetcher\Fetchers\OptimaticInternalSupply\Page\HomePage;
@@ -14,8 +12,6 @@ use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
 class OptimaticInternalSupplyFetcher extends PartnerFetcherAbstract implements OptimaticInternalSupplyFetcherInterface
 {
-    const REPORT_PAGE_URL = 'https://publishers.optimatic.com/Portal2/';
-
     /**
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
@@ -34,6 +30,12 @@ class OptimaticInternalSupplyFetcher extends PartnerFetcherAbstract implements O
         $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
+
+        // common step of other fetchers,
+        // but here not need, it already in DeliveryReportPage
+        //if (!$deliveryReportPage->isCurrentUrl()) {
+        //    $deliveryReportPage->navigate();
+        //}
 
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params);

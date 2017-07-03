@@ -13,6 +13,8 @@ use Tagcade\Service\Fetcher\Params\StreamRail\StreamRailPartnerParamInterface;
 
 class DeliveryReportPage extends AbstractPage
 {
+    const URL = 'http://partners.streamrail.com/#/report';
+
     public function getAllTagReports(PartnerParamInterface $param)
     {
         if (!$param instanceof StreamRailPartnerParamInterface) {

@@ -28,7 +28,6 @@ class GamutFetcher extends PartnerFetcherAbstract implements GamutFetcherInterfa
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
 
-
         if (!$deliveryReportPage->isCurrentUrl()) {
             $deliveryReportPage->navigate();
         }
