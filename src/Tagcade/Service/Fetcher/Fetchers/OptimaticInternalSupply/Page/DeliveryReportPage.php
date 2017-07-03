@@ -126,6 +126,7 @@ class DeliveryReportPage extends AbstractPage
             $this->logger->debug('select all placements');
             $placementsElement = $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersHeader > div.siteSearchDropDown > div.container > div.selectAll'));
             $placementsElement->click();
+            $this->sleep(10);
 
             // click view report
             $this->logger->debug('Click view report');
