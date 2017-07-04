@@ -67,7 +67,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         );
 
         if (!$result) {
-            $this->logger->error('Complete running integration activator with error');
+            $this->logger->notice('Complete running integration activator with error');
         } else {
             $this->logger->info('Complete running integration activator with no error');
         }

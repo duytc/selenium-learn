@@ -75,7 +75,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
         if (!in_array($sessionId, $availableSessions)) {
             if ($this->logger) {
-                $this->logger->error(sprintf("The supplied session id %s does not exist", $sessionId));
+                $this->logger->notice(sprintf("The supplied session id %s does not exist", $sessionId));
             }
 
             return false;
@@ -88,7 +88,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $driver->getWindowHandles();
         } catch (UnknownServerException $e) {
             if ($this->logger) {
-                $this->logger->error(sprintf("Could not connect to the browser window for session id %s, did you close it? We will try to create a new one instead", $sessionId));
+                $this->logger->notice(sprintf("Could not connect to the browser window for session id %s, did you close it? We will try to create a new one instead", $sessionId));
             }
 
             return false;

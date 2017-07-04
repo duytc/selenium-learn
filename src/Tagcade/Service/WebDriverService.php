@@ -86,7 +86,7 @@ class WebDriverService implements WebDriverServiceInterface
         $isRelativeToProjectRootDir = (strpos($rootDownloadDir, './') === 0 || strpos($rootDownloadDir, '/') !== 0);
         $rootDownloadDir = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->symfonyAppDir, '/app'), ltrim($rootDownloadDir, './')) : $rootDownloadDir;
         if (!is_writable($rootDownloadDir)) {
-            $this->logger->error(sprintf('Cannot write to data-path %s', $rootDownloadDir));
+            $this->logger->notice(sprintf('Cannot write to data-path %s', $rootDownloadDir));
             return 1;
         }
 

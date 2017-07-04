@@ -69,7 +69,7 @@ class ExecuteIntegrationJobWorker
     public function executeIntegration(stdClass $params)
     {
         if (!isset($params->integrationCName)) {
-            $this->logger->error(sprintf('missing integration CName in params %s', serialize($params)));
+            $this->logger->notice(sprintf('missing integration CName in params %s', serialize($params)));
             return self::JOB_FAILED_CODE;
         }
 
@@ -98,12 +98,12 @@ class ExecuteIntegrationJobWorker
         /* run integration, supported retry mechanism */
         // get params
         if (!is_integer($this->maxRetriesNumber) || $this->maxRetriesNumber < 0) {
-            $this->logger->error(sprintf('missing or invalid parameter retry_when_fail_max_retries_number. Expected a positive integer value.'));
+            $this->logger->notice(sprintf('missing or invalid parameter retry_when_fail_max_retries_number. Expected a positive integer value.'));
             return self::JOB_LOCKED_CODE;
         }
 
         if (!is_integer($this->delayBeforeRetry) || $this->delayBeforeRetry < 0) {
-            $this->logger->error(sprintf('missing or invalid parameter retry_when_fail_delay_before_retry. Expected a positive integer value (in seconds).'));
+            $this->logger->notice(sprintf('missing or invalid parameter retry_when_fail_delay_before_retry. Expected a positive integer value (in seconds).'));
             return self::JOB_LOCKED_CODE;
         }
 
@@ -120,12 +120,13 @@ class ExecuteIntegrationJobWorker
                 break; // break while loop if success (no exception is threw)
             } catch (LoginFailException $loginFailException) {
                 $this->logger->error(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
+                $this->logger->notice(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
                 $this->logger->info('Change status Pending from true to false and update lastExecutedAt field eventhough username and password incorrect');
                 $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
                 break;
             } catch (RuntimeException $runtimeException) {
                 $retriedNumber++;
-                $this->logger->error(sprintf('Integration run got RuntimeException: %s.', $runtimeException->getMessage()));
+                $this->logger->notice(sprintf('Integration run got RuntimeException: %s.', $runtimeException->getMessage()));
 
                 if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
                     $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
@@ -134,7 +135,7 @@ class ExecuteIntegrationJobWorker
             } catch (\Exception $ex) {
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
-                $this->logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
+                $this->logger->notice(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
                 $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
                 break; // break while loop if other errors
             }

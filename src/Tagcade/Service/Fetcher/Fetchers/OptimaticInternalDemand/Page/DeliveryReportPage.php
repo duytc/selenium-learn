@@ -130,7 +130,7 @@ class DeliveryReportPage extends AbstractPage
                 break;
 
             default:
-                $this->logger->error(sprintf('cannot find report type: %s', $reportType));
+                $this->logger->notice(sprintf('cannot find report type: %s', $reportType));
                 throw new Exception(sprintf('cannot find report type: %s', $reportType));
         }
 
@@ -298,7 +298,7 @@ class DeliveryReportPage extends AbstractPage
     {
         try {
             if ($this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.content > div'))) {
-                $this->logger->error('No data was found.');
+                $this->logger->notice('No data was found.');
 
                 $this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.ok'))->click();
 
