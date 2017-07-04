@@ -126,12 +126,14 @@ class DeliveryReportPage extends AbstractPage
             $this->logger->debug('select all placements');
             $placementsElement = $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersHeader > div.siteSearchDropDown > div.container > div.selectAll'));
             $placementsElement->click();
-            $this->sleep(10);
+            $this->sleep(1);
 
-            // click view report
-            $this->logger->debug('Click view report');
-            $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersContent > div > div.apply'))->click();
-
+            // click view report, use action click and hold 1 second
+            $viewReportElement = $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersContent > div > div.apply'));
+            $this->driver->action()->clickAndHold($viewReportElement)->perform();
+            $this->sleep(1);
+            $this->logger->debug('click and hold view report 1 second to make sure that the click action is right');
+            $this->driver->action()->release()->perform();
             try {
                 $this->driver->wait()->until(
                     WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::cssSelector('body > div.mainContainer > div > div.tableDownload'))
