@@ -173,12 +173,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $result = json_decode($dataSourceIntegrations, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->error(sprintf('Not found Integration to be executed'));
+            $this->logger->notice(sprintf('Not found Integration to be executed'));
             return false;
         }
 
@@ -229,12 +229,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $result = json_decode($dataSourceIntegrationSchedules, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->error(sprintf('Not found Integration to be executed'));
+            $this->logger->notice(sprintf('Not found Integration to be executed'));
             return false;
         }
 
@@ -283,13 +283,13 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 201) {
             $message = array_key_exists('message', $result) ? $result['message'] : '';
-            $this->logger->error(sprintf('Creating an alert login fail for Integration %s got error, code: %d, message: %s',
+            $this->logger->notice(sprintf('Creating an alert login fail for Integration %s got error, code: %d, message: %s',
                 $integrationCName,
                 $result['code'],
                 $message
@@ -342,13 +342,13 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 201) {
             $message = array_key_exists('message', $result) ? $result['message'] : '';
-            $this->logger->error(sprintf('Creating an alert time out  for Integration %s got error, code: %d, message: %s',
+            $this->logger->notice(sprintf('Creating an alert time out  for Integration %s got error, code: %d, message: %s',
                 $integrationCName,
                 $result['code'],
                 $message
@@ -451,12 +451,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $result = json_decode($result, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->error(sprintf('Update last execution time failed, code %d', $result['code']));
+            $this->logger->notice(sprintf('Update last execution time failed, code %d', $result['code']));
             return false;
         }
 
@@ -498,12 +498,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $result = json_decode($result, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->error(sprintf('Updating pending for backFill history failed, code %d', $result['code']));
+            $this->logger->notice(sprintf('Updating pending for backFill history failed, code %d', $result['code']));
             return false;
         }
 
@@ -540,12 +540,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $result = json_decode($result, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->error(sprintf('Updating pending for schedule failed, code %d', $result['code']));
+            $this->logger->notice(sprintf('Updating pending for schedule failed, code %d', $result['code']));
             return false;
         }
 
@@ -592,13 +592,13 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error(sprintf('Invalid response (json decode failed)'));
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
             return false;
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 201) {
             $message = array_key_exists('message', $result) ? $result['message'] : '';
-            $this->logger->error(sprintf('Creating an alert remind the customer update password for Integration %s got error, code: %d, message: %s',
+            $this->logger->notice(sprintf('Creating an alert remind the customer update password for Integration %s got error, code: %d, message: %s',
                 $integrationCName,
                 $result['code'],
                 $message

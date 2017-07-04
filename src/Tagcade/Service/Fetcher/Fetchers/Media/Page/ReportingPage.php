@@ -51,9 +51,9 @@ class ReportingPage extends AbstractPage
             $this->sleep(2);
             $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
         } catch (TimeOutException $te) {
-            $this->logger->error('No data available for selected date range.');
+            $this->logger->notice('No data available for selected date range.');
         } catch (Exception $exception) {
-            $this->logger->error($exception->getMessage());
+            $this->logger->notice($exception->getMessage());
         }
     }
 

@@ -24,7 +24,7 @@ class CedatoFetcher extends PartnerFetcherAbstract implements CedatoFetcherInter
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof CedatoPartnerParams) {
-            $this->logger->error('expected CedatoPartnerParams');
+            $this->logger->notice('expected CedatoPartnerParams');
             return;
         }
 

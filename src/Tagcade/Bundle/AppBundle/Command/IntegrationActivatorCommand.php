@@ -46,7 +46,7 @@ class IntegrationActivatorCommand extends ContainerAwareCommand
             $activatorService->createExecutionJobs();
             $this->logger->info('Complete running integration activator with no error');
         } catch (\Exception $e) {
-            $this->logger->error($e);
+            $this->logger->notice($e);
         } finally {
             $lockService->unlock($lock);
         }

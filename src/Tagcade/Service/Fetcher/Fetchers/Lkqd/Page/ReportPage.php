@@ -140,7 +140,7 @@ class ReportPage extends AbstractPage
 
         //if dimension not found throw exception
         if (!$isFound) {
-            $this->logger->error(sprintf('cannot find dimension: %s', $text));
+            $this->logger->notice(sprintf('cannot find dimension: %s', $text));
         }
     }
 }

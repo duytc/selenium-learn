@@ -97,12 +97,12 @@ class DownloadFileHelper implements DownloadFileHelperInterface
     public function downloadThenWaitUntilComplete(RemoteWebElement $clickAbleElement, $directoryStoreDownloadFile)
     {
         if (!$clickAbleElement instanceof RemoteWebElement) {
-            $this->logger->error("Invalid remove web element");
+            $this->logger->notice("Invalid remove web element");
             return $this;
         }
 
         if (!is_dir($directoryStoreDownloadFile)) {
-            $this->logger->error(sprintf('Path to store data download is not directory, %s', $directoryStoreDownloadFile));
+            $this->logger->notice(sprintf('Path to store data download is not directory, %s', $directoryStoreDownloadFile));
             return $this;
         }
 
@@ -127,7 +127,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface
 
         $this->logger->debug(sprintf('Start to wait for data download with $countOldFiles = %d, path to store downloadFile =%s', $countOldFiles, $directoryStoreDownloadFile));
         if (!is_dir($directoryStoreDownloadFile)) {
-            $this->logger->error(sprintf('Path to store data download is not directory, %s', $directoryStoreDownloadFile));
+            $this->logger->notice(sprintf('Path to store data download is not directory, %s', $directoryStoreDownloadFile));
             return $this;
         }
 

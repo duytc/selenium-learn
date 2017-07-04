@@ -44,7 +44,7 @@ class DateSelectWidget extends AbstractWidget
             $this->logger->debug('Starting set start date');
             $this->driver->findElement(WebDriverBy::id('from'))->clear()->sendKeys($startDate->format('m/d/y'));
         } catch (Exception $e) {
-            $this->logger->error(sprintf('Can not set start date =%d', $startDate->format('Y-m-d')));
+            $this->logger->notice(sprintf('Can not set start date =%d', $startDate->format('Y-m-d')));
             throw $e;
         }
     }
@@ -59,7 +59,7 @@ class DateSelectWidget extends AbstractWidget
             $this->logger->debug('Starting set end date');
             $this->driver->findElement(WebDriverBy::id('to'))->clear()->sendKeys($endDate->format('m/d/y'));
         } catch (Exception $e) {
-            $this->logger->error(sprintf('Can not set end date =%d', $endDate->format('Y-m-d')));
+            $this->logger->notice(sprintf('Can not set end date =%d', $endDate->format('Y-m-d')));
             throw $e;
         }
     }

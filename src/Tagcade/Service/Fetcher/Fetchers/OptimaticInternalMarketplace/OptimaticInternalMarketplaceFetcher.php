@@ -24,7 +24,7 @@ class OptimaticInternalMarketplaceFetcher extends PartnerFetcherAbstract impleme
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof OptimaticInternalMarketplacePartnerParamsInterface) {
-            $this->logger->error('expected OptimaticInternalMarketplacePartnerParams');
+            $this->logger->notice('expected OptimaticInternalMarketplacePartnerParams');
             return;
         }
 

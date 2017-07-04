@@ -24,7 +24,7 @@ class OptimaticInternalDemandFetcher extends PartnerFetcherAbstract implements O
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof OptimaticInternalDemandPartnerParamsInterface) {
-            $this->logger->error('expected OptimaticInternalDemandPartnerParams');
+            $this->logger->notice('expected OptimaticInternalDemandPartnerParams');
             return;
         }
 

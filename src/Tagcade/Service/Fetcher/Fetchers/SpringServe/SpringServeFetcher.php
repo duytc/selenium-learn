@@ -25,7 +25,7 @@ class SpringServeFetcher extends PartnerFetcherAbstract implements SpringServeFe
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof SpringServePartnerParamInterface) {
-            $this->logger->error('expected SpringServePartnerParam');
+            $this->logger->notice('expected SpringServePartnerParam');
             return;
         }
 

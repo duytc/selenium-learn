@@ -22,7 +22,7 @@ class OptimaticExternalFetcher extends PartnerFetcherAbstract implements Optimat
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof OptimaticExternalPartnerParamsInterface) {
-            $this->logger->error('expected OptimaticExternalPartnerParams');
+            $this->logger->notice('expected OptimaticExternalPartnerParams');
             return;
         }
 

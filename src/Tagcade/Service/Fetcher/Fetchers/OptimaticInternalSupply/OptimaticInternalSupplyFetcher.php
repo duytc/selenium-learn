@@ -22,7 +22,7 @@ class OptimaticInternalSupplyFetcher extends PartnerFetcherAbstract implements O
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof OptimaticInternalSupplyPartnerParamsInterface) {
-            $this->logger->error('expected OptimaticExternalPartnerParams');
+            $this->logger->notice('expected OptimaticExternalPartnerParams');
             return;
         }
 

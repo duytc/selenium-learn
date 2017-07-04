@@ -18,7 +18,7 @@ class DeliveryReportPage extends AbstractPage
     public function getAllTagReports(PartnerParamInterface $param)
     {
         if (!$param instanceof StreamRailPartnerParamInterface) {
-            $this->logger->error('param expect StreamRailParamInterface');
+            $this->logger->notice('param expect StreamRailParamInterface');
         }
 
         $this->sleep(2);

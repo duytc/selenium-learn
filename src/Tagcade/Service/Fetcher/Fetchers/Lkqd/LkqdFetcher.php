@@ -66,7 +66,7 @@ class LkqdFetcher extends PartnerFetcherAbstract implements LkqdFetcherInterface
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {
         if (!$params instanceof LkqdPartnerParams) {
-            $this->logger->error('expected LkqdPartnerParams');
+            $this->logger->notice('expected LkqdPartnerParams');
             return;
         }
 
