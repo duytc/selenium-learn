@@ -119,7 +119,6 @@ class ExecuteIntegrationJobWorker
 
                 break; // break while loop if success (no exception is threw)
             } catch (LoginFailException $loginFailException) {
-                $this->logger->error(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
                 $this->logger->notice(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
                 $this->logger->info('Change status Pending from true to false and update lastExecutedAt field eventhough username and password incorrect');
                 $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
