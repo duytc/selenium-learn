@@ -32,8 +32,6 @@ class DeleteFileService implements DeleteFileServiceInterface
 
         $fs = new Filesystem();
 
-        $fs->chmod($path, 0777, 0000, true);
-
         if (!is_writable($path)) {
             return;
         }
@@ -41,7 +39,7 @@ class DeleteFileService implements DeleteFileServiceInterface
         try {
             $fs->remove($path);
         } catch (\Exception $e) {
-//            $this->logger->notice($e);
+            $this->logger->error($e);
         }
     }
 }
