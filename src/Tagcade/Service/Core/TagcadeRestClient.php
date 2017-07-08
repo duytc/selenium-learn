@@ -15,6 +15,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     const PENDING = 'pending';
     const EXECUTED_AT = 'executedAt';
 
+    /** const type alert */
+    const  ALERT_TYPE = 'type';
+    const  ALERT_TYPE_INFO = 'info';
+    const  ALERT_TYPE_WARNING = 'warning';
+    const  ALERT_TYPE_ERROR = 'error';
+
     /** @var string */
     private $username;
 
@@ -263,7 +269,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                 'executionDate' => $executionDate->format('Y-m-d')
             ],
             PartnerParams::PARAM_KEY_DATA_SOURCE => $dataSourceId,
-            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId
+            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId,
+            self::ALERT_TYPE => self::ALERT_TYPE_ERROR
         ];
 
         $result = $this->curl->executeQuery(
@@ -322,7 +329,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                 'executionDate' => $executionDate
             ],
             PartnerParams::PARAM_KEY_DATA_SOURCE => $dataSourceId,
-            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId
+            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId,
+            self::ALERT_TYPE => self::ALERT_TYPE_ERROR
         ];
 
         $result = $this->curl->executeQuery(
@@ -572,7 +580,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                 'url' => $url
             ],
             PartnerParams::PARAM_KEY_DATA_SOURCE => $dataSourceId,
-            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId
+            PartnerParams::PARAM_KEY_PUBLISHER => $publisherId,
+            self::ALERT_TYPE => self::ALERT_TYPE_WARNING
         ];
 
         $result = $this->curl->executeQuery(
