@@ -16,20 +16,18 @@ interface WebDriverFactoryInterface
 
     /**
      * @param String $identifier session id or data path
-     * @param null|string $rootDownloadDir
-     * @param null|string $subDir the sub dir (last dir) before the file. This is for metadata comprehension mechanism
+     * @param null|string $defaultDownloadPath
      * @return bool|RemoteWebDriver
      */
-    public function getWebDriver($identifier, $rootDownloadDir = null, $subDir = null);
+    public function getWebDriver($identifier, $defaultDownloadPath = null);
 
     public function getLastSessionId();
 
     /**
-     * @param string $rootDownloadDir
-     * @param null|string $subDir
+     * @param string $defaultDownloadPath
      * @return RemoteWebDriver
      */
-    public function createWebDriver($rootDownloadDir, $subDir = null);
+    public function createWebDriver($defaultDownloadPath);
 
     /**
      * @param array $config

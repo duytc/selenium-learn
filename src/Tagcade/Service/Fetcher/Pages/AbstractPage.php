@@ -344,6 +344,7 @@ abstract class AbstractPage
      * The path is built base on config and startDate, endDate such as:
      * <rootDir>/<pubId>/<partner cname>/<run date>-<startDate>-<endDate>-<processId>
      * If has subDir, the path = <path above>/<subDir>
+     * TODO: remove in future
      *
      * @param \DateTime $startDate
      * @param \DateTime $endDate
@@ -352,35 +353,45 @@ abstract class AbstractPage
      */
     public function getDirectoryStoreDownloadFile(\DateTime $startDate, \DateTime $endDate, array $config)
     {
-        $rootDirectory = $this->downloadFileHelper->getRootDirectory();
-        $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
-        $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
-        $runningCommandDate = new \DateTime('now');
-        $myProcessId = array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
+        $directory = null;
 
-        // append subDir if has
-        $subDir = null;
-        if (array_key_exists('subDir', $config)) {
-            $subDir = $config['subDir'];
+        // if already config "defaultDownloadPath" => use this
+        if (array_key_exists('defaultDownloadPath', $config)) {
+            $directory = $config['defaultDownloadPath'];
+        } else {
+            // create directory to store download file from $config
+            // current this function "getDirectoryStoreDownloadFile" is not needed
+            // TODO: remove in future
+            $rootDirectory = $this->downloadFileHelper->getRootDirectory();
+            $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
+            $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
+            $runningCommandDate = new \DateTime('now');
+            $myProcessId = array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
 
-            if (empty($subDir)) {
-                $subDir = null;
+            // append subDir if has
+            $subDir = null;
+            if (array_key_exists('subDir', $config)) {
+                $subDir = $config['subDir'];
+
+                if (empty($subDir)) {
+                    $subDir = null;
+                }
             }
+
+            $directory = WebDriverService::getDownloadPath(
+                $rootDirectory,
+                $publisherId,
+                $partnerCName,
+                $runningCommandDate,
+                $startDate,
+                $endDate,
+                $myProcessId,
+                $subDir
+            );
         }
 
-        $directory = WebDriverService::getDownloadPath(
-            $rootDirectory,
-            $publisherId,
-            $partnerCName,
-            $runningCommandDate,
-            $startDate,
-            $endDate,
-            $myProcessId,
-            $subDir
-        );
-
         if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
+            mkdir($directory, 0755, true);
         }
 
         return $directory;

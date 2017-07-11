@@ -109,6 +109,8 @@ class DownloadFileHelper implements DownloadFileHelperInterface
         $this->logger->debug('Click to download element');
         $clickAbleElement->click();
 
+        // TODO: do wait for download complete here instead of in WebDriverService
+
         return $this;
     }
 

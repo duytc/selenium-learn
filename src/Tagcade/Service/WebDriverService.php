@@ -90,7 +90,21 @@ class WebDriverService implements WebDriverServiceInterface
             return 1;
         }
 
-        $this->logger->info(sprintf('Creating web driver with identifier param %s', $rootDownloadDir));
+        // dataFolder: store data (report file, metadata file) that is for to Directory monitor running
+        $dataFolder = WebDriverService::getDownloadPath(
+            $rootDownloadDir,
+            $partnerParams->getPublisherId(),
+            $partnerParams->getIntegrationCName(),
+            new \DateTime(),
+            $partnerParams->getStartDate(),
+            $partnerParams->getEndDate(),
+            $partnerParams->getProcessId()
+        );
+
+        // defaultDownloadPath: temporarily store download report files, that is for fetcher running
+        $defaultDownloadPath = sprintf('%s-%s', $dataFolder, 'dl');
+
+        $this->logger->info(sprintf('Creating web driver with identifier param %s', $defaultDownloadPath));
         $webDriverConfig = [
             'publisher_id' => $partnerParams->getPublisherId(),
             'partner_cname' => $partnerParams->getIntegrationCName(),
@@ -101,22 +115,12 @@ class WebDriverService implements WebDriverServiceInterface
 
         $this->webDriverFactory->setConfig($webDriverConfig);
         $this->webDriverFactory->setParams($partnerParams);
-        $driver = $this->webDriverFactory->getWebDriver($rootDownloadDir, $rootDownloadDir);
+        $driver = $this->webDriverFactory->getWebDriver($defaultDownloadPath);
 
         if (!$driver) {
             $this->logger->critical('Failed to create web driver from session');
             return 1;
         }
-
-        $defaultDownloadPath = WebDriverService::getDownloadPath(
-            $rootDownloadDir,
-            $partnerParams->getPublisherId(),
-            $partnerParams->getIntegrationCName(),
-            new \DateTime(),
-            $partnerParams->getStartDate(),
-            $partnerParams->getEndDate(),
-            $partnerParams->getProcessId()
-        );
 
         $newConfig = $partnerParams->getConfig();
         $newConfig['defaultDownloadPath'] = $defaultDownloadPath;
@@ -141,8 +145,7 @@ class WebDriverService implements WebDriverServiceInterface
                 $newConfig = $partnerParamsWithSingleDate->getConfig();
                 // append subDir to make sure not conflict path with other files
                 // this keep file and metadata file are in pair
-                $subDir = (new DateTime())->getTimestamp();
-                $newConfig['subDir'] = $subDir;
+                $dataFolderForSingleDate = sprintf('%s/%s-%s', $dataFolder, $singleDate->format('Ymd'), (new DateTime())->getTimestamp());
 
                 $newConfig['force-new-session'] = true; // always new session for the new config download path
                 $newConfig['quit-web-driver-after-run'] = $singleDate == $partnerParams->getEndDate(); // quit web-driver if reach endDate
@@ -154,7 +157,7 @@ class WebDriverService implements WebDriverServiceInterface
                 $partnerParamsWithSingleDate->setConfig($newConfig);
 
                 $needToLogin = $i == 0 ? true : false;
-                $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $rootDownloadDir, $defaultDownloadPath, $subDir, $needToLogin);
+                $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $defaultDownloadPath, $dataFolderForSingleDate, $needToLogin);
             }
 
             if ($partnerParams->getStartDate() != $partnerParams->getEndDate()) {
@@ -164,7 +167,7 @@ class WebDriverService implements WebDriverServiceInterface
             }
         } else {
             // do get report by full date range
-            $this->getDataForPublisher($driver, $partnerFetcher, $partnerParams, $rootDownloadDir, $defaultDownloadPath);
+            $this->getDataForPublisher($driver, $partnerFetcher, $partnerParams, $defaultDownloadPath, $dataFolder);
         }
 
         if ($driver instanceof RemoteWebDriver) {
@@ -217,16 +220,38 @@ class WebDriverService implements WebDriverServiceInterface
      * @param RemoteWebDriver $driver
      * @param PartnerFetcherInterface $partnerFetcher
      * @param PartnerParamInterface $params
-     * @param string $rootDownloadDir
-     * @param null|string $subDir the sub dir (last dir) before the file. This is for metadata comprehension mechanism
+     * @param null|string $dataFolder the dataFolder (contains metadata and report file)
      * @param bool $needToLogin
      * @param $downloadFolder
      * @return bool
      * @throws Exception
      * @throws LoginFailException
      */
-    protected function getDataForPublisher(RemoteWebDriver $driver, PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, $rootDownloadDir, $downloadFolder, $subDir = null, $needToLogin = true)
+    protected function getDataForPublisher(RemoteWebDriver $driver, PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, $downloadFolder, $dataFolder, $needToLogin = true)
     {
+        if (!is_dir($downloadFolder)) {
+            mkdir($downloadFolder, 0755, true);
+        }
+
+        if (!is_dir($dataFolder)) {
+            mkdir($dataFolder, 0755, true);
+        }
+
+        // create lock file in download folder
+        $lockFilePathForDownloadFolder = $this->createLockFile($downloadFolder);
+        if (!$lockFilePathForDownloadFolder) {
+            // re-throw for retry handle
+            throw new RuntimeException(sprintf('Could not create lock file in download folder %s', $downloadFolder));
+        }
+
+        // create lock file in data folder
+        $lockFilePath = $this->createLockFile($dataFolder);
+        if (!$lockFilePath) {
+            // re-throw for retry handle
+            throw new RuntimeException(sprintf('Could not create lock file in data folder %s', $dataFolder));
+        }
+
+        // set webDriver config
         $webDriverConfig = [
             'publisher_id' => $params->getPublisherId(),
             'partner_cname' => $params->getIntegrationCName(),
@@ -254,6 +279,11 @@ class WebDriverService implements WebDriverServiceInterface
 
             $this->logger->info(sprintf('Finished getting %s data', get_class($partnerFetcher)));
         } catch (LoginFailException $loginFailException) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             $this->tagcadeRestClient->createAlertWhenLoginFail(
                 $loginFailException->getPublisherId(),
                 $loginFailException->getIntegrationCName(),
@@ -268,6 +298,11 @@ class WebDriverService implements WebDriverServiceInterface
             // re-throw for retry handle
             throw $loginFailException;
         } catch (TimeOutException $timeoutException) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             $this->tagcadeRestClient->createAlertWhenTimeOut(
                 $params->getPublisherId(),
                 $params->getIntegrationCName(),
@@ -283,6 +318,11 @@ class WebDriverService implements WebDriverServiceInterface
             // re-throw for retry handle
             throw new RuntimeException($timeoutException->getMessage());
         } catch (ScriptTimeoutException $timeoutException) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             $this->tagcadeRestClient->createAlertWhenTimeOut(
                 $params->getPublisherId(),
                 $params->getIntegrationCName(),
@@ -300,12 +340,22 @@ class WebDriverService implements WebDriverServiceInterface
             // re-throw for retry handle
             throw new RuntimeException($timeoutException->getMessage());
         } catch (NoSuchElementException $noSuchElementException) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             // element may be not existed due to timeout or temporarily changed
             // this is retryable
             $driver->quit();
 
             throw new RuntimeException($noSuchElementException->getMessage());
         } catch (WebDriverCurlException $webDriverCurlException) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             $this->tagcadeRestClient->createAlertWhenTimeOut(
                 $params->getPublisherId(),
                 $params->getIntegrationCName(),
@@ -321,6 +371,11 @@ class WebDriverService implements WebDriverServiceInterface
             // re-throw for retry handle
             throw new RuntimeException($webDriverCurlException->getMessage());
         } catch (NoSuchWindowException $noSuchWindowException) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             $this->tagcadeRestClient->createAlertWhenLoginFail(
                 $params->getPublisherId(),
                 $params->getIntegrationCName(),
@@ -336,6 +391,11 @@ class WebDriverService implements WebDriverServiceInterface
             // re-throw for retry handle
             throw new RuntimeException($noSuchWindowException->getMessage());
         } catch (Exception $e) {
+            // remove lock file in download folder
+            $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+            // remove lock file
+            $this->removeLockFile($lockFilePath, $dataFolder);
+
             $message = $e->getMessage() ? $e->getMessage() : $e->getTraceAsString();
             $this->logger->critical($message);
 
@@ -345,13 +405,24 @@ class WebDriverService implements WebDriverServiceInterface
             throw $e;
         }
 
-        $metaDataFolder = $this->saveMetaDataFile($params, $rootDownloadDir, $subDir);
+        // create metadata file in dataFolder
+        $this->saveMetaDataFile($params, $dataFolder);
 
+        // waiting for download complete in downloadFolder
+        // TODO: use DownloadFileHelper wait download complete instead of here
         $this->waitDownloadComplete($downloadFolder);
 
+        // add startDate endDate to Downloaded file name
         $this->addStartDateEndDateToDownloadFiles($downloadFolder, $params);
 
-        $this->moveDownloadFilesToMetaDataFolder($downloadFolder, $metaDataFolder);
+        // Move downloaded files to dataFolder
+        $this->moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder);
+
+        // remove lock file. Now this data folder is ready for Directory monitor!
+        //// remove lock file in download folder
+        $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
+        //// remove lock file in data folder
+        $this->removeLockFile($lockFilePath, $dataFolder);
 
         return true;
     }
@@ -431,7 +502,7 @@ class WebDriverService implements WebDriverServiceInterface
         }, $subFiles);
 
         $subFiles = array_filter($subFiles, function ($file) {
-            return is_file($file);
+            return is_file($file) && (new \SplFileInfo($file))->getExtension() != 'lock';
         });
 
         $time = sprintf('DTS-%s-From-%s-To-%s', $param->getDataSourceId(), $param->getStartDate()->format('Y-m-d'), $param->getEndDate()->format('Y-m-d'));
@@ -458,11 +529,9 @@ class WebDriverService implements WebDriverServiceInterface
 
     /**
      * @param PartnerParamInterface $params
-     * @param $rootDownloadDir
-     * @param $subDir
-     * @return string
+     * @param string $dataFolder
      */
-    private function saveMetaDataFile(PartnerParamInterface $params, $rootDownloadDir, $subDir)
+    private function saveMetaDataFile(PartnerParamInterface $params, $dataFolder)
     {
         // create metadata file
         $metadata = [
@@ -487,39 +556,30 @@ class WebDriverService implements WebDriverServiceInterface
             'meta'
         );
 
-        $metaDataFolder = WebDriverService::getDownloadPath(
-            $rootDownloadDir,
-            $params->getPublisherId(),
-            $params->getIntegrationCName(),
-            $executionDate = new \DateTime(),
-            $params->getStartDate(),
-            $params->getEndDate(),
-            $params->getProcessId(),
-            $subDir
-        );
+        $metaDataFolder = $dataFolder;
         if (!is_dir($metaDataFolder)) {
             mkdir($metaDataFolder, 0755, true);
         }
         $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
         file_put_contents($metadataFilePath, json_encode($metadata));
-
-        return $metaDataFolder;
     }
 
     /**
+     * move Downloaded Files To DataFolder, exclude .lock file
+     *
      * @param $downloadFolder
-     * @param $metaDataFolder
+     * @param $dataFolder
      */
-    private function moveDownloadFilesToMetaDataFolder($downloadFolder, $metaDataFolder)
+    private function moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder)
     {
         $subFiles = scandir($downloadFolder);
 
         $subFiles = array_filter($subFiles, function ($subFile) use ($downloadFolder) {
-            return is_file($downloadFolder . '/' . $subFile);
+            return is_file($downloadFolder . '/' . $subFile) && (new \SplFileInfo($subFile))->getExtension() != 'lock';
         });
 
-        array_walk($subFiles, function ($file) use ($downloadFolder, $metaDataFolder) {
-            rename($downloadFolder . '/' . $file, $metaDataFolder . '/' . $file);
+        array_walk($subFiles, function ($file) use ($downloadFolder, $dataFolder) {
+            rename($downloadFolder . '/' . $file, $dataFolder . '/' . $file);
         });
     }
 
@@ -538,5 +598,38 @@ class WebDriverService implements WebDriverServiceInterface
         } while ($fileSize1 != $fileSize2);
 
         sleep(3);
+    }
+
+    /**
+     * create Lock File
+     *
+     * @param $dataFolder
+     * @return string|false false if input invalid or cannot create file
+     */
+    private function createLockFile($dataFolder)
+    {
+        if (!is_string($dataFolder) || empty($dataFolder) || !is_writable($dataFolder)) {
+            return false;
+        }
+
+        $lockFileName = sprintf('%s.lock', bin2hex(random_bytes(15)));
+        $lockFilePath = sprintf('%s/%s', $dataFolder, $lockFileName);
+        file_put_contents($lockFilePath, sprintf('This is lock file for data folder %s', $dataFolder));
+
+        $this->logger->info(sprintf('Creating lock file "%s" in data folder "%s"', $lockFilePath, $dataFolder));
+
+        return $lockFilePath;
+    }
+
+    /**
+     * remove File Lock
+     *
+     * @param string $lockFilePath
+     * @param string $dataFolder for logger only
+     */
+    private function removeLockFile($lockFilePath, $dataFolder)
+    {
+        $this->logger->info(sprintf('Removing lock file "%s" in data folder "%s"', $lockFilePath, $dataFolder));
+        unlink($lockFilePath);
     }
 }

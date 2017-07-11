@@ -108,7 +108,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
     /**
      * @inheritdoc
      */
-    public function getWebDriver($identifier, $rootDownloadDir = null, $subDir = null)
+    public function getWebDriver($identifier, $defaultDownloadPath = null)
     {
         $this->logger->info(sprintf('identifier value=%s', $identifier));
         if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {
@@ -121,11 +121,11 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
             $this->logger->info(sprintf('Could not create web driver from session %s. Try to clear session and create a new one now', $identifier));
 
-            $identifier = $rootDownloadDir;
+            $identifier = $defaultDownloadPath;
         }
 
         $this->logger->info(sprintf('Create web driver with identifier %s', $identifier));
-        $driver = $this->createWebDriver($identifier, $subDir);
+        $driver = $this->createWebDriver($identifier);
 
         $sessionId = $driver->getSessionID();
 
@@ -139,33 +139,20 @@ class WebDriverFactory implements WebDriverFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createWebDriver($rootDownloadDir, $subDir = null)
+    public function createWebDriver($defaultDownloadPath)
     {
-        $chromeOptions = new ChromeOptions();
-        $chromeOptions->addArguments([sprintf('user-data-dir=%s/profile.%s', $this->chromeFolderPath, uniqid($prefix = '', $more_entropy = true))]);
-        $executionDate = new \DateTime('today');
-
-        $defaultDownloadPath = WebDriverService::getDownloadPath(
-            $rootDownloadDir,
-            $this->config['publisher_id'],
-            $this->config['partner_cname'],
-            $executionDate,
-            $this->params->getStartDate(),
-            $this->params->getEndDate(),
-            $this->config['process_id'],
-            $subDir
-        );
-
-        $chromeOptions->setExperimentalOption('prefs', [
-            'download.default_directory' => $defaultDownloadPath,
-            'download.prompt_for_download' => false,
-            //Turns off download prompt
-            'profile.default_content_settings.popups' => 0,
-            'profile.content_settings.pattern_pairs.*.multiple-automatic-downloads' => 1,
-            'profile.password_manager_enabled' => false,
-            'credentials_enable_service' => false,
-            'dns-prefetch-disable' => true
-        ]);
+        $chromeOptions = (new ChromeOptions())
+            ->addArguments([sprintf('user-data-dir=%s/profile.%s', $this->chromeFolderPath, uniqid($prefix = '', $more_entropy = true))])
+            ->setExperimentalOption('prefs', [
+                'download.default_directory' => $defaultDownloadPath,
+                'download.prompt_for_download' => false,
+                //Turns off download prompt
+                'profile.default_content_settings.popups' => 0,
+                'profile.content_settings.pattern_pairs.*.multiple-automatic-downloads' => 1,
+                'profile.password_manager_enabled' => false,
+                'credentials_enable_service' => false,
+                'dns-prefetch-disable' => true
+            ]);
 
         $this->logger->debug(sprintf('Path to store data =%s', $defaultDownloadPath));
 
