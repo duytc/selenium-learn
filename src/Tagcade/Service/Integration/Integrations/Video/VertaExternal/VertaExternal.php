@@ -3,7 +3,7 @@
 
 namespace Tagcade\Service\Integration\Integrations\Video\VertaExternal;
 
-use Tagcade\Service\Fetcher\Params\VertaExternal\VertaExternalPartnerParam;
+use Tagcade\Service\Fetcher\Params\Verta\VertaExternalPartnerParam;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;

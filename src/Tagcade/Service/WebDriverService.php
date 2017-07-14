@@ -18,6 +18,7 @@ use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Filesystem\Filesystem;
 use Tagcade\Exception\LoginFailException;
 use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
@@ -630,6 +631,12 @@ class WebDriverService implements WebDriverServiceInterface
     private function removeLockFile($lockFilePath, $dataFolder)
     {
         $this->logger->info(sprintf('Removing lock file "%s" in data folder "%s"', $lockFilePath, $dataFolder));
-        unlink($lockFilePath);
+
+        $fileSystem = new Filesystem();
+        try {
+            $fileSystem->remove($lockFilePath);
+        } catch (Exception $e) {
+
+        }
     }
 }

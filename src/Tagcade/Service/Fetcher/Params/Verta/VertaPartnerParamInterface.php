@@ -1,8 +1,8 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Params\VertaInternal;
+namespace Tagcade\Service\Fetcher\Params\Verta;
 
-interface VertaInternalPartnerParamInterface
+interface VertaPartnerParamInterface
 {
     /**
      * @return string
