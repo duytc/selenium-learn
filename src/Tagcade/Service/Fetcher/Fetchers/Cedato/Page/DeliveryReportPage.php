@@ -126,7 +126,7 @@ class DeliveryReportPage extends AbstractPage
                 $url = self::SUPPLY_BY_DEMAND_SOURCES_URL;
                 break;
             default:
-                $this->logger->notice(sprintf('cannot find report type: %s', $reportType));
+                $this->logger->warning(sprintf('cannot find report type: %s', $reportType));
                 throw new Exception(sprintf('cannot find report type: %s', $reportType));
         }
 

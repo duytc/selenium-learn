@@ -87,7 +87,7 @@ class WebDriverService implements WebDriverServiceInterface
         $isRelativeToProjectRootDir = (strpos($rootDownloadDir, './') === 0 || strpos($rootDownloadDir, '/') !== 0);
         $rootDownloadDir = $isRelativeToProjectRootDir ? sprintf('%s/%s', rtrim($this->symfonyAppDir, '/app'), ltrim($rootDownloadDir, './')) : $rootDownloadDir;
         if (!is_writable($rootDownloadDir)) {
-            $this->logger->notice(sprintf('Cannot write to data-path %s', $rootDownloadDir));
+            $this->logger->debug(sprintf('Cannot write to data-path %s', $rootDownloadDir));
             return 1;
         }
 
@@ -278,7 +278,7 @@ class WebDriverService implements WebDriverServiceInterface
 
             $this->handleGetDataByDateRange($partnerFetcher, $params, $driver, $needToLogin);
 
-            $this->logger->info(sprintf('Finished getting %s data', get_class($partnerFetcher)));
+            $this->logger->debug(sprintf('Finished getting %s data', get_class($partnerFetcher)));
         } catch (LoginFailException $loginFailException) {
             // remove lock file in download folder
             $this->removeLockFile($lockFilePathForDownloadFolder, $downloadFolder);
@@ -332,9 +332,7 @@ class WebDriverService implements WebDriverServiceInterface
                 $params->getEndDate(),
                 date("Y-m-d H:i:s")
             );
-
-            $this->logger->info('Script Timeout exception');
-
+            
             $driver->quit();
 
             // any timeout (by wait util...) is retryable

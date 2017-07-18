@@ -69,7 +69,7 @@ class ExecuteIntegrationJobWorker
     public function executeIntegration(stdClass $params)
     {
         if (!isset($params->integrationCName)) {
-            $this->logger->notice(sprintf('missing integration CName in params %s', serialize($params)));
+            $this->logger->error(sprintf('missing integration CName in params %s', serialize($params)));
             return self::JOB_FAILED_CODE;
         }
 
@@ -79,7 +79,7 @@ class ExecuteIntegrationJobWorker
         $lock = $this->lockService->lock(sprintf('integration-%s-lock', $cname));
 
         if ($lock === false) {
-            $this->logger->notice(sprintf('integration cname %s is currently locked', $cname));
+            $this->logger->info(sprintf('integration cname %s is currently locked', $cname));
             return self::JOB_LOCKED_CODE;
         }
 
@@ -121,8 +121,7 @@ class ExecuteIntegrationJobWorker
 
                 break; // break while loop if success (no exception is threw)
             } catch (LoginFailException $loginFailException) {
-                $this->logger->notice(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
-                $this->logger->info('Change status Pending from true to false and update lastExecutedAt field eventhough username and password incorrect');
+                $this->logger->warning(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
                 $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
 
                 break;
@@ -139,7 +138,7 @@ class ExecuteIntegrationJobWorker
             } catch (\Exception $ex) {
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
-                $this->logger->notice(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
+                $this->logger->error(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
                 $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
 
                 $runCodeResult = self::JOB_FAILED_CODE;

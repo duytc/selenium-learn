@@ -130,7 +130,7 @@ class DeliveryReportPage extends AbstractPage
                 break;
 
             default:
-                $this->logger->notice(sprintf('cannot find report type: %s', $reportType));
+                $this->logger->warning(sprintf('cannot find report type: %s', $reportType));
                 throw new Exception(sprintf('cannot find report type: %s', $reportType));
         }
 

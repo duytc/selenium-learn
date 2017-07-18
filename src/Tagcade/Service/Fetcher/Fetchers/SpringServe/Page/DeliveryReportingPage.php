@@ -23,7 +23,7 @@ class DeliveryReportingPage extends AbstractPage
         $this->logger->info('get all tag');
 
         if (!$param instanceof SpringServePartnerParamInterface) {
-            $this->logger->info('params must be instance of SpringServe Partner Param');
+            $this->logger->notice('params must be instance of SpringServe Partner Param');
             return;
         }
 
@@ -60,7 +60,7 @@ class DeliveryReportingPage extends AbstractPage
         } catch (TimeOutException $te) {
             $this->logger->notice('No data available for selected date range.');
         } catch (Exception $exception) {
-            $this->logger->notice($exception->getMessage());
+            $this->logger->error($exception->getMessage());
         }
 
         sleep(3);

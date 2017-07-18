@@ -40,7 +40,7 @@ class ReportingPage extends AbstractPage
         } catch (TimeOutException $te) {
             $this->logger->notice('No data available for selected date range.');
         } catch (Exception $exception) {
-            $this->logger->notice($exception->getMessage());
+            $this->logger->error($exception->getMessage());
         }
     }
 }

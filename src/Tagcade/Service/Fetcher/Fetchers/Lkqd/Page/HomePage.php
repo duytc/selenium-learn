@@ -158,8 +158,8 @@ class HomePage extends AbstractHomePage
                 }
 
                 $driver->findElement(WebDriverBy::cssSelector('#update-password > div > div > div > div.form-box > div.bottom-box > a'))->click();
-                $logger->debug('Password expiry, click update later and then wait report page');
                 $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('reports')));
+                $logger->notice('Password expiry, click update later and then wait report page');
             }
         } catch (\Exception $e) {
 

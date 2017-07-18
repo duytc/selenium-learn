@@ -70,7 +70,7 @@ class HomePage extends AbstractHomePage
             }
 
             if (!empty($invalidUserNamePassword)) {
-                $this->logger->debug('Invalid username or password');
+                $this->logger->notice('Invalid username or password');
                 return false;
             }
 

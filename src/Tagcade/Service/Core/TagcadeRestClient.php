@@ -114,7 +114,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $token = json_decode($tokenResponse, true);
 
         if (empty($token)) {
-            $this->logger->error(sprintf('Cannot get token with returned message: %s', $tokenResponse));
+            $this->logger->warning(sprintf('Cannot get token with returned message: %s', $tokenResponse));
 
             return null;
         }
@@ -123,7 +123,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             throw new Exception('json decoding for token error');
         }
         if (!array_key_exists('token', $token)) {
-            throw new Exception(sprintf('Could not authenticate user %s', $this->username));
+            $this->logger->warning(sprintf('Could not authenticate user %s', $this->username));
+            throw new Exception();
         }
 
         $this->token = $token['token'];
@@ -184,7 +185,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Not found Integration to be executed'));
+            $this->logger->info(sprintf('Not found Integration to be executed'));
             return false;
         }
 
@@ -240,7 +241,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Not found Integration to be executed'));
+            $this->logger->info(sprintf('Not found Integration to be executed'));
             return false;
         }
 
@@ -254,7 +255,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
      */
     public function createAlertWhenLoginFail($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, DateTime $executionDate)
     {
-        $this->logger->info(sprintf('Creating an alert login fail for Integration %s', $integrationCName));
+        $this->logger->warning(sprintf('Creating an alert login fail for Integration %s', $integrationCName));
 
         $header = array('Authorization: Bearer ' . $this->getToken());
 
@@ -304,7 +305,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             return false;
         }
 
-        $this->logger->info('finished created alert login fail');
+        $this->logger->warning('finished created alert login fail');
 
         return true;
     }
@@ -314,7 +315,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
      */
     public function createAlertWhenTimeOut($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, $executionDate)
     {
-        $this->logger->info(sprintf('Creating an alert time out for Integration %s', $integrationCName));
+        $this->logger->notice(sprintf('Creating an alert time out for Integration %s', $integrationCName));
 
         $header = array('Authorization: Bearer ' . $this->getToken());
 
@@ -364,7 +365,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             return false;
         }
 
-        $this->logger->info('finished created alert time out');
+        $this->logger->notice('finished created alert time out');
 
         return true;
     }
@@ -385,7 +386,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                     $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $executeAt = date_create()->format('Y-m-d H:i:s'));
                 }
             } catch (\Exception $e) {
-                $this->logger->warning(sprintf('Update back fill fail data source integration id %s', $scheduleId));
+                $this->logger->notice(sprintf('Update back fill fail data source integration id %s', $scheduleId));
             }
         } else {
             /** Add try catch to prevent exception make fetcher fail */
@@ -395,7 +396,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                     $this->updateExecuteAtForIntegrationSchedule($scheduleId);
                 }
             } catch (\Exception $e) {
-                $this->logger->warning(sprintf('Update last executed fail for schedule id %s', $scheduleId));
+                $this->logger->notice(sprintf('Update last executed fail for schedule id %s', $scheduleId));
             }
         }
     }
@@ -416,7 +417,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                     $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $executedAt = null);
                 }
             } catch (\Exception $e) {
-                $this->logger->warning(sprintf('Update pending for back fill history fail id %s', $scheduleId));
+                $this->logger->notice(sprintf('Update pending for back fill history fail id %s', $scheduleId));
             }
         } else {
             /** Add try catch to prevent exception make fetcher fail */
@@ -425,7 +426,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                     $this->updateIntegrationSchedule($scheduleId, $pending = false);
                 }
             } catch (\Exception $e) {
-                $this->logger->warning(sprintf('Update pending fail for schedule id %s', $scheduleId));
+                $this->logger->notice(sprintf('Update pending fail for schedule id %s', $scheduleId));
             }
         }
     }
@@ -565,7 +566,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
      */
     public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url)
     {
-        $this->logger->info(sprintf('Creating an alert remind the customer update password for Integration %s', $integrationCName));
+        $this->logger->notice(sprintf('Creating an alert remind the customer update password for Integration %s', $integrationCName));
 
         $header = array('Authorization: Bearer ' . $this->getToken());
 
@@ -615,7 +616,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             return false;
         }
 
-        $this->logger->info('finished created alert Password expiry');
+        $this->logger->warning('finished created alert Password expiry');
 
         return true;
     }

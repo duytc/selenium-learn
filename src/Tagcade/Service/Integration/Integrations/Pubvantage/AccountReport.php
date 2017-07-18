@@ -55,13 +55,13 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
     {
         $allParams = $config->getParams();
         if (!array_key_exists('username', $allParams)) {
-            $this->logger->notice('Missing username in parameters');
+            $this->logger->warning('Missing username in parameters');
             throw new Exception('Missing username in parameters');
         }
         $username = $allParams['username'];
 
         if (!array_key_exists('password', $allParams)) {
-            $this->logger->notice('Missing password in parameters');
+            $this->logger->warning('Missing password in parameters');
             throw new Exception('Missing password in parameters');
         }
         $password = $allParams['password'];
@@ -138,7 +138,7 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
     {
 
         if (!array_key_exists('reports', $reports)) {
-            $this->logger->notice('There is not "Reports" key in reports');
+            $this->logger->warning('There is not "Reports" key in reports');
             throw new Exception('There is not "Reports" key in reports');
         }
 

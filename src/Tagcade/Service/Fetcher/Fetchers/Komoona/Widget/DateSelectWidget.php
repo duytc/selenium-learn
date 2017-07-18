@@ -86,7 +86,7 @@ class DateSelectWidget extends AbstractWidget
         try {
             $this->driver->findElement(WebDriverBy::linkText((string)$expectDate))->click();
         } catch (Exception $e) {
-            $this->logger->notice(sprintf('Exception when set date =%s, exception meassage =%s',$date->format('Y-m-d'),$e->getMessage()));
+            $this->logger->error(sprintf('Exception when set date =%s, exception meassage =%s',$date->format('Y-m-d'),$e->getMessage()));
             throw $e;
         }
 

@@ -85,7 +85,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
             $endDate = $config->getEndDateFromBackFill();
 
             if (!$startDate instanceof DateTime) {
-                $this->logger->notice('need run backFill but backFillStartDate is invalid');
+                $this->logger->warning('need run backFill but backFillStartDate is invalid');
                 throw new Exception('need run backFill but backFillStartDate is invalid');
             }
 
@@ -116,7 +116,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         // validate required params
         // TODO: validate start/end date too
         if (empty($bucket) || empty($filePattern) || empty($awsKey) || empty($awsSecret) || empty($awsRegion)) {
-            $this->logger->notice('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
+            $this->logger->warning('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
             throw new Exception('missing parameter values for either bucket or filePattern or awsKey or awsSecret or awsRegion');
         }
 

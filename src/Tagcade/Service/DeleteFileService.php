@@ -39,7 +39,7 @@ class DeleteFileService implements DeleteFileServiceInterface
         try {
             $fs->remove($path);
         } catch (\Exception $e) {
-            $this->logger->error($e);
+            $this->logger->notice($e);
         }
     }
 }

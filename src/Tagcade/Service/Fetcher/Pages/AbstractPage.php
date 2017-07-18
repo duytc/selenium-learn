@@ -111,12 +111,12 @@ abstract class AbstractPage
     public function downloadThenWaitUntilComplete(RemoteWebElement $removeWebElement, $directoryStoreDownloadFile)
     {
         if (!$this->downloadFileHelper instanceof DownloadFileHelperInterface) {
-            $this->logger->notice("Instance Helper error");
+            $this->logger->debug("Instance Helper error");
             return $this;
         }
 
         if (!is_dir($directoryStoreDownloadFile)) {
-            $this->logger->notice(sprintf('Path to store data downnload is not directory, %s', $directoryStoreDownloadFile));
+            $this->logger->debug(sprintf('Path to store data downnload is not directory, %s', $directoryStoreDownloadFile));
             return $this;
         }
 

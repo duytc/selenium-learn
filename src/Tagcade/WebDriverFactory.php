@@ -75,7 +75,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
 
         if (!in_array($sessionId, $availableSessions)) {
             if ($this->logger) {
-                $this->logger->notice(sprintf("The supplied session id %s does not exist", $sessionId));
+                $this->logger->debug(sprintf("The supplied session id %s does not exist", $sessionId));
             }
 
             return false;
@@ -88,7 +88,7 @@ class WebDriverFactory implements WebDriverFactoryInterface
             $driver->getWindowHandles();
         } catch (UnknownServerException $e) {
             if ($this->logger) {
-                $this->logger->notice(sprintf("Could not connect to the browser window for session id %s, did you close it? We will try to create a new one instead", $sessionId));
+                $this->logger->debug(sprintf("Could not connect to the browser window for session id %s, did you close it? We will try to create a new one instead", $sessionId));
             }
 
             return false;
@@ -110,21 +110,21 @@ class WebDriverFactory implements WebDriverFactoryInterface
      */
     public function getWebDriver($identifier, $defaultDownloadPath = null)
     {
-        $this->logger->info(sprintf('identifier value=%s', $identifier));
+        $this->logger->debug(sprintf('identifier value=%s', $identifier));
         if (strpos($identifier, '/') === false && strpos($identifier, '\\') === false && !is_dir($identifier)) {
             $driver = $this->getExistingSession($identifier);
 
             if ($driver instanceof RemoteWebDriver) {
-                $this->logger->info('Using exiting web driver');
+                $this->logger->debug('Using exiting web driver');
                 return $driver;
             }
 
-            $this->logger->info(sprintf('Could not create web driver from session %s. Try to clear session and create a new one now', $identifier));
+            $this->logger->debug(sprintf('Could not create web driver from session %s. Try to clear session and create a new one now', $identifier));
 
             $identifier = $defaultDownloadPath;
         }
 
-        $this->logger->info(sprintf('Create web driver with identifier %s', $identifier));
+        $this->logger->debug(sprintf('Create web driver with identifier %s', $identifier));
         $driver = $this->createWebDriver($identifier);
 
         $sessionId = $driver->getSessionID();

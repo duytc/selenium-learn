@@ -9,7 +9,7 @@ $requestStop = false;
 // when KILL signal is sent (i.e ctrl-c) we stop immediately
 // You can test this by calling "kill -TERM PID" where PID is the PID of this process, the process will end after the current job
 pcntl_signal(SIGTERM, function () use (&$requestStop, $pid, &$logger) {
-    $logger->notice(sprintf("Worker PID %d has received a request to stop gracefully", $pid));
+    $logger->info(sprintf("Worker PID %d has received a request to stop gracefully", $pid));
     $requestStop = true; // set reference value to true to stop worker loop after current job
 });
 // exit successfully after this time, supervisord will then restart
@@ -52,18 +52,18 @@ $availableWorkers = [
 ];
 
 $workerPool = new \Tagcade\Worker\Pool($availableWorkers);
-$logger->notice(sprintf("Worker PID %d has started", $pid));
+$logger->info(sprintf("Worker PID %d has started", $pid));
 
 while (true) {
     if ($requestStop) {
         // exit worker gracefully, supervisord will restart it
-        $logger->notice(sprintf("Worker PID %d is stopping by user request", $pid));
+        $logger->info(sprintf("Worker PID %d is stopping by user request", $pid));
         break;
     }
 
     if (time() > ($startTime + WORKER_TIME_LIMIT)) {
         // exit worker gracefully, supervisord will restart it
-        $logger->notice(sprintf("Worker PID %d is stopping because time limit has been exceeded", $pid));
+        $logger->info(sprintf("Worker PID %d is stopping because time limit has been exceeded", $pid));
         break;
     }
     $job = $queue->watch($tube)
@@ -93,7 +93,7 @@ while (true) {
         $queue->bury($job);
         continue;
     }
-    $logger->notice(sprintf('Received job %s (ID: %s) with payload %s', $task, $job->getId(), $rawPayload));
+    $logger->info(sprintf('Received job %s (ID: %s) with payload %s', $task, $job->getId(), $rawPayload));
 
     try {
         $result = $worker->$task($params); // dynamic method call
@@ -104,7 +104,7 @@ while (true) {
 
         // task finished successfully
         if ($result == ExecuteIntegrationJobWorker::JOB_DONE_CODE) {
-            $logger->notice(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
+            $logger->info(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
         }
 
         $job = $queue->peek($job->getId());

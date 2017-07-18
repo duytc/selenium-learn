@@ -49,7 +49,7 @@ class DeliveryReportPage extends AbstractPage
             $this->getAllTagReportsForSingleDomain($startDate, $endDate);
         } catch (NoSuchElementException $noSuchElementException) {
             $noDataError = $this->driver->findElement(WebDriverBy::id('ctl00_ctl00_PageLayoutBody_BodyContent_dateSelector_valiationLabel'));
-            $this->logger->notice($noDataError->getText());
+            $this->logger->warning($noDataError->getText());
         }
     }
 

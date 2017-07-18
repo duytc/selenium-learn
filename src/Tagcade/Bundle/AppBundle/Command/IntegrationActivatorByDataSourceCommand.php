@@ -43,7 +43,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         $dataSourceId = $input->getArgument('dataSourceId');
 
         if (empty($dataSourceId)) {
-            $this->logger->info('Missing data source id');
+            $this->logger->warning('Missing data source id');
             return;
         }
 
