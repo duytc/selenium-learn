@@ -95,19 +95,8 @@ class HomePage extends AbstractHomePage
             // wait for login success
             $this->logger->debug('wait for login success');
             $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('reports')));
-            // also wait for updating password page
-            $this->logger->debug('also wait for updating password page');
-            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#update-password > div > div > div > div.form-box > div.button-box')));
         } catch (\Exception $e) {
-            // try to know if login success (and updating password page does not exist)
-            try {
-                if ($this->driver->findElement(WebDriverBy::id('reports'))) {
-                    return true;
-                }
-            } catch (\Exception $ex) {
-                // do nothing
-                $this->logger->debug('could not found login success page, now try to find if have updating password page');
-            }
+            $this->logger->debug('could not found login success page, now try to find if have updating password page');
 
             // try to know if updating password page exists (and not login success )
             try {
@@ -121,6 +110,7 @@ class HomePage extends AbstractHomePage
                 if (!$isIgnored) {
                     throw new RuntimeException('could not ignore updating password page, need try again');
                 }
+
                 return true;
             } catch (\Exception $ex) {
                 // do nothing

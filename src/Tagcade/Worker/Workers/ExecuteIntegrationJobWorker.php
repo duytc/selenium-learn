@@ -75,6 +75,7 @@ class ExecuteIntegrationJobWorker
 
         $cname = $params->integrationCName;
 
+        /* check lock for an integration by cname */
         $lock = $this->lockService->lock(sprintf('integration-%s-lock', $cname));
 
         if ($lock === false) {
@@ -109,6 +110,7 @@ class ExecuteIntegrationJobWorker
 
         // run
         $retriedNumber = 0;
+        $runCodeResult = self::JOB_DONE_CODE;
         do {
             try {
                 if ($retriedNumber > 0) {
@@ -122,20 +124,26 @@ class ExecuteIntegrationJobWorker
                 $this->logger->notice(sprintf('Integration run got LoginFailException: %s.', $loginFailException->getMessage()));
                 $this->logger->info('Change status Pending from true to false and update lastExecutedAt field eventhough username and password incorrect');
                 $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
+
                 break;
             } catch (RuntimeException $runtimeException) {
                 $retriedNumber++;
                 $this->logger->notice(sprintf('Integration run got RuntimeException: %s.', $runtimeException->getMessage()));
 
-                if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
-                    $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
-                    $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
-                }
+                // Duplicate code here for updating integration run fail
+                // TODO: remove
+                //if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
+                //    $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
+                //    $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
+                //}
             } catch (\Exception $ex) {
                 // do not retry for other exceptions because the exception may come from wrong config, data, filePath, ...
                 // so the retry is invalid
                 $this->logger->notice(sprintf('Integration run got Exception: %s. Skip to next integration job.', $ex->getMessage()));
                 $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
+
+                $runCodeResult = self::JOB_FAILED_CODE;
+
                 break; // break while loop if other errors
             }
         } while ($retriedNumber <= $this->maxRetriesNumber);
@@ -143,9 +151,13 @@ class ExecuteIntegrationJobWorker
         if ($retriedNumber > 0 && $retriedNumber > $this->maxRetriesNumber) {
             $this->logger->info(sprintf('Integration run got max retries number: %d. Skip to next integration job.', $this->maxRetriesNumber));
             $this->restClient->updateIntegrationWhenRunFail(new PartnerParams($config));
+
+            $runCodeResult = self::JOB_FAILED_CODE;
         }
 
         $this->logger->info('Release lock');
         $this->lockService->unlock($lock);
+
+        return $runCodeResult;
     }
 }

@@ -103,7 +103,7 @@ while (true) {
         }
 
         // task finished successfully
-        if ($result == 0) {
+        if ($result == ExecuteIntegrationJobWorker::JOB_DONE_CODE) {
             $logger->notice(sprintf('Job %s (ID: %s) with payload %s has been completed', $task, $job->getId(), $rawPayload));
         }
 

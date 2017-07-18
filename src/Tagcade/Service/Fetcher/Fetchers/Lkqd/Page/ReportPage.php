@@ -35,7 +35,7 @@ class ReportPage extends AbstractPage
 
         $runReportElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]'));
 
-        //$this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]')));
+//        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]')));
         $runReportElement->click();
 
         /** RemoveWebDriver $downloadElement */
@@ -94,7 +94,7 @@ class ReportPage extends AbstractPage
         $dimensionSelector = $firstDimensionDiv;
         foreach ($dimensions as $dimension) {
             $dimensionIndex++;
-            if ($dimensionIndex > 1) {
+            if ($dimensionIndex >= 1) {
                 try {
                     $dimensionSelector = $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#reports > div > div.report-controls.ng-scope > div.row-2 > div:nth-child(%d) > div', $dimensionIndex)));
                 } catch (\Exception $e) {
