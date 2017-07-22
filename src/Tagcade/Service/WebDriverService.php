@@ -160,16 +160,50 @@ class WebDriverService implements WebDriverServiceInterface
                 $needToLogin = $i == 0 ? true : false;
                 $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsWithSingleDate, $defaultDownloadPath, $dataFolderForSingleDate, $needToLogin);
             }
-
-            if ($partnerParams->getStartDate() != $partnerParams->getEndDate()) {
-                //remove default download directory
-                $this->logger->info('Remove default download directory');
-                $this->deleteFileService->removeFileOrFolder($defaultDownloadPath);
-            }
         } else {
-            // do get report by full date range
-            $this->getDataForPublisher($driver, $partnerFetcher, $partnerParams, $defaultDownloadPath, $dataFolder);
+            /**
+             *  Get report by monthly breakdown
+             *  Avoid large download files because dateRange is so far
+             *
+             *  If startDate and endDate in the same month, we get 1 report for this
+             *  If startDate and endDate in next month, example 2017-02-14 and 2017-13-10, we get 2 reports for 2 months
+             *  For dateRanges from 2016-10-11 to 2017-03-20, we have dateRanges as
+             *  [
+             *      2016-10-11 => 2016-10-31,
+             *      2016-11-01 => 2016-11-30,
+             *      2016-12-01 => 2017-12-31,
+             *      2017-01-01 => 2017-01-31,
+             *      2017-02-01 => 2017-02-28,
+             *      2017-03-01 => 2017-03-20,
+             *  ]
+             */
+            $startDate = clone $partnerParams->getStartDate();
+            $endDate = clone $partnerParams->getEndDate();
+
+            $dateRanges = [];
+            while ($startDate <= $endDate) {
+                $temp = $startDate->format('Y-m-d');
+                $startDate->modify('last day of this month');
+                $dateRanges[$temp] = $startDate < $endDate ? $startDate->format('Y-m-d') : $endDate->format('Y-m-d');
+                $startDate->modify('first day of next month');
+            }
+
+            $needToLogin = true;
+            foreach ($dateRanges as $monthStartDate => $monthEndDate) {
+                $partnerParamsForMonth = clone $partnerParams;
+                $partnerParamsForMonth->setStartDate(date_create($monthStartDate));
+                $partnerParamsForMonth->setEndDate(date_create($monthEndDate));
+
+                $dataFolderForMonth = sprintf('%s/%s-%s', $dataFolder, $monthStartDate, (new DateTime())->getTimestamp());
+                $this->getDataForPublisher($driver, $partnerFetcher, $partnerParamsForMonth, $defaultDownloadPath, $dataFolderForMonth, $needToLogin);
+
+                $needToLogin = false;
+            }
         }
+
+        //remove default download directory
+        $this->logger->info('Remove default download directory');
+        $this->deleteFileService->removeFileOrFolder($defaultDownloadPath);
 
         if ($driver instanceof RemoteWebDriver) {
             $partnerFetcher->doLogout($partnerParams, $driver);
@@ -332,7 +366,7 @@ class WebDriverService implements WebDriverServiceInterface
                 $params->getEndDate(),
                 date("Y-m-d H:i:s")
             );
-            
+
             $driver->quit();
 
             // any timeout (by wait util...) is retryable

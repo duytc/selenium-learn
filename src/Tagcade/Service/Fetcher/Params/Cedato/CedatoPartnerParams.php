@@ -23,6 +23,9 @@ class CedatoPartnerParams extends PartnerParams implements CedatoPartnerParamInt
     {
         parent::__construct($config);
         $this->reportType = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
+
+        /** Cedato do not have date column in the report, so we automatically set dailyBreakdown to true */
+        $this->setDailyBreakdown(true);
     }
 
     /**
@@ -31,10 +34,5 @@ class CedatoPartnerParams extends PartnerParams implements CedatoPartnerParamInt
     public function getReportType()
     {
         return $this->reportType;
-    }
-
-    public function isDailyBreakdown()
-    {
-        return true;
     }
 }

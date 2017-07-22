@@ -39,6 +39,9 @@ class OptimaticInternalMarketplacePartnerParams extends PartnerParams implements
         $this->reportType = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
         $this->partners = $config->getParamValue(self::PARAM_KEY_PARTNERS, null);
         $this->placements = $config->getParamValue(self::PARAM_KEY_PLACEMENTS, null);
+
+        /** Like Cedato, OptimaticInternalMarketplace do not have date column in the report, so we automatically set dailyBreakdown to true */
+        $this->setDailyBreakdown(true);
     }
 
     /**
@@ -63,10 +66,5 @@ class OptimaticInternalMarketplacePartnerParams extends PartnerParams implements
     public function getPlacements()
     {
         return $this->placements;
-    }
-
-    public function isDailyBreakdown()
-    {
-        return true;
     }
 }

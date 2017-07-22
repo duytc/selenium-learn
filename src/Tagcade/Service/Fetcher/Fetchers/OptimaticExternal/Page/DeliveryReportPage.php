@@ -11,7 +11,6 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
-use Tagcade\Service\Fetcher\Fetchers\Gamut\Widget\DateSelectWidget;
 use Tagcade\Service\Fetcher\Pages\AbstractPage;
 use Tagcade\Service\Fetcher\Params\OptimaticExternal\OptimaticExternalPartnerParamsInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;

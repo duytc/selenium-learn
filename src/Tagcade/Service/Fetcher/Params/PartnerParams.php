@@ -134,7 +134,7 @@ class PartnerParams implements PartnerParamInterface
                 $endDateStr = 'yesterday';
             }
 
-            $dailyBreakdown = true;
+//            $dailyBreakdown = true;
         } else {
             // prefer dateRange than startDate - endDate
             $dateRange = $config->getParamValue(self::PARAM_KEY_DATE_RANGE, null);

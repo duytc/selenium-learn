@@ -90,7 +90,7 @@ class DeliveryReportPage extends AbstractPage
         $this->sleep(3);
 
         try {
-            if ($this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.content > div'))){
+            if ($this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.content > div'))) {
                 $this->logger->notice('No data was found.');
 
                 $this->driver->findElement(WebDriverBy::cssSelector('body > div.alert > div.container > div.ok'))->click();

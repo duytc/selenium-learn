@@ -271,10 +271,10 @@ class DeliveryReportPage extends AbstractPage
                     foreach ($rowElements as $rowElement) {
                         $row = $rowElement->getAttribute('row');
                         $this->logger->debug('Row' . $row);
-                        if ( $row == 0 || $row > $last_row) {
+                        if ($row == 0 || $row > $last_row) {
                             $tdElements = $rowElement->findElements(WebDriverBy::cssSelector('div'));
                             if (is_array($tdElements) && !empty($tdElements)) {
-                             //   $this->sleep(1);
+                                //   $this->sleep(1);
                                 try {
                                     /** @var RemoteWebElement $tdElement */
                                     foreach ($tdElements as $tdElement) {
@@ -307,12 +307,12 @@ class DeliveryReportPage extends AbstractPage
                     $last_row = $row;
                     $this->logger->debug('last row' . $last_row);
                     /** Each page down pressed, row increase 12*/
-                    for($i = 0; $i < 2; $i++) {
+                    for ($i = 0; $i < 2; $i++) {
                         $sliceElement->sendKeys(WebDriverKeys::PAGE_DOWN);
                     }
                 } elseif ($last_row > $rowElements[count($rowElements) - 1]->getAttribute('row')) {
                     /** Each page down pressed, row increase 12*/
-                        $sliceElement->sendKeys(WebDriverKeys::PAGE_DOWN);
+                    $sliceElement->sendKeys(WebDriverKeys::PAGE_DOWN);
                 } elseif ($last_row < $rowElements[0]->getAttribute('row')) {
                     $sliceElement->sendKeys(WebDriverKeys::PAGE_UP);
                 }
