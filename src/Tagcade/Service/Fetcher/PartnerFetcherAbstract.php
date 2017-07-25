@@ -100,7 +100,11 @@ abstract class PartnerFetcherAbstract implements PartnerFetcherInterface
             return;
         }
 
-        $homePage->doLogout();
+        try {
+            $homePage->doLogout();
+        } catch (\Exception $e) {
+
+        }
     }
 
     /**

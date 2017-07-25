@@ -432,11 +432,15 @@ abstract class AbstractPage
             if (!$element instanceof RemoteWebElement) {
                 continue;
             }
-            if (!$element->isDisplayed()) {
-                continue;
-            }
-            if (strtolower($element->getText()) == strtolower($text)) {
-                return $element;
+            try {
+                if (!$element->isDisplayed()) {
+                    continue;
+                }
+                if (strtolower($element->getText()) == strtolower($text)) {
+                    return $element;
+                }
+            } catch (Exception $e) {
+
             }
         }
 

@@ -83,7 +83,6 @@ class DeliveryReportingPage extends AbstractPage
          */
         $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::className('x-mask-msg-text')));
 
-        $this->logger->debug("Click download button");
         $this->runReportAndDownload();
 
         /** Verta host need more time to return download stream for large report (by DOMAINS), so we wait */
@@ -150,6 +149,7 @@ class DeliveryReportingPage extends AbstractPage
      */
     public function runReportAndDownload()
     {
+        $this->logger->debug("Find download button");
         $allElement = $this->filterElementByTagNameAndText('label', 'All');
         if (!$allElement) {
             $this->runReportAndDownload();
@@ -164,6 +164,7 @@ class DeliveryReportingPage extends AbstractPage
                 if ($exportTab) {
                     try {
                         $exportTab->click();
+                        $this->logger->debug("Click button Export Tab");
                         $isClick = true;
                         break;
                     } catch (\Exception $e) {
@@ -203,6 +204,7 @@ class DeliveryReportingPage extends AbstractPage
 
     public function clickExportToCSV()
     {
+        $this->logger->debug("Try click button Export to CSV");
         $exportToCSVButton = $this->filterElementByTagNameAndText('span', "Export to .CSV");
         if ($exportToCSVButton) {
             $exportToCSVButton->click();

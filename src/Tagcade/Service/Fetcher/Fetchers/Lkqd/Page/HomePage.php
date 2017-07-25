@@ -3,6 +3,7 @@
 namespace Tagcade\Service\Fetcher\Fetchers\Lkqd\Page;
 
 
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -127,20 +128,28 @@ class HomePage extends AbstractHomePage
 
     public function isLoggedIn()
     {
-        $reportings = $this->driver->findElements(WebDriverBy::id('reports'));
+        try {
+            $reports = $this->driver->findElements(WebDriverBy::id('reports'));
+            return empty($reports) ? false : true;
+        } catch (Exception $ne) {
+        }
 
-        return empty($reportings) ? false : true;
+        return false;
     }
 
     public function doLogout()
     {
-        $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "navbar-right")]/li[contains(@class, "navigation-bar-item")]/div/a[contains(@class, "caret-button")]/span'))->click();
+        try {
+            $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "navbar-right")]/li[contains(@class, "navigation-bar-item")]/div/a[contains(@class, "caret-button")]/span'))->click();
 
-        $logOutButton = $this->filterElementByTagNameAndText('li', 'Logout');
-        if ($logOutButton) {
-            $logOutButton->click();
+            $logOutButton = $this->filterElementByTagNameAndText('li', 'Logout');
+            if ($logOutButton) {
+                $logOutButton->click();
+            }
+            return $this;
+        } catch (Exception $e) {
+
         }
-        return $this;
     }
 
     /**

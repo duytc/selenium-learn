@@ -67,7 +67,7 @@ class HomePage extends AbstractHomePage
                 ->findElement(WebDriverBy::cssSelector('dashboard-icon'));
 
             return true;
-        } catch (NoSuchElementException $ne) {
+        } catch (Exception $ne) {
         }
 
         return false;
@@ -84,7 +84,8 @@ class HomePage extends AbstractHomePage
                 $logout->click();
             }
             return true;
-        } catch (NoSuchElementException $ne) {
+        } catch (Exception $ne) {
+            
         }
 
         return false;

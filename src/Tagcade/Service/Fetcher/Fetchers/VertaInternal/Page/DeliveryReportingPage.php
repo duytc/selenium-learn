@@ -37,14 +37,24 @@ class DeliveryReportingPage extends \Tagcade\Service\Fetcher\Fetchers\VertaExter
      */
     public function runReportAndDownload()
     {
+        $this->logger->debug("Try run report and download");
         $allElement = $this->filterElementByTagNameAndText('label', 'All');
         if (!$allElement) {
             $this->runReportAndDownload();
         }
 
+        $this->logger->debug("Find download button");
         $downloadButton = $this->filterElementByTagNameAndText('span', "Download");
+        $this->logger->debug("Finish finding");
+
         if ($downloadButton) {
-            $downloadButton->click();
+            $this->logger->debug('Found');
+            try {
+                $downloadButton->click();
+            } catch (\Exception $e) {
+                $this->driver->navigate()->refresh();
+                $this->runReportAndDownload();
+            }
             $this->logger->debug('Click download report');
             return;
         }

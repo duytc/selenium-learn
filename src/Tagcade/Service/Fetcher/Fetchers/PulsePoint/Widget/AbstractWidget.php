@@ -2,6 +2,7 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget;
 
+use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
@@ -71,11 +72,15 @@ abstract class AbstractWidget
             if (!$element instanceof RemoteWebElement) {
                 continue;
             }
-            if (!$element->isDisplayed()) {
-                continue;
-            }
-            if (strtolower($element->getText()) == strtolower($text)) {
-                return $element;
+            try {
+                if (!$element->isDisplayed()) {
+                    continue;
+                }
+                if (strtolower($element->getText()) == strtolower($text)) {
+                    return $element;
+                }
+            } catch (Exception $e) {
+
             }
         }
 

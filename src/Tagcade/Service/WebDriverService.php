@@ -498,6 +498,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function removeSessionFolders()
     {
+        $this->logger->debug(sprintf('Remove session folder', $this->chromeFolderPath));
         $iterator = new DirectoryIterator($this->chromeFolderPath);
         foreach ($iterator as $sessionFolder) {
             if ($sessionFolder->isDot()) {
@@ -528,6 +529,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function addStartDateEndDateToDownloadFiles($folder, PartnerParamInterface $param)
     {
+        $this->logger->debug(sprintf('Add startDate, endDate to download files', $folder));
         $subFiles = scandir($folder);
 
         $subFiles = array_map(function ($subFile) use ($folder) {
@@ -566,6 +568,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function saveMetaDataFile(PartnerParamInterface $params, $dataFolder)
     {
+        $this->logger->debug(sprintf('Save meta data file', $dataFolder));
         // create metadata file
         $metadata = [
             'module' => 'integration',
@@ -605,6 +608,8 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder)
     {
+        $this->logger->debug(sprintf('Move download files to data folder', $downloadFolder, $dataFolder));
+
         $subFiles = scandir($downloadFolder);
 
         $subFiles = array_filter($subFiles, function ($subFile) use ($downloadFolder) {
@@ -621,6 +626,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function waitDownloadComplete($downloadFolder)
     {
+        $this->logger->debug(sprintf('Wait download complete', $downloadFolder));
         // check that chrome finished downloading all files before finishing
         sleep(5);
 
@@ -649,7 +655,7 @@ class WebDriverService implements WebDriverServiceInterface
         $lockFilePath = sprintf('%s/%s', $dataFolder, $lockFileName);
         file_put_contents($lockFilePath, sprintf('This is lock file for data folder %s', $dataFolder));
 
-        $this->logger->info(sprintf('Creating lock file "%s" in data folder "%s"', $lockFilePath, $dataFolder));
+        $this->logger->info(sprintf('Creating lock file', $lockFilePath, $dataFolder));
 
         return $lockFilePath;
     }
@@ -662,7 +668,7 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function removeLockFile($lockFilePath, $dataFolder)
     {
-        $this->logger->info(sprintf('Removing lock file "%s" in data folder "%s"', $lockFilePath, $dataFolder));
+        $this->logger->info(sprintf('Removing lock file', $lockFilePath, $dataFolder));
 
         $fileSystem = new Filesystem();
         try {
