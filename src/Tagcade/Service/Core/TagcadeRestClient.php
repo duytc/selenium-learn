@@ -376,6 +376,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     public function updateIntegrationWhenDownloadSuccess(PartnerParamInterface $partnerParams)
     {
         $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
+        $scheduleUUID = $partnerParams->getDataSourceIntegrationScheduleUUID();
         $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
 
         if ($partnerParams->getBackFill()) {
@@ -391,12 +392,12 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         } else {
             /** Add try catch to prevent exception make fetcher fail */
             try {
-                if (!empty($scheduleId)) {
-                    $this->updateIntegrationSchedule($scheduleId, $pending = false);
-                    $this->updateExecuteAtForIntegrationSchedule($scheduleId);
+                if (!empty($scheduleUUID)) {
+                    $this->updateExecuteAtForIntegrationSchedule($scheduleUUID);
+                    $this->updateIntegrationSchedule($scheduleUUID, $pending = false);
                 }
             } catch (\Exception $e) {
-                $this->logger->notice(sprintf('Update last executed fail for schedule id %s', $scheduleId));
+                $this->logger->notice(sprintf('Update last executed fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
             }
         }
     }
@@ -407,6 +408,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     public function updateIntegrationWhenRunFail(PartnerParamInterface $partnerParams)
     {
         $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
+        $scheduleUUID = $partnerParams->getDataSourceIntegrationScheduleUUID();
         $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
 
         if ($partnerParams->getBackFill()) {
@@ -423,10 +425,10 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             /** Add try catch to prevent exception make fetcher fail */
             try {
                 if (!empty($scheduleId)) {
-                    $this->updateIntegrationSchedule($scheduleId, $pending = false);
+                    $this->updateIntegrationSchedule($scheduleUUID, $pending = false);
                 }
             } catch (\Exception $e) {
-                $this->logger->notice(sprintf('Update pending fail for schedule id %s', $scheduleId));
+                $this->logger->notice(sprintf('Update pending fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
             }
         }
     }
@@ -434,7 +436,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId)
+    public function updateExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleUUID)
     {
         $this->logger->info(sprintf('Updating last execution time'));
 
@@ -443,9 +445,10 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         /* post update to ur api */
         $data = [
+            'uuid' => $dataSourceIntegrationScheduleUUID
         ];
 
-        $url = preg_replace('{{id}}', $dataSourceIntegrationScheduleId, $this->updateNextExecuteAtForScheduleUrl);
+        $url = $this->updateNextExecuteAtForScheduleUrl;
 
         $result = $this->curl->executeQuery(
             $url,
@@ -465,7 +468,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Update last execution time failed, code %d', $result['code']));
+            $this->logger->notice(sprintf('Updating last execution time failed, code %d. Message: %s', $result['code'], $result['message']));
             return false;
         }
 
@@ -522,7 +525,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateIntegrationSchedule($dataSourceIntegrationScheduleId, $pending = false)
+    public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $pending = false)
     {
         $this->logger->info(sprintf('Updating pending for schedule'));
 
@@ -531,10 +534,11 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
         /* post update to ur api */
         $data = [
-            self::PENDING => $pending
+            self::PENDING => $pending,
+            'uuid' => $dataSourceIntegrationScheduleUUID
         ];
 
-        $url = preg_replace('{{id}}', $dataSourceIntegrationScheduleId, $this->updateScheduleUrl);
+        $url = $this->updateScheduleUrl;
 
         $result = $this->curl->executeQuery(
             $url,
@@ -554,7 +558,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Updating pending for schedule failed, code %d', $result['code']));
+            $this->logger->notice(sprintf('Updating pending for schedule failed, code %d. Message: %s', $result['code'], $result['message']));
             return false;
         }
 

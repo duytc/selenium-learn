@@ -137,6 +137,8 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PartnerParams::PARAM_KEY_BACK_FILL => false,
                 PartnerParams::PARAM_KEY_BACK_FILL_START_DATE => null,
                 PartnerParams::PARAM_KEY_BACK_FILL_END_DATE => null,
+                PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID => $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_UUID],
+
             ];
         } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
             $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
@@ -192,7 +194,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
             if (array_key_exists(PartnerParams::PARAM_KEY_BACK_FILL, $backFill) && $backFill[PartnerParams::PARAM_KEY_BACK_FILL] == true) {
                 $this->restClient->updateBackFillHistory($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID], $pending = true, $executedAt = null);
             } else {
-                $this->restClient->updateIntegrationSchedule($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID], $pending = true);
+                $this->restClient->updateIntegrationSchedule($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID], $pending = true);
             }
 
         } catch (\Exception $e) {

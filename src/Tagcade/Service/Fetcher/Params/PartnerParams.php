@@ -16,6 +16,7 @@ class PartnerParams implements PartnerParamInterface
     const PARAM_KEY_DAILY_BREAKDOWN = 'dailyBreakdown';
 
     const PARAM_KEY_ID = 'id';
+    const PARAM_KEY_UUID = 'uuid';
     const PARAM_KEY_DATA_SOURCE = 'dataSource';
     const PARAM_KEY_DATA_SOURCE_ID = 'dataSourceId';
     const PARAM_KEY_INTEGRATION = 'integration';
@@ -32,6 +33,7 @@ class PartnerParams implements PartnerParamInterface
     const PARAM_KEY_BACK_FILL_END_DATE = 'backFillEndDate';
     const PARAM_KEY_DATA_SOURCE_INTEGRATION_ID = 'dataSourceIntegrationId';
     const PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID = 'dataSourceIntegrationScheduleId';
+    const PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID = 'dataSourceIntegrationScheduleUUID';
     const PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID = 'dataSourceIntegrationBackFillHistoryId';
 
     const PARAM_KEY_DATE_RANGE = 'dateRange';
@@ -92,6 +94,9 @@ class PartnerParams implements PartnerParamInterface
 
     /** @var   */
     protected $dataSourceIntegrationScheduleId;
+
+    /** @var   */
+    protected $dataSourceIntegrationScheduleUUID;
 
     /** @var   */
     protected $dataSourceIntegrationBackFillHistoryId;
@@ -187,6 +192,9 @@ class PartnerParams implements PartnerParamInterface
 
         $this->dataSourceIntegrationId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_ID];
         $this->dataSourceIntegrationScheduleId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_ID];
+        if (isset($backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID]) && !empty($backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID])) {
+            $this->dataSourceIntegrationScheduleUUID = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID];
+        }
         $this->dataSourceIntegrationBackFillHistoryId = $backFill[self::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID];
 
         /* create common params */
@@ -456,6 +464,22 @@ class PartnerParams implements PartnerParamInterface
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationScheduleUUID()
+    {
+        return $this->dataSourceIntegrationScheduleUUID;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDataSourceIntegrationScheduleUUID($dataSourceIntegrationScheduleUUID)
+    {
+        $this->dataSourceIntegrationScheduleUUID = $dataSourceIntegrationScheduleUUID;
+        return $this;
+    }
     /**
      * @return mixed
      */

@@ -123,6 +123,17 @@ interface PartnerParamInterface
     /**
      * @return mixed
      */
+    public function getDataSourceIntegrationScheduleUUID();
+
+    /**
+     * @param mixed $dataSourceIntegrationScheduleUUID
+     * @return PartnerParamInterface
+     */
+    public function setDataSourceIntegrationScheduleUUID($dataSourceIntegrationScheduleUUID);
+
+    /**
+     * @return mixed
+     */
     public function getBackFill();
 
     /**

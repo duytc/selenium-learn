@@ -90,11 +90,11 @@ interface TagcadeRestClientInterface
     public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $lastExecutedAt = null);
 
     /**
-     * @param int $dataSourceIntegrationScheduleId
+     * @param int $dataSourceIntegrationScheduleUUID
      * @param bool $pending
      * @return mixed
      */
-    public function updateIntegrationSchedule($dataSourceIntegrationScheduleId, $pending = false);
+    public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $pending = false);
 
     /**
      * create Alert When has update password
