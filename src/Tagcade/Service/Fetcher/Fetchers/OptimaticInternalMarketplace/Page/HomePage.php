@@ -24,7 +24,7 @@ class HomePage extends AbstractHomePage
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
-        $this->logger->debug('filling credentials');
+        $this->logger->debug('Filling credentials ...');
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('txtUserName')));
         $this->driver->wait()->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('txtPassword')));
 
@@ -38,7 +38,7 @@ class HomePage extends AbstractHomePage
             ->clear()
             ->sendKeys($password);
 
-        $this->logger->debug('click login button');
+        $this->logger->debug('Click login button');
         $this->driver->findElement(WebDriverBy::id('signInButton1'))->click();
         sleep(2);
         $this->driver->manage()->timeouts()->pageLoadTimeout(20);

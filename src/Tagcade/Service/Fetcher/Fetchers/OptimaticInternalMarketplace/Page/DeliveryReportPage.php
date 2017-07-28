@@ -31,7 +31,7 @@ class DeliveryReportPage extends AbstractPage
         }
 
         if (!$params instanceof OptimaticInternalMarketplacePartnerParamsInterface) {
-            throw new Exception('must be optimatic internal marketplace');
+            throw new Exception('Must be instance of optimatic internal marketplace.');
         }
 
         // step 0. select filter
@@ -66,7 +66,13 @@ class DeliveryReportPage extends AbstractPage
         $displayText = $dpPlacementsElement->getText();
         $dpPlacementsElement->click();
         if (strpos($displayText, 'Placement')) {
-            $paramsOption = $params->getPlacements();
+            /** make $paramsOption is All Desktop if get params has no value */
+            if ($params->getPlacements() == '//i' || $params->getPlacements() == '') {
+                $paramsOption = '/All Desktop/i';
+            } else {
+                $paramsOption = $params->getPlacements();
+            }
+
         } else {
             $paramsOption = $params->getPartners();
         }
@@ -146,8 +152,8 @@ class DeliveryReportPage extends AbstractPage
                 break;
 
             default:
-                $this->logger->warning(sprintf('cannot find report type: %s', $reportType));
-                throw new Exception(sprintf('cannot find report type: %s', $reportType));
+                $this->logger->warning(sprintf('Cannot find report type: %s', $reportType));
+                throw new Exception(sprintf('Cannot find report type: %s', $reportType));
         }
 
         $this->driver->navigate()->to($url);
