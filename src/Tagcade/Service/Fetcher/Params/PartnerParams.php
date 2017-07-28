@@ -115,7 +115,6 @@ class PartnerParams implements PartnerParamInterface
 
         $username = $config->getParamValue(self::PARAM_KEY_USERNAME, null);
         $password = $config->getParamValue(self::PARAM_KEY_PASSWORD, null);
-        $dailyBreakdown = $config->getParamValue(self::PARAM_KEY_DAILY_BREAKDOWN, null);
 
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
@@ -173,7 +172,6 @@ class PartnerParams implements PartnerParamInterface
             self::PARAM_KEY_PASSWORD => $password,
             self::PARAM_KEY_START_DATE => $startDateStr,
             self::PARAM_KEY_END_DATE => $endDateStr,
-            self::PARAM_KEY_DAILY_BREAKDOWN => $dailyBreakdown
         ];
 
         /* set required params */
@@ -324,7 +322,6 @@ class PartnerParams implements PartnerParamInterface
         $username = $config[self::PARAM_KEY_USERNAME];
         $startDate = date_create($config[self::PARAM_KEY_START_DATE]);
         $endDate = date_create($config[self::PARAM_KEY_END_DATE]);
-        $dailyBreakdown = $config[self::PARAM_KEY_DAILY_BREAKDOWN];
 
         if ($startDate > $endDate) {
             $clone = clone $startDate;
@@ -367,7 +364,6 @@ class PartnerParams implements PartnerParamInterface
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->config = $config;
-        $this->dailyBreakdown = $dailyBreakdown;
     }
 
     /**
