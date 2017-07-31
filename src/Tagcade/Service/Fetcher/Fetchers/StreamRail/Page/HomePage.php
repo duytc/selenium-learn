@@ -11,7 +11,7 @@ use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 class HomePage extends AbstractHomePage
 {
     const URL = 'http://partners.streamrail.com/';
-    protected $ids = [717, 730];
+    protected $ids = [748, 730];
 
     public function doLogin($username, $password)
     {
@@ -31,7 +31,7 @@ class HomePage extends AbstractHomePage
         $this->logger->debug('filling credentials');
 
         $index = 0;
-        $usernameId = 717;
+        $usernameId = 748;
 
         do {
             try {
