@@ -57,6 +57,7 @@ services:
             - '%chrome_folder_path%'
             - '@tagcade.service.integration.delete_file_service'
             - '@tagcade_app.rest_client'
+            - '%remove_chrome_folder_path_interval%'
 
     tagcade.service.integration.integrations.demand_partner.fetcher.helper:
         class: Tagcade\Service\DownloadFileHelper

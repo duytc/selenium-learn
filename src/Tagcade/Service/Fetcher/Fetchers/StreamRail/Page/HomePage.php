@@ -6,12 +6,12 @@ use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
+use Tagcade\Exception\LoginFailException;
 use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 
 class HomePage extends AbstractHomePage
 {
     const URL = 'http://partners.streamrail.com/';
-    protected $ids = [717, 730];
 
     public function doLogin($username, $password)
     {
@@ -30,27 +30,23 @@ class HomePage extends AbstractHomePage
 
         $this->logger->debug('filling credentials');
 
-        $index = 0;
-        $usernameId = 717;
+        $inputFields = $this->driver->findElements(WebDriverBy::cssSelector(".sr-signin--wrapper .input-element input"));
 
-        do {
-            try {
-                $id = $this->ids[$index];
-                $this->driver->findElement(WebDriverBy::id(sprintf('ember%s-input', $id)));
-                $usernameId = $id;
-                break;
-            } catch (\Exception $e) {
-                $index++;
-            }
-        } while ($index < count($this->ids));
+        if (count($inputFields) != 2) {
+            // should throw login fail exception here since input fields are not correct
+            //return false and the system will throw exception in the next step
+            $this->logger->notice('Invalid username or password field on HTML');
+            return false;
+        }
 
-        $this->driver
-            ->findElement(WebDriverBy::id(sprintf('ember%s-input', $usernameId)))
+        $usernameField = $inputFields[0];
+        $passwordField = $inputFields[1];
+
+        $usernameField
             ->clear()
             ->sendKeys($username);
 
-        $this->driver
-            ->findElement(WebDriverBy::id(sprintf('ember%s-input', $usernameId + 21)))
+        $passwordField
             ->clear()
             ->sendKeys($password);
 
@@ -65,11 +61,13 @@ class HomePage extends AbstractHomePage
             $userNotFound = $this->filterElementByTagNameAndText('small', 'User not found');
             $invalidUserNamePassword = $this->filterElementByTagNameAndText('small', 'Invalid username or password');
             if (!empty($userNotFound)) {
+                // should throw login fail exception here and provide a reason
                 $this->logger->debug('User not found');
                 return false;
             }
 
             if (!empty($invalidUserNamePassword)) {
+                // should throw login fail exception here and provide a reason
                 $this->logger->notice('Invalid username or password');
                 return false;
             }
@@ -103,7 +101,7 @@ class HomePage extends AbstractHomePage
         } catch (\Exception $e) {
             $this->driver->findElement(WebDriverBy::cssSelector('#ember1163'))->click();
         }
-        
+
         $logOutElement = $this->filterElementByTagNameAndText('li', 'Log out');
         if ($logOutElement) {
             $logOutElement->click();

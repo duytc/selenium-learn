@@ -55,6 +55,9 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var TagcadeRestClientInterface */
     protected $restClient;
 
+    /** @var  int */
+    private $removeChromeFolderPathInterval;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
@@ -64,8 +67,9 @@ class WebDriverService implements WebDriverServiceInterface
      * @param $chromeFolderPath
      * @param DeleteFileService $deleteFileService
      * @param TagcadeRestClientInterface $restClient
+     * @param $removeChromeFolderPathInterval
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService, TagcadeRestClientInterface $restClient)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService, TagcadeRestClientInterface $restClient, $removeChromeFolderPathInterval)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
@@ -75,6 +79,7 @@ class WebDriverService implements WebDriverServiceInterface
         $this->chromeFolderPath = $chromeFolderPath;
         $this->deleteFileService = $deleteFileService;
         $this->restClient = $restClient;
+        $this->removeChromeFolderPathInterval = $removeChromeFolderPathInterval;
     }
 
     /**
@@ -500,6 +505,7 @@ class WebDriverService implements WebDriverServiceInterface
     {
         $this->logger->debug(sprintf('Remove session folder', $this->chromeFolderPath));
         $iterator = new DirectoryIterator($this->chromeFolderPath);
+        $i = 1;
         foreach ($iterator as $sessionFolder) {
             if ($sessionFolder->isDot()) {
                 // ignore current directory '.' and parent directory '..'
@@ -512,14 +518,28 @@ class WebDriverService implements WebDriverServiceInterface
                 continue;
             }
 
-            $modifiedDate = new DateTime(date('Y/m/d', $sessionFolder->getMTime()));
+            /**
+             * No need to wait 1 day to delete chrome profiles
+             * But in case: we run many worker at the same time, and of course we have to keep the lastest chrome profiles
+             * The time interval wait to remove chrome profiles is got from config (Seconds)
+             */
+            $modifiedDate = new DateTime(date('Y/m/d H:i:s', $sessionFolder->getMTime()));
+            $modifiedDate = $modifiedDate->format('Y/m/d H:i:s');
             $today = new DateTime();
+            $today = $today->format('Y/m/d H:i:s');
 
-            $diff = $today->diff($modifiedDate);
+            // get the time interval to wait from config
+            $second = $this->removeChromeFolderPathInterval;
 
-            if ($diff->y || $diff->m || $diff->d > 1) {
+            // string to time
+            $secondsModifiedDate = strtotime($modifiedDate);
+            $secondsToday = strtotime($today);
+            $timeOffset = $secondsToday - $secondsModifiedDate;
+            if ($timeOffset > $second) {
+                $this->logger->debug(sprintf('Remove session folder %s', $i));
                 $this->deleteFileService->removeFileOrFolder($folderPath);
             }
+            $i++;
         }
     }
 

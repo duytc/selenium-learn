@@ -23,11 +23,6 @@ class DeliveryReportPage extends AbstractPage
 
         $this->sleep(2);
 
-        try {
-            $this->driver->findElement(WebDriverBy::cssSelector('#confirmation-modal > div.modal-footer > a'))->click();
-        } catch (\Exception $e) {
-
-        }
         // step 0. select filter
         $this->logger->debug('select filter');
         $this->sleep(2);
