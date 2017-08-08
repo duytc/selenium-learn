@@ -8,6 +8,11 @@ use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 interface TagcadeRestClientInterface
 {
+    const FETCHER_STATUS_NOT_RUN = 0;
+    const FETCHER_STATUS_PENDING = 1;
+    const FETCHER_STATUS_FINISHED = 2;
+    const FETCHER_STATUS_FAILED = 3;
+
     /**
      * @param bool $force
      * @return mixed
@@ -38,14 +43,6 @@ interface TagcadeRestClientInterface
     public function getDataSourceIntegrationSchedulesByDataSource($dataSourceId);
 
     /**
-     * update last execution time for integration by canonicalName
-     *
-     * @param string $dataSourceIntegrationScheduleId
-     * @return mixed
-     */
-    public function updateExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleId);
-
-    /**
      * create Alert When Login Fail due to integrationConfig information
      *
      * @param int $publisherId
@@ -72,6 +69,13 @@ interface TagcadeRestClientInterface
     public function createAlertWhenTimeOut($publisherId, $integrationCName, $dataSourceId, DateTime $startDate, DateTime $endDate, $executionDate);
 
     /**
+     * @param $dataSourceIntegrationScheduleUUID
+     * @param int $status
+     * @return
+     */
+    public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $status = self::FETCHER_STATUS_PENDING);
+
+    /**
      * @param PartnerParamInterface $partnerParams
      */
     public function updateIntegrationWhenDownloadSuccess(PartnerParamInterface $partnerParams);
@@ -82,19 +86,22 @@ interface TagcadeRestClientInterface
     public function updateIntegrationWhenRunFail(PartnerParamInterface $partnerParams);
 
     /**
-     * @param int $dataSourceIntegrationBackFillHistoryId
-     * @param bool $pending
-     * @param string|null $lastExecutedAt
+     * @param $dataSourceIntegrationScheduleUUID
+     * @param int $status
+     * @param null $nextExecutionAt
+     * @param null $finishedAt
      * @return mixed
      */
-    public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $lastExecutedAt = null);
+    public function updateIntegrationScheduleFinishOrFail($dataSourceIntegrationScheduleUUID, $status, $nextExecutionAt = null, $finishedAt = null);
 
     /**
-     * @param int $dataSourceIntegrationScheduleUUID
-     * @param bool $pending
+     * @param int $dataSourceIntegrationBackFillHistoryId
+     * @param int $status
+     * @param null $queuedAt
+     * @param null $finishedAt
      * @return mixed
      */
-    public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $pending = false);
+    public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $status, $queuedAt = null, $finishedAt = null);
 
     /**
      * create Alert When has update password

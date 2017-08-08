@@ -88,9 +88,9 @@ services:
             - '%tagcade_get_list_publisher_url%'
             - '%ur_get_list_integrations_to_be_executed_url%'
             - '%ur_get_list_integrations_by_datasource_url%'
-            - '%ur_update_last_execution_time_for_integration_url%'
             - '%ur_create_alert_url%'
-            - '%ur_update_integration_schedule_url%'
+            - '%ur_update_integration_schedule_pending_url%'
+            - '%ur_update_integration_schedule_finishorfail_url%'
             - '%ur_update_backfill_history_url%'
 
         calls:

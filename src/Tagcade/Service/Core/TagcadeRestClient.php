@@ -12,14 +12,18 @@ use Tagcade\Service\Fetcher\Params\PartnerParams;
 class TagcadeRestClient implements TagcadeRestClientInterface
 {
     const DEBUG = 0;
-    const PENDING = 'pending';
-    const EXECUTED_AT = 'executedAt';
+
+    const FIELD_QUEUED_AT = 'queuedAt';
+    const FIELD_NEXT_EXECUTED_AT = 'nextExecutionAt';
+    const FIELD_FINISH_AT = 'finishedAt';
+    const FIELD_STATUS = 'status';
+    const FIELD_UUID = 'uuid';
 
     /** const type alert */
-    const  ALERT_TYPE = 'type';
-    const  ALERT_TYPE_INFO = 'info';
-    const  ALERT_TYPE_WARNING = 'warning';
-    const  ALERT_TYPE_ERROR = 'error';
+    const ALERT_TYPE = 'type';
+    const ALERT_TYPE_INFO = 'info';
+    const ALERT_TYPE_WARNING = 'warning';
+    const ALERT_TYPE_ERROR = 'error';
 
     /** @var string */
     private $username;
@@ -43,9 +47,6 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     private $getListIntegrationsByDataSourceIdUrl;
 
     /** @var string */
-    private $updateNextExecuteAtForScheduleUrl;
-
-    /** @var string */
     private $urCreateAlertUrl;
 
     /** @var string */
@@ -55,7 +56,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     private $logger;
 
     /** @var string */
-    private $updateScheduleUrl;
+    private $updateSchedulePendingUrl;
+    /** @var string */
+    private $updateScheduleFinishOrFailUrl;
     /** @var string */
     private $updateBackFillHistoryUrl;
 
@@ -64,9 +67,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $getListPublisherUrl,
                          $getListIntegrationsToBeExecutedUrl,
                          $getListIntegrationsByDataSourceIdUrl,
-                         $updateNextExecuteAtForScheduleUrl,
                          $urCreateAlertUrl,
-                         $updateScheduleUrl,
+                         $updateSchedulePendingUrl,
+                         $updateScheduleFinishOrFailUrl,
                          $updateBackFillHistoryUrl
     )
     {
@@ -78,9 +81,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->getListPublisherUrl = $getListPublisherUrl;
         $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
         $this->getListIntegrationsByDataSourceIdUrl = $getListIntegrationsByDataSourceIdUrl;
-        $this->updateNextExecuteAtForScheduleUrl = $updateNextExecuteAtForScheduleUrl;
         $this->urCreateAlertUrl = $urCreateAlertUrl;
-        $this->updateScheduleUrl = $updateScheduleUrl;
+        $this->updateSchedulePendingUrl = $updateSchedulePendingUrl;
+        $this->updateScheduleFinishOrFailUrl = $updateScheduleFinishOrFailUrl;
         $this->updateBackFillHistoryUrl = $updateBackFillHistoryUrl;
     }
 
@@ -305,7 +308,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             return false;
         }
 
-        $this->logger->warning('finished created alert login fail');
+        $this->logger->warning('Finished created alert login fail.');
 
         return true;
     }
@@ -373,201 +376,6 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /**
      * @inheritdoc
      */
-    public function updateIntegrationWhenDownloadSuccess(PartnerParamInterface $partnerParams)
-    {
-        $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
-        $scheduleUUID = $partnerParams->getDataSourceIntegrationScheduleUUID();
-        $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
-
-        if ($partnerParams->getBackFill()) {
-            /** Add try catch to prevent exception make fetcher fail */
-
-            try {
-                if (!empty($dataSourceIntegrationBackFillHistoryId)) {
-                    $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $executeAt = date_create()->format('Y-m-d H:i:s'));
-                }
-            } catch (\Exception $e) {
-                $this->logger->notice(sprintf('Update back fill fail data source integration id %s', $scheduleId));
-            }
-        } else {
-            /** Add try catch to prevent exception make fetcher fail */
-            try {
-                if (!empty($scheduleUUID)) {
-                    $this->updateExecuteAtForIntegrationSchedule($scheduleUUID);
-                    $this->updateIntegrationSchedule($scheduleUUID, $pending = false);
-                }
-            } catch (\Exception $e) {
-                $this->logger->notice(sprintf('Update last executed fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateIntegrationWhenRunFail(PartnerParamInterface $partnerParams)
-    {
-        $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
-        $scheduleUUID = $partnerParams->getDataSourceIntegrationScheduleUUID();
-        $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
-
-        if ($partnerParams->getBackFill()) {
-            /** Add try catch to prevent exception make fetcher fail */
-
-            try {
-                if (!empty($dataSourceIntegrationBackFillHistoryId)) {
-                    $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $executedAt = null);
-                }
-            } catch (\Exception $e) {
-                $this->logger->notice(sprintf('Update pending for back fill history fail id %s', $scheduleId));
-            }
-        } else {
-            /** Add try catch to prevent exception make fetcher fail */
-            try {
-                if (!empty($scheduleId)) {
-                    $this->updateIntegrationSchedule($scheduleUUID, $pending = false);
-                }
-            } catch (\Exception $e) {
-                $this->logger->notice(sprintf('Update pending fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateExecuteAtForIntegrationSchedule($dataSourceIntegrationScheduleUUID)
-    {
-        $this->logger->info(sprintf('Updating last execution time'));
-
-        /* get token */
-        $header = array('Authorization: Bearer ' . $this->getToken());
-
-        /* post update to ur api */
-        $data = [
-            'uuid' => $dataSourceIntegrationScheduleUUID
-        ];
-
-        $url = $this->updateNextExecuteAtForScheduleUrl;
-
-        $result = $this->curl->executeQuery(
-            $url,
-            'POST',
-            $header,
-            $data
-        );
-
-        $this->curl->close();
-
-        /* decode and parse */
-        $result = json_decode($result, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
-            return false;
-        }
-
-        if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Updating last execution time failed, code %d. Message: %s', $result['code'], $result['message']));
-            return false;
-        }
-
-        return (bool)$result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $pending = false, $lastExecutedAt = null)
-    {
-        $this->logger->info(sprintf('Updating pending for backFill history'));
-
-        if ($lastExecutedAt instanceof DateTime) {
-            $lastExecutedAt = $lastExecutedAt->format('Y-m-d H:i:s');
-        }
-
-        /* get token */
-        $header = array('Authorization: Bearer ' . $this->getToken());
-
-        /* post update to ur api */
-        $data = [
-            self::PENDING => $pending,
-            self::EXECUTED_AT => $lastExecutedAt
-        ];
-
-        $url = preg_replace('{{id}}', $dataSourceIntegrationBackFillHistoryId, $this->updateBackFillHistoryUrl);
-
-        $result = $this->curl->executeQuery(
-            $url,
-            'POST',
-            $header,
-            $data
-        );
-
-        $this->curl->close();
-
-        /* decode and parse */
-        $result = json_decode($result, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
-            return false;
-        }
-
-        if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Updating pending for backFill history failed, code %d', $result['code']));
-            return false;
-        }
-
-        return (bool)$result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $pending = false)
-    {
-        $this->logger->info(sprintf('Updating pending for schedule'));
-
-        /* get token */
-        $header = array('Authorization: Bearer ' . $this->getToken());
-
-        /* post update to ur api */
-        $data = [
-            self::PENDING => $pending,
-            'uuid' => $dataSourceIntegrationScheduleUUID
-        ];
-
-        $url = $this->updateScheduleUrl;
-
-        $result = $this->curl->executeQuery(
-            $url,
-            'POST',
-            $header,
-            $data
-        );
-
-        $this->curl->close();
-
-        /* decode and parse */
-        $result = json_decode($result, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
-            return false;
-        }
-
-        if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Updating pending for schedule failed, code %d. Message: %s', $result['code'], $result['message']));
-            return false;
-        }
-
-        return (bool)$result;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url)
     {
         $this->logger->notice(sprintf('Creating an alert remind the customer update password for Integration %s', $integrationCName));
@@ -623,5 +431,194 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->logger->warning('finished created alert Password expiry');
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateIntegrationWhenDownloadSuccess(PartnerParamInterface $partnerParams)
+    {
+        $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
+        $scheduleUUID = $partnerParams->getDataSourceIntegrationScheduleUUID();
+        $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
+
+        if ($partnerParams->getBackFill()) {
+            /** Add try catch to prevent exception make fetcher fail */
+
+            try {
+                if (!empty($dataSourceIntegrationBackFillHistoryId)) {
+                    $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $status = TagcadeRestClient::FETCHER_STATUS_FINISHED);
+                }
+            } catch (\Exception $e) {
+                $this->logger->notice(sprintf('Update back fill fail data source integration id %s', $scheduleId));
+            }
+        } else {
+            /** Add try catch to prevent exception make fetcher fail */
+            try {
+                if (!empty($scheduleUUID)) {
+                    $this->updateIntegrationScheduleFinishOrFail($scheduleUUID, $status = TagcadeRestClient::FETCHER_STATUS_FINISHED);
+                }
+            } catch (\Exception $e) {
+                $this->logger->notice(sprintf('Update last executed fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateIntegrationWhenRunFail(PartnerParamInterface $partnerParams)
+    {
+        $scheduleId = $partnerParams->getDataSourceIntegrationScheduleId();
+        $scheduleUUID = $partnerParams->getDataSourceIntegrationScheduleUUID();
+        $dataSourceIntegrationBackFillHistoryId = $partnerParams->getDataSourceIntegrationBackFillHistoryId();
+
+        if ($partnerParams->getBackFill()) {
+            /** Add try catch to prevent exception make fetcher fail */
+
+            try {
+                if (!empty($dataSourceIntegrationBackFillHistoryId)) {
+                    $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $status = TagcadeRestClient::FETCHER_STATUS_FAILED);
+                }
+            } catch (\Exception $e) {
+                $this->logger->notice(sprintf('Update status for back fill history fail id %s', $scheduleId));
+            }
+        } else {
+            /** Add try catch to prevent exception make fetcher fail */
+            try {
+                if (!empty($scheduleId)) {
+                    $this->updateIntegrationScheduleFinishOrFail($scheduleUUID, $status = TagcadeRestClient::FETCHER_STATUS_FAILED);
+                }
+            } catch (\Exception $e) {
+                $this->logger->notice(sprintf('Update status fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $status = self::FETCHER_STATUS_PENDING)
+    {
+        $queuedAt = null;
+        $this->logger->info(sprintf('Updating status pending for schedule'));
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            self::FIELD_UUID => $dataSourceIntegrationScheduleUUID,
+            self::FIELD_STATUS => $status,
+        ];
+
+        $url = $this->updateSchedulePendingUrl;
+
+        $result = $this->curl->executeQuery(
+            $url,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->notice(sprintf('Updating status pending for schedule failed, code %d. Message: %s', $result['code'], $result['message']));
+            return false;
+        }
+
+        return (bool)$result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $status, $queuedAt = null, $finishedAt = null)
+    {
+        $this->logger->info(sprintf('Updating status for backFill history'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            self::FIELD_STATUS => $status,
+        ];
+
+        $url = preg_replace('{{id}}', $dataSourceIntegrationBackFillHistoryId, $this->updateBackFillHistoryUrl);
+
+        $result = $this->curl->executeQuery(
+            $url,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->notice(sprintf('Updating status for backFill history failed, code %d', $result['code']));
+            return false;
+        }
+
+        return (bool)$result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateIntegrationScheduleFinishOrFail($dataSourceIntegrationScheduleUUID, $status, $nextExecutionAt = null, $finishedAt = null)
+    {
+        $this->logger->info(sprintf('Updating status %d for schedule', $status));
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            self::FIELD_STATUS => $status,
+            self::FIELD_UUID => $dataSourceIntegrationScheduleUUID,
+        ];
+
+        $url = $this->updateScheduleFinishOrFailUrl;
+
+        $result = $this->curl->executeQuery(
+            $url,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->notice(sprintf('Updating status %d for schedule failed, code %d. Message: %s', $status, $result['code'], $result['message']));
+            return false;
+        }
+
+        return (bool)$result;
     }
 }

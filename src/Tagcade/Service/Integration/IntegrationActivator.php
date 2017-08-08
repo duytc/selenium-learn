@@ -2,10 +2,9 @@
 
 namespace Tagcade\Service\Integration;
 
-
 use Pheanstalk\PheanstalkInterface;
+use Tagcade\Service\Core\TagcadeRestClient;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
-use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParams;
 
 class IntegrationActivator implements IntegrationActivatorInterface
@@ -115,7 +114,6 @@ class IntegrationActivator implements IntegrationActivatorInterface
             $this->createExecutionJob($fetcherSchedule);
         }
 
-
         return true;
     }
 
@@ -181,6 +179,13 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $payload->params = $job;
 
         try {
+            if (array_key_exists(PartnerParams::PARAM_KEY_BACK_FILL, $backFill) && $backFill[PartnerParams::PARAM_KEY_BACK_FILL] == true) {
+                $backFillHistoryId  = $backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID];
+                $this->restClient->updateBackFillHistory($backFillHistoryId, TagcadeRestClient::FETCHER_STATUS_PENDING);
+            } else {
+                $scheduleUUID = $backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID];
+                $this->restClient->updateIntegrationSchedule($scheduleUUID, TagcadeRestClient::FETCHER_STATUS_PENDING);
+            }
             /** @var PheanstalkInterface $pheanstalk */
             $this->pheanstalk
                 ->useTube($this->fetcherWorkerTube)
@@ -190,16 +195,10 @@ class IntegrationActivator implements IntegrationActivatorInterface
                     PheanstalkInterface::DEFAULT_DELAY,
                     $this->pheanstalkTTR
                 );
-
-            if (array_key_exists(PartnerParams::PARAM_KEY_BACK_FILL, $backFill) && $backFill[PartnerParams::PARAM_KEY_BACK_FILL] == true) {
-                $this->restClient->updateBackFillHistory($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_BACKFILL_HISTORY_ID], $pending = true, $executedAt = null);
-            } else {
-                $this->restClient->updateIntegrationSchedule($backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID], $pending = true);
-            }
-
         } catch (\Exception $e) {
 
         }
+
         return true;
     }
 }

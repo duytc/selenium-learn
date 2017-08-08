@@ -20,7 +20,6 @@ parameters:
     tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'
     ur_get_list_integrations_to_be_executed_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/byschedule'
     ur_get_list_integrations_by_datasource_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/bydatasource'
-    ur_update_last_execution_time_for_integration_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/executed'
     ur_post_datasource_import_json_data: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasources/entry'
     ur_create_alert_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/alerts'
 
@@ -40,5 +39,6 @@ parameters:
     remove_chrome_folder_path_interval: 7200 # in seconds
     delay_time_before_job_become_ready: 15
 
-    ur_update_integration_schedule_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/update'
+    ur_update_integration_schedule_pending_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/pending'
+    ur_update_integration_schedule_finishorfail_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/finishorfail'
     ur_update_backfill_history_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationsbackfillhistories/{id}/update'
