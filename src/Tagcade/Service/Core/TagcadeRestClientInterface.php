@@ -116,4 +116,11 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function createAlertWhenAppearUpdatePassword($publisherId, $integrationCName, $dataSourceId, $message, DateTime $executionDate, $username, $url);
+
+    /**
+     * @param int $dataSourceIntegrationId
+     * @param int $dataSourceId
+     * @return mixed
+     */
+    public function updateBackFillMissingDates($dataSourceIntegrationId, $dataSourceId);
 }

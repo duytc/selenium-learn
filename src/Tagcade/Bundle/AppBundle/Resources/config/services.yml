@@ -92,6 +92,7 @@ services:
             - '%ur_update_integration_schedule_pending_url%'
             - '%ur_update_integration_schedule_finishorfail_url%'
             - '%ur_update_backfill_history_url%'
+            - '%ur_update_backfill_missing_dates_url%'
 
         calls:
             - [setLogger, ['@logger']]

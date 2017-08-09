@@ -61,6 +61,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     private $updateScheduleFinishOrFailUrl;
     /** @var string */
     private $updateBackFillHistoryUrl;
+    /** @var string */
+    private $updateBackfillMissingDatesUrl;
 
     function __construct(CurlRestClient $curl, $username, $password,
                          $getTokenUrl,
@@ -70,7 +72,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $urCreateAlertUrl,
                          $updateSchedulePendingUrl,
                          $updateScheduleFinishOrFailUrl,
-                         $updateBackFillHistoryUrl
+                         $updateBackFillHistoryUrl,
+                         $updateBackfillMissingDatesUrl
     )
     {
         $this->curl = $curl;
@@ -85,6 +88,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->updateSchedulePendingUrl = $updateSchedulePendingUrl;
         $this->updateScheduleFinishOrFailUrl = $updateScheduleFinishOrFailUrl;
         $this->updateBackFillHistoryUrl = $updateBackFillHistoryUrl;
+        $this->updateBackfillMissingDatesUrl = $updateBackfillMissingDatesUrl;
     }
 
     /**
@@ -448,6 +452,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             try {
                 if (!empty($dataSourceIntegrationBackFillHistoryId)) {
                     $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $status = TagcadeRestClient::FETCHER_STATUS_FINISHED);
+
+                    // check all backfill with this dataSourceIntegration if all return autoCreate false => change backfillMissingDates to false
+                    $this->updateBackFillMissingDates($partnerParams->getDataSourceIntegrationId(), $partnerParams->getDataSourceId());
                 }
             } catch (\Exception $e) {
                 $this->logger->notice(sprintf('Update back fill fail data source integration id %s', $scheduleId));
@@ -479,6 +486,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             try {
                 if (!empty($dataSourceIntegrationBackFillHistoryId)) {
                     $this->updateBackFillHistory($dataSourceIntegrationBackFillHistoryId, $status = TagcadeRestClient::FETCHER_STATUS_FAILED);
+                    // check all backfill with this dataSourceIntegration if all return autoCreate false => change backfillMissingDates to false
+                    $this->updateBackFillMissingDates($partnerParams->getDataSourceIntegrationId(), $partnerParams->getDataSourceId());
                 }
             } catch (\Exception $e) {
                 $this->logger->notice(sprintf('Update status for back fill history fail id %s', $scheduleId));
@@ -620,5 +629,48 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         return (bool)$result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateBackFillMissingDates($dataSourceIntegrationId, $dataSourceId)
+    {
+        $this->logger->info('Checking autoCreate and then update backfillMissingDate');
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* post update to ur api */
+        $data = [
+            PartnerParams::PARAM_KEY_DATA_SOURCE => $dataSourceId,
+            PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION => $dataSourceIntegrationId,
+        ];
+
+        $url = $this->updateBackfillMissingDatesUrl;
+        $url = preg_replace('{{id}}', $dataSourceId, $url);
+        $result = $this->curl->executeQuery(
+            $url,
+            'POST',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->notice('Updating backfillMissingDatesRunning failed');
+            return false;
+        }
+
+        return (bool)$result;
+
     }
 }

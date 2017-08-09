@@ -42,3 +42,4 @@ parameters:
     ur_update_integration_schedule_pending_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/pending'
     ur_update_integration_schedule_finishorfail_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/finishorfail'
     ur_update_backfill_history_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationsbackfillhistories/{id}/update'
+    ur_update_backfill_missing_dates_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasources/{id}/updatebackfillmissingdate'
