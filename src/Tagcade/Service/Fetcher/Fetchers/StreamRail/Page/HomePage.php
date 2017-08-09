@@ -12,6 +12,7 @@ use Tagcade\Service\Fetcher\Pages\AbstractHomePage;
 class HomePage extends AbstractHomePage
 {
     const URL = 'http://partners.streamrail.com/';
+    protected $ids = [717, 730];
 
     public function doLogin($username, $password)
     {
