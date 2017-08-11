@@ -23,6 +23,7 @@ use Tagcade\Exception\LoginFailException;
 use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
 use Tagcade\WebDriverFactoryInterface;
 
@@ -101,6 +102,7 @@ class WebDriverService implements WebDriverServiceInterface
             $rootDownloadDir,
             $partnerParams->getPublisherId(),
             $partnerParams->getIntegrationCName(),
+            $partnerParams->getDataSourceId(),
             new \DateTime(),
             $partnerParams->getStartDate(),
             $partnerParams->getEndDate(),
@@ -114,6 +116,7 @@ class WebDriverService implements WebDriverServiceInterface
         $webDriverConfig = [
             'publisher_id' => $partnerParams->getPublisherId(),
             'partner_cname' => $partnerParams->getIntegrationCName(),
+            PartnerParams::PARAM_KEY_DATA_SOURCE_ID => $partnerParams->getDataSourceId(),
             'force-new-session' => array_key_exists('force-new-session', $partnerParams->getConfig()) ? $partnerParams->getConfig()['force-new-session'] : true,
             'quit-web-driver-after-run' => array_key_exists('quit-web-driver-after-run', $partnerParams->getConfig()) ? $partnerParams->getConfig()['quit-web-driver-after-run'] : true,
             'process_id' => $partnerParams->getProcessId()
@@ -226,6 +229,7 @@ class WebDriverService implements WebDriverServiceInterface
      * @param string $rootDir
      * @param string $publisherId
      * @param string $integrationCName
+     * @param string $dataSourceId
      * @param DateTime $executionDate
      * @param DateTime $startDate
      * @param DateTime $endDate
@@ -233,13 +237,14 @@ class WebDriverService implements WebDriverServiceInterface
      * @param null|string $subDir
      * @return string
      */
-    public static function getDownloadPath($rootDir, $publisherId, $integrationCName, DateTime $executionDate, DateTime $startDate, DateTime $endDate, $processId, $subDir = null)
+    public static function getDownloadPath($rootDir, $publisherId, $integrationCName, $dataSourceId, DateTime $executionDate, DateTime $startDate, DateTime $endDate, $processId, $subDir = null)
     {
         $downloadPath = sprintf(
-            '%s/%d/%s/%s-%s-%s-%s',
+            '%s/%d/%s/%s/%s-%s-%s-%s',
             $rootDir,
             $publisherId,
             $integrationCName,
+            $dataSourceId,
             $executionDate->format('Ymd'),
             $startDate->format('Ymd'),
             $endDate->format('Ymd'),
@@ -560,7 +565,7 @@ class WebDriverService implements WebDriverServiceInterface
             return is_file($file) && (new \SplFileInfo($file))->getExtension() != 'lock';
         });
 
-        $time = sprintf('DTS-%s-From-%s-To-%s', $param->getDataSourceId(), $param->getStartDate()->format('Y-m-d'), $param->getEndDate()->format('Y-m-d'));
+        $time = sprintf('DTS-%s-%s-%s-%s', $param->getDataSourceId(), $param->getStartDate()->format('Ymd'), $param->getEndDate()->format('Ymd'), bin2hex(random_bytes(2)));
 
         foreach ($subFiles as $subFile) {
             $subFile = new \SplFileInfo($subFile);
@@ -589,6 +594,7 @@ class WebDriverService implements WebDriverServiceInterface
     private function saveMetaDataFile(PartnerParamInterface $params, $dataFolder)
     {
         $this->logger->debug(sprintf('Save meta data file', $dataFolder));
+        $uuid = bin2hex(random_bytes(2));
         // create metadata file
         $metadata = [
             'module' => 'integration',
@@ -596,7 +602,7 @@ class WebDriverService implements WebDriverServiceInterface
             'dataSourceId' => $params->getDataSourceId(),
             'integrationCName' => $params->getIntegrationCName(),
             // 'date' => ...set later if single date...,
-            'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
+            'uuid' => $uuid // make all metadata files have difference hash values when being processed in directory monitor
         ];
 
         //// date in metadata is only available if startDate equal endDate (day by day breakdown)
@@ -605,10 +611,12 @@ class WebDriverService implements WebDriverServiceInterface
         }
 
         // create metadata file
-        $metadataFileName = sprintf('%s-%s-%s.%s',
+        $metadataFileName = sprintf('%s-%s-%s-%s-%s.%s',
             $params->getIntegrationCName(),
+            $params->getDataSourceId(),
             $params->getStartDate()->format('Ymd'),
             $params->getEndDate()->format('Ymd'),
+            $uuid,
             'meta'
         );
 

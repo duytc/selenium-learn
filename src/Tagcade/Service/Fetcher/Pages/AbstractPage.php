@@ -10,6 +10,7 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\DownloadFileHelperInterface;
+use Tagcade\Service\Fetcher\Params\PartnerParams;
 use Tagcade\Service\WebDriverService;
 
 abstract class AbstractPage
@@ -364,6 +365,7 @@ abstract class AbstractPage
             // TODO: remove in future
             $rootDirectory = $this->downloadFileHelper->getRootDirectory();
             $publisherId = array_key_exists('publisher_id', $config) ? (int)$config['publisher_id'] : (int)$config['publisher']['id'];
+            $dataSourceId = array_key_exists(PartnerParams::PARAM_KEY_DATA_SOURCE_ID, $config) ? $config[PartnerParams::PARAM_KEY_DATA_SOURCE_ID] : 'not_found';
             $partnerCName = array_key_exists('partner_cname', $config) ? $config['partner_cname'] : $config['networkPartner']['nameCanonical'];
             $runningCommandDate = new \DateTime('now');
             $myProcessId = array_key_exists('process_id', $config) ? $config['process_id'] : getmypid();
@@ -382,6 +384,7 @@ abstract class AbstractPage
                 $rootDirectory,
                 $publisherId,
                 $partnerCName,
+                $dataSourceId,
                 $runningCommandDate,
                 $startDate,
                 $endDate,
