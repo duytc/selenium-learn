@@ -3,7 +3,6 @@
 namespace Tagcade\Service\Fetcher\Fetchers\VertaInternal\Page;
 
 use Exception;
-use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
@@ -24,33 +23,46 @@ class HomePage extends AbstractHomePage
         if (!$this->isCurrentUrl()) {
             $this->navigate();
         }
+
         $this->logger->debug('filling credentials');
 
-        $this->driver->wait(30)->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('email')));
+        try {
+            $this->driver->wait(30)->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('email')));
+        } catch (Exception $e) {
+            return false;
+        }
+
         $this->driver
             ->findElement(WebDriverBy::name('email'))
             ->clear()
             ->sendKeys($username);
 
-        $nextBtn = $this->filterElementByTagNameAndText('span', 'NEXT');
+        $this->sleep(1);
+        $nextBtn = $this->filterElementByTagNameAndText('button', 'NEXT');
         $nextBtn->click();
 
-        $this->driver->wait(30)->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('password')));
+        try {
+            $this->driver->wait(30)->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('password')));
+        } catch (Exception $e) {
+            $this->logger->debug('Login fail maybe due to username is wrong format. Please check username again.');
+            return false;
+        }
+
         $this->driver
             ->findElement(WebDriverBy::name('password'))
             ->clear()
             ->sendKeys($password);
 
+        $this->sleep(1);
         $this->logger->debug('click login button');
-        $signIn = $this->filterElementByTagNameAndText('a', 'SIGN IN');
+        $signIn = $this->filterElementByTagNameAndText('button', 'SIGN IN');
         $signIn->click();
 
         $this->driver->manage()->timeouts()->pageLoadTimeout(60);
         $waitDriver = new WebDriverWait($this->driver, 60);
 
         try {
-            $waitDriver->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::cssSelector('#panel-1026-innerCt')));
-
+            $waitDriver->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('application > div > application-menu > div > div > nav > application-menu-user > div > div > span.vd-description__name.vd-wrap')));
             return true;
         } catch (Exception $e) {
             return false;

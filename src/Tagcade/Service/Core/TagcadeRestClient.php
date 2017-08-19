@@ -510,7 +510,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     public function updateIntegrationSchedule($dataSourceIntegrationScheduleUUID, $status = self::FETCHER_STATUS_PENDING)
     {
         $queuedAt = null;
-        $this->logger->info(sprintf('Updating status pending for schedule'));
+        $this->logger->info(sprintf('Updating status is pending for schedule'));
         /* get token */
         $header = array('Authorization: Bearer ' . $this->getToken());
 
@@ -540,7 +540,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Updating status pending for schedule failed, code %d. Message: %s', $result['code'], $result['message']));
+            $this->logger->notice(sprintf('Updating status is pending for schedule failed, code %d. Message: %s', $result['code'], $result['message']));
             return false;
         }
 
@@ -594,7 +594,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
      */
     public function updateIntegrationScheduleFinishOrFail($dataSourceIntegrationScheduleUUID, $status, $nextExecutionAt = null, $finishedAt = null)
     {
-        $this->logger->info(sprintf('Updating status %d for schedule', $status));
+        $this->logger->info(sprintf('Updating status is %d for schedule', $status));
         /* get token */
         $header = array('Authorization: Bearer ' . $this->getToken());
 
@@ -624,7 +624,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         }
 
         if (array_key_exists('code', $result) && $result['code'] != 200) {
-            $this->logger->notice(sprintf('Updating status %d for schedule failed, code %d. Message: %s', $status, $result['code'], $result['message']));
+            $this->logger->notice(sprintf('Updating status is %d for schedule failed, code %d. Message: %s', $status, $result['code'], $result['message']));
             return false;
         }
 

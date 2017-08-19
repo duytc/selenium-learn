@@ -7,10 +7,10 @@ interface VertaPartnerParamInterface
     /**
      * @return string
      */
-    public function getSlice();
+    public function getCrossReport();
 
     /**
      * @return string
      */
-    public function getReportType();
+    public function getReport();
 }

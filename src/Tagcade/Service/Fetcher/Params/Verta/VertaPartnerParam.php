@@ -7,15 +7,12 @@ use Tagcade\Service\Integration\ConfigInterface;
 
 class VertaPartnerParam extends PartnerParams implements VertaPartnerParamInterface
 {
-    const PARAM_KEY_SLIDE = 'slice';
-    const PARAM_KEY_REPORT_TYPE = 'reportType';
-    const DEFAULT_SLICE = 'campaigns';
+    const PARAM_KEY_REPORT = 'report';
+    const PARAM_KEY_CROSS_REPORT = 'crossReport';
 
-    /** @var  mixed */
-    private $slice;
 
-    /** @var  string */
-    private $reportType;
+    private $crossReport;
+    private $report;
 
     /**
      * VertaPartnerParam constructor.
@@ -24,8 +21,8 @@ class VertaPartnerParam extends PartnerParams implements VertaPartnerParamInterf
     public function __construct(ConfigInterface $config)
     {
         parent::__construct($config);
-        $this->slice = $config->getParamValue(self::PARAM_KEY_SLIDE, self::DEFAULT_SLICE);
-        $this->reportType = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
+        $this->report = $config->getParamValue(self::PARAM_KEY_REPORT, null);
+        $this->crossReport = $config->getParamValue(self::PARAM_KEY_CROSS_REPORT, null);
 
         /** Like Cedato, Verta do not have date column in the report, so we automatically set dailyBreakdown to true */
         $this->setDailyBreakdown(true);
@@ -34,16 +31,16 @@ class VertaPartnerParam extends PartnerParams implements VertaPartnerParamInterf
     /**
      * @return string
      */
-    public function getSlice()
+    public function getCrossReport()
     {
-        return $this->slice;
+        return $this->crossReport;
     }
 
     /**
      * @return string
      */
-    public function getReportType()
+    public function getReport()
     {
-        return $this->reportType;
+        return $this->report;
     }
 }
