@@ -2,115 +2,42 @@
 
 namespace Tagcade\Service\Fetcher\Fetchers\VertaExternal\Page;
 
+use Exception;
+use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Tagcade\Service\Fetcher\Fetchers\VertaExternal\Util\VertaExternalUtil;
 use Tagcade\Service\Fetcher\Pages\AbstractPage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Params\Verta\VertaPartnerParamInterface;
 
 class DeliveryReportingPage extends AbstractPage
 {
-    /** Const reportType */
-    const REPORT_TYPE_ALL = 'All';
-    const REPORT_TYPE_DESKTOP = 'Desktop';
-    const REPORT_TYPE_MOBILE_APP = 'Mobile App';
-    const REPORT_TYPE_MOBILE_WEB = 'Mobile Web';
-    const REPORT_TYPE_CTV = 'CTV';
-
-    /** Const slice */
-    const SLICE_CAMPAIGNS = 'CAMPAIGNS';
-    const SLICE_DATE = 'DATE';
-    const SLICE_AIDS = 'AIDS';
-    const SLICE_COUNTRIES = 'COUNTRIES';
-    const SLICE_DOMAINS = 'DOMAINS';
-    const SLICE_USER_AGENTS = 'USER AGENTS';
-    const SLICE_APP_NAME = 'APP NAME';
-    const SLICE_APP_BUNDLE_ID = 'APP BUNDLE ID';
-
-    const URL = 'https://ssp.vertamedia.com/pages/reports';
-
-    public $reportTemplate = "https://ssp.vertamedia.com/pages/statistics/?outstream=all&tabId=Default&%s&%s&%s";
-
-    public $slices = [
-        self::SLICE_CAMPAIGNS => "campaign=all&report=campaigns",
-        self::SLICE_DATE => "report=days",
-        self::SLICE_AIDS => "source=all&report=aid",
-        self::SLICE_COUNTRIES => "country=all&report=countries",
-        self::SLICE_DOMAINS => "domain=all&report=domains",
-        self::SLICE_USER_AGENTS => "useragent=all&report=useragents",
-        self::SLICE_APP_NAME => "app_name=all&report=app_names",
-        self::SLICE_APP_BUNDLE_ID => "app_bundle=all&report=app_bundles",
-    ];
-
-    public $supportSlices = [
-        self::REPORT_TYPE_ALL => [self::SLICE_CAMPAIGNS, self::SLICE_DATE, self::SLICE_AIDS, self::SLICE_COUNTRIES],
-        self::REPORT_TYPE_DESKTOP => [self::SLICE_CAMPAIGNS, self::SLICE_DATE, self::SLICE_AIDS, self::SLICE_COUNTRIES, self::SLICE_DOMAINS, self::SLICE_USER_AGENTS],
-        self::REPORT_TYPE_MOBILE_APP => [self::SLICE_CAMPAIGNS, self::SLICE_DATE, self::SLICE_AIDS, self::SLICE_COUNTRIES, self::SLICE_APP_NAME, self::SLICE_APP_BUNDLE_ID],
-        self::REPORT_TYPE_MOBILE_WEB => [self::SLICE_CAMPAIGNS, self::SLICE_DATE, self::SLICE_AIDS, self::SLICE_COUNTRIES, self::SLICE_DOMAINS],
-        self::REPORT_TYPE_CTV => [self::SLICE_CAMPAIGNS, self::SLICE_DATE, self::SLICE_AIDS, self::SLICE_COUNTRIES, self::SLICE_APP_NAME, self::SLICE_APP_BUNDLE_ID],
-    ];
-
-    public $environments = [
-        self::REPORT_TYPE_ALL => "all",
-        self::REPORT_TYPE_DESKTOP => "desktop",
-        self::REPORT_TYPE_MOBILE_APP => "mobile_app",
-        self::REPORT_TYPE_MOBILE_WEB => "mobile_web",
-        self::REPORT_TYPE_CTV => "smarttv",
-    ];
-
-
-    CONST RUN_REPORT_IDS = [1025, 1071, 1025, 1071];
+    const URL = 'https://ssp.vertamedia.com/#/pages/reports';
 
     public function getAllTagReports(PartnerParamInterface $params)
     {
         if (!($params instanceof VertaPartnerParamInterface)) {
             return;
         }
+        $this->logger->debug('redirect to report page');
+        $this->driver->navigate()->to(self::URL);
+        //need to wait
+        $this->sleep(10);
 
-        $this->validateParams($params);
+        $this->selectReport($params->getReport());
+        $this->sleep(3);
 
-        $reportType = $this->selectReportType($params->getReportType(), $params->getDataSourceId());
-        $dateRange = $this->selectDateRanges($params->getStartDate(), $params->getEndDate());
-        $slice = $this->selectSlice($params->getSlice(), $params->getDataSourceId());
+        $this->selectCrossReports($params->getCrossReports());
+        $this->sleep(10);
 
-        $url = sprintf($this->reportTemplate, $reportType, $dateRange, $slice);
-
-        $this->driver->navigate()->to($url);
-
-        /** A progress circle show on UI with text Loading...
-         *  We wait report loading before click Download button
-         */
-        $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::className('x-mask-msg-text')));
+        $this->selectDateRanges($params->getStartDate(), $params->getEndDate());
+        $this->sleep(5);
 
         $this->runReportAndDownload();
 
-        /** Verta host need more time to return download stream for large report (by DOMAINS), so we wait */
-        if ($params->getSlice() == 'DOMAINS') {
-            $this->sleep(18);
-        } else {
-            $this->sleep(3);
-        }
+        $this->logger->debug('Time to wait for the browser closes automatically new tab.');
+        $this->sleep(20);
     }
-
-
-    /**
-     * @param $reportType
-     * @param null $dataSourceId
-     * @return string
-     * @throws \Exception
-     */
-    public function selectReportType($reportType, $dataSourceId = null)
-    {
-        $this->logger->debug(sprintf("Report type: %s", $reportType));
-
-        if (array_key_exists($reportType, $this->environments)) {
-            return sprintf('environment=%s', $this->environments[$reportType]);
-        }
-
-        throw new \Exception(sprintf("ReportType %s not correct. Need recheck on Data Source id = %s", $reportType, $dataSourceId));
-    }
-
 
     /**
      * @param \DateTime $startDate
@@ -122,26 +49,118 @@ class DeliveryReportingPage extends AbstractPage
     {
         $this->logger->debug(sprintf("Date range: from %s to %s", $startDate->format("Y-m-d"), $endDate->format("Y-m-d")));
 
-        $dateRange = sprintf('date_from=%s&date_to=%s', $startDate->format('m d Y'), $endDate->format('m d Y'));
-        return str_replace(" ", "%2F", $dateRange);
+        //Open popup select date
+        $dateRangeElement = $this->driver->findElement(WebDriverBy::cssSelector("application > div > div > reports > div > div.content > div > report-container > div > section.margin-top-30 > div.inline-block"));
+        $dateRangeElement->click();
+
+        //Click Custom date range
+        $customDateRangeElement = $this->filterElementByTagNameAndText('li', 'Custom Range');
+        if ($customDateRangeElement) {
+            $customDateRangeElement->click();
+        } else {
+            throw new Exception('Can not click Custom Range. Recheck code base');
+        }
+
+        //Fill keys to start date
+        $this->logger->debug('Entering Start Date');
+        $this->sendKeyToStartAndEndDate($startDate->format("m/d/Y"), 'daterangepicker_start');
+
+        //Fill keys to end date
+        $this->logger->debug('Entering End Date');
+        $this->sendKeyToStartAndEndDate($endDate->format("m/d/Y"), 'daterangepicker_end');
+
+        //Click Apply to close popup
+        $this->logger->debug('Click apply');
+        $buttonApplyElement = $this->filterElementByTagNameAndText('button', 'Apply');
+        if ($buttonApplyElement) {
+            $buttonApplyElement->click();
+
+            return;
+        }
+
+        throw new Exception('Can not click Apply. Recheck code base');
     }
 
-
     /**
-     * @param $slice
-     * @param null $dataSourceId
+     * @param $report
      * @return string
      * @throws \Exception
      */
-    public function selectSlice($slice, $dataSourceId = null)
+    public function selectReport($report)
     {
-        $this->logger->debug(sprintf("Slice: %s", $slice));
+        $this->logger->debug(sprintf("Report: %s", $report));
 
-        if (array_key_exists($slice, $this->slices)) {
-            return $this->slices[$slice];
+        $allButtonElements = $this->driver->findElements(WebDriverBy::tagName('button'));
+        if (count($allButtonElements) < 1) {
+            throw new Exception('Can not find Report button. Need recheck code base');
         }
 
-        throw new \Exception(sprintf("Slice %s not correct. Need recheck on Data Source id = %s", $slice, $dataSourceId));
+        foreach ($allButtonElements as $element) {
+            if (!$element instanceof RemoteWebElement) {
+                continue;
+            }
+            try {
+                if (!$element->isDisplayed()) {
+                    continue;
+                }
+
+                if (strtolower($element->getAttribute('ng-if')) != strtolower('slice.is_visible')) {
+                    continue;
+                }
+
+                if (strtolower(strtolower($element->getAttribute('aria-label'))) == strtolower($report . ' slice')) {
+                    $element->click();
+                    return;
+                }
+            } catch (Exception $e) {
+            }
+        }
+
+        throw new Exception('Can not find Report button. Need recheck code base');
+    }
+
+    /**
+     * @param $crossReports
+     * @return string
+     * @throws \Exception
+     */
+    public function selectCrossReports($crossReports)
+    {
+        $this->logger->debug(sprintf("Cross Reports : %s", implode(', ', $crossReports)));
+
+        $allButtonElements = $this->driver->findElements(WebDriverBy::tagName('button'));
+        if (count($allButtonElements) < 1) {
+            throw new Exception('Can not find Cross Report button. Need recheck code base');
+        }
+
+        foreach ($crossReports as $crossReport) {
+            foreach ($allButtonElements as $element) {
+                if (!$element instanceof RemoteWebElement) {
+                    continue;
+                }
+                try {
+                    if (!$element->isDisplayed()) {
+                        continue;
+                    }
+
+                    if (strtolower($element->getAttribute('ng-repeat')) != strtolower('item in $ctrl.additionalSliceList track by item.id')) {
+                        continue;
+                    }
+
+                    if (strtolower(strtolower($element->getAttribute('aria-label'))) == strtolower($crossReport . ' slice')) {
+
+                        if (strpos($element->getAttribute('class'), 'btn-primary')){
+                            break;
+                        } else {
+                            $this->logger->debug(sprintf("Cross Report: %s ", $crossReport));
+                            $element->click();
+                            break;
+                        }
+                    }
+                } catch (Exception $e) {
+                }
+            }
+        }
     }
 
     /**
@@ -150,66 +169,64 @@ class DeliveryReportingPage extends AbstractPage
     public function runReportAndDownload()
     {
         $this->logger->debug("Find download button");
-        $allElement = $this->filterElementByTagNameAndText('label', 'All');
-        if (!$allElement) {
-            $this->runReportAndDownload();
+
+        $allButtonElements = $this->driver->findElements(WebDriverBy::tagName('button'));
+        if (count($allButtonElements) < 1) {
+            throw new Exception('Can not find Export to CSV button. Need recheck code base');
         }
 
-        $isClick = false;
-        foreach (self::RUN_REPORT_IDS as $id) {
+        foreach ($allButtonElements as $element) {
+            if (!$element instanceof RemoteWebElement) {
+                continue;
+            }
             try {
-                $exportTabId = VertaExternalUtil::getId(VertaExternalUtil::BUTTON, $id);
-                $exportTab = $this->driver->findElement(WebDriverBy::id($exportTabId));
-
-                if ($exportTab) {
-                    try {
-                        $exportTab->click();
-                        $this->logger->debug("Click button Export Tab");
-                        $isClick = true;
-                        break;
-                    } catch (\Exception $e) {
-
-                    }
+                if (!$element->isDisplayed()) {
+                    continue;
                 }
-            } catch (\Exception $e) {
+                if (strtolower($element->getAttribute('aria-label')) == strtolower('Export to CSV')) {
+                    $element->click();
+                    return;
+                }
+            } catch (Exception $e) {
             }
         }
 
-        if (!$isClick) {
-            throw new \Exception("Id of Download button is not correct. Need recheck code base");
-        }
-
-        try {
-            $this->clickExportToCSV();
-        } catch (\Exception $e) {
-            $this->clickExportToCSV();
-        }
+        throw new Exception('Can not find Export to CSV button. Need recheck code base');
     }
 
     /**
-     * @param VertaPartnerParamInterface $params
-     * @throws \Exception
+     * @param $date
+     * @param $attribute
+     * @return null|void
      */
-    public function validateParams(VertaPartnerParamInterface $params)
+    private function sendKeyToStartAndEndDate($date, $attribute)
     {
-        $slice = $params->getSlice();
-        $reportType = $params->getReportType();
-
-        if (!in_array($slice, $this->supportSlices[$reportType])) {
-            /** @var PartnerParamInterface $params */
-            $dataSourceId = $params->getDataSourceId();
-            throw new \Exception(sprintf("ReportType %s do not support Slice %s. Need recheck on Data Source id = %s", $reportType, $slice, $dataSourceId));
+        $classElements = $this->driver->findElements(WebDriverBy::tagName('input'));
+        if (count($classElements) < 1) {
+            return null;
         }
-    }
 
-    public function clickExportToCSV()
-    {
-        $this->logger->debug("Try click button Export to CSV");
-        $exportToCSVButton = $this->filterElementByTagNameAndText('span', "Export to .CSV");
-        if ($exportToCSVButton) {
-            $exportToCSVButton->click();
-            $this->logger->debug('Click download report');
-            return;
+        foreach ($classElements as $element) {
+            if (!$element instanceof RemoteWebElement) {
+                continue;
+            }
+
+            try {
+                if (!$element->isDisplayed()) {
+                    continue;
+                }
+
+                if (strtolower($element->getAttribute('name')) == strtolower($attribute)) {
+                    $element->clear();
+                    $element->sendKeys($date);
+
+                    return;
+                }
+            } catch (Exception $e) {
+
+            }
         }
+
+        return null;
     }
 }

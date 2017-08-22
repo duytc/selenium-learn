@@ -26,11 +26,6 @@ class VertaExternalFetcher extends PartnerFetcherAbstract implements VertaExtern
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
 
-        // common step of other fetchers,
-        if (!$deliveryReportPage->isCurrentUrl()) {
-            $deliveryReportPage->navigate();
-        }
-
         $this->logger->info('Start downloading reports');
         $deliveryReportPage->getAllTagReports($params);
         $this->logger->info('Finish downloading reports');
