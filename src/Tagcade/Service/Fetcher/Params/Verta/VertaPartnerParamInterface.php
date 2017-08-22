@@ -25,4 +25,15 @@ interface VertaPartnerParamInterface
      * @return self
      */
     public function setReport($report);
+
+    /**
+     * @return string
+     */
+    public function getCrossReport();
+
+    /**
+     * @param string $crossReport
+     * @return self
+     */
+    public function setCrossReport($crossReport);
 }

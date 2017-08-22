@@ -8,7 +8,11 @@ use Tagcade\Service\Integration\ConfigInterface;
 class VertaPartnerParam extends PartnerParams implements VertaPartnerParamInterface
 {
     const PARAM_KEY_REPORT = 'report';
+    const PARAM_KEY_CROSS_REPORT = 'crossReport';
     const PARAM_KEY_CROSS_REPORTS = 'crossReports';
+
+    /** @var string */
+    private $crossReport;
 
     /** @var array */
     private $crossReports;
@@ -25,7 +29,6 @@ class VertaPartnerParam extends PartnerParams implements VertaPartnerParamInterf
         parent::__construct($config);
 
         $this->report = $config->getParamValue(self::PARAM_KEY_REPORT, '');
-        $this->crossReports = $config->getParamValue(self::PARAM_KEY_CROSS_REPORTS, []);
 
         /** Like Cedato, Verta do not have date column in the report, so we automatically set dailyBreakdown to true */
         $this->setDailyBreakdown(true);
@@ -64,6 +67,24 @@ class VertaPartnerParam extends PartnerParams implements VertaPartnerParamInterf
     {
         $this->report = $report;
 
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCrossReport()
+    {
+        return $this->crossReport;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCrossReport($crossReport)
+    {
+        $this->crossReport = $crossReport;
+        
         return $this;
     }
 }
