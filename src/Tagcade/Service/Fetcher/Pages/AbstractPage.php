@@ -251,20 +251,23 @@ abstract class AbstractPage
     protected function navigateToPartnerDomain()
     {
         $domain = parse_url($this->driver->getCurrentURL());
-        $domain = $domain['host'];
 
-        $host_names = explode(".", $domain);
-
-        if (count($host_names) - 2 > -1) {
-            $domain = $host_names[count($host_names) - 2] . "." . $host_names[count($host_names) - 1];
-        } else {
+        if (isset($domain['host'])) {
             $domain = $domain['host'];
-        }
-        $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
-        $this->logger->debug(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
 
-        if (strpos($this->getPageUrl(), $domain) > -1) {
-            return;
+            $host_names = explode(".", $domain);
+
+            if (count($host_names) - 2 > -1) {
+                $domain = $host_names[count($host_names) - 2] . "." . $host_names[count($host_names) - 1];
+            } else {
+                $domain = $domain['host'];
+            }
+            $foundSameDomain = strpos($this->getPageUrl(), $domain) > -1;
+            $this->logger->debug(sprintf('Found domain in page Url (1/0) %d .Current domain %s, page to access %s', $foundSameDomain, $domain, $this->getPageUrl()));
+
+            if (strpos($this->getPageUrl(), $domain) > -1) {
+                return;
+            }
         }
 
         $this->navigate();
