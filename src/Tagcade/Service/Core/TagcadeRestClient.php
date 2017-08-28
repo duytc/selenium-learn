@@ -463,7 +463,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             /** Add try catch to prevent exception make fetcher fail */
             try {
                 if (!empty($scheduleUUID)) {
-                    $this->updateIntegrationScheduleFinishOrFail($scheduleUUID, $status = TagcadeRestClient::FETCHER_STATUS_FINISHED);
+                    if (!$partnerParams->getFetcherActivatorDataSourceForce()) {
+                        $this->updateIntegrationScheduleFinishOrFail($scheduleUUID, $status = TagcadeRestClient::FETCHER_STATUS_FINISHED);
+                    }
                 }
             } catch (\Exception $e) {
                 $this->logger->notice(sprintf('Update last executed fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));
@@ -496,7 +498,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
             /** Add try catch to prevent exception make fetcher fail */
             try {
                 if (!empty($scheduleId)) {
-                    $this->updateIntegrationScheduleFinishOrFail($scheduleUUID, $status = TagcadeRestClient::FETCHER_STATUS_FAILED);
+                    if (!$partnerParams->getFetcherActivatorDataSourceForce()) {
+                        $this->updateIntegrationScheduleFinishOrFail($scheduleUUID, $status = TagcadeRestClient::FETCHER_STATUS_FAILED);
+                    }
                 }
             } catch (\Exception $e) {
                 $this->logger->notice(sprintf('Update status fail for schedule id %s and uuid %s', $scheduleId, $scheduleUUID));

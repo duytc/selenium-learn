@@ -145,6 +145,17 @@ interface PartnerParamInterface
     /**
      * @return mixed
      */
+    public function getFetcherActivatorDataSourceForce();
+
+    /**
+     * @param mixed $fetcherActivatorDataSourceForce
+     * @return self
+     */
+    public function setFetcherActivatorDataSourceForce($fetcherActivatorDataSourceForce);
+
+    /**
+     * @return mixed
+     */
     public function getDataSourceIntegrationBackFillHistoryId();
 
     /**
