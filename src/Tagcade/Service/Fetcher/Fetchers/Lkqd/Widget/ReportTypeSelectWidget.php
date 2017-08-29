@@ -24,8 +24,8 @@ class ReportTypeSelectWidget extends AbstractWidget
     public function setReportType($optionIndex)
     {
         // click the drop down button
-        $this->driver->findElement(WebDriverBy::xpath('//div[@class="time-box"]/div[1]/button'))->click();
-        $xpath = sprintf('//div[@class="time-box"]/div[1]/ul[1]/li[%d]/a', $optionIndex);
+        $this->driver->findElement(WebDriverBy::xpath('//div[@class="reporttype-box"]/div[1]/button'))->click();
+        $xpath = sprintf('//div[@class="reporttype-box"]/div[1]/ul[1]/li[%d]/a', $optionIndex);
         $this->driver->findElement(WebDriverBy::xpath($xpath))->click();
         return $this;
     }
