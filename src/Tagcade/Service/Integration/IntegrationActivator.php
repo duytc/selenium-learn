@@ -111,7 +111,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
             }
 
             /* create new job for execution */
-            $this->createExecutionJob($fetcherSchedule);
+            $this->createExecutionJob($fetcherSchedule, $isForceRun);
         }
 
         return true;
@@ -121,9 +121,10 @@ class IntegrationActivator implements IntegrationActivatorInterface
      * create execution job for dataSourceIntegration
      *
      * @param $fetcherSchedule
+     * @param bool $isForceRun
      * @return bool
      */
-    private function createExecutionJob($fetcherSchedule)
+    private function createExecutionJob($fetcherSchedule, $isForceRun = false)
     {
         if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
             $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
@@ -136,7 +137,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PartnerParams::PARAM_KEY_BACK_FILL_START_DATE => null,
                 PartnerParams::PARAM_KEY_BACK_FILL_END_DATE => null,
                 PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID => $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_UUID],
-
+                PartnerParams::PARAM_KEY_FETCHER_ACTIVATOR_DATASOURCE_FORCE => $isForceRun,
             ];
         } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
             $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
@@ -150,6 +151,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PartnerParams::PARAM_KEY_BACK_FILL => true,
                 PartnerParams::PARAM_KEY_BACK_FILL_START_DATE => $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_START_DATE],
                 PartnerParams::PARAM_KEY_BACK_FILL_END_DATE => $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_END_DATE],
+                PartnerParams::PARAM_KEY_FETCHER_ACTIVATOR_DATASOURCE_FORCE => $isForceRun,
             ];
 
         } else {
@@ -184,7 +186,9 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 $this->restClient->updateBackFillHistory($backFillHistoryId, TagcadeRestClient::FETCHER_STATUS_PENDING);
             } else {
                 $scheduleUUID = $backFill[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE_UUID];
-                $this->restClient->updateIntegrationSchedule($scheduleUUID, TagcadeRestClient::FETCHER_STATUS_PENDING);
+                if (!$isForceRun) {
+                    $this->restClient->updateIntegrationSchedule($scheduleUUID, TagcadeRestClient::FETCHER_STATUS_PENDING);
+                }
             }
             /** @var PheanstalkInterface $pheanstalk */
             $this->pheanstalk

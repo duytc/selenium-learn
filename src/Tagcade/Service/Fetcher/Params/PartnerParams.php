@@ -38,7 +38,8 @@ class PartnerParams implements PartnerParamInterface
 
     const PARAM_KEY_DATE_RANGE = 'dateRange';
     const PARAM_KEY_PUBLISHER_ID = 'publisher_id';
-    
+    const PARAM_KEY_FETCHER_ACTIVATOR_DATASOURCE_FORCE = 'fetcherActivatorDataSourceForce';
+
     /* required params (information for webdriver run) */
     /**
      * @var int publisherId
@@ -108,6 +109,8 @@ class PartnerParams implements PartnerParamInterface
     protected $config;
 
     protected $backFill;
+
+    protected $fetcherActivatorDataSourceForce;
 
     public function __construct(ConfigInterface $config)
     {
@@ -187,6 +190,7 @@ class PartnerParams implements PartnerParamInterface
         $backFill = $config->getBackFill();
 
         $this->backFill = $backFill[self::PARAM_KEY_BACK_FILL];
+        $this->fetcherActivatorDataSourceForce = $backFill[self::PARAM_KEY_FETCHER_ACTIVATOR_DATASOURCE_FORCE];
         $this->backFillStartDate = $backFill[self::PARAM_KEY_BACK_FILL_START_DATE];
         $this->backFillEndDate = $backFill[self::PARAM_KEY_BACK_FILL_END_DATE];
 
@@ -496,6 +500,25 @@ class PartnerParams implements PartnerParamInterface
     {
         $this->backFill = $backFill;
         
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFetcherActivatorDataSourceForce()
+    {
+        return $this->fetcherActivatorDataSourceForce;
+    }
+
+    /**
+     * @param mixed $fetcherActivatorDataSourceForce
+     * @return self
+     */
+    public function setFetcherActivatorDataSourceForce($fetcherActivatorDataSourceForce)
+    {
+        $this->fetcherActivatorDataSourceForce = $fetcherActivatorDataSourceForce;
+
         return $this;
     }
 
