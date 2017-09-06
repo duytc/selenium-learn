@@ -30,6 +30,8 @@ class StreamRailPartnerParam extends PartnerParams implements StreamRailPartnerP
         parent::__construct($config);
         $this->primaryDimension = $config->getParamValue(self::PARAM_KEY_PRIMARY_DIMENSION, null);
         $this->secondaryDimension = $config->getParamValue(self::PARAM_KEY_SECONDARY_DIMENSION, null);
+
+        $this->setDailyBreakdown(true);
     }
 
     /**
