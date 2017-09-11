@@ -9,8 +9,10 @@ use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
+use Tagcade\Exception\RuntimeException;
 use Tagcade\Service\Fetcher\Pages\AbstractPage;
 use Tagcade\Service\Fetcher\Params\OptimaticExternal\OptimaticExternalPartnerParamsInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
@@ -70,29 +72,22 @@ class DeliveryReportPage extends AbstractPage
             $placementsOptionElements = $placementsElement->findElements(WebDriverBy::tagName('div'));
 
             $fileName = 'CombineToday';
-            $dataToWrite[] = array($fileName);
+            $dataToWrite[] = array();
             $i = 0;
+
             for ($j = 0; $j < count($placementsOptionElements); $j++) {
 
-                // click placement
-                $this->logger->debug('Click Placements');
                 $placementsElement = $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersHeader > div.siteSearchDropDown > div.container > div.content > div.list > div'));
                 $placementsElement->click();
 
                 $placementsOptionElement1s = $placementsElement->findElements(WebDriverBy::tagName('div'));
                 $this->sleep(1);
-                $isDone = false;
-                do {
-                    try {
-                        $placementsOptionElement1s[$j]->click();
-                        $isDone = true;
-                    } catch (\Exception $e) {
-                        $this->driver->executeScript("window.scrollBy(0,-39)", array());
-                    }
-                } while (!$isDone);
+
+                $placementText = $this->clickPlacement($placementsOptionElement1s[$j], count($placementsOptionElements) * 3);
 
                 // click view report
-                $this->logger->debug('Click view report');
+                $this->logger->debug(sprintf('Click view report %s', $placementText));
+
                 $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersContent > div > div.apply'))->click();
                 // download report file Today.xls
                 try {
@@ -150,29 +145,21 @@ class DeliveryReportPage extends AbstractPage
             $placementsOptionElements = $placementsElement->findElements(WebDriverBy::tagName('div'));
 
             $fileName = 'Combine' . $params->getReportType();
-            $dataToWrite[] = array($fileName);
+            $dataToWrite[] = array();
             $i = 0;
             for ($j = 0; $j < count($placementsOptionElements); $j++) {
 
-                // click placement
-                $this->logger->debug('Click Placements');
                 $placementsElement = $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersHeader > div.siteSearchDropDown > div.container > div.content > div.list > div'));
                 $placementsElement->click();
 
                 $placementsOptionElement1s = $placementsElement->findElements(WebDriverBy::tagName('div'));
                 $this->sleep(1);
-                $isDone = false;
-                do {
-                    try {
-                        $placementsOptionElement1s[$j]->click();
-                        $isDone = true;
-                    } catch (\Exception $e) {
-                        $this->driver->executeScript("window.scrollBy(0,-39)", array());
-                    }
-                } while (!$isDone);
-                $placementText = $placementsOptionElement1s[$j]->getText();
+
+                $placementText = $this->clickPlacement($placementsOptionElement1s[$j], count($placementsOptionElements));
+
                 // click view report
-                $this->logger->debug('Click view report');
+                $this->logger->debug(sprintf('Click view report %s', $placementText));
+
                 $this->driver->findElement(WebDriverBy::cssSelector('#menuContent > div.menu > div.filtersContainer > div.filtersContent > div > div.apply'))->click();
                 // download report file
                 try {
@@ -279,7 +266,7 @@ class DeliveryReportPage extends AbstractPage
 
         //   foreach ($rowElements as $rowElement) {
         $tdElements = $rowElements[0]->findElements(WebDriverBy::cssSelector('div'));
-        $this->sleep(3);
+        $this->sleep(2);
         try {
             /** @var RemoteWebElement $tdElement */
             foreach ($tdElements as $tdElement) {
@@ -332,7 +319,7 @@ class DeliveryReportPage extends AbstractPage
                         $oneRows[] = $rowElement1->getText();
                 }
                 if ($reportTypeText != 'Revenue By Placement')
-                array_unshift($oneRows, "PLACEMENTS");
+                    array_unshift($oneRows, "PLACEMENTS");
                 //delete null value
                 if (is_array($oneRows) && !empty($oneRows)) {
 
@@ -371,7 +358,7 @@ class DeliveryReportPage extends AbstractPage
 
                     if (is_array($oneRows) && !empty($oneRows)) {
                         if ($reportTypeText != 'Revenue By Placement')
-                        array_unshift($oneRows, $placementText);
+                            array_unshift($oneRows, $placementText);
                         $dataRows[] = $oneRows;
                         $oneRows = null;
                     }
@@ -404,6 +391,9 @@ class DeliveryReportPage extends AbstractPage
 
         $file = fopen($path, 'w');
         foreach ($dataRows as $dataRow) {
+            if (!is_array($dataRow) || empty($dataRow)) {
+                continue;
+            }
             fputcsv($file, $dataRow);
         }
 
@@ -509,5 +499,37 @@ class DeliveryReportPage extends AbstractPage
                 break;
             }
         }
+    }
+
+    /**
+     * @param $placement
+     * @param $totalPlacements
+     * @return string
+     */
+    protected function clickPlacement(WebDriverElement $placement, $totalPlacements)
+    {
+        $retry = 0;
+        $isDone = false;
+        do {
+            try {
+                $retry++;
+
+                $placement->click();
+
+                // click placement
+                $this->logger->debug(sprintf('Click Placements %s', $placement->getText()));
+                $isDone = true;
+            } catch (\Exception $e) {
+                if ($retry > $totalPlacements) {
+                    throw new RuntimeException('Runtime when try to click placements.');
+                }
+                $this->logger->debug(sprintf('windows scroll the %s times', $retry));
+
+                $this->driver->executeScript("window.scrollBy(0,117)", array());
+                $this->driver->action()->moveToElement($placement)->perform();
+            }
+        } while (!$isDone);
+
+        return $placement->getText();
     }
 }
