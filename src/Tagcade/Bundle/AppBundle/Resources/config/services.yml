@@ -63,7 +63,6 @@ services:
         class: Tagcade\Service\DownloadFileHelper
         arguments:
             - '%tagcade.default_data_path%'
-            - '%tagcade_download_time_out%'
             - '@logger'
             - '%kernel.root_dir%'
             - '@tagcade.service.integration.delete_file_service'

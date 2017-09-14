@@ -17,10 +17,6 @@ class DownloadFileHelper implements DownloadFileHelperInterface
      */
     private $downloadRootDirectory;
     /**
-     * @var int
-     */
-    private $downloadTimeout;
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -32,10 +28,9 @@ class DownloadFileHelper implements DownloadFileHelperInterface
     /* @var DeleteFileService  */
     private $deleteFileService;
 
-    function __construct($downloadRootDirectory, $downloadTimeout, LoggerInterface $logger, $rootKernelDirectory, DeleteFileService $deleteFileService)
+    function __construct($downloadRootDirectory, LoggerInterface $logger, $rootKernelDirectory, DeleteFileService $deleteFileService)
     {
         $this->downloadRootDirectory = sprintf('%s/', $downloadRootDirectory);
-        $this->downloadTimeout = $downloadTimeout;
         $this->logger = $logger;
         $this->rootKernelDirectory = $rootKernelDirectory;
         $this->deleteFileService = $deleteFileService;
@@ -110,76 +105,6 @@ class DownloadFileHelper implements DownloadFileHelperInterface
         $clickAbleElement->click();
 
         // TODO: do wait for download complete here instead of in WebDriverService
-
-        return $this;
-    }
-
-    /**
-     * @param int $directoryStoreDownloadFile
-     * @param $oldFiles
-     * @throws \Exception
-     * @internal param $totalOldFiles
-     * @return $this
-     */
-    public function waitFinishingDownload($directoryStoreDownloadFile, $oldFiles)
-    {
-        $countOldFiles = count($oldFiles);
-        $foundPartialFile = false;
-        $totalWaitTime = 0;
-
-        $this->logger->debug(sprintf('Start to wait for data download with $countOldFiles = %d, path to store downloadFile =%s', $countOldFiles, $directoryStoreDownloadFile));
-        if (!is_dir($directoryStoreDownloadFile)) {
-            $this->logger->debug(sprintf('Path to store data download is not directory, %s', $directoryStoreDownloadFile));
-            return $this;
-        }
-
-        do {
-
-            $currentPartialDownloadFiles = $this->getPartialDownloadFiles($directoryStoreDownloadFile);
-            $currentPartialDownloadCount = count($currentPartialDownloadFiles);
-
-            if ($foundPartialFile === false && ($currentPartialDownloadCount > 0)) {
-                $foundPartialFile = true;
-            }
-
-            if ($foundPartialFile == false) {
-                $allFiles = $this->getAllFilesInDirectory($directoryStoreDownloadFile);
-                $countCurrentFiles = count($allFiles);
-
-                $this->logger->debug(sprintf('path store file %s', $directoryStoreDownloadFile));
-                $this->logger->debug(sprintf('Now total files = %d', $countCurrentFiles));
-
-                if ($countCurrentFiles > $countOldFiles) {
-                    $this->logger->debug('File has been downloaded!');
-                    break;
-                }
-
-                usleep(static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS * 1000000);
-                $totalWaitTime += static::NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS;
-
-                if ($totalWaitTime > $this->downloadTimeout) {
-                    $this->logger->warning(sprintf('Break because of time out after %f seconds. File has not been download', $totalWaitTime));
-                    break;
-                }
-
-                $this->logger->debug(sprintf('Continue wait, total waiting time: %f seconds', $totalWaitTime));
-                continue;
-            }
-
-            $this->logger->debug(sprintf('Found %d partial download files', $currentPartialDownloadCount));
-
-            if ($foundPartialFile == true && $currentPartialDownloadCount == 0) { // download complete
-                $this->logger->debug('Download complete');
-                break;
-            }
-
-            $this->logger->debug('Waiting for 5 seconds to see if download complete');
-
-            sleep(self::RESCAN_TIME_IN_SECONDS);
-            $totalWaitTime += self::RESCAN_TIME_IN_SECONDS;
-
-            $this->logger->debug(sprintf('Wait complete due to timeout (yes/no) %d', $totalWaitTime >= $this->downloadTimeout));
-        } while ($totalWaitTime < $this->downloadTimeout);
 
         return $this;
     }

@@ -17,15 +17,6 @@ interface DownloadFileHelperInterface
     public function deleteFilesByExtension($fileExtension = '.crdownload');
 
     /**
-     * Waiting download file finish
-     *
-     * @param $directoryStoreDownloadFile
-     * @param $totalOldFiles
-     * @return $this
-     */
-    public function waitFinishingDownload( $directoryStoreDownloadFile, $totalOldFiles );
-
-    /**
      * @param RemoteWebElement $clickAbleElement
      * @param $directoryStoreDownloadFile
      * @return mixed

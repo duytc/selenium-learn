@@ -15,7 +15,6 @@ parameters:
 
     tagcade_user_name: admin
     tagcade_user_password: '123456'
-    tagcade_download_time_out: 3600
     tagcade_get_token_url: 'http://api.tagcade.dev/app_dev.php/api/v1/getToken'
     tagcade_get_list_publisher_url: 'http://api.tagcade.dev/app_dev.php/api/v1/adnetworks/{cname}/publishers'
     ur_get_list_integrations_to_be_executed_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/datasourceintegrationschedules/byschedule'
@@ -24,7 +23,7 @@ parameters:
     ur_create_alert_url: 'http://api.unified-reports.dev/app_dev.php/api/v1/alerts'
 
     fetcher_worker_tube: 'fetcher-worker'
-    pheanstalk_ttr: 3600
+    pheanstalk_ttr: 10800 # 10800 second
     pheanstalk_primary_host: 127.0.0.1
     integration_log_file_dir: %kernel.root_dir%/../app/logs/integration
     integration_temp_file_dir: %kernel.root_dir%/../app/temp/integration
@@ -33,8 +32,6 @@ parameters:
     retry_when_fail_max_retries_number: 1 # positive integer
     retry_when_fail_delay_before_retry: 30 # in second
 
-    # process timeout
-    process.timeout.execute_integration_command: 3600
     chrome_folder_path: '/media/tagcade/tagcade-unified-report-fetcher/.chrome'
     remove_chrome_folder_path_interval: 7200 # in seconds
     delay_time_before_job_become_ready: 15
