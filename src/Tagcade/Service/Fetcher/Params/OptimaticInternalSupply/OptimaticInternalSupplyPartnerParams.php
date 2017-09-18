@@ -24,6 +24,7 @@ class OptimaticInternalSupplyPartnerParams extends PartnerParams implements Opti
         parent::__construct($config);
         $this->reportType = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
 
+        $this->setDailyBreakdown(true);
     }
 
     /**

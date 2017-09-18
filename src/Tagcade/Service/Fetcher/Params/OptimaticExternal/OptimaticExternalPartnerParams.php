@@ -30,6 +30,8 @@ class OptimaticExternalPartnerParams extends PartnerParams implements OptimaticE
         parent::__construct($config);
         $this->reportType = $config->getParamValue(self::PARAM_KEY_REPORT_TYPE, null);
         $this->placements = $config->getParamValue(self::PARAM_KEY_PLACEMENTS, null);
+
+        $this->setDailyBreakdown(true);
     }
 
     /**

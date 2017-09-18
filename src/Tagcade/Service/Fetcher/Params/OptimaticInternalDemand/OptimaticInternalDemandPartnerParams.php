@@ -47,6 +47,8 @@ class OptimaticInternalDemandPartnerParams extends PartnerParams implements Opti
         $this->advertiser = $config->getParamValue(self::PARAM_KEY_ADVERTISER, null);
         $this->placements = $config->getParamValue(self::PARAM_KEY_PLACEMENTS, null);
         $this->allTrendByAdv = $config->getParamValue(self::PARAM_KEY_ALL_TREND_BY_ADV, null);
+
+        $this->setDailyBreakdown(true);
     }
 
     /**
