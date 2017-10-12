@@ -12,7 +12,7 @@ use Tagcade\Service\Fetcher\Params\Verta\VertaPartnerParamInterface;
 
 class DeliveryReportingPage extends AbstractPage
 {
-    const URL = 'https://ssp.vertamedia.com/#/pages/reports';
+    const URL = 'https://ssp.vertamedia.com/#/reports/details';
 
     public function getAllTagReports(PartnerParamInterface $params)
     {
