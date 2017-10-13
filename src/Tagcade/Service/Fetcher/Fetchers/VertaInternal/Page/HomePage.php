@@ -24,6 +24,14 @@ class HomePage extends AbstractHomePage
             $this->navigate();
         }
 
+        while (1) {
+            $emails = $this->driver->findElements(WebDriverBy::name('email'));
+            $this->logger->debug('waiting for email input visible');
+            if (!empty($emails)) {
+                break;
+            }
+        }
+
         $this->logger->debug('filling credentials');
 
         try {

@@ -12,16 +12,18 @@ use Tagcade\Service\Fetcher\Params\Verta\VertaPartnerParamInterface;
 
 class DeliveryReportingPage extends AbstractPage
 {
-    const URL = 'https://ssp.vertamedia.com/#/reports/details';
 
     public function getAllTagReports(PartnerParamInterface $params)
     {
         if (!($params instanceof VertaPartnerParamInterface)) {
             return;
         }
-        $this->logger->debug('redirect to report page');
-        $this->driver->navigate()->to(self::URL);
-        //need to wait
+
+        $reportLink =  $this->driver->findElement(WebDriverBy::cssSelector('a[href="#/reports/details/"]'));
+        if(!$reportLink instanceof RemoteWebElement) {
+            throw new Exception('Can not find report href. Recheck code base');
+        }
+        $reportLink->click();
         $this->sleep(10);
 
         $this->selectReport($params->getReport());
@@ -94,6 +96,8 @@ class DeliveryReportingPage extends AbstractPage
         if (count($allButtonElements) < 1) {
             throw new Exception('Can not find Report button. Need recheck code base');
         }
+
+        $this->logger->debug(sprintf('Report Type: %s with number elements %d', $report, count($allButtonElements)));
 
         foreach ($allButtonElements as $element) {
             if (!$element instanceof RemoteWebElement) {
