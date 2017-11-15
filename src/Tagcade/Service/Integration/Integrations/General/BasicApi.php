@@ -18,7 +18,7 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create "Basic Api" general-basic-api -a -p apiUrl,dateFormat,dateRange:dynamicDateRange -vv
+     * php app/console ur:integration:create general-basic-api "Basic Api" -a -p apiUrl,dateFormat,dateRange:dynamicDateRange -vv
      */
 
     const INTEGRATION_C_NAME = 'general-basic-api';

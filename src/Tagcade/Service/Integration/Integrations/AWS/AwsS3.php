@@ -24,7 +24,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create "Amazon S3" aws-s3 -a -p "bucket,pattern:regex,awsKey:secure,awsSecret:secure,awsRegion,dateRange:dynamicDateRange" -vv
+     * php app/console ur:integration:create aws-s3 "Amazon S3" -a -p "bucket,pattern:regex,awsKey:secure,awsSecret:secure,awsRegion,dateRange:dynamicDateRange" -vv
      */
 
     const INTEGRATION_C_NAME = 'aws-s3';
