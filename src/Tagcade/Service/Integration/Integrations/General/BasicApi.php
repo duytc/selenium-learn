@@ -29,6 +29,7 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
     const PARAM_START_DATE = 'startDate';
     const PARAM_END_DATE = 'endDate';
     const PARAM_DATE_RANGE = 'dateRange';
+    const PARAM_PATTERN = 'pattern';
 
     /* macros for replace values of url */
     const MACRO_START_DATE = '${start_date}';
@@ -74,7 +75,7 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
         // todo fixed share state problem, a new object should be created for each config
 
         // I have created this integration to use no shared state
-
+        $filePattern = $config->getParamValue(self::PARAM_PATTERN, null);
         $startDateEndDate = $config->getStartDateEndDate();
 
         $startDate = $startDateEndDate[Config::PARAM_START_DATE];
@@ -118,6 +119,19 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
 
         file_put_contents($path, $responseData);
 
+        // create metadata file.
+        // metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
+        $metadata = [
+            'module' => 'integration',
+            'publisherId' => $config->getPublisherId(),
+            'dataSourceId' => $config->getDataSourceId(),
+            'integrationCName' => $config->getIntegrationCName(),
+            'pattern' => $filePattern,
+            'uuid' => bin2hex(random_bytes(15)) // make all metadata files have difference hash values when being processed in directory monitor
+        ];
+        $metadataFilePath = $path . '.meta';
+        file_put_contents($metadataFilePath, json_encode($metadata));
+
         $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
     }
 
@@ -160,6 +174,7 @@ class BasicApi extends IntegrationAbstract implements IntegrationInterface
     protected function getFileExtension($contentType)
     {
         // todo, this could be in a service for reuse
+        $contentType = preg_replace('/;.*/', '', $contentType);
 
         switch ($contentType) {
             case self::XLSX_CONTENT_TYPE:
