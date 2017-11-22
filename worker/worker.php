@@ -2,13 +2,15 @@
 // needed for handling signals
 declare(ticks = 1);
 
+const WORKER_EXIT_CODE_REQUEST_STOP_SUCCESS = 99;
+
 $pid = getmypid();
 $requestStop = false;
 
 // when TERM signal is sent to this process, we gracefully shutdown after current job is finished processing
 // when KILL signal is sent (i.e ctrl-c) we stop immediately
 // You can test this by calling "kill -TERM PID" where PID is the PID of this process, the process will end after the current job
-pcntl_signal(SIGTERM, function () use (&$requestStop, $pid, &$logger) {
+pcntl_signal(SIGUSR1, function () use (&$requestStop, $pid, &$logger) {
     $logger->info(sprintf("Worker PID %d has received a request to stop gracefully", $pid));
     $requestStop = true; // set reference value to true to stop worker loop after current job
 });
@@ -123,4 +125,8 @@ while (true) {
         if ($job) $queue->bury($job);
     }
     gc_collect_cycles();
+}
+
+if ($requestStop) {
+    exit(WORKER_EXIT_CODE_REQUEST_STOP_SUCCESS); // otherwise use 0 status code
 }
