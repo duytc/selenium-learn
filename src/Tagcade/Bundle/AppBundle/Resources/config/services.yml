@@ -31,6 +31,8 @@ imports:
     - { resource: services/video/optimaticinternaldemand.yml }
     - { resource: services/video/optimaticexternal.yml }
     - { resource: services/video/optimaticinternalsupply.yml }
+    - { resource: services/connatix.yml }
+    - { resource: services/mediadotnetapi.yml }
 
 
 services:
@@ -58,8 +60,9 @@ services:
             - '@tagcade.service.integration.delete_file_service'
             - '@tagcade_app.rest_client'
             - '%remove_chrome_folder_path_interval%'
+            - '@tagcade.service.download_file_helper'
 
-    tagcade.service.integration.integrations.demand_partner.fetcher.helper:
+    tagcade.service.download_file_helper:
         class: Tagcade\Service\DownloadFileHelper
         arguments:
             - '%tagcade.default_data_path%'
@@ -124,7 +127,7 @@ services:
         abstract: true
         arguments:
             - '@logger'
-            - '@tagcade.service.integration.integrations.demand_partner.fetcher.helper'
+            - '@tagcade.service.download_file_helper'
             - '@tagcade_app.rest_client'
 
     tagcade.service.integration.integrations.demand_partner.integration_web_driver_abstract:
@@ -145,6 +148,9 @@ services:
         class: Tagcade\Service\Integration\IntegrationManager
         arguments:
             -
+                - '@tagcade.service.integration.integrations.aws.s3'
+                - '@tagcade.service.integration.integrations.general.basic_api'
+                - '@tagcade.service.integration.integrations.pubvantage.account_report'
                 - '@tagcade.service.integration.integrations.demand_partner.across33'
                 - '@tagcade.service.integration.integrations.demand_partner.admeta'
                 - '@tagcade.service.integration.integrations.demand_partner.ads4games'
@@ -164,13 +170,12 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.sovrn'
                 - '@tagcade.service.integration.integrations.demand_partner.technorati'
                 - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
-                - '@tagcade.service.integration.integrations.pubvantage.account_report'
-                - '@tagcade.service.integration.integrations.aws.s3'
+                - '@tagcade.service.integration.integrations.demand_partner.connatix'
+                - '@tagcade.service.integration.integrations.demand_partner.mediadotnetapi'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
                 - '@tagcade.service.integration.integrations.video.cedato'
                 - '@tagcade.service.integration.integrations.video.streamrail'
-                - '@tagcade.service.integration.integrations.general.basic_api'
                 - '@tagcade.service.integration.integrations.video.verta_internal'
                 - '@tagcade.service.integration.integrations.video.verta_external'
                 - '@tagcade.service.integration.integrations.video.optimaticinternalmarketplace'

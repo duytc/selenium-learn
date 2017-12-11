@@ -26,8 +26,12 @@
     ],
     "backFill": {
         "backFill": false,
-        "backFillStartDate": null,
-        "backFillForce": false,
-        "backFillExecuted": false
+                "backFillStartDate": null,
+                "backFillEndDate": null,
+                "fetcherActivatorDataSourceForce": false,
+                "dataSourceIntegrationId": false,
+                "dataSourceIntegrationScheduleId": false,
+                "dataSourceIntegrationScheduleUUID": false,
+                "dataSourceIntegrationBackFillHistoryId": false
     }
 }

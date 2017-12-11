@@ -12,7 +12,7 @@ interface FileStorageServiceInterface
      * @param null|string $subDir the sub dir (last dir) before the file.
      * @return string
      */
-    public function getDownloadPath(ConfigInterface $config, $fileName, $subDir = null): string;
+    public function getDownloadPath(ConfigInterface $config, $fileName = null, $subDir = null): string;
 
     /**
      * @param $path

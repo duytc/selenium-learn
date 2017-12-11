@@ -43,7 +43,7 @@ class FileStorageService implements FileStorageServiceInterface
     /**
      * @inheritdoc
      */
-    public function getDownloadPath(ConfigInterface $config, $fileName, $subDir = null): string
+    public function getDownloadPath(ConfigInterface $config, $fileName = null, $subDir = null): string
     {
         $rootDirectory = $this->getRootDirectory();
         $publisherId = $config->getPublisherId();
@@ -70,20 +70,22 @@ class FileStorageService implements FileStorageServiceInterface
             mkdir($downloadPath, 0777, true);
         }
 
-        $path = sprintf('%s/%s', $downloadPath, $fileName);
-
-        // insert the file number when duplicate file name
-        // e.g: abc.csv => abc(1).csv, abc(2).csv, ...
-        $duplicatedNumber = 1;
-        while (file_exists($path)) {
-            $fileNameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
-            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-            $path = sprintf('%s/%s(%d).%s', $downloadPath, $fileNameWithoutExtension, $duplicatedNumber, $extension);
-            $duplicatedNumber++;
+        if (!empty($fileName)) {
+            $path = sprintf('%s/%s', $downloadPath, $fileName);
+            // insert the file number when duplicate file name
+            // e.g: abc.csv => abc(1).csv, abc(2).csv, ...
+            $duplicatedNumber = 1;
+            while (file_exists($path)) {
+                $fileNameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                $path = sprintf('%s/%s(%d).%s', $downloadPath, $fileNameWithoutExtension, $duplicatedNumber, $extension);
+                $duplicatedNumber++;
+            }
+        } else {
+            $path = $downloadPath;
         }
 
         return $path;
-
     }
 
     /**
@@ -103,7 +105,7 @@ class FileStorageService implements FileStorageServiceInterface
             throw new Exception ('Data to save csv file expect array type');
         }
 
-        $dataRows = array_merge(array($columnNames), $dataRows);
+        $dataRows = array_merge($columnNames, $dataRows);
 
         $file = fopen($path, 'w');
         foreach ($dataRows as $dataRow) {

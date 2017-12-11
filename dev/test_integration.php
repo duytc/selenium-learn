@@ -1,7 +1,5 @@
 <?php
 
-namespace tagcade\dev;
-use AppKernel;
 use Monolog\Handler\StreamHandler;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\IntegrationManagerInterface;

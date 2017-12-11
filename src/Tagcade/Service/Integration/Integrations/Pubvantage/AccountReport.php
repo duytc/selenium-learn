@@ -101,7 +101,7 @@ class AccountReport extends IntegrationAbstract implements IntegrationInterface
 
         $fileName = sprintf('%s.csv', bin2hex(random_bytes(10)));
         $path = $this->fileStorage->getDownloadPath($config, $fileName);
-        $this->fileStorage->saveToCSVFile($path, $this->getRows($reports), $this->getColumns($reports));
+        $this->fileStorage->saveToCSVFile($path, $this->getRows($reports), array($this->getColumns($reports)));
 
         $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
 

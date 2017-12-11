@@ -16,8 +16,6 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverPoint;
 use Psr\Log\LoggerInterface;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
 use Tagcade\Exception\LoginFailException;
 use Tagcade\Exception\RuntimeException;
@@ -59,6 +57,9 @@ class WebDriverService implements WebDriverServiceInterface
     /** @var  int */
     private $removeChromeFolderPathInterval;
 
+    /** @var DownloadFileHelper */
+    private $downloadFileHelper;
+
     /**
      * @param LoggerInterface $logger
      * @param WebDriverFactoryInterface $webDriverFactory
@@ -69,8 +70,9 @@ class WebDriverService implements WebDriverServiceInterface
      * @param DeleteFileService $deleteFileService
      * @param TagcadeRestClientInterface $restClient
      * @param $removeChromeFolderPathInterval
+     * @param DownloadFileHelper $downloadFileHelper
      */
-    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService, TagcadeRestClientInterface $restClient, $removeChromeFolderPathInterval)
+    public function __construct(LoggerInterface $logger, WebDriverFactoryInterface $webDriverFactory, TagcadeRestClientInterface $tagcadeRestClient, $symfonyAppDir, $defaultDataPath, $chromeFolderPath, DeleteFileService $deleteFileService, TagcadeRestClientInterface $restClient, $removeChromeFolderPathInterval, DownloadFileHelper $downloadFileHelper)
     {
         $this->logger = $logger;
         $this->webDriverFactory = $webDriverFactory;
@@ -81,6 +83,7 @@ class WebDriverService implements WebDriverServiceInterface
         $this->deleteFileService = $deleteFileService;
         $this->restClient = $restClient;
         $this->removeChromeFolderPathInterval = $removeChromeFolderPathInterval;
+        $this->downloadFileHelper = $downloadFileHelper;
     }
 
     /**
@@ -449,17 +452,16 @@ class WebDriverService implements WebDriverServiceInterface
         }
 
         // create metadata file in dataFolder
-        $this->saveMetaDataFile($params, $dataFolder);
+        $this->downloadFileHelper->saveMetaDataFile($params, $dataFolder);
 
         // waiting for download complete in downloadFolder
-        // TODO: use DownloadFileHelper wait download complete instead of here
-        $this->waitDownloadComplete($downloadFolder);
+        $this->downloadFileHelper->waitDownloadComplete($downloadFolder);
 
         // add startDate endDate to Downloaded file name
-        $this->addStartDateEndDateToDownloadFiles($downloadFolder, $params);
+        $this->downloadFileHelper->addStartDateEndDateToDownloadFiles($downloadFolder, $params);
 
         // Move downloaded files to dataFolder
-        $this->moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder);
+        $this->downloadFileHelper->moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder);
 
         // remove lock file. Now this data folder is ready for Directory monitor!
         //// remove lock file in download folder
@@ -488,19 +490,6 @@ class WebDriverService implements WebDriverServiceInterface
 
         // step2. get all report data
         $partnerFetcher->getAllData($params, $driver);
-    }
-
-    /**
-     * @param $directory
-     * @return int
-     */
-    private function getDirSize($directory)
-    {
-        $size = 0;
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file) {
-            $size += $file->getSize();
-        }
-        return $size;
     }
 
     /**
@@ -546,125 +535,6 @@ class WebDriverService implements WebDriverServiceInterface
             }
             $i++;
         }
-    }
-
-    /**
-     * @param $folder
-     * @param PartnerParamInterface $param
-     */
-    private function addStartDateEndDateToDownloadFiles($folder, PartnerParamInterface $param)
-    {
-        $this->logger->debug(sprintf('Add startDate, endDate to download files', $folder));
-        $subFiles = scandir($folder);
-
-        $subFiles = array_map(function ($subFile) use ($folder) {
-            return $folder . '/' . $subFile;
-        }, $subFiles);
-
-        $subFiles = array_filter($subFiles, function ($file) {
-            return is_file($file) && (new \SplFileInfo($file))->getExtension() != 'lock';
-        });
-
-        $time = sprintf('DTS-%s-%s-%s-%s', $param->getDataSourceId(), $param->getStartDate()->format('Ymd'), $param->getEndDate()->format('Ymd'), bin2hex(random_bytes(2)));
-
-        foreach ($subFiles as $subFile) {
-            $subFile = new \SplFileInfo($subFile);
-            if ($subFile->getExtension() != 'meta') {
-                $path = $subFile->getRealPath();
-                if (strpos($path, $time)) {
-                    continue;
-                }
-
-                $dotPos = strpos($path, '.');
-                if ($dotPos) {
-                    $newName = sprintf("%s_%s%s",
-                        substr($path, 0, $dotPos),
-                        $time,
-                        substr($path, $dotPos));
-                    rename($subFile->getRealPath(), $newName);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param PartnerParamInterface $params
-     * @param string $dataFolder
-     */
-    private function saveMetaDataFile(PartnerParamInterface $params, $dataFolder)
-    {
-        $this->logger->debug(sprintf('Save meta data file', $dataFolder));
-        $uuid = bin2hex(random_bytes(2));
-        // create metadata file
-        $metadata = [
-            'module' => 'integration',
-            'publisherId' => $params->getPublisherId(),
-            'dataSourceId' => $params->getDataSourceId(),
-            'integrationCName' => $params->getIntegrationCName(),
-            // 'date' => ...set later if single date...,
-            'uuid' => $uuid // make all metadata files have difference hash values when being processed in directory monitor
-        ];
-
-        //// date in metadata is only available if startDate equal endDate (day by day breakdown)
-        if ($params->getStartDate() == $params->getEndDate()) {
-            $metadata['date'] = $params->getStartDate()->format('Y-m-d');
-        }
-
-        // create metadata file
-        $metadataFileName = sprintf('%s-%s-%s-%s-%s.%s',
-            $params->getIntegrationCName(),
-            $params->getDataSourceId(),
-            $params->getStartDate()->format('Ymd'),
-            $params->getEndDate()->format('Ymd'),
-            $uuid,
-            'meta'
-        );
-
-        $metaDataFolder = $dataFolder;
-        if (!is_dir($metaDataFolder)) {
-            mkdir($metaDataFolder, 0755, true);
-        }
-        $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
-        file_put_contents($metadataFilePath, json_encode($metadata));
-    }
-
-    /**
-     * move Downloaded Files To DataFolder, exclude .lock file
-     *
-     * @param $downloadFolder
-     * @param $dataFolder
-     */
-    private function moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder)
-    {
-        $this->logger->debug(sprintf('Move download files to data folder', $downloadFolder, $dataFolder));
-
-        $subFiles = scandir($downloadFolder);
-
-        $subFiles = array_filter($subFiles, function ($subFile) use ($downloadFolder) {
-            return is_file($downloadFolder . '/' . $subFile) && (new \SplFileInfo($subFile))->getExtension() != 'lock';
-        });
-
-        array_walk($subFiles, function ($file) use ($downloadFolder, $dataFolder) {
-            rename($downloadFolder . '/' . $file, $dataFolder . '/' . $file);
-        });
-    }
-
-    /**
-     * @param $downloadFolder
-     */
-    private function waitDownloadComplete($downloadFolder)
-    {
-        $this->logger->debug(sprintf('Wait download complete', $downloadFolder));
-        // check that chrome finished downloading all files before finishing
-        sleep(5);
-
-        do {
-            $fileSize1 = $this->getDirSize($downloadFolder);  // check file size
-            sleep(5);
-            $fileSize2 = $this->getDirSize($downloadFolder);
-        } while ($fileSize1 != $fileSize2);
-
-        sleep(3);
     }
 
     /**

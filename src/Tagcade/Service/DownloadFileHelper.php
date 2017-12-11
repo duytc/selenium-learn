@@ -6,12 +6,21 @@ namespace Tagcade\Service;
 use Exception;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Psr\Log\LoggerInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Finder\SplFileInfo;
+use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 
 class DownloadFileHelper implements DownloadFileHelperInterface
 {
     const RESCAN_TIME_IN_SECONDS = 5;
     const NO_PARTIAL_FILE_RESCAN_TIME_IN_SECONDS = 0.25;
+    const XLS_CONTENT_TYPE = 'application/vnd.ms-excel';
+    const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const XML_CONTENT_TYPE = 'application/xml';
+    const JSON_CONTENT_TYPE = 'application/json';
+    const CSV_CONTENT_TYPE = 'text/csv';
+
     /**
      * @var string
      */
@@ -25,7 +34,7 @@ class DownloadFileHelper implements DownloadFileHelperInterface
      */
     private $rootKernelDirectory;
 
-    /* @var DeleteFileService  */
+    /* @var DeleteFileService */
     private $deleteFileService;
 
     function __construct($downloadRootDirectory, LoggerInterface $logger, $rootKernelDirectory, DeleteFileService $deleteFileService)
@@ -145,7 +154,6 @@ class DownloadFileHelper implements DownloadFileHelperInterface
         return $dataPath;
     }
 
-
     /**
      * @param $downloadDirectory
      * @return array
@@ -168,5 +176,169 @@ class DownloadFileHelper implements DownloadFileHelperInterface
         }
 
         return $expectFiles;
+    }
+
+    /**
+     * @param PartnerParamInterface $params
+     * @param string $dataFolder
+     */
+    public function saveMetaDataFile(PartnerParamInterface $params, $dataFolder)
+    {
+        $this->logger->debug(sprintf('Save meta data file', $dataFolder));
+        $uuid = bin2hex(random_bytes(2));
+        // create metadata file
+        $metadata = [
+            'module' => 'integration',
+            'publisherId' => $params->getPublisherId(),
+            'dataSourceId' => $params->getDataSourceId(),
+            'integrationCName' => $params->getIntegrationCName(),
+            // 'date' => ...set later if single date...,
+            'uuid' => $uuid // make all metadata files have difference hash values when being processed in directory monitor
+        ];
+
+        //// date in metadata is only available if startDate equal endDate (day by day breakdown)
+        if ($params->getStartDate() == $params->getEndDate()) {
+            $metadata['date'] = $params->getStartDate()->format('Y-m-d');
+        }
+
+        // create metadata file
+        $metadataFileName = sprintf('%s-%s-%s-%s-%s.%s',
+            $params->getIntegrationCName(),
+            $params->getDataSourceId(),
+            $params->getStartDate() instanceof \DateTime ? $params->getStartDate()->format('Ymd') : "",
+            $params->getEndDate() instanceof \DateTime ? $params->getEndDate()->format('Ymd') : "",
+            $uuid,
+            'meta'
+        );
+        $metaDataFolder = $dataFolder;
+        if (!is_dir($metaDataFolder)) {
+            mkdir($metaDataFolder, 0755, true);
+        }
+        $metadataFilePath = sprintf('%s/%s', $metaDataFolder, $metadataFileName);
+        file_put_contents($metadataFilePath, json_encode($metadata));
+    }
+
+    /**
+     * @param string $contentType
+     * @return string
+     */
+    public function getFileExtension($contentType)
+    {
+        // todo, this could be in a service for reuse
+        $contentType = preg_replace('/;.*/', '', $contentType);
+
+        switch ($contentType) {
+            case self::XLSX_CONTENT_TYPE:
+                $fileType = '.xlsx';
+                break;
+            case self::XLS_CONTENT_TYPE:
+                $fileType = '.xls';
+                break;
+            case self::XML_CONTENT_TYPE:
+                $fileType = '.xml';
+                break;
+            case self::JSON_CONTENT_TYPE:
+                $fileType = '.json';
+                break;
+            case self::CSV_CONTENT_TYPE:
+                $fileType = '.csv';
+                break;
+            default:
+                $fileType = '.txt';
+        }
+
+        return $fileType;
+    }
+
+    /**
+     * @param $downloadFolder
+     */
+    public function waitDownloadComplete($downloadFolder)
+    {
+        $this->logger->debug(sprintf('Wait download complete', $downloadFolder));
+        // check that chrome finished downloading all files before finishing
+        sleep(5);
+
+        do {
+            $fileSize1 = $this->getDirSize($downloadFolder);  // check file size
+            sleep(5);
+            $fileSize2 = $this->getDirSize($downloadFolder);
+        } while ($fileSize1 != $fileSize2);
+
+        sleep(3);
+    }
+
+
+    /**
+     * @param $directory
+     * @return int
+     */
+    private function getDirSize($directory)
+    {
+        $size = 0;
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file) {
+            $size += $file->getSize();
+        }
+        return $size;
+    }
+
+    /**
+     * @param $folder
+     * @param PartnerParamInterface $param
+     */
+    public function addStartDateEndDateToDownloadFiles($folder, PartnerParamInterface $param)
+    {
+        $this->logger->debug(sprintf('Add startDate, endDate to download files', $folder));
+        $subFiles = scandir($folder);
+
+        $subFiles = array_map(function ($subFile) use ($folder) {
+            return $folder . '/' . $subFile;
+        }, $subFiles);
+
+        $subFiles = array_filter($subFiles, function ($file) {
+            return is_file($file) && (new \SplFileInfo($file))->getExtension() != 'lock';
+        });
+
+        $time = sprintf('DTS-%s-%s-%s-%s', $param->getDataSourceId(), $param->getStartDate()->format('Ymd'), $param->getEndDate()->format('Ymd'), bin2hex(random_bytes(2)));
+
+        foreach ($subFiles as $subFile) {
+            $subFile = new \SplFileInfo($subFile);
+            if ($subFile->getExtension() != 'meta') {
+                $path = $subFile->getRealPath();
+                if (strpos($path, $time)) {
+                    continue;
+                }
+
+                $dotPos = strpos($path, '.');
+                if ($dotPos) {
+                    $newName = sprintf("%s_%s%s",
+                        substr($path, 0, $dotPos),
+                        $time,
+                        substr($path, $dotPos));
+                    rename($subFile->getRealPath(), $newName);
+                }
+            }
+        }
+    }
+
+    /**
+     * move Downloaded Files To DataFolder, exclude .lock file
+     *
+     * @param $downloadFolder
+     * @param $dataFolder
+     */
+    public function moveDownloadedFilesToDataFolder($downloadFolder, $dataFolder)
+    {
+        $this->logger->debug(sprintf('Move download files to data folder', $downloadFolder, $dataFolder));
+
+        $subFiles = scandir($downloadFolder);
+
+        $subFiles = array_filter($subFiles, function ($subFile) use ($downloadFolder) {
+            return is_file($downloadFolder . '/' . $subFile) && (new \SplFileInfo($subFile))->getExtension() != 'lock';
+        });
+
+        array_walk($subFiles, function ($file) use ($downloadFolder, $dataFolder) {
+            rename($downloadFolder . '/' . $file, $dataFolder . '/' . $file);
+        });
     }
 }
