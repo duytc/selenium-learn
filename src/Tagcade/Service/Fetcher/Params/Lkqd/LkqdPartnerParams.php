@@ -10,6 +10,7 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
 {
     const PARAM_KEY_TIMEZONE = 'timezone';
     const PARAM_KEY_DIMENSIONS = 'dimensions';
+    const PARAM_KEY_METRICS = 'metrics';
     const DEFAULT_TIME_ZONE = 'UTC';
 
     /**
@@ -18,6 +19,8 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
     protected $timezone;
 
     protected $dimensions;
+
+    protected $metrics;
 
     /**
      * CedatoPartnerParams constructor.
@@ -28,6 +31,7 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
         parent::__construct($config);
         $this->timezone = $config->getParamValue(self::PARAM_KEY_TIMEZONE, self::DEFAULT_TIME_ZONE);
         $this->dimensions = $config->getParamValue(self::PARAM_KEY_DIMENSIONS, []);
+        $this->metrics = $config->getParamValue(self::PARAM_KEY_METRICS, []);
     }
 
     /**
@@ -44,5 +48,13 @@ class LkqdPartnerParams extends PartnerParams implements LkqdPartnerParamInterfa
     public function getDimensions()
     {
         return $this->dimensions;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMetrics()
+    {
+        return $this->metrics;
     }
 }

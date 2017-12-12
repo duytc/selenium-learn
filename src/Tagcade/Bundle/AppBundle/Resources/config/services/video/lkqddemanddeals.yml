@@ -1,0 +1,11 @@
+services:
+    tagcade.service.fetcher.fetchers.lkqd_demand_deals:
+        class: Tagcade\Service\Fetcher\Fetchers\LkqdDemandDeals\LkqdDemandDealsFetcher
+        parent: tagcade.service.fetcher.fetchers.partner_fetcher_abstract
+
+    tagcade.service.integration.integrations.video.lkqd_demand_deals:
+        class: Tagcade\Service\Integration\Integrations\Video\LkqdDemandDeals\LkqdDemandDealsIntegration
+        parent: tagcade.service.integration.integrations.demand_partner.integration_demand_partner_abstract
+        arguments:
+            - '@tagcade.service.integration.integrations.web_driver_service'
+            - '@tagcade.service.fetcher.fetchers.lkqd_demand_deals'

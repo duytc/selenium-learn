@@ -13,4 +13,9 @@ interface LkqdPartnerParamInterface
      * @return mixed
      */
     public function getDimensions();
+
+    /**
+     * @return mixed
+     */
+    public function getMetrics();
 }

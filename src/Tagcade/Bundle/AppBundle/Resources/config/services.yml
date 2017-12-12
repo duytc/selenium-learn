@@ -33,7 +33,7 @@ imports:
     - { resource: services/video/optimaticinternalsupply.yml }
     - { resource: services/connatix.yml }
     - { resource: services/mediadotnetapi.yml }
-
+    - { resource: services/video/lkqddemanddeals.yml }
 
 services:
     yaml:
@@ -182,3 +182,4 @@ services:
                 - '@tagcade.service.integration.integrations.video.optimaticinternaldemand'
                 - '@tagcade.service.integration.integrations.video.optimaticexternal'
                 - '@tagcade.service.integration.integrations.video.optimaticinternalsupply'
+                - '@tagcade.service.integration.integrations.video.lkqd_demand_deals'
