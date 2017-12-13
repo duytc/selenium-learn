@@ -23,7 +23,7 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create demand-partner-mediadotnetapi "Media.net API" -a -p customerKey,customerGuid:secure,startDate,endDate,dateRange:dynamicDateRange -vv
+     * php app/console ur:integration:create demand-partner-mediadotnetapi "Media.net API" -a -p customerKey,customerGuid:secure,dateRange:dynamicDateRange -vv
      */
 
     const INTEGRATION_C_NAME = 'demand-partner-mediadotnetapi';
@@ -33,9 +33,6 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
 
     const PARAM_CUSTOMER_KEY = 'customerKey';
     const PARAM_CUSTOMER_GUID = 'customerGuid';
-    const PARAM_START_DATE = 'startDate';
-    const PARAM_END_DATE = 'endDate';
-    const PARAM_DATE_RANGE = 'dateRange';
 
     const URL_CUSTOMER_KEY = 'customerKey';
     const URL_CUSTOMER_GUID = 'customerGuid';

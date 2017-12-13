@@ -34,6 +34,7 @@ imports:
     - { resource: services/connatix.yml }
     - { resource: services/mediadotnetapi.yml }
     - { resource: services/video/lkqddemanddeals.yml }
+    - { resource: services/advertisedotcomapi.yml }
 
 services:
     yaml:
@@ -172,6 +173,7 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
                 - '@tagcade.service.integration.integrations.demand_partner.connatix'
                 - '@tagcade.service.integration.integrations.demand_partner.mediadotnetapi'
+                - '@tagcade.service.integration.integrations.demand_partner.advertisedotcomapi'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
                 - '@tagcade.service.integration.integrations.video.cedato'

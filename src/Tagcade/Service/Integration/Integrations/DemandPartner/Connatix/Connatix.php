@@ -23,7 +23,7 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create demand-partner-connatix "Connatix API" -a -p reportId,username,password:secure,startDate,endDate,dateRange -vv
+     * php app/console ur:integration:create demand-partner-connatix "Connatix API" -a -p reportId,username,password:secure,dateRange:dynamicDateRange -vv
      */
 
     const INTEGRATION_C_NAME = 'demand-partner-connatix';
@@ -31,12 +31,7 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
     /* params from integration */
     const PARAM_API_URL = 'https://console.connatix.com/api/reports/download/'; // url for getting reports
     const PARAM_API_LOGIN_URL = 'https://console.connatix.com/api/account/login'; // url for loggin in
-    const USERNAME = 'username';
-    const PASSWORD = 'password';
     const REPORT_ID = 'reportId';
-    const PARAM_START_DATE = 'startDate';
-    const PARAM_END_DATE = 'endDate';
-    const PARAM_DATE_RANGE = 'dateRange';
 
     const VALIDATION_PARAMS_USERNAME = 'Username';
     const VALIDATION_PARAMS_PASSWORD = 'Password';
@@ -93,9 +88,14 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
         $password = $params->getPassword();
 
         try {
-            $cookie = $this->doLogin($loginUrl, $username, $password);
+            $cookie = $this->doLogin($loginUrl, $username, $password, $params);
+
+            //check reportId
+            if (!is_numeric($config->getParamValue(self::REPORT_ID, null))) {
+                throw new \Exception('reportId must be numeric. Please check reportId parameters.');
+            }
             // in php 7.1 you can use [responseData, $contentType] = $this->doGetData($apiUrl);MediaDotNetApi
-            list($responseData, $contentType) = $this->doGetData($apiUrl, $cookie, $config->getParamValue('reportId', null), $params);
+            list($responseData, $contentType) = $this->doGetData($apiUrl, $cookie, $config->getParamValue(self::REPORT_ID, null), $params);
 
             list($columnNames, $dataRows) = $this->parseDatesFromCsv($responseData, $params->getStartDate(), $params->getEndDate());
 
@@ -104,7 +104,7 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
             // important: each file will be stored in separated dir,
             // then metadata is stored in same this dir
             // so that we know file and metadata file is in pair
-            $subDir = sprintf('%s-%s', $fileName, (new DateTime())->getTimestamp());
+            $subDir = sprintf('%s-%s', $params->getStartDate()->format("Ymd"), $params->getEndDate()->format("Ymd"));
             $downloadFolderPath = $this->fileStorage->getDownloadPath($config, '', $subDir);
             $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
             $this->logger->debug('Save download file');
@@ -112,6 +112,8 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
             // create metadata file.
             // metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
             $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
+            // add startDate endDate to Downloaded file name
+            $this->downloadFileHelper->addStartDateEndDateToDownloadFiles($downloadFolderPath, $params);
 
             $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
         } catch (RuntimeException $runTimeException) {
@@ -152,10 +154,11 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
      * @param $loginUrl
      * @param $username
      * @param $password
-     * @return string, response cookie from authorization
-     * @throws Exception
+     * @param PartnerParamInterface $params
+     * @return string , response cookie from authorization
+     * @throws LoginFailException
      */
-    protected function doLogin($loginUrl, $username, $password): string
+    protected function doLogin($loginUrl, $username, $password, PartnerParamInterface $params): string
     {
         $validation = array(
             self::VALIDATION_PARAMS_USERNAME => $username,
@@ -166,7 +169,18 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
         $response = $this->curl->sendRequest($request);
         if ($response->statusCode !== 200) {
             // will be retry
-            throw new RuntimeException(sprintf('Cannot get data from this url, errorCode = %s', $response->statusCode));
+            if ($response->statusCode >= 400 && $response->statusCode <= 500) {
+                throw new LoginFailException(
+                    $params->getPublisherId(),
+                    $params->getIntegrationCName(),
+                    $params->getDataSourceId(),
+                    $params->getStartDate(),
+                    $params->getEndDate(),
+                    new \DateTime()
+                );
+            } else {
+                throw new RuntimeException(sprintf('Cannot get data from this url, errorCode = %s', $response->statusCode));
+            }
         }
 
         $cookie = $response->getHeader("set-cookie")[1];
@@ -190,7 +204,7 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
 
         if ($response->statusCode !== 200) {
             // will be retry
-            if ($response->statusCode >= 400 && $response->statusCode < 500) {
+            if ($response->statusCode >= 400 && $response->statusCode <= 500) {
                 throw new LoginFailException(
                     $params->getPublisherId(),
                     $params->getIntegrationCName(),
@@ -219,6 +233,9 @@ class Connatix extends IntegrationAbstract implements IntegrationInterface
         // turn range into a searchable array of dates
         $validDates = array();
         foreach ($dateRange as $i => $singleDate) {
+            if (!$singleDate instanceof DateTime) {
+                continue;
+            }
             array_push($validDates, $singleDate->format("Y-m-d"));
         }
 
