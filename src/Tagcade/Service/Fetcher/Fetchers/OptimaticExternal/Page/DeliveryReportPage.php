@@ -375,32 +375,6 @@ class DeliveryReportPage extends AbstractPage
     }
 
     /**
-     * @param $path
-     * @param $dataRows
-     * @throws \Exception
-     */
-    public function arrayToCSVFile($path, $dataRows)
-    {
-        if (is_dir($path)) {
-            throw new Exception ('Path must be file');
-        }
-
-        if (!is_array($dataRows)) {
-            throw new Exception ('Data to save csv file expect array type');
-        }
-
-        $file = fopen($path, 'w');
-        foreach ($dataRows as $dataRow) {
-            if (!is_array($dataRow) || empty($dataRow)) {
-                continue;
-            }
-            fputcsv($file, $dataRow);
-        }
-
-        fclose($file);
-    }
-
-    /**
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @return $this

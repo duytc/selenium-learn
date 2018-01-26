@@ -19,6 +19,7 @@ use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
+use Tagcade\Service\Integration\Integrations\RedshiftVideo\RedShiftPDO;
 use Tagcade\Service\Integration\Integrations\RedshiftVideo\RedShiftPDOInterface;
 
 class RedshiftAggregatedVideo extends IntegrationAbstract implements IntegrationInterface
@@ -80,7 +81,6 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
         DownloadFileHelper $downloadFileHelper,
         FileStorageServiceInterface $fileStorage,
         TagcadeRestClientInterface $restClient,
-        RedShiftPDOInterface $redshiftPDO,
         Redis $redis
     )
     {
@@ -88,8 +88,18 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
         $this->downloadFileHelper = $downloadFileHelper;
         $this->fileStorage = $fileStorage;
         $this->restClient = $restClient;
-        $this->redshiftPDO = $redshiftPDO;
         $this->redis = $redis;
+
+        $this->redshift = new PDO(
+            sprintf(
+                'pgsql:dbname=%s;host=%s;port=%d',
+                'pubvantage',
+                'pubvantage.c2thy5vfmt3r.us-west-2.redshift.amazonaws.com',
+                5439
+            ),
+            'pubvantage',
+            'Waula6le'
+        );
     }
 
     /**
@@ -99,7 +109,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
     {
         $params = new PartnerParams($config);
 
-        $this->redshift = $this->redshiftPDO->getPdo();
+//        $this->redshift = $this->redshiftPDO->getPdo();
         if (!$this->redshift instanceof PDO) {
             throw new Exception('Can not connect to Redshift. Quit');
         }
@@ -108,6 +118,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
         $this->redshift->exec("SET TIMEZONE = 'PST8PDT'");
 
         $publisherId = $params->getPublisherId();
+        $publisherId = 273;
         $dataSourceId = $params->getDataSourceId();
 
         $videoDynamicRange = $config->getParamValue(self::PARAM_DATE_RANGE, null);
@@ -122,10 +133,11 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
             die("Updated Redis Key with data source id $dataSourceId.\n");
         }
         $fileName = sprintf(
-            '%s_%s_%d%s',
+            '%s_%s_%d%s%s',
             'file',
             (new DateTime())->getTimestamp(),
             strtotime(date('Y-m-d')),
+            '%s',
             $this->downloadFileHelper->getFileExtension(self::JSON_CONTENT_TYPE)
         );
         // important: each file will be stored in separated dir,
@@ -140,47 +152,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
         $dateRange = new DatePeriod($startDate, $interval, $endDate);
 
         try {
-            $columnNames = array(
-                array(
-                    'timestamp_hour',
-                    'publisher_id',
-                    'process_time',
-                    'publisher_name',
-                    'waterfall_id',
-                    'waterfall_name',
-                    'platform',
-                    'demand_partner',
-                    'demand_tag_id',
-                    'country',
-                    'browser_name',
-                    'browser_os',
-                    'browser_major',
-                    'declared_domain',
-                    'detected_domain',
-                    'declared_player_size',
-                    'detected_player_size',
-                    'buy_price',
-                    'sell_price',
-                    'demand_revenue',
-                    'supply_cost',
-                    'net_revenue',
-                    'requests',
-                    'impressions',
-                    'responses',
-                    'loads',
-                    'served',
-                    'filled',
-                    'timeouts',
-                    'errors',
-                    'response_time_less_than_1_sec',
-                    'response_time_1_to_3_sec',
-                    'response_time_3_to_5_sec',
-                    'response_time_more_than_5_sec',
-                    'error_vpaid',
-                    'error_creative',
-                    'error_unknown',
-                ),
-            );
+
             $dataRows = [];
             $this->logger->debug('Starting download file');
 
@@ -189,23 +161,16 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
                 if (!$singleDate instanceof DateTime) {
                     continue;
                 }
+                $nextDay = clone $singleDate;
+                $nextDay->add(new DateInterval("P1D"));
 
-                $responseData = $this->doQueryData(
-                    $startDate->format('Y-m-d'),
-                    $endDate->format('Y-m-d'),
-                    $publisherId
+                $this->doQueryAndSaveData(
+                    $singleDate->format('Y-m-d'),
+                    $nextDay->format('Y-m-d'),
+                    $publisherId,
+                    $path
                 );
-
-                foreach ($responseData as $responseDatum) {
-                    $dataRows[] = $responseDatum;
-                }
             }
-
-            $this->logger->debug('Save download file');
-//            $this->fileStorage->saveToCSVFile($path, $dataRows, $columnNames);
-            $f = fopen($path, 'w');
-            $jsonData = \GuzzleHttp\json_encode(array($columnNames, $dataRows));
-            fwrite($f, $jsonData);
 
             // reset endDate
             $params->setEndDate($endDate);
@@ -253,11 +218,53 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
      * @param string $startDate
      * @param string $endDate
      * @param int $publisherId
-     * @return array of 2 elements, first element is the response data, second is the content type
-     * @throws Exception
+     * @param string $path
+     * @return void of 2 elements, first element is the response data, second is the content type
      */
-    protected function doQueryData(string $startDate, string $endDate, int $publisherId): array
+    protected function doQueryAndSaveData(string $startDate, string $endDate, int $publisherId, string $path)
     {
+        $columnNames = array(
+            array(
+                'timestamp_hour',
+                'publisher_id',
+                'process_time',
+                'publisher_name',
+                'waterfall_id',
+                'waterfall_name',
+                'platform',
+                'demand_partner',
+                'demand_tag_id',
+                'country',
+                'browser_name',
+                'browser_os',
+                'browser_major',
+                'declared_domain',
+                'detected_domain',
+                'declared_player_size',
+                'detected_player_size',
+                'buy_price',
+                'sell_price',
+                'demand_revenue',
+                'supply_cost',
+                'net_revenue',
+                'requests',
+                'impressions',
+                'responses',
+                'loads',
+                'served',
+                'filled',
+                'timeouts',
+                'errors',
+                'response_time_less_than_1_sec',
+                'response_time_1_to_3_sec',
+                'response_time_3_to_5_sec',
+                'response_time_more_than_5_sec',
+                'error_vpaid',
+                'error_creative',
+                'error_unknown',
+            ),
+        );
+
         $query = "
                   SELECT *
                   FROM log_pixel_vpaid_aggregated
@@ -272,8 +279,30 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
 
         $this->logger->info("finishing querying");
 
-        $responseData = $result->fetchAll(PDO::FETCH_ASSOC);
+        $this->logger->debug('Save download file');
 
-        return $responseData;
+        $data = array();
+        $count = 1;
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+            if ($count % 30000 == 0) {
+                $this->fileStorage->saveToJsonFile(
+                    sprintf($path, bin2hex(random_bytes(4))),
+                    $data,
+                    $columnNames);
+                $data = [];
+            }
+            $count++;
+        }
+        if (!empty($data))
+            $this->fileStorage->saveToJsonFile(
+                sprintf($path, bin2hex(random_bytes(4))),
+                $data,
+                $columnNames);
+
+
+//        $responseData = $result->fetchAll(PDO::FETCH_ASSOC);
+
+//        return $responseData;
     }
 }

@@ -233,27 +233,4 @@ class ReportingPage extends AbstractPage
 
         return $dataRows;
     }
-
-    /**
-     * @param $path
-     * @param $dataRows
-     * @throws \Exception
-     */
-    public function arrayToCSVFile($path, $dataRows)
-    {
-        if (is_dir($path)) {
-            throw new Exception ('Path must be file');
-        }
-
-        if (!is_array($dataRows)) {
-            throw new Exception ('Data to save csv file expect array type');
-        }
-
-        $file = fopen($path, 'w');
-        foreach ($dataRows as $dataRow) {
-            fputcsv($file, $dataRow);
-        }
-
-        fclose($file);
-    }
 }

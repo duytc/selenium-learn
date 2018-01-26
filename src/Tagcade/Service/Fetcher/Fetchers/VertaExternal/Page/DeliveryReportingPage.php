@@ -19,7 +19,7 @@ class DeliveryReportingPage extends AbstractPage
             return;
         }
 
-        $reportLink =  $this->driver->findElement(WebDriverBy::cssSelector('a[href="#/reports/details/"]'));
+        $reportLink =  $this->driver->findElement(WebDriverBy::cssSelector('a[href="#/report"]'));
         if(!$reportLink instanceof RemoteWebElement) {
             throw new Exception('Can not find report href. Recheck code base');
         }
@@ -52,7 +52,7 @@ class DeliveryReportingPage extends AbstractPage
         $this->logger->debug(sprintf("Date range: from %s to %s", $startDate->format("Y-m-d"), $endDate->format("Y-m-d")));
 
         //Open popup select date
-        $dateRangeElement = $this->driver->findElement(WebDriverBy::cssSelector("application > div > div > reports > div > div.content > div > report-container > div > section.margin-top-30 > div.inline-block"));
+        $dateRangeElement = $this->driver->findElement(WebDriverBy::xpath("//*[@ng-model='filters.period']"));
         $dateRangeElement->click();
 
         //Click Custom date range
@@ -92,13 +92,15 @@ class DeliveryReportingPage extends AbstractPage
     {
         $this->logger->debug(sprintf("Report: %s", $report));
 
-        $allButtonElements = $this->driver->findElements(WebDriverBy::tagName('button'));
+        $reportElement = $this->driver->findElement(WebDriverBy::xpath("//radio-button-group[@ng-model='filters.report']"));
+        $allButtonElements = $reportElement->findElements(WebDriverBy::tagName('label'));
         if (count($allButtonElements) < 1) {
             throw new Exception('Can not find Report button. Need recheck code base');
         }
 
         $this->logger->debug(sprintf('Report Type: %s with number elements %d', $report, count($allButtonElements)));
 
+        // need to click and exit class if the desired report has a class = active
         foreach ($allButtonElements as $element) {
             if (!$element instanceof RemoteWebElement) {
                 continue;
@@ -108,11 +110,7 @@ class DeliveryReportingPage extends AbstractPage
                     continue;
                 }
 
-                if (strtolower($element->getAttribute('ng-if')) != strtolower('slice.is_visible')) {
-                    continue;
-                }
-
-                if (strtolower(strtolower($element->getAttribute('aria-label'))) == strtolower($report . ' slice')) {
+                if ($element->gettext() == $report) {
                     $element->click();
                     return;
                 }
@@ -132,7 +130,8 @@ class DeliveryReportingPage extends AbstractPage
     {
         $this->logger->debug(sprintf("Cross Reports : %s", implode(', ', $crossReports)));
 
-        $allButtonElements = $this->driver->findElements(WebDriverBy::tagName('button'));
+        $crossReportElement = $this->driver->findElement(WebDriverBy::xpath("//checkbox-button-group[@ng-model='filters.cross_report']"));
+        $allButtonElements = $crossReportElement->findElements(WebDriverBy::tagName('label'));
         if (count($allButtonElements) < 1) {
             throw new Exception('Can not find Cross Report button. Need recheck code base');
         }
@@ -147,19 +146,9 @@ class DeliveryReportingPage extends AbstractPage
                         continue;
                     }
 
-                    if (strtolower($element->getAttribute('ng-repeat')) != strtolower('item in $ctrl.additionalSliceList track by item.id')) {
-                        continue;
-                    }
-
-                    if (strtolower(strtolower($element->getAttribute('aria-label'))) == strtolower($crossReport . ' slice')) {
-
-                        if (strpos($element->getAttribute('class'), 'btn-primary')){
-                            break;
-                        } else {
-                            $this->logger->debug(sprintf("Cross Report: %s ", $crossReport));
-                            $element->click();
-                            break;
-                        }
+                    if ($element->gettext() == $crossReport) {
+                        $element->click();
+                        return;
                     }
                 } catch (Exception $e) {
                 }

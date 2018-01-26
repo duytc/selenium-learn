@@ -11,6 +11,8 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
 use Tagcade\Service\DownloadFileHelperInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParams;
+use Tagcade\Service\FileStorageService;
+use Tagcade\Service\FileStorageServiceInterface;
 use Tagcade\Service\WebDriverService;
 
 abstract class AbstractPage
@@ -28,7 +30,6 @@ abstract class AbstractPage
      * @var DownloadFileHelperInterface
      */
     protected $downloadFileHelper;
-
 
     protected $config;
 
@@ -279,23 +280,12 @@ abstract class AbstractPage
     /**
      * @param $path
      * @param $dataRows
-     * @throws Exception
+     * @param array $columnNames
      */
-    public function arrayToCSVFile($path, $dataRows)
+    public function arrayToCSVFile($path, $dataRows, $columnNames = [])
     {
-        if (is_dir($path)) {
-            throw new Exception ('Path must be file');
-        }
-
-        if (!is_array($dataRows)) {
-            throw new Exception ('Data to save csv file expect array type');
-        }
-
-        $file = fopen($path, 'w');
-        foreach ($dataRows as $dataRow) {
-            fputcsv($file, $dataRow);
-        }
-        fclose($file);
+        $fileStorageService = new FileStorageService('', '');
+        $fileStorageService->saveToCSVFile($path, $dataRows, $columnNames);
     }
 
     /**

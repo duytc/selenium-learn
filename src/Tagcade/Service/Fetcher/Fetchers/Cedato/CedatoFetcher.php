@@ -32,7 +32,7 @@ class CedatoFetcher extends PartnerFetcherAbstract implements CedatoFetcherInter
         $deliveryReportPage = new DeliveryReportPage($driver, $this->logger);
         $deliveryReportPage->setDownloadFileHelper($this->getDownloadFileHelper());
         $deliveryReportPage->setConfig($params->getConfig());
-        $deliveryReportPage->navigateToReportPage($params->getReportType());
+//        $deliveryReportPage->navigateToReportPage($params->getReportType());
 
         $driver->wait()->until(
             WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('daterange')),

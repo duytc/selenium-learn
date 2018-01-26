@@ -91,7 +91,7 @@ class FileStorageService implements FileStorageServiceInterface
     /**
      * @inheritdoc
      */
-    public function saveToCSVFile($path, $dataRows, $columnNames = null)
+    public function saveToCSVFile($path, $dataRows, $columnNames = [])
     {
         if (is_dir($path)) {
             throw new Exception('Path must be file');
@@ -118,5 +118,30 @@ class FileStorageService implements FileStorageServiceInterface
         }
 
         fclose($file);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function saveToJsonFile($path, $dataRows, $columnHeaders = [])
+    {
+        if (is_dir($path)) {
+            throw new Exception('Path must be file');
+        }
+
+        if (!is_array($columnHeaders)) {
+            throw  new Exception('Column names must be an array');
+        }
+
+        if (!is_array($dataRows)) {
+            throw new Exception ('Data to save csv file expect array type');
+        }
+
+        $data['columns'] = $columnHeaders;
+        $data['rows'] = $dataRows;
+
+        $fp = fopen($path, 'w');
+        fwrite($fp, json_encode($data));
+        fclose($fp);
     }
 }

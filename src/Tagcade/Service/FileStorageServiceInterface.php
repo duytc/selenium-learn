@@ -17,8 +17,16 @@ interface FileStorageServiceInterface
     /**
      * @param $path
      * @param $dataRows
-     * @param null $columnNames
+     * @param $columnNames
      * @return mixed
      */
-    public function saveToCSVFile($path, $dataRows, $columnNames = null);
+    public function saveToCSVFile($path, $dataRows, $columnNames = []);
+
+    /**
+     * @param $path
+     * @param $dataRows
+     * @param $columnHeaders
+     * @return mixed
+     */
+    public function saveToJsonFile($path, $dataRows, $columnHeaders = []);
 }
