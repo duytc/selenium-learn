@@ -35,6 +35,8 @@ imports:
     - { resource: services/mediadotnetapi.yml }
     - { resource: services/video/lkqddemanddeals.yml }
     - { resource: services/advertisedotcomapi.yml }
+    - { resource: services/redshiftaggregatedvideo.yml }
+
 
 services:
     yaml:
@@ -174,6 +176,7 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.connatix'
                 - '@tagcade.service.integration.integrations.demand_partner.mediadotnetapi'
                 - '@tagcade.service.integration.integrations.demand_partner.advertisedotcomapi'
+                - '@tagcade.service.integration.integrations.redshift_video.redshiftaggregatedvideo'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
                 - '@tagcade.service.integration.integrations.video.cedato'
