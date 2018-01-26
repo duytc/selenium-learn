@@ -5,7 +5,7 @@ namespace Tagcade\Service\Integration\Integrations\RedshiftVideo;
 
 class RedShiftPDO implements RedShiftPDOInterface
 {
-    const CONNECTION_TEMPLATE = '%s:dbname=%s;host=%s;port=%d';
+    const CONNECTION_TEMPLATE = '%s:sslmode=%s;dbname=%s;host=%s;port=%d';
 
     /** @var string */
     private $dbType;
@@ -25,6 +25,9 @@ class RedShiftPDO implements RedShiftPDOInterface
     /** @var string */
     private $dbPassword;
 
+    /** @var string */
+    private $requireSsl;
+
     protected $pdo;
 
     /**
@@ -35,8 +38,9 @@ class RedShiftPDO implements RedShiftPDOInterface
      * @param $dbPort
      * @param $dbUserName
      * @param $dbPassword
+     * @param $requireSsl
      */
-    public function __construct($dbType, $dbName, $dbHost, $dbPort, $dbUserName, $dbPassword)
+    public function __construct($dbType, $dbName, $dbHost, $dbPort, $dbUserName, $dbPassword, $requireSsl = false)
     {
         $this->dbType = $dbType;
         $this->dbName = $dbName;
@@ -44,6 +48,7 @@ class RedShiftPDO implements RedShiftPDOInterface
         $this->dbPort = $dbPort;
         $this->dbUserName = $dbUserName;
         $this->dbPassword = $dbPassword;
+        $this->requireSsl = $requireSsl;
     }
 
     /**
@@ -52,7 +57,7 @@ class RedShiftPDO implements RedShiftPDOInterface
     public function getPdo()
     {
         if (!$this->pdo instanceof \PDO) {
-            $dns = sprintf(self::CONNECTION_TEMPLATE, $this->dbType, $this->dbName, $this->dbHost, $this->dbPort);
+            $dns = sprintf(self::CONNECTION_TEMPLATE,  $this->dbType, $this->requireSsl ? 'require': 'disable',$this->dbName, $this->dbHost, $this->dbPort);
 
             try {
                 $this->pdo = new \PDO($dns, $this->dbUserName, $this->dbPassword);
@@ -60,6 +65,7 @@ class RedShiftPDO implements RedShiftPDOInterface
 
             }
         }
+
 
         return $this->pdo;
     }

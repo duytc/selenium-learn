@@ -56,7 +56,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
 
     /** @var TagcadeRestClientInterface */
     protected $restClient;
-    
+
     /**
      * @var RedShiftPDOInterface
      */
@@ -73,33 +73,23 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
      * @param DownloadFileHelper $downloadFileHelper
      * @param FileStorageServiceInterface $fileStorage
      * @param TagcadeRestClientInterface $restClient
-     * @param RedShiftPDOInterface $redshiftPDO
      * @param Redis $redis
+     * @param RedShiftPDOInterface $redShiftPDO
      */
     public function __construct(
         LoggerInterface $logger,
         DownloadFileHelper $downloadFileHelper,
         FileStorageServiceInterface $fileStorage,
         TagcadeRestClientInterface $restClient,
-        Redis $redis
-    )
-    {
+        Redis $redis,
+        RedShiftPDOInterface $redShiftPDO
+    ) {
         $this->logger = $logger;
         $this->downloadFileHelper = $downloadFileHelper;
         $this->fileStorage = $fileStorage;
         $this->restClient = $restClient;
         $this->redis = $redis;
-
-        $this->redshift = new PDO(
-            sprintf(
-                'pgsql:dbname=%s;host=%s;port=%d',
-                'pubvantage',
-                'pubvantage.c2thy5vfmt3r.us-west-2.redshift.amazonaws.com',
-                5439
-            ),
-            'pubvantage',
-            'Waula6le'
-        );
+        $this->redshiftPDO = $redShiftPDO;
     }
 
     /**
@@ -109,7 +99,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
     {
         $params = new PartnerParams($config);
 
-//        $this->redshift = $this->redshiftPDO->getPdo();
+        $this->redshift = $this->redshiftPDO->getPdo();
         if (!$this->redshift instanceof PDO) {
             throw new Exception('Can not connect to Redshift. Quit');
         }
@@ -129,7 +119,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
 
         // if start date is today, update redis to add datasource it to the etl set
         if ($startDate >= new DateTime('today')) {
-            $this->redis->setex('dataSourcesForDailyVpaid' . $dataSourceId, 604800, 'value');
+            $this->redis->setex('dataSourcesForDailyVpaid'.$dataSourceId, 604800, 'value');
             die("Updated Redis Key with data source id $dataSourceId.\n");
         }
         $fileName = sprintf(
@@ -289,16 +279,19 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
                 $this->fileStorage->saveToJsonFile(
                     sprintf($path, bin2hex(random_bytes(4))),
                     $data,
-                    $columnNames);
+                    $columnNames
+                );
                 $data = [];
             }
             $count++;
         }
-        if (!empty($data))
+        if (!empty($data)) {
             $this->fileStorage->saveToJsonFile(
                 sprintf($path, bin2hex(random_bytes(4))),
                 $data,
-                $columnNames);
+                $columnNames
+            );
+        }
 
 
 //        $responseData = $result->fetchAll(PDO::FETCH_ASSOC);

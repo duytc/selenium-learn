@@ -47,3 +47,4 @@ parameters:
     redshift_db_port: 5439
     redshift_db_username: pubvantage
     redshift_db_password: ''
+    redshift_db_ssl: true
