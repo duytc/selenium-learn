@@ -119,12 +119,18 @@ class DeliveryReportPage extends AbstractPage
     private function clickDateRange()
     {
         try {
-            $dateElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[3]/div[2]/div[1]/div[1]'));
+            $dateElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-date-range")]/div[1]/div[1]'));
             if ($dateElement) {
                 $dateElement->click();
+                $this->sleep(1);
                 $dropDownElement = $this->driver->findElement(WebDriverBy::xpath('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "Custom")]'));
-                if ($dropDownElement) {
-                    $dropDownElement->click();
+                $elements = $this->driver->findElements(WebDriverBy::tagName('li'));
+                foreach ($elements as $element) {
+                    if ('Custom' == $element->getText()) {
+                        $this->sleep(1);
+                        $element->click();
+                        break;
+                    }
                 }
             }
         } catch (NoSuchElementException $noSuchElementException) {

@@ -6,10 +6,12 @@ use DateTime;
 use Exception;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverSelect;
+use Symfony\Component\Validator\Constraints\Date;
 use Tagcade\Service\Fetcher\Fetchers\PulsePoint\Widget\AbstractWidget;
 
 class DateSelectWidget extends AbstractWidget
 {
+    protected $firstDate = false;
     /**
      * @param DateTime $startDate
      * @param DateTime $endDate
@@ -68,41 +70,29 @@ class DateSelectWidget extends AbstractWidget
      */
     private function selectDateWithCustomId($startDate, $id = null)
     {
-        $buttonClose = $this->filterElementByTagNameAndText('button', 'Close');
-        if ($buttonClose) {
-            $controls = $buttonClose->getAttribute('aria-controls');
-            $id = substr($controls, 5, 4);
+        if ($this->firstDate) {
+            $monthsBack = $this->firstDate->diff($startDate)->format('%m');
+        }
+        else {
+            $this->firstDate = $startDate;
+            $now = new DateTime('now');
+            $monthsBack = $now->diff($startDate)->format('%m');
         }
 
-        $yearElement = $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#ember%s-input_root > div > div > div > div > div.picker__calendar-container > div > select.picker__select--year.browser-default', $id)));
-        $yearSelect = new WebDriverSelect($yearElement);
-        $y = $startDate->format("Y");
-        $yearSelect->selectByValue($y);
-        sleep(1);
+        $clickMonthBack = $this->driver->findElement(WebDriverBy::className('ember-power-calendar-nav-control--previous'));
+        while ($monthsBack > 0) {
+            $clickMonthBack->click();
+            $monthsBack--;
+        }
 
-        $monthElement = $this->driver->findElement(WebDriverBy::cssSelector(sprintf('#ember%s-input_root > div > div > div > div > div.picker__calendar-container > div > select.picker__select--month.browser-default', $id)));
-        $monthSelect = new WebDriverSelect($monthElement);
-        $m = $startDate->format("n");
-        $monthSelect->selectByValue($m - 1);
-        sleep(1);
-
-        $tableElement = $this->driver->findElement(WebDriverBy::id(sprintf('ember%s-input_table', $id)));
-        $dayElements = $tableElement->findElements(WebDriverBy::tagName('td'));
-        $d = $startDate->format("j");
-        sleep(1);
-
-        foreach ($dayElements as $liElement) {
-            if ($liElement->getText() == $d) {
-                $liElement->click();
+        $monthElement = $this->driver->findElement(WebDriverBy::className('ember-power-calendar-days'));
+        $days = $monthElement->findElements(WebDriverBy::tagName('button'));
+        $d = $startDate->format('j');
+        foreach ($days as $day) {
+            if ($d == $day->getText()) {
+                $day->click();
                 break;
             }
-        }
-
-        sleep(1);
-
-        $buttonClose = $this->filterElementByTagNameAndText('button', 'Close');
-        if ($buttonClose) {
-            $buttonClose->click();
         }
     }
 }
