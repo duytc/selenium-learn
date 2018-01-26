@@ -19,6 +19,7 @@ use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
+use Tagcade\Service\Integration\Integrations\RedshiftVideo\RedShiftPDOInterface;
 
 class RedshiftAggregatedVideo extends IntegrationAbstract implements IntegrationInterface
 {
@@ -54,9 +55,12 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
 
     /** @var TagcadeRestClientInterface */
     protected $restClient;
+    
     /**
-     * @var PDO
+     * @var RedShiftPDOInterface
      */
+    protected $redshiftPDO;
+
     protected $redshift;
 
     protected $redis;
@@ -68,7 +72,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
      * @param DownloadFileHelper $downloadFileHelper
      * @param FileStorageServiceInterface $fileStorage
      * @param TagcadeRestClientInterface $restClient
-     * @param PDO $redshift
+     * @param RedShiftPDOInterface $redshiftPDO
      * @param Redis $redis
      */
     public function __construct(
@@ -76,7 +80,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
         DownloadFileHelper $downloadFileHelper,
         FileStorageServiceInterface $fileStorage,
         TagcadeRestClientInterface $restClient,
-        PDO $redshift,
+        RedShiftPDOInterface $redshiftPDO,
         Redis $redis
     )
     {
@@ -84,7 +88,7 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
         $this->downloadFileHelper = $downloadFileHelper;
         $this->fileStorage = $fileStorage;
         $this->restClient = $restClient;
-        $this->redshift = $redshift;
+        $this->redshiftPDO = $redshiftPDO;
         $this->redis = $redis;
     }
 
@@ -94,6 +98,11 @@ class RedshiftAggregatedVideo extends IntegrationAbstract implements Integration
     public function run(ConfigInterface $config)
     {
         $params = new PartnerParams($config);
+
+        $this->redshift = $this->redshiftPDO->getPdo();
+        if (!$this->redshift instanceof PDO) {
+            throw new Exception('Can not connect to Redshift. Quit');
+        }
 
         $this->redshift->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->redshift->exec("SET TIMEZONE = 'PST8PDT'");

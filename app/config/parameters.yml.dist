@@ -41,6 +41,9 @@ parameters:
     ur_update_backfill_history_url: 'http://ur-api.pubvantage-dev.test/app_dev.php/api/v1/datasourceintegrationsbackfillhistories/{id}/update'
     ur_update_backfill_missing_dates_url: 'http://ur-api.pubvantage-dev.test/app_dev.php/api/v1/datasources/{id}/updatebackfillmissingdate'
 
-    redshift_db_type: pgsql:dbname=pubvantage;host=pubvantage.c2thy5vfmt3r.us-west-2.redshift.amazonaws.com;port=5439
+    redshift_db_type: pgsql
+    redshift_db_name: pubvantage
+    redshift_db_host: pubvantage.c2thy5vfmt3r.us-west-2.redshift.amazonaws.com
+    redshift_db_port: 5439
     redshift_db_username: pubvantage
-    redshift_db_password: 123456
+    redshift_db_password: ''

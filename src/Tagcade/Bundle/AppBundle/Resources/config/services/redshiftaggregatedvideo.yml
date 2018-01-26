@@ -6,5 +6,5 @@ services:
             - '@tagcade.service.download_file_helper'
             - '@tagcade.service.file_storage_service'
             - '@tagcade_app.rest_client'
-            - '@pdo.redshift'
+            - '@tagcade.service.integration.integrations.redshift_video.redshift_pdo'
             - '@redis.app_cache'
