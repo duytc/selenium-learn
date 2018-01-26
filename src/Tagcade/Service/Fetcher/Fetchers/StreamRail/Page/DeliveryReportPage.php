@@ -28,7 +28,9 @@ class DeliveryReportPage extends AbstractPage
         $this->sleep(2);
         $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('modal-overlays')));
 
-        $this->selectFirstDimension($param->getPrimaryDimension());
+        if ($param->getPrimaryDimension() !== 'Ad Source')
+            $this->selectFirstDimension($param->getPrimaryDimension());
+
         $this->selectSecondDimension($param->getSecondaryDimension());
         $this->clickDateRange();
         $this->selectDateRange($param->getStartDate(), $param->getEndDate());
@@ -82,9 +84,14 @@ class DeliveryReportPage extends AbstractPage
         $firstDimensionElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[1]/div[2]/div[1]'));
         if ($firstDimensionElement) {
             $firstDimensionElement->click();
-            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "%s")]', $firstDimension)));
-            if ($dropDownElement) {
-                $dropDownElement->click();
+            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]')));
+            $listElements = $dropDownElement->findElements(WebDriverBy::tagName('li'));
+            foreach ($listElements as $listElement) {
+                $l = $listElement->getText();
+                if (trim($firstDimension) == $l) {
+                    $listElement->click();
+                    break;
+                }
             }
         }
     }
@@ -106,9 +113,14 @@ class DeliveryReportPage extends AbstractPage
         $secondDimensionElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[2]/div[2]/div[1]/div[1]'));
         if ($secondDimensionElement) {
             $secondDimensionElement->click();
-            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]/li[contains(., "%s")]', $secondDimension)));
-            if ($dropDownElement) {
-                $dropDownElement->click();
+            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]')));
+            $listElements = $dropDownElement->findElements(WebDriverBy::tagName('li'));
+            foreach ($listElements as $listElement) {
+                $l = $listElement->getText();
+                if (trim($secondDimension) == $l) {
+                    $listElement->click();
+                    break;
+                }
             }
         }
     }
