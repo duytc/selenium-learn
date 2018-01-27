@@ -70,8 +70,17 @@ class IntegrationActivator implements IntegrationActivatorInterface
             return false;
         }
 
+        $fetcherSchedulesShouldNotRun = [];
         foreach ($fetcherSchedules as $fetcherSchedule) {
-            $this->createExecutionJob($fetcherSchedule);
+            $executeJob = $this->createExecutionJob($fetcherSchedule);
+
+            if (is_string($executeJob)) {
+                $fetcherSchedulesShouldNotRun [] = $executeJob;
+            }
+        }
+
+        if (!empty($fetcherSchedulesShouldNotRun)) {
+            return $fetcherSchedulesShouldNotRun;
         }
 
         return true;
@@ -96,6 +105,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
             return true;
         }
 
+        $fetcherSchedulesShouldNotRun = [];
         foreach ($fetcherSchedules as $fetcherSchedule) {
             /* Overwrite by custom params if has */
             if (is_array($customParams)) {
@@ -111,7 +121,15 @@ class IntegrationActivator implements IntegrationActivatorInterface
             }
 
             /* create new job for execution */
-            $this->createExecutionJob($fetcherSchedule, $isForceRun);
+            $executeJob = $this->createExecutionJob($fetcherSchedule, $isForceRun);
+
+            if (is_string($executeJob)) {
+                $fetcherSchedulesShouldNotRun [] = $executeJob;
+            }
+        }
+
+        if (!empty($fetcherSchedulesShouldNotRun)) {
+            return $fetcherSchedulesShouldNotRun;
         }
 
         return true;
@@ -160,6 +178,12 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         // TODO: validate key in array before processing...
         $publisherId = $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_PUBLISHER][PartnerParams::PARAM_KEY_ID];
+        $publisherActive = $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_PUBLISHER]['enabled'];
+        // check publisher is enabled
+        // if publisher is not enabled -> DataSourceIntegration should not run
+        if (!$publisherActive) {
+            return sprintf('DataSourceIntegration(%d) - dataSource(%d) should not run because publisher(%d) is inactive', $dataSourceIntegration[PartnerParams::PARAM_KEY_ID], $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_ID], $publisherId);
+        }
         $integrationCName = $dataSourceIntegration[PartnerParams::PARAM_KEY_INTEGRATION][PartnerParams::PARAM_KEY_CANONICAL_NAME];
         $dataSourceId = $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_ID];
         $params = $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS];

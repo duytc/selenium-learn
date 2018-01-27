@@ -66,6 +66,13 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
             $isUpdateNextExecute
         );
 
+        if (is_array($result)) {
+            $this->logger->info(sprintf('There are %d integration should not be run. Details: ', count($result)));
+            foreach ($result as $activatorMessage) {
+                $this->logger->warning($activatorMessage);
+            }
+        }
+
         if (!$result) {
             $this->logger->notice('Complete running integration activator with error');
         } else {
