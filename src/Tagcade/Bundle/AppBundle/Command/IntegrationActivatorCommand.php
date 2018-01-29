@@ -43,7 +43,15 @@ class IntegrationActivatorCommand extends ContainerAwareCommand
             /** @var IntegrationActivatorInterface $activatorService */
             $activatorService = $container->get('tagcade.service.integration_activator');
 
-            $activatorService->createExecutionJobs();
+            $activatorStatus = $activatorService->createExecutionJobs();
+
+            if (is_array($activatorStatus)) {
+                $this->logger->info(sprintf('There are %d integration should not be run. Details: ', count($activatorStatus)));
+                foreach ($activatorStatus as $activatorMessage) {
+                    $this->logger->warning($activatorMessage);
+                }
+            }
+
             $this->logger->info('Complete running integration activator with no error');
         } catch (\Exception $e) {
             $this->logger->notice($e);

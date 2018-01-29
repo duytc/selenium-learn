@@ -5,7 +5,6 @@ namespace Tagcade\Service\Fetcher\Fetchers\VertaExternal\Page;
 use Exception;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use Tagcade\Service\Fetcher\Pages\AbstractPage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Params\Verta\VertaPartnerParamInterface;
@@ -19,8 +18,8 @@ class DeliveryReportingPage extends AbstractPage
             return;
         }
 
-        $reportLink =  $this->driver->findElement(WebDriverBy::cssSelector('a[href="#/report"]'));
-        if(!$reportLink instanceof RemoteWebElement) {
+        $reportLink = $this->driver->findElement(WebDriverBy::cssSelector('a[href="#/report"]'));
+        if (!$reportLink instanceof RemoteWebElement) {
             throw new Exception('Can not find report href. Recheck code base');
         }
         $reportLink->click();
@@ -30,7 +29,7 @@ class DeliveryReportingPage extends AbstractPage
         $this->sleep(3);
 
         $this->selectCrossReports($params->getCrossReports());
-        $this->sleep(10);
+        $this->sleep(5);
 
         $this->selectDateRanges($params->getStartDate(), $params->getEndDate());
         $this->sleep(5);
@@ -110,7 +109,7 @@ class DeliveryReportingPage extends AbstractPage
                     continue;
                 }
 
-                if ($element->gettext() == $report) {
+                if ($element->getText() == $report) {
                     $element->click();
                     return;
                 }
@@ -146,9 +145,16 @@ class DeliveryReportingPage extends AbstractPage
                         continue;
                     }
 
-                    if ($element->gettext() == $crossReport) {
+                    $classNames = $element->getAttribute('class');
+                    if (strpos($classNames, 'active')) {
+                        continue;
+                    }
+
+                    if ($element->getText() == $crossReport) {
                         $element->click();
-                        return;
+                        $this->logger->debug(sprintf('Click Cross Report: %s ', $crossReport));
+                        $this->sleep(2);
+                        continue;
                     }
                 } catch (Exception $e) {
                 }
