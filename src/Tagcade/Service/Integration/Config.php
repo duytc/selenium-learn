@@ -295,7 +295,7 @@ class Config implements ConfigInterface
 
         try {
             $startDate = date('Y-m-d', strtotime(self::$SUPPORTED_PARAM_VALUE_DYNAMIC_DATE_RANGES[$dynamicDateRange]));
-            $endDate = date('Y-m-d', strtotime('-1 day'));
+            $endDate = $dynamicDateRange == 'today' ? $startDate : date('Y-m-d', strtotime('-1 day'));
         } catch (Exception $e) {
             return false;
         }

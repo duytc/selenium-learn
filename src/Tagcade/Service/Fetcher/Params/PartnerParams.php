@@ -360,16 +360,20 @@ class PartnerParams implements PartnerParamInterface
             $password = $config[self::PARAM_KEY_PASSWORD];
         }
 
-        $yesterday = date_create('yesterday');
-        $yesterday->setTime(0, 0);
-
-        if ($startDate > $yesterday) {
-            $startDate = $yesterday;
-        }
-
-        if ($endDate > $yesterday) {
-            $endDate =  $yesterday;
-        }
+        /*
+         * Now we support download today report, so that do not need to set max day as yesterday
+         * TODO: remove when stable
+         */
+        //$yesterday = date_create('yesterday');
+        //$yesterday->setTime(0, 0);
+        //
+        //if ($startDate > $yesterday) {
+        //    $startDate = $yesterday;
+        //}
+        //
+        //if ($endDate > $yesterday) {
+        //    $endDate =  $yesterday;
+        //}
 
         $this->username = $username;
         $this->password = $password;
