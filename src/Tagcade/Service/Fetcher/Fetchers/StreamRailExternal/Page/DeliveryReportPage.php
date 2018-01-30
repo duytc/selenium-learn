@@ -33,7 +33,11 @@ class DeliveryReportPage extends AbstractPage
 
         $this->sleep(2);
 
-        $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Apply Filters"]'))->click();
+        // No need to click apply filter when download today report
+        $now = new \DateTime();
+        if ($now->format('Ymd') != $param->getStartDate()->format('Ymd') && $now->format('Ymd') != $param->getEndDate()->format('Ymd')) {
+            $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Apply Filters"]'))->click();
+        }
 
         $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath('//*[@data-tooltip="Undo"]')));
 
@@ -65,64 +69,6 @@ class DeliveryReportPage extends AbstractPage
         $dateWidget = new DateSelectWidget($this->driver);
         $dateWidget->setDateRange($startDate, $endDate);
         return $this;
-    }
-
-    /**
-     * @param $firstDimension
-     */
-    private function selectFirstDimension($firstDimension)
-    {
-        if (empty($firstDimension)) {
-            return;
-        }
-
-        $pageSource = $this->driver->getPageSource();
-        if (!strpos(strtolower($pageSource), strtolower('Primary Dimension'))) {
-            return;
-        }
-
-        $firstDimensionElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[1]/div[2]/div[1]'));
-        if ($firstDimensionElement) {
-            $firstDimensionElement->click();
-            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]')));
-            $listElements = $dropDownElement->findElements(WebDriverBy::tagName('li'));
-            foreach ($listElements as $listElement) {
-                $l = $listElement->getText();
-                if (trim($firstDimension) == $l) {
-                    $listElement->click();
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * @param $secondDimension
-     */
-    private function selectSecondDimension($secondDimension)
-    {
-        if (empty($secondDimension)) {
-            return;
-        }
-
-        $pageSource = $this->driver->getPageSource();
-        if (!strpos(strtolower($pageSource), strtolower('Secondary Dimension'))) {
-            return;
-        }
-
-        $secondDimensionElement = $this->driver->findElement(WebDriverBy::xpath('//div[contains(@class, "sr-report--filters") and contains(@class ,"no-horizontal-margin")]/div[2]/div[2]/div[1]/div[1]'));
-        if ($secondDimensionElement) {
-            $secondDimensionElement->click();
-            $dropDownElement = $this->driver->findElement(WebDriverBy::xpath(sprintf('//ul[contains(@class, "ember-power-select-options") and contains(@class, "ember-view")]')));
-            $listElements = $dropDownElement->findElements(WebDriverBy::tagName('li'));
-            foreach ($listElements as $listElement) {
-                $l = $listElement->getText();
-                if (trim($secondDimension) == $l) {
-                    $listElement->click();
-                    break;
-                }
-            }
-        }
     }
 
     /**

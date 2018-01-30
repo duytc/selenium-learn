@@ -37,7 +37,22 @@ class DeliveryReportPage extends AbstractPage
 
         $this->sleep(2);
 
-        $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Apply Filters"]'))->click();
+        // No need to click apply filter when download today report
+        $now = new \DateTime();
+        if ($now->format('Ymd') === $param->getStartDate()->format('Ymd') && $now->format('Ymd') === $param->getEndDate()->format('Ymd')) {
+
+            // case 1: primaryDimemsion = null, secondDimension = null -> no need to click
+            // case 2: primaryDimension == Ad Source, secondDimension == null -> no need to check
+            if ($param->getPrimaryDimension() === null && $param->getSecondaryDimension() === null) {
+                // no need to click
+            } elseif ($param->getPrimaryDimension() === 'Ad Source' && $param->getSecondaryDimension() === null) {
+                // no need to click
+            } else {
+                $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Apply Filters"]'))->click();
+            }
+        } else {
+            $this->driver->findElement(WebDriverBy::xpath('//*[@data-tooltip="Apply Filters"]'))->click();
+        }
 
         $this->driver->wait()->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath('//*[@data-tooltip="Undo"]')));
 
