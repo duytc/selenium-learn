@@ -57,10 +57,14 @@ class DeliveryReportPage extends AbstractPage
      */
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
-        $now = new \DateTime();
-        if ($now->format('Ymd') === $startDate->format('Ymd') || $now->format('Ymd') === $endDate->format('Ymd')) {
-            throw new Exception('not supported startDate or endDate equal today');
-        }
+        /*
+         * Now we support download today report, so that do not need to set max day as yesterday
+         * TODO: remove when stable
+         */
+//        $now = new \DateTime();
+//        if ($now->format('Ymd') === $startDate->format('Ymd') || $now->format('Ymd') === $endDate->format('Ymd')) {
+//            throw new Exception('not supported startDate or endDate equal today');
+//        }
 
         $dateWidget = new DateSelectWidget($this->driver);
         $dateWidget->setDateRange($startDate, $endDate);
