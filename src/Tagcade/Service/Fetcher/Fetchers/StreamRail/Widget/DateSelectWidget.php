@@ -70,22 +70,24 @@ class DateSelectWidget extends AbstractWidget
      */
     private function selectDateWithCustomId($startDate, $id = null)
     {
-        if ($this->firstDate) {
-            $monthsBack = $this->firstDate->diff($startDate)->format('%m');
+        if ($this->firstDate instanceof DateTime) {
+            // $monthsBack = $this->firstDate->diff($startDate)->format('%m'); // wrong diff, TODO: remove
+            $monthsBack = $this->firstDate->format('n') - $startDate->format('n');
         }
         else {
             $this->firstDate = $startDate;
             $now = new DateTime('now');
-            $monthsBack = $now->diff($startDate)->format('%m');
+            // $monthsBack = $this->firstDate->diff($startDate)->format('%m'); // wrong diff, TODO: remove
+            $monthsBack = $now->format('n') - $startDate->format('n');
         }
 
-        $clickMonthBack = $this->driver->findElement(WebDriverBy::className('ember-power-calendar-nav-control--previous'));
+        $clickMonthBack = $this->driver->findElement(WebDriverBy::cssSelector('button.ember-power-calendar-nav-control.ember-power-calendar-nav-control--previous'));
         while ($monthsBack > 0) {
             $clickMonthBack->click();
             $monthsBack--;
         }
 
-        $monthElement = $this->driver->findElement(WebDriverBy::className('ember-power-calendar-days'));
+        $monthElement = $this->driver->findElement(WebDriverBy::cssSelector('div.ember-power-calendar-days.ember-view'));
         $days = $monthElement->findElements(WebDriverBy::tagName('button'));
         $d = $startDate->format('j');
         foreach ($days as $day) {
