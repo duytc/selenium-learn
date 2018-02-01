@@ -23,6 +23,7 @@ imports:
     - { resource: services/video/lkqd.yml }
     - { resource: services/video/springserve.yml }
     - { resource: services/video/cedato.yml }
+    - { resource: services/video/cedatointernal.yml }
     - { resource: services/video/streamrail.yml }
     - { resource: services/video/streamrailexternal.yml }
     - { resource: services/general/basic_api.yml }
@@ -181,6 +182,7 @@ services:
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
                 - '@tagcade.service.integration.integrations.video.cedato'
+                - '@tagcade.service.integration.integrations.video.cedato_internal'
                 - '@tagcade.service.integration.integrations.video.streamrail'
                 - '@tagcade.service.integration.integrations.video.streamrail_external'
                 - '@tagcade.service.integration.integrations.video.verta_internal'

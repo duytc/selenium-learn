@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Integration\Integrations\Video\Cedato;
+namespace Tagcade\Service\Integration\Integrations\Video\CedatoInternal;
 
 use Tagcade\Service\Fetcher\Params\Cedato\CedatoPartnerParams;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
@@ -8,16 +8,13 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
 use Tagcade\Service\WebDriverServiceInterface;
 
-class Cedato extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
+class CedatoInternal extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
 {
     /*
-     * create command
-     * php app/console ur:integration:create video-cedato "Cedato-External" -p "username,password:secure,dateRange:dynamicDateRange,reportType:option:Supply;Supply by Demand Sources;Demand Sources by Supply;Demand" -a -vv
-     *
-     * update command
-     * php app/console ur:integration:update video-cedato "Cedato-External" -p "username,password:secure,dateRange:dynamicDateRange,reportType:option:Supply;Supply by Demand Sources;Demand Sources by Supply;Demand" -a -vv
+     * Command to create:
+     * php app/console ur:integration:create video-cedato-internal "Cedato-Internal" -p "username,password:secure,dateRange:dynamicDateRange" -a -vv
      */
-    const INTEGRATION_C_NAME = 'video-cedato';
+    const INTEGRATION_C_NAME = 'video-cedato-internal';
 
     /**
      * Media constructor.
@@ -33,8 +30,7 @@ class Cedato extends IntegrationVideoDemandPartnerAbstract implements Integratio
     /**
      * @inheritdoc
      *
-     * override because of new param "reportType"
-     * and override because set dailyBreakdown default is true
+     * override because set dailyBreakdown default is true
      */
     public function createPartnerParams($config)
     {
