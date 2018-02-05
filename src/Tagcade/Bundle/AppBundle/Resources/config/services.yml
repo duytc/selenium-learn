@@ -181,7 +181,7 @@ services:
                 - '@tagcade.service.integration.integrations.redshift_video.redshiftaggregatedvideo'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
-                - '@tagcade.service.integration.integrations.video.cedato'
+                - '@tagcade.service.integration.integrations.video.cedato_external'
                 - '@tagcade.service.integration.integrations.video.cedato_internal'
                 - '@tagcade.service.integration.integrations.video.streamrail'
                 - '@tagcade.service.integration.integrations.video.streamrail_external'

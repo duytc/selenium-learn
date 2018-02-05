@@ -6,8 +6,8 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Psr\Log\LoggerInterface;
-use Tagcade\Service\Fetcher\Fetchers\Cedato\Page\DeliveryReportPage;
-use Tagcade\Service\Fetcher\Fetchers\Cedato\Page\HomePage;
+use Tagcade\Service\Fetcher\Fetchers\CedatoInternal\Page\DeliveryReportPage;
+use Tagcade\Service\Fetcher\Fetchers\CedatoInternal\Page\HomePage;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\PartnerFetcherAbstract;
 
@@ -19,6 +19,7 @@ class CedatoInternalFetcher extends PartnerFetcherAbstract implements CedatoInte
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      * @throws null
+     * @throws \Exception
      */
     public function getAllData(PartnerParamInterface $params, RemoteWebDriver $driver)
     {

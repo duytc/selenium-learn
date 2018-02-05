@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Integration\Integrations\Video\Cedato;
+namespace Tagcade\Service\Integration\Integrations\Video\CedatoExternal;
 
 use Tagcade\Service\Fetcher\Params\Cedato\CedatoPartnerParams;
 use Tagcade\Service\Fetcher\PartnerFetcherInterface;
@@ -8,16 +8,16 @@ use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationVideoDemandPartnerAbstract;
 use Tagcade\Service\WebDriverServiceInterface;
 
-class Cedato extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
+class CedatoExternal extends IntegrationVideoDemandPartnerAbstract implements IntegrationInterface
 {
     /*
      * create command
-     * php app/console ur:integration:create video-cedato "Cedato-External" -p "username,password:secure,dateRange:dynamicDateRange,reportType:option:Supply;Supply by Demand Sources;Demand Sources by Supply;Demand" -a -vv
+     * php app/console ur:integration:create video-cedato-external "Cedato-External" -p "username,password:secure,dateRange:dynamicDateRange,reportType:option:Supply;Supply by Demand Sources;Demand Sources by Supply;Demand" -a -vv
      *
      * update command
-     * php app/console ur:integration:update video-cedato "Cedato-External" -p "username,password:secure,dateRange:dynamicDateRange,reportType:option:Supply;Supply by Demand Sources;Demand Sources by Supply;Demand" -a -vv
+     * php app/console ur:integration:update video-cedato-external "Cedato-External" -p "username,password:secure,dateRange:dynamicDateRange,reportType:option:Supply;Supply by Demand Sources;Demand Sources by Supply;Demand" -a -vv
      */
-    const INTEGRATION_C_NAME = 'video-cedato';
+    const INTEGRATION_C_NAME = 'video-cedato-external';
 
     /**
      * Media constructor.

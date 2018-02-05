@@ -272,7 +272,7 @@ abstract class AbstractPage
         }
 
         $this->navigate();
-        usleep(200);
+        usleep(100);
 
         return;
     }

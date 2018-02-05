@@ -479,6 +479,7 @@ class WebDriverService implements WebDriverServiceInterface
      * @param PartnerParamInterface $params
      * @param RemoteWebDriver $driver
      * @param $needToLogin
+     * @throws Exception
      */
     protected function handleGetDataByDateRange(PartnerFetcherInterface $partnerFetcher, PartnerParamInterface $params, RemoteWebDriver $driver, $needToLogin = false)
     {

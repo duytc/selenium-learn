@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Fetcher\Fetchers\Cedato\Page;
+namespace Tagcade\Service\Fetcher\Fetchers\CedatoExternal\Page;
 
 use DateTime;
 use Exception;
@@ -27,6 +27,14 @@ class DeliveryReportPage extends AbstractPage
     const DOMAIN_URL = 'https://dashboard.cedato.com/#/reports/domains/all/0/0/0';
     const LOG_OUT_URL = 'https://dashboard.cedato.com/#/login';
 
+    /**
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @throws Exception
+     * @throws NoSuchElementException
+     * @throws TimeOutException
+     * @throws null
+     */
     public function getAllTagReports(\DateTime $startDate, \DateTime $endDate)
     {
         // step 0. select filter
@@ -84,11 +92,6 @@ class DeliveryReportPage extends AbstractPage
     /**
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @throws Exception
-     * @throws NoSuchElementException
-     * @throws TimeOutException
-     * @throws null
-     * @internal param DateTime $startDatem
      */
     protected function getAllTagReportsForSingleDomain(\DateTime $startDate, \DateTime $endDate)
     {
@@ -98,6 +101,11 @@ class DeliveryReportPage extends AbstractPage
         $this->downloadFileHelper->downloadThenWaitUntilComplete($exportAllAsCsv, $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig()));
     }
 
+    /**
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @return $this
+     */
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
     {
         $dateWidget = new DateSelectWidget($this->driver);
