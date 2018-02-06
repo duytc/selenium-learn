@@ -498,6 +498,10 @@ class WebDriverService implements WebDriverServiceInterface
      */
     private function removeSessionFolders()
     {
+        if (!is_dir($this->chromeFolderPath) && !is_file($this->chromeFolderPath)) {
+            return;
+        }
+        
         $this->logger->debug(sprintf('Remove session folder', $this->chromeFolderPath));
         $iterator = new DirectoryIterator($this->chromeFolderPath);
         $i = 1;
