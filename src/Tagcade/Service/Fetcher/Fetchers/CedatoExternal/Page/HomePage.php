@@ -19,5 +19,4 @@ class HomePage extends \Tagcade\Service\Fetcher\Fetchers\CedatoInternal\Page\Hom
     {
         return parent::doLogin($username, $password);
     }
-
 }

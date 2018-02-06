@@ -45,5 +45,4 @@ class CedatoExternalFetcher extends PartnerFetcherAbstract implements CedatoExte
     {
         return new HomePage($driver, $this->logger, true);
     }
-
 }

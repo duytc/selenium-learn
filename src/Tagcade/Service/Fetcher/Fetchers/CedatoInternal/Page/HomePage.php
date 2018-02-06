@@ -7,7 +7,6 @@ use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverWait;
 use Tagcade\Service\Fetcher\Pages\AbstractCedatoHomePage;
 
 class HomePage extends AbstractCedatoHomePage
