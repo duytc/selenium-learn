@@ -36,12 +36,14 @@ class DeliveryReportingPage extends AbstractPage
         $runReportBtn = $this->driver->findElement(WebDriverBy::name('commit'));
         $runReportBtn->click();
 
+        sleep(3);
         $this->driver->wait(self::TIME_OUT)->until(WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::id('spinner')));
-
+        sleep(3);
+        
         try {
             $buttonElements = $this->driver->findElements(WebDriverBy::tagName('button'));
             foreach ($buttonElements as $buttonElement) {
-                if ($buttonElement->getText() == 'Exit') {
+                if ($buttonElement->getText() == 'View Preview') {
                     $buttonElement->click();
                 }
             }
