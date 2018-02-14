@@ -48,15 +48,17 @@ class FileStorageService implements FileStorageServiceInterface
         $rootDirectory = $this->getRootDirectory();
         $publisherId = $config->getPublisherId();
         $partnerCName = $config->getIntegrationCName();
+        $dataSourceId = $config->getDataSourceId();
 
         $executionDate = new \DateTime('now');
         $myProcessId = getmypid();
 
         $downloadPath = sprintf(
-            '%s/%d/%s/%s-%s',
+            '%s/%d/%s/%d/%s-%s',
             $rootDirectory,
             $publisherId,
             $partnerCName,
+            $dataSourceId,
             $executionDate->format('Ymd'),
             $myProcessId
         );
