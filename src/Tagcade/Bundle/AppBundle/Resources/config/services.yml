@@ -23,6 +23,7 @@ imports:
     - { resource: services/video/lkqd.yml }
     - { resource: services/video/springserve.yml }
     - { resource: services/video/springserveapi.yml }
+    - { resource: services/video/streamrailinternalapi.yml }
     - { resource: services/video/cedato.yml }
     - { resource: services/video/cedatointernal.yml }
     - { resource: services/video/streamrail.yml }
@@ -38,6 +39,7 @@ imports:
     - { resource: services/mediadotnetapi.yml }
     - { resource: services/video/lkqddemanddeals.yml }
     - { resource: services/advertisedotcomapi.yml }
+    - { resource: services/beachfrontapi.yml }
     - { resource: services/redshiftaggregatedvideo.yml }
 
 
@@ -179,10 +181,12 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.connatix'
                 - '@tagcade.service.integration.integrations.demand_partner.mediadotnetapi'
                 - '@tagcade.service.integration.integrations.demand_partner.advertisedotcomapi'
+                - '@tagcade.service.integration.integrations.demand_partner.beachfrontapi'
                 - '@tagcade.service.integration.integrations.redshift_video.redshiftaggregatedvideo'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
                 - '@tagcade.service.integration.integrations.video.springserveapi'
+                - '@tagcade.service.integration.integrations.video.streamrailinternalapi'
                 - '@tagcade.service.integration.integrations.video.cedato_external'
                 - '@tagcade.service.integration.integrations.video.cedato_internal'
                 - '@tagcade.service.integration.integrations.video.streamrail'

@@ -1,0 +1,9 @@
+services:
+    tagcade.service.integration.integrations.video.streamrailinternalapi:
+        class: Tagcade\Service\Integration\Integrations\Video\StreamRailInternalApi\StreamRailInternalApi
+        arguments:
+            - '@logger'
+            - '@tagcade.service.download_file_helper'
+            - '@tagcade.service.file_storage_service'
+            - '@tagcade_app.rest_client'
+            - '@curl'
