@@ -32,6 +32,7 @@ class SpringServeApi extends IntegrationAbstract implements IntegrationInterface
     const PARAM_USERNAME = 'username';
     const PARAM_PASSWORD = 'password';
     const PARAM_DIMENSIONS = 'dimensions';
+    const PARAM_ACCOUNT = 'account';
 
     const RESPONSE_ATTRIBUTES = '@attributes';
     const RESPONSE_BODY = 'body';
@@ -92,10 +93,13 @@ class SpringServeApi extends IntegrationAbstract implements IntegrationInterface
         $username = $config->getParamValue(self::PARAM_USERNAME, null);
         $password = $config->getParamValue(self::PARAM_PASSWORD, null);
         $dimensions = $config->getParamValue(self::PARAM_DIMENSIONS, null);
+        $accountRaw = $config->getParamValue(self::PARAM_ACCOUNT, null);
 
         foreach ($dimensions as $key => $dimension) {
             $dimensions[$key] = strtolower(str_replace(' ', '_', $dimension));
         }
+
+        $account = explode(':', $accountRaw)[1];
 
         $accessToken = $this->getLogin(self::PARAM_AUTH_ENDPOINT, $username, $password, $params);
 
@@ -130,7 +134,8 @@ class SpringServeApi extends IntegrationAbstract implements IntegrationInterface
                     "interval" => 'day',
                     "dimensions" => $dimensions,
                     "start_date" => $startDate->format("Y-m-d"),
-                    "end_date" => $endDate->format("Y-m-d")
+                    "end_date" => $endDate->format("Y-m-d"),
+                    "account_id" => $account
                 );
                 list($responseData, $responseDataColumns) = $this->createReport(self::PARAM_REPORT_ENDPOINT, $accessToken, $params, $data);
 

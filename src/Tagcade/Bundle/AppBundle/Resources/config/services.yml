@@ -40,6 +40,7 @@ imports:
     - { resource: services/video/lkqddemanddeals.yml }
     - { resource: services/advertisedotcomapi.yml }
     - { resource: services/beachfrontapi.yml }
+    - { resource: services/teleriaapi.yml }
     - { resource: services/redshiftaggregatedvideo.yml }
 
 
@@ -182,6 +183,7 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.mediadotnetapi'
                 - '@tagcade.service.integration.integrations.demand_partner.advertisedotcomapi'
                 - '@tagcade.service.integration.integrations.demand_partner.beachfrontapi'
+                - '@tagcade.service.integration.integrations.demand_partner.teleriaapi'
                 - '@tagcade.service.integration.integrations.redshift_video.redshiftaggregatedvideo'
                 - '@tagcade.service.integration.integrations.video.lkqd'
                 - '@tagcade.service.integration.integrations.video.springserve'
