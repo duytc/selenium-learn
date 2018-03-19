@@ -187,15 +187,16 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
 
                 $this->logger->debug('Save download file');
                 $this->fileStorage->saveToCSVFile($path, $dataRows, $columnNames);
+
+                $params->setStartDate($startDate);
+                $params->setEndDate($endDate);
+                // add startDate endDate to Downloaded file name
+                $this->downloadFileHelper->addStartDateEndDateToDownloadFiles($downloadFolderPath, $params);
+
                 $countHead++;
             }
-            // reset endDate
-            $params->setEndDate($endDate);
             // create metadata file. metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
             $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
-
-            // add startDate endDate to Downloaded file name
-            $this->downloadFileHelper->addStartDateEndDateToDownloadFiles($downloadFolderPath, $params);
 
             $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
         } catch (RuntimeException $runTimeException) {
