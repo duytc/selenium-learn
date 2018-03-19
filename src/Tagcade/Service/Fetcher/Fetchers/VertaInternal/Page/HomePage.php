@@ -45,10 +45,6 @@ class HomePage extends AbstractHomePage
             ->clear()
             ->sendKeys($username);
 
-        $this->sleep(1);
-        $nextBtn = $this->filterElementByTagNameAndText('button', 'NEXT');
-        $nextBtn->click();
-
         try {
             $this->driver->wait(30)->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::name('password')));
         } catch (Exception $e) {
