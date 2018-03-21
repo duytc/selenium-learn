@@ -1,0 +1,9 @@
+services:
+    tagcade.service.integration.integrations.video.cedatointernalapi:
+        class: Tagcade\Service\Integration\Integrations\Video\CedatoInternalApi\CedatoInternalApi
+        arguments:
+            - '@logger'
+            - '@tagcade.service.download_file_helper'
+            - '@tagcade.service.file_storage_service'
+            - '@tagcade_app.rest_client'
+            - '@curl'
