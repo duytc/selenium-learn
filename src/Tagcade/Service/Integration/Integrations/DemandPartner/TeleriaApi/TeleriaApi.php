@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Integration\Integrations\DemandPartner\TeleriaAPI;
+namespace Tagcade\Service\Integration\Integrations\DemandPartner\TeleriaApi;
 
 use anlutro\cURL\cURL;
 use DateInterval;
@@ -19,7 +19,7 @@ use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 
-class TeleriaAPI extends IntegrationAbstract implements IntegrationInterface
+class TeleriaApi extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
