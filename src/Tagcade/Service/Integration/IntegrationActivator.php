@@ -3,6 +3,8 @@
 namespace Tagcade\Service\Integration;
 
 use Pheanstalk\PheanstalkInterface;
+use Symfony\Component\Yaml\Yaml;
+use Tagcade\Bundle\AppBundle\Command\UpdateIntegrationStatusCommand;
 use Tagcade\Service\Core\TagcadeRestClient;
 use Tagcade\Service\Core\TagcadeRestClientInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParams;
@@ -21,12 +23,16 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /** @var int */
     protected $pheanstalkTTR;
 
-    public function __construct(TagcadeRestClientInterface $restClient, PheanstalkInterface $pheanstalk, $fetcherWorkerTube, $pheanstalkTTR)
+    /** @var string */
+    private $rootKernelDirectory;
+
+    public function __construct(TagcadeRestClientInterface $restClient, PheanstalkInterface $pheanstalk, $fetcherWorkerTube, $pheanstalkTTR, $rootKernelDirectory)
     {
         $this->restClient = $restClient;
         $this->pheanstalk = $pheanstalk;
         $this->fetcherWorkerTube = $fetcherWorkerTube;
         $this->pheanstalkTTR = $pheanstalkTTR;
+        $this->rootKernelDirectory = $rootKernelDirectory;
     }
 
     /**
@@ -190,6 +196,11 @@ class IntegrationActivator implements IntegrationActivatorInterface
 
         $paramKeys = $dataSourceIntegration[PartnerParams::PARAM_KEY_INTEGRATION][PartnerParams::PARAM_KEY_PARAMS]; // param keys only
 
+        /* check if integration is disabled from ur fetcher */
+        if ($this->isIntegrationDisabled($integrationCName)) {
+            return sprintf('DataSourceIntegration(%d) - dataSource(%d) should not run because the Integration(%s) is disabled from UR Fetcher', $dataSourceIntegration[PartnerParams::PARAM_KEY_ID], $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_ID], $integrationCName);
+        }
+
         /* create job data */
         $job = new \stdClass();
         $job->publisherId = $publisherId;
@@ -228,5 +239,22 @@ class IntegrationActivator implements IntegrationActivatorInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param string $integrationCName
+     * @return bool
+     */
+    private function isIntegrationDisabled($integrationCName)
+    {
+        // get current config. Notice: get via get file content, not via container due to cache may not be updated after run command
+        $parameters = Yaml::parse(file_get_contents($this->rootKernelDirectory . '/config/parameters.yml'));
+
+        // check
+        if (in_array($integrationCName, $parameters['parameters'][UpdateIntegrationStatusCommand::CONFIG_KEY])) {
+            return true;
+        }
+
+        return false;
     }
 }

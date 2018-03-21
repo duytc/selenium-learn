@@ -48,3 +48,8 @@ parameters:
     redshift_db_username: pubvantage
     redshift_db_password: ''
     redshift_db_ssl: true
+
+    # disabled integrations
+    disabled_integrations:
+        - integration_1
+        - integration_2

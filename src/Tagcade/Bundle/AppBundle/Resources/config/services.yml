@@ -115,6 +115,7 @@ services:
             - '@leezy.pheanstalk.primary'
             - '%fetcher_worker_tube%'
             - '%pheanstalk_ttr%'
+            - '%kernel.root_dir%'
 
     tagcade.service.file_storage_service:
         class: Tagcade\Service\FileStorageService
