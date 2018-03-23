@@ -23,23 +23,26 @@ class CedatoInternalApi extends IntegrationAbstract implements IntegrationInterf
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create video-cedato-internal-api "Cedato-Internal" -p "username,password:secure,dateRange:dynamicDateRange" -a -vv
+     * php app/console ur:integration:create video-cedato-internal-api "Cedato Internal Api" -p "accessKey,secretKey:secure,dateRange:dynamicDateRange,reportType:option:Supply;Demand" -a -vv
      */
     const INTEGRATION_C_NAME = 'video-cedato-internal-api';
 
     /* params from integration */
     const PARAM_BASE_URL = 'https://api.cedato.com/api'; // url for getting session id
     const PARAM_ENDPOINT_SESSION = '/token';
-    const PARAM_ENDPOINT_DEMAND = '/reports/demands/basic';
-    const PARAM_ENDPOINT_SUPPLY = '/reports/supplies/basic';
+    const PARAM_ENDPOINT_DEMAND = '/reports/demands/extended';
+    const PARAM_ENDPOINT_SUPPLY = '/reports/supplies/extended';
 
     const PARAM_ACCESS_KEY = 'accessKey';
     const PARAM_SECRET_KEY = 'secretKey';
+    const PARAM_REPORT_TYPE = 'reportType';
 
     const RESPONSE_ATTRIBUTES = '@attributes';
     const RESPONSE_BODY = 'body';
     const CSV_CONTENT_TYPE = 'text/csv';
 
+    protected $reportUrl;
+    protected $reportType;
     protected $headers;
     /**
      * @var LoggerInterface
@@ -96,6 +99,19 @@ class CedatoInternalApi extends IntegrationAbstract implements IntegrationInterf
         $accessKey = $config->getParamValue(self::PARAM_ACCESS_KEY, null);
         $secretKey = $config->getParamValue(self::PARAM_SECRET_KEY, null);
 
+        switch ($config->getParamValue(self::PARAM_REPORT_TYPE, null)) {
+            case "Demand":
+                $this->reportUrl = self::PARAM_ENDPOINT_DEMAND;
+                $this->reportType = 'demands';
+                break;
+            case "Supply":
+                $this->reportUrl = self::PARAM_ENDPOINT_SUPPLY;
+                $this->reportType = 'supplies';
+                break;
+            default:
+                $this->logger->error("No valid report type set");
+        }
+
         $sessionKey = $this->getLogin(self::PARAM_ENDPOINT_SESSION, $accessKey, $secretKey, $params);
 
         $startDate = $params->getStartDate();
@@ -132,12 +148,14 @@ class CedatoInternalApi extends IntegrationAbstract implements IntegrationInterf
                 $startDate = clone $singleDate;
                 $endDate = $singleDate->modify("+1d");
 
-                $responseData = $this->getReport($sessionKey, $params, $startDate->getTimestamp(), $endDate->getTimestamp());
+//                $endDate = clone $startDate;
+//                $endDate->modify("+1 day");
 
+                list($responseHeaders, $responseData) = $this->getReport($sessionKey, $params, $startDate->getTimestamp(), $endDate->getTimestamp());
 
                 $dataRows = $responseData;
                 if ($countHead == 0) {
-                    $columnNames[] = $this->headers;
+                    $columnNames[] = $responseHeaders;
                 }
 
                 $fileName = sprintf(
@@ -157,13 +175,12 @@ class CedatoInternalApi extends IntegrationAbstract implements IntegrationInterf
                 // add startDate endDate to Downloaded file name
                 $this->downloadFileHelper->addStartDateEndDateToDownloadFiles($downloadFolderPath, $params);
 
+                $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
+
             }
 
             // reset endDate
             $params->setEndDate($endDate);
-            // create metadata file. metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
-            $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
-
 
             $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
         } catch (RuntimeException $runTimeException) {
@@ -239,18 +256,21 @@ class CedatoInternalApi extends IntegrationAbstract implements IntegrationInterf
     {
         $this->logger->info("Making Report Request");
 
-        $url = self::PARAM_BASE_URL . self::PARAM_ENDPOINT_DEMAND . '?start=' . $start . '&end=' . $end;
+        $url = self::PARAM_BASE_URL . $this->reportUrl . '?start=' . $start . '&end=' . $end . '&limit=1000';
 
         $rawData = $this->setReportRequest($accessToken, $url, $params);
 
-        $data = $rawData["data"]["demands"];
+        $data = $rawData["data"][$this->reportType];
 
-        while ($rawData["data"]["navigation"]["next"]) {
-            $url = $rawData["data"]["navigation"]["next"];
+        if (sizeof($rawData["data"]["navigation"]) > 0) {
+            $url .= '&offset=1000';
             $rawData = $this->setReportRequest($accessToken, $url, $params);
-            array_merge($data, $rawData["data"]["demands"]);
+            array_merge($data, $rawData["data"][$this->reportType]);
         }
-        return $data;
+
+        $headers = array_keys($data[0]);
+
+        return [$headers, $data];
     }
 
     protected function setReportRequest(string $accessToken, string $url, PartnerParamInterface $params) {
@@ -281,12 +301,15 @@ class CedatoInternalApi extends IntegrationAbstract implements IntegrationInterf
         if ($code !== $expectedCode) {
             // will be retry
             if ($code == 419) {
-                die("Session Expired");
-            }
-            throw new RuntimeException(
-                sprintf('Cannot get data from this url, errorCode = %s while doing %s', $code, $source)
-            );
+                throw new RuntimeException(
+                    sprintf('Session has expired, errorCode = %s while doing %s', $code, $source)
+                );
+            } else {
+                throw new RuntimeException(
+                    sprintf('Cannot get data from this url, errorCode = %s while doing %s', $code, $source)
 
+                );
+            }
         }
     }
 }
