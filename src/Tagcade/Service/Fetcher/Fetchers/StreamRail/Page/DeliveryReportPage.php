@@ -25,7 +25,7 @@ class DeliveryReportPage extends AbstractPage
 
         // step 0. select filter
         $this->logger->debug('select filter');
-        $this->sleep(2);
+        $this->sleep(5);
         $this->driver->wait()->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('modal-overlays')));
 
         if ($param->getPrimaryDimension() !== 'Ad Source')
