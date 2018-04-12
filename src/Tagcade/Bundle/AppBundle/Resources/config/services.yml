@@ -24,6 +24,7 @@ imports:
     - { resource: services/video/springserve.yml }
     - { resource: services/video/springserveapi.yml }
     - { resource: services/video/streamrailinternalapi.yml }
+    - { resource: services/video/cedatointernalapi.yml }
     - { resource: services/video/cedato.yml }
     - { resource: services/video/cedatointernal.yml }
     - { resource: services/video/streamrail.yml }
@@ -201,3 +202,4 @@ services:
                 - '@tagcade.service.integration.integrations.video.optimaticexternal'
                 - '@tagcade.service.integration.integrations.video.optimaticinternalsupply'
                 - '@tagcade.service.integration.integrations.video.lkqd_demand_deals'
+                - '@tagcade.service.integration.integrations.video.cedatointernalapi'
