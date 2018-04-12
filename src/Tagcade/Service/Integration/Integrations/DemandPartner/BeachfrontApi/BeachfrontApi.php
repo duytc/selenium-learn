@@ -43,7 +43,7 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
         "Date" => "day",
         "Inventory ID" => "appid",
         "Player Size" => "playerSize",
-        "Marketplace ID" => "marketid",
+        "Marketplace ID" => "marketId",
         "Inventory Name" => "inventory"
     ];
 
@@ -253,7 +253,7 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
         if ($report["status"] !== "SUCCESS") {
             $e = $report['errorDetails'];
             $this->logger->alert("No Report was returned with error: $e");
-            die;
+            return[[],[]];
         }
         $headLine = $report["columns"];
         $dataLine = [];
