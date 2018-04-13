@@ -1,8 +1,7 @@
 <?php
 
-namespace Tagcade\Service\Integration\Integrations\DemandPartner\MediaDotNetApi;
+namespace Tagcade\Service\Integration\Integrations\DemandPartner\TaboolaApi;
 
-use anlutro\cURL\cURL;
 use DateInterval;
 use DatePeriod;
 use DateTime;
@@ -18,35 +17,33 @@ use Tagcade\Service\FileStorageServiceInterface;
 use Tagcade\Service\Integration\ConfigInterface;
 use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
+use anlutro\cURL\cURL;
 
-class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
+class TaboolaApi extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create demand-partner-mediadotnetapi "Media.net API" -a -p customerKey,customerGuid:secure,dateRange:dynamicDateRange -vv
+     * php app/console ur:integration:create taboola-api "Taboola API" -a -p "clientId,secretId:secure,accountName,dateRange:dynamicDateRange,dimensions:option:Day;Week;Month,reportType:option:Revenue Summary" -vv
      */
 
-    const INTEGRATION_C_NAME = 'demand-partner-mediadotnetapi';
+    const INTEGRATION_C_NAME = 'taboola-api';
 
     /* params from integration */
-    const PARAM_API_URL = 'https://control.media.net/api/reports/datewise?customer_key=%s&customer_guid=%s&from_date=%s&to_date=%s'; // url for getting reports
+    const PARAM_BASE_URL = 'https://backstage.taboola.com/';
+    const PARAM_ENDPOINT_LOGIN = 'backstage/oauth/token';
+    const PARAM_ENDPOINT_REPORTS = 'backstage/api/1.0/%s/reports/%s/dimensions/%s';
 
-    const PARAM_CUSTOMER_KEY = 'customerKey';
-    const PARAM_CUSTOMER_GUID = 'customerGuid';
 
-    const URL_CUSTOMER_KEY = 'customerKey';
-    const URL_CUSTOMER_GUID = 'customerGuid';
-    const URL_DATE = 'Date';
-    const URL_IMPRESSIONS = 'Impressions';
-    const URL_REVENUE = 'Revenue';
-    const URL_RPM = 'RPM';
-    const URL_VIEWABLE_IMPRESSION = 'Viewable Impression';
-    const URL_VIEWABLE_IMPRESSION_PERCENT = 'Viewable Impression Percent';
-    const URL_VIEWABLE_RPM = 'Viewable RPM';
+    const PARAM_CLIENT_ID = 'clientId';
+    const PARAM_SECRET_ID = 'secretId';
+    const PARAM_ACCOUNT = 'accountName';
+    const PARAM_REPORT_TYPE = 'reportType';
 
-    const RESPONSE_ATTRIBUTES = '@attributes';
-    const RESPONSE_BODY = 'body';
+    const PARAM_DIMENSIONS = 'dimensions';
+
     const CSV_CONTENT_TYPE = 'text/csv';
+
+    protected $fillRate = false;
 
     /**
      * @var LoggerInterface
@@ -79,8 +76,13 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
      * @param TagcadeRestClientInterface $restClient
      * @param cURL $curl
      */
-    public function __construct(LoggerInterface $logger, DownloadFileHelper $downloadFileHelper, FileStorageServiceInterface $fileStorage, TagcadeRestClientInterface $restClient, cURL $curl)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        DownloadFileHelper $downloadFileHelper,
+        FileStorageServiceInterface $fileStorage,
+        TagcadeRestClientInterface $restClient,
+        cURL $curl
+    ) {
         $this->logger = $logger;
         $this->downloadFileHelper = $downloadFileHelper;
         $this->fileStorage = $fileStorage;
@@ -95,8 +97,14 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
     {
         $params = new PartnerParams($config);
 
-        $customerKey = $config->getParamValue(self::URL_CUSTOMER_KEY, null);
-        $customerGuid = $config->getParamValue(self::URL_CUSTOMER_GUID, null);
+        $userParams["username"] = $config->getParamValue(self::PARAM_CLIENT_ID, null);
+        $userParams["password"] = $config->getParamValue(self::PARAM_SECRET_ID, null);
+        $userParams["account"] = $config->getParamValue(self::PARAM_ACCOUNT, null);
+        $userParams["dimensions"] = strtolower($config->getParamValue(self::PARAM_DIMENSIONS, null));
+        $userParams["reportType"] = strtolower(implode("-", explode( ' ', $config->getParamValue(self::PARAM_REPORT_TYPE, null))));
+
+        $userParams["sessionKey"] = $this->getLogin($userParams["username"], $userParams["password"], $params);
+
         $startDate = $params->getStartDate();
         $endDate = $params->getEndDate();
 
@@ -117,22 +125,18 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
                 $startDate = clone $singleDate;
                 $endDate = $singleDate->modify("+1d");
 
-                $apiUrl = sprintf(
-                    self::PARAM_API_URL,
-                    $customerKey,
-                    $customerGuid,
-                    $startDate->format("m/d/Y"),
-                    $endDate->format("m/d/Y")
+                list($responseData, $responseNames) = $this->getReport(
+                    $userParams,
+                    $params,
+                    $startDate->format('Y-m-d'),
+                    $endDate->format('Y-m-d')
                 );
 
-                // in php 7.1 you can use [responseData, $contentType] = $this->doGetData($apiUrl);
-                list($responseData, $responseDataColumns) = $this->doGetData($apiUrl, $params);
 
-                $dataRows[] = $responseData;
+                $dataRows = $responseData;
                 if ($countHead == 0) {
-                    $columnNames[] = $responseDataColumns;
+                    $columnNames[] = $responseNames;
                 }
-                $this->logger->debug('Save download file');
 
                 $fileName = sprintf(
                     '%s_%s_%d%s',
@@ -141,6 +145,7 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
                     strtotime(date('Y-m-d')),
                     $this->downloadFileHelper->getFileExtension(self::CSV_CONTENT_TYPE)
                 );
+
                 // important: each file will be stored in separated dir,
                 // then metadata is stored in same this dir
                 // so that we know file and metadata file is in pair
@@ -197,51 +202,78 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
     }
 
     /**
-     * @param string $apiUrl
+     * @param $username
+     * @param $password
      * @param PartnerParamInterface $params
-     * @return array of 2 elements, first element is the response data, second is the content type
-     * @throws LoginFailException
+     * @return mixed
      */
-    protected function doGetData(string $apiUrl, PartnerParamInterface $params): array
+    function getLogin($username, $password, PartnerParamInterface $params): string
     {
-        $request = $this->curl->newRawRequest('get', $apiUrl);
+        $this->logger->info("Getting auth token");
+
+        $body = "?client_id=$username&client_secret=$password&grant_type=client_credentials";
+
+        $request = $this->curl->newRawRequest('post', self::PARAM_BASE_URL . self::PARAM_ENDPOINT_LOGIN . $body);
+        $request->setHeader('Content-Type', 'application/x-www-form-urlencoded');
+
         $response = $this->curl->sendRequest($request);
 
-        if ($response->statusCode !== 200) {
+        $this->checkStatus($params, $response->statusCode, 'login', 200);
+
+        $authToken = \GuzzleHttp\json_decode($response->body, true)["access_token"];
+
+        return $authToken;
+    }
+
+    /**
+     * @param array $userParams
+     * @param PartnerParamInterface $params
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     */
+    function getReport(array $userParams, PartnerParamInterface $params, $startDate, $endDate): array
+    {
+        $this->logger->info("Making GET request for report");
+
+        $url = self::PARAM_BASE_URL .
+            sprintf(
+                self::PARAM_ENDPOINT_REPORTS,
+                $userParams["account"],
+                $userParams["reportType"],
+                $userParams["dimensions"]
+                ) . "?start_date=$startDate&end_date=$endDate";
+
+        $request = $this->curl->newRawRequest('get', $url);
+        $request->setHeader("Authorization", "Bearer " . $userParams["sessionKey"]);
+        $response = $this->curl->sendRequest($request);
+
+        $this->checkStatus($params, $response->statusCode, 'getting report');
+
+        $data = \GuzzleHttp\json_decode($response->body, true)["results"];
+
+        $names = array_keys($data[0]);
+
+        return [$data, $names];
+    }
+
+    /**
+     * @param PartnerParamInterface $params
+     * @param $code
+     * @param $source
+     * @param int $expectedCode
+     */
+    private function checkStatus(PartnerParamInterface $params, $code, $source, $expectedCode = 200)
+    {
+        if ($code !== $expectedCode) {
             // will be retry
-            if ($response->statusCode >= 400 && $response->statusCode < 500) {
-                throw new LoginFailException(
-                    $params->getPublisherId(),
-                    $params->getIntegrationCName(),
-                    $params->getDataSourceId(),
-                    $params->getStartDate(),
-                    $params->getEndDate(),
-                    new \DateTime()
-                );
-            } else {
-                throw new RuntimeException(sprintf('Cannot get data from this url, errorCode = %s', $response->statusCode));
+            if ($code == 419) {
+                die("Session Expired");
             }
+            throw new RuntimeException(
+                sprintf('Cannot get data from this url, errorCode = %s while doing %s', $code, $source)
+            );
+
         }
-        $body = simplexml_load_string($response->toArray()[self::RESPONSE_BODY]);
-
-        $bodyArr = \GuzzleHttp\json_decode(\GuzzleHttp\json_encode($body));
-        $returnArr = array(
-            self::URL_DATE =>  isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->date) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->date : "",
-            self::URL_IMPRESSIONS => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->impressions) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->impressions : "",
-            self::URL_REVENUE => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->estimatedRevenue) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->estimatedRevenue : "",
-            self::URL_RPM => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->rpm) ? $bodyArr->pageTotal->{self::RESPONSE_ATTRIBUTES}->rpm : "",
-            self::URL_VIEWABLE_IMPRESSION => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->viewableImpression) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->viewableImpression : "",
-            self::URL_VIEWABLE_IMPRESSION_PERCENT => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->viewableImpressionPercent) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->viewableImpressionPercent : "",
-            self::URL_VIEWABLE_RPM => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->viewableRpm) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->viewableRpm : "",
-        );
-
-        $headLine = [];
-        $dataLine = [];
-        foreach ($returnArr as $key => $item) {
-            $headLine[] = $key ;
-            $dataLine[] = $item;
-        }
-
-        return [$dataLine, $headLine];
     }
 }

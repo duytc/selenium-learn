@@ -38,6 +38,8 @@ imports:
     - { resource: services/video/optimaticinternalsupply.yml }
     - { resource: services/connatix.yml }
     - { resource: services/mediadotnetapi.yml }
+    - { resource: services/taboolaapi.yml }
+    - { resource: services/outbrainapi.yml }
     - { resource: services/video/lkqddemanddeals.yml }
     - { resource: services/advertisedotcomapi.yml }
     - { resource: services/beachfrontapi.yml }
@@ -183,6 +185,8 @@ services:
                 - '@tagcade.service.integration.integrations.demand_partner.yellow_hammer'
                 - '@tagcade.service.integration.integrations.demand_partner.connatix'
                 - '@tagcade.service.integration.integrations.demand_partner.mediadotnetapi'
+                - '@tagcade.service.integration.integrations.demand_partner.taboolaapi'
+                - '@tagcade.service.integration.integrations.demand_partner.outbrainapi'
                 - '@tagcade.service.integration.integrations.demand_partner.advertisedotcomapi'
                 - '@tagcade.service.integration.integrations.demand_partner.beachfrontapi'
                 - '@tagcade.service.integration.integrations.demand_partner.teleriaapi'

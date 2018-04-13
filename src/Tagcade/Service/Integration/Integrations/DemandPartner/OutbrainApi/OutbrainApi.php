@@ -1,6 +1,6 @@
 <?php
 
-namespace Tagcade\Service\Integration\Integrations\DemandPartner\BeachfrontApi;
+namespace Tagcade\Service\Integration\Integrations\DemandPartner\OutbrainApi;
 
 use DateInterval;
 use DatePeriod;
@@ -19,37 +19,24 @@ use Tagcade\Service\Integration\Integrations\IntegrationAbstract;
 use Tagcade\Service\Integration\Integrations\IntegrationInterface;
 use anlutro\cURL\cURL;
 
-class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
+class OutbrainApi extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create beachfront-api "Beachfront API" -a -p "apiKey:secure,dateRange:dynamicDateRange,dimensions:multiOptions:Date;Domain;Country;Ad ID;Campaign ID;Campaign;Inventory Name;Inventory ID;Marketplace;Marketplace ID;Platform;Publisher;Player Size;Bundle,metrics:multiOptions:Impressions;Click Through Rate;View Completion Rate;Clicks;Attempts;Revenue;Requests;CPM Publisher;Revenue Publisher" -vv
+     * php app/console ur:integration:create outbrain-api "Outbrain API" -a -p username:plainText,password:secure -vv
      */
 
-    const INTEGRATION_C_NAME = 'beachfront-api';
+    const INTEGRATION_C_NAME = 'outbrain-api';
 
     /* params from integration */
-    const PARAM_API_BASE_URL = 'http://api.public.bfmio.com/api/report/generate';
-    const PARAM_API_KEY = 'apiKey';
-    const PARAM_METRICS = 'metrics';
-    const PARAM_DIMENSIONS = 'dimensions';
+    const PARAM_BASE_URL = 'https://api.outbrain.com/engage/v1/';
+    const PARAM_ENDPOINT_LOGIN = 'login';
+    const PARAM_ENDPOINT_REPORTS = 'reports/outbrain/publishers';
+    const PARAM_ENDPOINT_PUBLISHERS = 'lookups/publishers';
 
-    const METRICS = [
-        "Click Through Rate" => "ctr",
-        "View Completion Rate" => "vcr",
-        "Attempts" => "adattempts"
-    ];
-    const DIMENSIONS = [
-        "Date" => "day",
-        "Inventory ID" => "appid",
-        "Player Size" => "playerSize",
-        "Marketplace ID" => "marketid",
-        "Inventory Name" => "inventory"
-    ];
-
+    const PARAM_USERNAME = 'username';
+    const PARAM_PASSWORD = 'password';
     const CSV_CONTENT_TYPE = 'text/csv';
-
-    protected $fillRate = false;
 
     /**
      * @var LoggerInterface
@@ -103,41 +90,29 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
     {
         $params = new PartnerParams($config);
 
-        $apiKey = $config->getParamValue(self::PARAM_API_KEY, null);
-        $rawDimensions = $config->getParamValue(self::PARAM_DIMENSIONS, null);
-        $rawMetrics = $config->getParamValue(self::PARAM_METRICS, null);
+        $username = $config->getParamValue(self::PARAM_USERNAME, null);
+        $password = $config->getParamValue(self::PARAM_PASSWORD, null);
 
-        $dimensions = [];
-        foreach ($rawDimensions as $dimension) {
-            $self = self::DIMENSIONS;
-            if (array_key_exists($dimension, self::DIMENSIONS)) {
-                array_push($dimensions, self::DIMENSIONS[$dimension]);
-            }
-            else {
-                array_push($dimensions, strtolower(str_replace(' ', '', $dimension)));
-            }
+        $sessionKey = $this->getLogin(self::PARAM_ENDPOINT_LOGIN, $username, $password, $params);
 
-        }
-
-        $headers = array_merge($rawDimensions, $rawMetrics);
-
-        $metrics = [];
-        foreach ($rawMetrics as $metric) {
-            if ($metric === "Fill Rate"){
-                $this->fillRate = true;
-                continue;
-            }
-            else if (array_key_exists($metric, self::METRICS)) {
-                array_push($metrics, self::METRICS[$metric]);
-            }
-            else {
-                array_push($metrics, strtolower(str_replace(' ', '', $metric)));
-            }
-
-        }
+        $publishers = $this->getPublishers($sessionKey, $params);
 
         $startDate = $params->getStartDate();
         $endDate = $params->getEndDate();
+
+        $fileName = sprintf(
+            '%s_%s_%d%s',
+            'file',
+            (new DateTime())->getTimestamp(),
+            strtotime(date('Y-m-d')),
+            $this->downloadFileHelper->getFileExtension(self::CSV_CONTENT_TYPE)
+        );
+        // important: each file will be stored in separated dir,
+        // then metadata is stored in same this dir
+        // so that we know file and metadata file is in pair
+        $subDir = sprintf('%s-%s', $startDate->format("Ymd"), $endDate->format("Ymd"));
+        $downloadFolderPath = $this->fileStorage->getDownloadPath($config, '', $subDir);
+        $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
 
         $endDate = $endDate->modify('+1 day'); // add 1 day for DateInterval correctly loop from startDate to endDate
         $interval = new DateInterval('P1D');
@@ -156,17 +131,18 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
                 $startDate = clone $singleDate;
                 $endDate = $singleDate->modify("+1d");
 
-                $data = array(
-                    "keys" => $dimensions,
-                    "metrics" => $metrics,
-                    "fromDate" => $startDate->format("Y-m-d"),
-                    "toDate" => $endDate->format("Y-m-d")
+                list($responseData, $responseNames) = $this->getReport(
+                    $sessionKey,
+                    $params,
+                    $startDate->format('Ymd'),
+                    $endDate->format('Ymd'),
+                    $publishers
                 );
-                list($responseData, $responseDataColumns) = $this->createReport(self::PARAM_API_BASE_URL, $apiKey, $params, $data);
+
 
                 $dataRows = $responseData;
                 if ($countHead == 0) {
-                    $columnNames[] = $headers;
+                    $columnNames[] = $responseNames;
                 }
 
                 $fileName = sprintf(
@@ -197,6 +173,9 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
 
                 $countHead++;
             }
+
+            // reset endDate
+            $params->setEndDate($endDate);
 
             $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
         } catch (RuntimeException $runTimeException) {
@@ -233,89 +212,114 @@ class BeachfrontApi extends IntegrationAbstract implements IntegrationInterface
     }
 
     /**
-     * @param $url
-     * @param $accessToken
+     * @param $endpoint
+     * @param $username
+     * @param $password
      * @param PartnerParamInterface $params
-     * @param $data
-     * @return array
+     * @return mixed
      * @throws LoginFailException
-     * @throws Exception
      */
-    function createReport($url, $accessToken, PartnerParamInterface $params, $data):array
+    function getLogin($endpoint, $username, $password, PartnerParamInterface $params): string
     {
-        $request = $this->curl->newJsonRequest('post', $url, $data);
-        $request->setHeader("token", $accessToken);
+        $this->logger->info("Getting auth token");
+
+        $authHeader = "Basic " . base64_encode("$username:$password");
+
+        $request = $this->curl->newRawRequest('get', self::PARAM_BASE_URL.$endpoint);
+        $request->setHeader('Authorization', $authHeader);
+
         $response = $this->curl->sendRequest($request);
 
-        $this->checkStatus($params, $response->statusCode);
+        $this->checkStatus($params, $response->statusCode, 'login', 200);
 
-        $report = \GuzzleHttp\json_decode($response->body, true);
+        $authToken = \GuzzleHttp\json_decode($response->body, true)["OB-TOKEN-V1"];
 
-        if ($report["status"] !== "SUCCESS") {
-            $e = $report['errorDetails'];
-            throw new Exception($e);
-        }
-        $headLine = $report["columns"];
-        $dataLine = [];
-
-
-        $keyOrder = [];
-        foreach ($data["keys"] as $item) {
-            array_push($keyOrder, array_search($item, $headLine));
-        }
-
-        foreach ($data["metrics"] as $item) {
-            array_push($keyOrder, array_search($item, $headLine));
-        }
-
-        if ($this->fillRate) {
-            $impKey = array_search("impressions", $headLine);
-            $reqKey = array_search("requests", $headLine);
-            $fillLoc = max(array_search("impressions", $data["metrics"]), array_search("requests", $data["metrics"])) + sizeof($data["keys"]) + 1;
-        }
-
-        foreach ($report["data"] as $item) {
-            $properData = [];
-            foreach ($keyOrder as $key) {
-                array_push($properData, $item[$key]);
-            }
-
-            if ($this->fillRate) {
-                $fillRate = 0;
-                if ($item[$impKey] !== 0) {
-                    $fill = $item[$impKey] / $item[$reqKey];
-                    $fillRate = number_format($fill, 2);
-                }
-                array_splice($properData, $fillLoc, 0, $fillRate);
-            }
-
-            $dataLine[] = $properData;
-        }
-
-        return [$dataLine, $headLine];
+        return $authToken;
     }
 
     /**
+     * @param $accessToken
+     * @param PartnerParamInterface $params
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     */
+    function getReport($accessToken, PartnerParamInterface $params, $startDate, $endDate, $publishers): array
+    {
+        $this->logger->info("Making GET request for report");
+
+        $data = [];
+
+        foreach ($publishers as $publisher) {
+
+            $url = self::PARAM_BASE_URL.self::PARAM_ENDPOINT_REPORTS.'/'. $publisher["id"] . '?filter=&fromDate='.$startDate.'&toDate='.$endDate;
+
+            $request = $this->curl->newRawRequest('get', $url);
+            $request->setHeader("OB-TOKEN-V1", $accessToken);
+            $response = $this->curl->sendRequest($request);
+
+            $this->checkStatus($params, $response->statusCode, 'getting report');
+
+            $rawData = \GuzzleHttp\json_decode($response->body, true)["items"];
+
+            foreach ($rawData as $rawDatum) {
+                $outputArray = [];
+                $outputArray['Publisher'] = $publisher["name"];
+                foreach ($rawDatum as $key => $item)
+                {
+                    $outputArray[$key] = $item["value"];
+                }
+                array_push($data, $outputArray);
+            }
+            $names = array_keys($rawData[0]);
+            array_unshift($names, "Publisher");
+        }
+
+        return [$data, $names];
+    }
+
+    /**
+     * @param $accessToken
+     * @param PartnerParamInterface $params
+     * @return array
+     */
+    function getPublishers($accessToken, PartnerParamInterface $params): array
+    {
+        $this->logger->info("Making GET request for list of publishers");
+
+        $url = self::PARAM_BASE_URL.self::PARAM_ENDPOINT_PUBLISHERS;
+
+        $request = $this->curl->newRawRequest('get', $url);
+        $request->setHeader("OB-TOKEN-V1", $accessToken);
+        $response = $this->curl->sendRequest($request);
+
+        $this->checkStatus($params, $response->statusCode, 'getting pubishers');
+
+        $rawData = \GuzzleHttp\json_decode($response->body, true)["publishers"];
+
+        return $rawData;
+    }
+
+    /**
+     * check if code is 419..session expired
+     */
+    /**
      * @param PartnerParamInterface $params
      * @param $code
-     * @throws LoginFailException
+     * @param $source
+     * @param int $expectedCode
      */
-    private function checkStatus(PartnerParamInterface $params, $code)
+    private function checkStatus(PartnerParamInterface $params, $code, $source, $expectedCode = 200)
     {
-        if ($code !== 200) {
+        if ($code !== $expectedCode) {
             // will be retry
-            if ($code >= 400 && $code < 500) {
-                throw new LoginFailException(
-                    $params->getPublisherId(),
-                    $params->getIntegrationCName(),
-                    $params->getDataSourceId(),
-                    $params->getStartDate(),
-                    $params->getEndDate(),
-                    new \DateTime()
-                );
-            } else {
-                throw new RuntimeException(sprintf('Cannot get data from this url, errorCode = %s', $code));
+            if ($code == 419) {
+                die("Session Expired");
             }
+            throw new RuntimeException(
+                sprintf('Cannot get data from this url, errorCode = %s while doing %s', $code, $source)
+            );
+
         }
     }
 }

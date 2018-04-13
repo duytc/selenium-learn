@@ -204,22 +204,26 @@ class TeleriaApi extends IntegrationAbstract implements IntegrationInterface
                     $this->downloadFileHelper->getFileExtension(self::CSV_CONTENT_TYPE)
                 );
 
+                // important: each file will be stored in separated dir,
+                // then metadata is stored in same this dir
+                // so that we know file and metadata file is in pair
+                $subDir = sprintf('%s-%s', $startDate->format("Ymd"), $endDate->format("Ymd"));
+                $downloadFolderPath = $this->fileStorage->getDownloadPath($config, '', $subDir);
+
                 $path = $this->fileStorage->getDownloadPath($config, $fileName, $subDir);
 
                 $this->logger->debug('Save download file');
                 $this->fileStorage->saveToCSVFile($path, $dataRows, $columnNames);
-                $countHead++;
 
+                $params->setStartDate($startDate);
+                $params->setEndDate($endDate);
                 // add startDate endDate to Downloaded file name
                 $this->downloadFileHelper->addStartDateEndDateToDownloadFiles($downloadFolderPath, $params);
 
+                $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
+
+                $countHead++;
             }
-
-            // reset endDate
-            $params->setEndDate($endDate);
-            // create metadata file. metadata file contains file pattern, so it lets directory monitory has information to get exact data source relates to file pattern
-            $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
-
 
             $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
         } catch (RuntimeException $runTimeException) {
