@@ -107,6 +107,7 @@ services:
             - '%ur_update_integration_schedule_finishorfail_url%'
             - '%ur_update_backfill_history_url%'
             - '%ur_update_backfill_missing_dates_url%'
+            - '%ur_get_list_integrations_by_integration_url%'
 
         calls:
             - [setLogger, ['@logger']]

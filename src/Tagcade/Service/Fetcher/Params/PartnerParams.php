@@ -141,23 +141,7 @@ class PartnerParams implements PartnerParamInterface
                 $endDateStr = 'yesterday';
             }
 
-//            $dailyBreakdown = true;
         } else {
-            // prefer dateRange than startDate - endDate
-            $dateRange = $config->getParamValue(self::PARAM_KEY_DATE_RANGE, null);
-            if (!empty($dateRange)) {
-                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
-
-                if (!is_array($startDateEndDate)) {
-                    // use default 'yesterday'
-                    $startDateStr = 'yesterday';
-                    $endDateStr = 'yesterday';
-                } else {
-                    $startDateStr = $startDateEndDate[0];
-                    $endDateStr = $startDateEndDate[1];
-                }
-            } else {
-                // use user modified startDate, endDate
                 $startDateStr = $config->getParamValue(self::PARAM_KEY_START_DATE, 'yesterday');
                 $endDateStr = $config->getParamValue(self::PARAM_KEY_END_DATE, 'yesterday');
 
@@ -168,7 +152,7 @@ class PartnerParams implements PartnerParamInterface
                 if (empty($endDateStr)) {
                     $endDateStr = 'yesterday';
                 }
-            }
+
         }
 
         $configParams = [

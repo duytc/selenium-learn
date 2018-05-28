@@ -95,7 +95,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /**
      * @inheritdoc
      */
-    public function createExecutionJobForDataSource($dataSourceId, $customParams = null, $isForceRun = false, $isUpdateNextExecute = false)
+    public function createExecutionJobForDataSource($dataSourceId, $customParams = null, $isForceRun = false, $startDate = null, $endDate = null)
     {
         $dataSourceIntegration = null;
 
@@ -127,7 +127,39 @@ class IntegrationActivator implements IntegrationActivatorInterface
             }
 
             /* create new job for execution */
-            $executeJob = $this->createExecutionJob($fetcherSchedule, $isForceRun);
+            $executeJob = $this->createExecutionJob($fetcherSchedule, $isForceRun, $startDate, $endDate);
+
+            if (is_string($executeJob)) {
+                $fetcherSchedulesShouldNotRun [] = $executeJob;
+            }
+        }
+
+        if (!empty($fetcherSchedulesShouldNotRun)) {
+            return $fetcherSchedulesShouldNotRun;
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createExecutionJobForDataSourcesByIntegration($integrationId, $isForceRun = true, $startDate = null, $endDate = null)
+    {
+        $dataSourceIntegration = null;
+
+        /* get all dataSource-integration-schedules from ur api */
+        /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
+        $fetcherSchedules = $this->restClient->getDataSourceIntegrationSchedulesByIntegration($integrationId);
+
+        if (!is_array($fetcherSchedules) || count($fetcherSchedules) < 1) {
+            return true;
+        }
+
+        $fetcherSchedulesShouldNotRun = [];
+        foreach ($fetcherSchedules as $fetcherSchedule) {
+            /* create new job for execution */
+            $executeJob = $this->createExecutionJob($fetcherSchedule, $isForceRun, $startDate, $endDate);
 
             if (is_string($executeJob)) {
                 $fetcherSchedulesShouldNotRun [] = $executeJob;
@@ -146,9 +178,11 @@ class IntegrationActivator implements IntegrationActivatorInterface
      *
      * @param $fetcherSchedule
      * @param bool $isForceRun
+     * @param null $startDate
+     * @param null $endDate
      * @return bool
      */
-    private function createExecutionJob($fetcherSchedule, $isForceRun = false)
+    private function createExecutionJob($fetcherSchedule, $isForceRun = false, $startDate=  null, $endDate = null)
     {
         if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
             $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
@@ -164,6 +198,8 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PartnerParams::PARAM_KEY_FETCHER_ACTIVATOR_DATASOURCE_FORCE => $isForceRun,
             ];
         } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
+
+            // run with backfill
             $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
             $dataSourceIntegration[PartnerParams::PARAM_KEY_BACK_FILL_START_DATE] = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_START_DATE];
             $dataSourceIntegration[PartnerParams::PARAM_KEY_BACK_FILL_END_DATE] = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_BACK_FILL_END_DATE];
@@ -178,6 +214,12 @@ class IntegrationActivator implements IntegrationActivatorInterface
                 PartnerParams::PARAM_KEY_FETCHER_ACTIVATOR_DATASOURCE_FORCE => $isForceRun,
             ];
 
+            if(!empty($startDate) && !empty($endDate)) {
+                $backFill = [
+                    PartnerParams::PARAM_KEY_BACK_FILL_START_DATE => $startDate,
+                    PartnerParams::PARAM_KEY_BACK_FILL_END_DATE => $endDate,
+                ];
+            }
         } else {
             return false;
         }
@@ -193,6 +235,51 @@ class IntegrationActivator implements IntegrationActivatorInterface
         $integrationCName = $dataSourceIntegration[PartnerParams::PARAM_KEY_INTEGRATION][PartnerParams::PARAM_KEY_CANONICAL_NAME];
         $dataSourceId = $dataSourceIntegration[PartnerParams::PARAM_KEY_DATA_SOURCE][PartnerParams::PARAM_KEY_ID];
         $params = $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS];
+
+        // run with schedule
+        if(!empty($startDate) && !empty($endDate)) {
+            // override startDate and endDate due to this case isForceRun is always true -> integrationSchedule will not be updated
+            $params [] = [
+                'key' => PartnerParams::PARAM_KEY_START_DATE,
+                'value' => $startDate
+            ];
+            $params [] = [
+                'key' => PartnerParams::PARAM_KEY_END_DATE,
+                'value' => $endDate
+            ];
+
+        } else {
+            foreach ($dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] as $item) {
+                if ($item['key'] == PartnerParams::PARAM_KEY_DATE_RANGE) {
+                    $dateRange = $item['value'];
+                }
+            }
+
+            // use user modified startDate, endDate
+            $startDateStr = 'yesterday';
+            $endDateStr = 'yesterday';
+            if (!empty($dateRange)) {
+                $startDateEndDate = Config::extractDynamicDateRange($dateRange);
+
+                if (!is_array($startDateEndDate)) {
+                    // use default 'yesterday'
+                    $startDateStr = 'yesterday';
+                    $endDateStr = 'yesterday';
+                } else {
+                    $startDateStr = $startDateEndDate[0];
+                    $endDateStr = $startDateEndDate[1];
+                }
+            }
+
+            $params [] = [
+                'key' => PartnerParams::PARAM_KEY_START_DATE,
+                'value' => $startDateStr
+            ];
+            $params [] = [
+                'key' => PartnerParams::PARAM_KEY_END_DATE,
+                'value' => $endDateStr
+            ];
+        }
 
         $paramKeys = $dataSourceIntegration[PartnerParams::PARAM_KEY_INTEGRATION][PartnerParams::PARAM_KEY_PARAMS]; // param keys only
 

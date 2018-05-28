@@ -64,6 +64,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     /** @var string */
     private $updateBackfillMissingDatesUrl;
 
+    /** @var string */
+    private $getListIntegrationsByIntegrationIdUrl;
+
     function __construct(CurlRestClient $curl, $username, $password,
                          $getTokenUrl,
                          $getListPublisherUrl,
@@ -73,7 +76,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $updateSchedulePendingUrl,
                          $updateScheduleFinishOrFailUrl,
                          $updateBackFillHistoryUrl,
-                         $updateBackfillMissingDatesUrl
+                         $updateBackfillMissingDatesUrl,
+                         $getListIntegrationsByIntegrationIdUrl
     )
     {
         $this->curl = $curl;
@@ -89,6 +93,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->updateScheduleFinishOrFailUrl = $updateScheduleFinishOrFailUrl;
         $this->updateBackFillHistoryUrl = $updateBackFillHistoryUrl;
         $this->updateBackfillMissingDatesUrl = $updateBackfillMissingDatesUrl;
+        $this->getListIntegrationsByIntegrationIdUrl = $getListIntegrationsByIntegrationIdUrl;
     }
 
     /**
@@ -257,6 +262,47 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         return $result;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationSchedulesByIntegration($integrationId)
+    {
+        $this->logger->info(sprintf('Getting all Integrations Schedule to be executed'));
+
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+        /* get from ur api */
+        $data = [
+            PartnerParams::PARAM_KEY_INTEGRATION => $integrationId
+        ];
+        $url = $this->getListIntegrationsByIntegrationIdUrl;
+        $dataSourceIntegrationSchedules = $this->curl->executeQuery(
+            $url,
+            'GET',
+            $header,
+            $data
+        );
+
+        $this->curl->close();
+
+        /* decode and parse */
+        $result = json_decode($dataSourceIntegrationSchedules, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->notice(sprintf('Invalid response (json decode failed)'));
+            return false;
+        }
+
+        if (array_key_exists('code', $result) && $result['code'] != 200) {
+            $this->logger->info(sprintf('Not found Integration to be executed'));
+            return false;
+        }
+
+        $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
+
+        return $result;
+    }
     /**
      * @inheritdoc
      */

@@ -35,12 +35,20 @@ interface TagcadeRestClientInterface
     public function getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId = null);
 
     /**
-     * get all integrations to be executed
+     * get all integrations schedule to be executed
      *
      * @param int $dataSourceId
      * @return mixed
      */
     public function getDataSourceIntegrationSchedulesByDataSource($dataSourceId);
+
+    /**
+     * get all integrations schedule to be executed
+     *
+     * @param int $integrationId
+     * @return mixed
+     */
+    public function getDataSourceIntegrationSchedulesByIntegration($integrationId);
 
     /**
      * create Alert When Login Fail due to integrationConfig information

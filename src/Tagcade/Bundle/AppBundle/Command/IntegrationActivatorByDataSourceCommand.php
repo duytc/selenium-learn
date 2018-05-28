@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\LockHandler;
 use Tagcade\Service\Integration\Config;
 use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
@@ -22,7 +21,7 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         $this
             ->setName('tc:unified-report-fetcher:activator:datasource:run')
             ->setDescription('Schedule a specific data source integration to be run. You can override the normal schedule for the integration using this command. This is good for testing')
-            ->addArgument('dataSourceId', InputArgument::REQUIRED, 'Data source id')
+            ->addArgument('dataSourceIds', InputArgument::REQUIRED, 'Data source, input with id or ids as array without space. Example 2 or 15,17,3,9')
             ->addOption('custom-parameters', 'p', InputOption::VALUE_OPTIONAL,
                 'Custom Integration parameters (optional) as name:type:value, allow multiple parameters separated by comma. 
                 Supported types are: plainText (default), date (Y-m-d), dynamicDateRange (last 1,2,3... days) 
@@ -30,7 +29,9 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
                 e.g. -p "username:plainText:admin,password:secure:MTIzNDU2Nw==,dateRange:dynamicDateRange:last 2 days,account:regex:Division D"')
             ->addOption('force', 'f', InputOption::VALUE_NONE,
                 'Run update integration without checking schedule')
-            ->addOption('update-next-execute', 'u', InputOption::VALUE_NONE,
+            ->addOption('startDate', 't', InputOption::VALUE_OPTIONAL,
+                'Update schedule of integration')
+            ->addOption('endDate', 'y', InputOption::VALUE_OPTIONAL,
                 'Update schedule of integration');
     }
 
@@ -40,9 +41,9 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         $this->createLogger();
 
         /* get inputs */
-        $dataSourceId = $input->getArgument('dataSourceId');
+        $dataSourceIds = $input->getArgument('dataSourceIds');
 
-        if (empty($dataSourceId)) {
+        if (empty($dataSourceIds)) {
             $this->logger->warning('Missing data source id');
             return;
         }
@@ -51,32 +52,49 @@ class IntegrationActivatorByDataSourceCommand extends ContainerAwareCommand
         $customParams = $this->parseParams($customParamsString);
 
         $isForceRun = $input->getOption('force');
-        $isUpdateNextExecute = $input->getOption('update-next-execute');
 
         $this->logger->info('Start running integration activator');
 
         /* run activator service */
         /** @var IntegrationActivatorInterface $activatorService */
         $activatorService = $this->getContainer()->get('tagcade.service.integration_activator');
+        $startDate = $input->getOption('startDate');
+        $endDate = $input->getOption('endDate');
 
-        $result = $activatorService->createExecutionJobForDataSource(
-            $dataSourceId,
-            $customParams,
-            $isForceRun,
-            $isUpdateNextExecute
-        );
-
-        if (is_array($result)) {
-            $this->logger->info(sprintf('There are %d integration should not be run. Details: ', count($result)));
-            foreach ($result as $activatorMessage) {
-                $this->logger->warning($activatorMessage);
-            }
+        if (!empty($startDate) && empty($endDate)) {
+            $endDate = $startDate;
         }
 
-        if (!$result) {
-            $this->logger->notice('Complete running integration activator with error');
-        } else {
-            $this->logger->info('Complete running integration activator with no error');
+        $dataSourceIds = explode(',', $dataSourceIds);
+        foreach ($dataSourceIds as $dataSourceId) {
+            if (!empty($startDate)) {
+                $result = $activatorService->createExecutionJobForDataSource(
+                    $dataSourceId,
+                    $customParams,
+                    $isForceRun = true,
+                    $startDate,
+                    $endDate
+                );
+            } else {
+                $result = $activatorService->createExecutionJobForDataSource(
+                    $dataSourceId,
+                    $customParams,
+                    $isForceRun
+                );
+            }
+
+            if (is_array($result)) {
+                $this->logger->info(sprintf('There are %d integration should not be run - DataSource %d . Details: ', $dataSourceId, count($result)));
+                foreach ($result as $activatorMessage) {
+                    $this->logger->warning($activatorMessage);
+                }
+            }
+
+            if (!$result) {
+                $this->logger->notice(sprintf('Complete running integration activator with error - DataSource %d', $dataSourceId));
+            } else {
+                $this->logger->info(sprintf('Complete running integration activator with no error - DataSource %d', $dataSourceId));
+            }
         }
     }
 
