@@ -5,6 +5,7 @@ namespace Tagcade\Service\Core;
 
 use DateTime;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
+use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
 interface TagcadeRestClientInterface
 {
@@ -33,6 +34,18 @@ interface TagcadeRestClientInterface
      * @return mixed
      */
     public function getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId = null);
+
+
+    /**
+     * get all integrations to be executed with pagination
+     *
+     * @param IntegrationActivatorInterface $integrationActivator
+     * @param int|null $dataSourceId
+     * @param
+     *
+     * @return mixed
+     */
+    public function getDataSourceIntegrationSchedulesPaginationToBeExecuted(IntegrationActivatorInterface $integrationActivator, $dataSourceId = null);
 
     /**
      * get all integrations schedule to be executed

@@ -26,13 +26,18 @@ class IntegrationActivator implements IntegrationActivatorInterface
     /** @var string */
     private $rootKernelDirectory;
 
-    public function __construct(TagcadeRestClientInterface $restClient, PheanstalkInterface $pheanstalk, $fetcherWorkerTube, $pheanstalkTTR, $rootKernelDirectory)
+    private $limitPage;
+
+    private $fetcherSchedulesShouldNotRun = array();
+
+    public function __construct(TagcadeRestClientInterface $restClient, PheanstalkInterface $pheanstalk, $fetcherWorkerTube, $pheanstalkTTR, $rootKernelDirectory, $limitPage = 10)
     {
         $this->restClient = $restClient;
         $this->pheanstalk = $pheanstalk;
         $this->fetcherWorkerTube = $fetcherWorkerTube;
         $this->pheanstalkTTR = $pheanstalkTTR;
         $this->rootKernelDirectory = $rootKernelDirectory;
+        $this->limitPage = $limitPage;
     }
 
     /**
@@ -71,7 +76,10 @@ class IntegrationActivator implements IntegrationActivatorInterface
          *    ...
          * ];
          */
-        $fetcherSchedules = $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted();
+
+        $this->restClient->getDataSourceIntegrationSchedulesPaginationToBeExecuted($this, null);
+
+        /*$fetcherSchedules = $this->restClient->getDataSourceIntegrationSchedulesPaginationToBeExecuted($this, null, $this->limitPage);
         if (!is_array($fetcherSchedules)) {
             return false;
         }
@@ -83,10 +91,10 @@ class IntegrationActivator implements IntegrationActivatorInterface
             if (is_string($executeJob)) {
                 $fetcherSchedulesShouldNotRun [] = $executeJob;
             }
-        }
+        }*/
 
-        if (!empty($fetcherSchedulesShouldNotRun)) {
-            return $fetcherSchedulesShouldNotRun;
+        if (!empty($this->getFetcherSchedulesShouldNotRun())) {
+            return $this->getFetcherSchedulesShouldNotRun();
         }
 
         return true;
@@ -99,43 +107,46 @@ class IntegrationActivator implements IntegrationActivatorInterface
     {
         $dataSourceIntegration = null;
 
-        /* get all dataSource-integration-schedules from ur api */
-        /* see sample json of dataSourceIntegrationSchedules from comment in createExecutionJobs */
-        $fetcherSchedules = $isForceRun
-            /* get all dataSource-integration-schedules without schedule config */
-            ? $this->restClient->getDataSourceIntegrationSchedulesByDataSource($dataSourceId)
-            /* get all dataSource-integration-schedules with schedule config */
-            : $this->restClient->getDataSourceIntegrationSchedulesToBeExecuted($dataSourceId);
+        if($isForceRun) {
+            $fetcherSchedules = $this->restClient->getDataSourceIntegrationSchedulesByDataSource($dataSourceId);
 
-        if (!is_array($fetcherSchedules) || count($fetcherSchedules) < 1) {
-            return true;
-        }
+            if (!is_array($fetcherSchedules) || count($fetcherSchedules) < 1) {
+                return true;
+            }
 
-        $fetcherSchedulesShouldNotRun = [];
-        foreach ($fetcherSchedules as $fetcherSchedule) {
-            /* Overwrite by custom params if has */
-            if (is_array($customParams)) {
-                if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
-                    $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
-                    $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION] = $dataSourceIntegration;
-                    $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] = $customParams;
-                } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
-                    $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
-                    $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] = $customParams;
-                    $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION] = $dataSourceIntegration;
+            $fetcherSchedulesShouldNotRun = [];
+            foreach ($fetcherSchedules as $fetcherSchedule) {
+                /* Overwrite by custom params if has */
+                if (is_array($customParams)) {
+                    if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY])) {
+                        $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
+                        $fetcherSchedule[PartnerParams::PARAM_KEY_BACK_FILL_HISTORY][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION] = $dataSourceIntegration;
+                        $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] = $customParams;
+                    } elseif (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
+                        $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
+                        $dataSourceIntegration[PartnerParams::PARAM_KEY_ORIGINAL_PARAMS] = $customParams;
+                        $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION] = $dataSourceIntegration;
+                    }
+                }
+
+                /* create new job for execution */
+                $executeJob = $this->createExecutionJob($fetcherSchedule, $isForceRun, $startDate, $endDate);
+
+                if (is_string($executeJob)) {
+                    $fetcherSchedulesShouldNotRun [] = $executeJob;
                 }
             }
 
-            /* create new job for execution */
-            $executeJob = $this->createExecutionJob($fetcherSchedule, $isForceRun, $startDate, $endDate);
-
-            if (is_string($executeJob)) {
-                $fetcherSchedulesShouldNotRun [] = $executeJob;
+            if (!empty($fetcherSchedulesShouldNotRun)) {
+                return $fetcherSchedulesShouldNotRun;
             }
-        }
+        } else {
+            /**get DataSource Integration Schedules with Pagination*/
+            $this->restClient->getDataSourceIntegrationSchedulesPaginationToBeExecuted($this, $dataSourceId);
 
-        if (!empty($fetcherSchedulesShouldNotRun)) {
-            return $fetcherSchedulesShouldNotRun;
+            if (!empty($this->getFetcherSchedulesShouldNotRun())) {
+                return $this->getFetcherSchedulesShouldNotRun();
+            }
         }
 
         return true;
@@ -182,7 +193,7 @@ class IntegrationActivator implements IntegrationActivatorInterface
      * @param null $endDate
      * @return bool
      */
-    private function createExecutionJob($fetcherSchedule, $isForceRun = false, $startDate=  null, $endDate = null)
+    public function createExecutionJob($fetcherSchedule, $isForceRun = false, $startDate=  null, $endDate = null)
     {
         if (isset($fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE])) {
             $dataSourceIntegration = $fetcherSchedule[PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION_SCHEDULE][PartnerParams::PARAM_KEY_DATA_SOURCE_INTEGRATION];
@@ -343,5 +354,20 @@ class IntegrationActivator implements IntegrationActivatorInterface
         }
 
         return false;
+    }
+
+    public function getLimitPage()
+    {
+        return $this->limitPage;
+    }
+
+    public function getFetcherSchedulesShouldNotRun()
+    {
+        return $this->fetcherSchedulesShouldNotRun;
+    }
+
+    public function setFetcherSchedulesShouldNotRun(array $fetcherSchedulesShouldNotRun = array())
+    {
+        $this->fetcherSchedulesShouldNotRun = array_merge($this->fetcherSchedulesShouldNotRun, $fetcherSchedulesShouldNotRun);
     }
 }

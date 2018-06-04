@@ -101,6 +101,7 @@ services:
             - '%tagcade_get_token_url%'
             - '%tagcade_get_list_publisher_url%'
             - '%ur_get_list_integrations_to_be_executed_url%'
+            - '%ur_get_list_integrations_backfill_to_be_executed_url%'
             - '%ur_get_list_integrations_by_datasource_url%'
             - '%ur_create_alert_url%'
             - '%ur_update_integration_schedule_pending_url%'
@@ -120,6 +121,7 @@ services:
             - '%fetcher_worker_tube%'
             - '%pheanstalk_ttr%'
             - '%kernel.root_dir%'
+            - '%ur_get_list_integrations_limit_page%'
 
     tagcade.service.file_storage_service:
         class: Tagcade\Service\FileStorageService

@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use RestClient\CurlRestClient;
 use Tagcade\Service\Fetcher\Params\PartnerParamInterface;
 use Tagcade\Service\Fetcher\Params\PartnerParams;
+use Tagcade\Service\Integration\IntegrationActivatorInterface;
 
 class TagcadeRestClient implements TagcadeRestClientInterface
 {
@@ -24,6 +25,8 @@ class TagcadeRestClient implements TagcadeRestClientInterface
     const ALERT_TYPE_INFO = 'info';
     const ALERT_TYPE_WARNING = 'warning';
     const ALERT_TYPE_ERROR = 'error';
+
+    const LIMIT_PAGE_DEFAULT = 10;
 
     /** @var string */
     private $username;
@@ -42,6 +45,9 @@ class TagcadeRestClient implements TagcadeRestClientInterface
 
     /** @var string */
     private $getListIntegrationsToBeExecutedUrl;
+
+    /** @var string */
+    private $getListIntegrationsBackfillToBeExecutedUrl;
 
     /** @var string */
     private $getListIntegrationsByDataSourceIdUrl;
@@ -71,6 +77,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
                          $getTokenUrl,
                          $getListPublisherUrl,
                          $getListIntegrationsToBeExecutedUrl,
+                         $getListIntegrationsBackfillToBeExecutedUrl,
                          $getListIntegrationsByDataSourceIdUrl,
                          $urCreateAlertUrl,
                          $updateSchedulePendingUrl,
@@ -87,6 +94,7 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->getTokenUrl = $getTokenUrl;
         $this->getListPublisherUrl = $getListPublisherUrl;
         $this->getListIntegrationsToBeExecutedUrl = $getListIntegrationsToBeExecutedUrl;
+        $this->getListIntegrationsBackfillToBeExecutedUrl = $getListIntegrationsBackfillToBeExecutedUrl;
         $this->getListIntegrationsByDataSourceIdUrl = $getListIntegrationsByDataSourceIdUrl;
         $this->urCreateAlertUrl = $urCreateAlertUrl;
         $this->updateSchedulePendingUrl = $updateSchedulePendingUrl;
@@ -167,6 +175,81 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         return json_decode($publishers, true);
     }
 
+    protected function fetchDataSourceIntergrationSchedules(IntegrationActivatorInterface $integrationActivator, $dataSourceId = null, $urlToFetch = '')
+    {
+        $currentPage = $totalRecords = 1;
+        $dataSourceIntegrations = [];
+        /* get token */
+        $header = array('Authorization: Bearer ' . $this->getToken());
+
+
+        if(empty($urlToFetch)) {
+            return $dataSourceIntegrations;
+        }
+
+        while($currentPage <= ceil($totalRecords / $integrationActivator->getLimitPage())) {
+            $res = json_decode($this->curl->executeQuery(
+                $urlToFetch,
+                'GET',
+                $header,
+                array(
+                    'page' => $currentPage,
+                    'limit' => $integrationActivator->getLimitPage()
+                )
+            ), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->logger->notice(sprintf('Invalid response (json decode failed)'));
+                return false;
+            }
+
+            if (array_key_exists('code', $res) && $res['code'] != 200) {
+                $this->logger->info(sprintf('Not found Integration to be executed'));
+                return false;
+            }
+
+            $dataSourceIntegrations = array_key_exists('records', $res) ? $res['records'] : [];
+
+            if ($dataSourceId) {
+                $dataSourceIntegrations = array_filter($dataSourceIntegrations, function ($dataSourceIntegrationSchedule) use ($dataSourceId) {
+                    if ($dataSourceIntegrationSchedule['dataSourceIntegrationSchedule']['dataSourceIntegration'][PartnerParams::PARAM_KEY_DATA_SOURCE]['id'] == $dataSourceId) {
+                        return true;
+                    }
+
+                    if ($dataSourceIntegrationSchedule['backFillHistory']['dataSourceIntegration'][PartnerParams::PARAM_KEY_DATA_SOURCE]['id'] == $dataSourceId) {
+                        return true;
+                    }
+
+                    return false;
+                });
+            }
+
+            if($totalRecords == 1) {
+                $totalRecords = array_key_exists('totalRecord', $res) ? $res['totalRecord'] : 0;
+            }
+
+            $fetcherSchedulesShouldNotRun = array();
+            foreach ($dataSourceIntegrations as $fetcherSchedule) {
+                $executeJob = $integrationActivator->createExecutionJob($fetcherSchedule);
+
+                if (is_string($executeJob)) {
+                    $fetcherSchedulesShouldNotRun [] = $executeJob;
+                }
+            }
+
+            $integrationActivator->setFetcherSchedulesShouldNotRun($fetcherSchedulesShouldNotRun);
+
+            if(!empty($dataSourceIntegrations))
+                $this->logger->info(sprintf('Found %d Integrations to be executed', count($dataSourceIntegrations)));
+
+            if(empty($dataSourceIntegrations) || sizeof($dataSourceIntegrations) == $totalRecords)
+                break;
+
+            $this->curl->close();
+            unset($dataSourceIntegrations);
+        }
+    }
+
     /**
      * @inheritdoc
      */
@@ -218,6 +301,16 @@ class TagcadeRestClient implements TagcadeRestClientInterface
         $this->logger->info(sprintf('Found %d Integrations to be executed', count($result)));
 
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataSourceIntegrationSchedulesPaginationToBeExecuted(IntegrationActivatorInterface $integrationActivator , $dataSourceId = null)
+    {
+        $this->logger->info(sprintf('Getting all Integrations to be executed'));
+        $this->fetchDataSourceIntergrationSchedules($integrationActivator, $dataSourceId, $this->getListIntegrationsToBeExecutedUrl);
+        $this->fetchDataSourceIntergrationSchedules($integrationActivator, $dataSourceId, $this->getListIntegrationsBackfillToBeExecutedUrl);
     }
 
     /**
