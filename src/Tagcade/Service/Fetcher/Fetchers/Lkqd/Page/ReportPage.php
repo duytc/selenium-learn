@@ -33,16 +33,16 @@ class ReportPage extends AbstractPage
         $this->selectTimezone($params->getTimeZone());
         $this->selectDimensions($params->getDimensions());
 
-        $runReportElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]'));
+        $runReportElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[@ng-click="onRunToCsvClick()"]'));
 
 //        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "run-report-button")]')));
-        $runReportElement->click();
+//        $runReportElement->click();
 
         /** RemoveWebDriver $downloadElement */
-        $downloadElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "download-button")]'));
-        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "download-button")]')));
+//        $downloadElement = $this->driver->findElement(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "download-button")]'));
+//        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath('//div[@class="row-4"]/button[contains(@class, "download-button")]')));
         $directoryStoreDownloadFile = $this->getDirectoryStoreDownloadFile($startDate, $endDate, $this->getConfig());
-        $this->downloadThenWaitUntilComplete($downloadElement, $directoryStoreDownloadFile);
+        $this->downloadThenWaitUntilComplete($runReportElement, $directoryStoreDownloadFile);
     }
 
     protected function selectDateRange(\DateTime $startDate, \DateTime $endDate)
