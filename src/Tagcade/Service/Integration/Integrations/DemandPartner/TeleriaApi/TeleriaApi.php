@@ -373,11 +373,12 @@ class TeleriaApi extends IntegrationAbstract implements IntegrationInterface
         if ($code !== $expectedCode) {
             // will be retry
             if ($code == 419) {
-                die("Session Expired");
+                throw new RuntimeException("Session Expired, error code = $code");
+            } else {
+                throw new RuntimeException(
+                    sprintf('Cannot get data from this url, errorCode = %s while doing %s', $code, $source)
+                );
             }
-            throw new RuntimeException(
-                sprintf('Cannot get data from this url, errorCode = %s while doing %s', $code, $source)
-            );
 
         }
     }

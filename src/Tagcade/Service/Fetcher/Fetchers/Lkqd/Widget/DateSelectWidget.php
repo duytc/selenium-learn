@@ -7,6 +7,7 @@ namespace Tagcade\Service\Fetcher\Fetchers\Lkqd\Widget;
 use DateTime;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class DateSelectWidget extends AbstractWidget {
 
@@ -28,7 +29,7 @@ class DateSelectWidget extends AbstractWidget {
     public function setDateRange(DateTime $startDate, DateTime $endDate)
     {
         //open the date picker
-        $this->driver->findElement(WebDriverBy::xpath('//div[@class="date-range-box"]/lkqd-date-range'))->click();
+        $this->driver->findElement(WebDriverBy::xpath('//lkqd-date-range'))->click();
 
         $this->setStartDate($startDate);
         $this->setEndDate($endDate);
@@ -41,7 +42,7 @@ class DateSelectWidget extends AbstractWidget {
      */
     protected function setStartDate(DateTime $startDate )
     {
-        $this->driver->findElement(WebDriverBy::xpath('//div[@class="range_inputs"]/div[1]/input'))->clear()->sendKeys($startDate->format('m-d-Y'));
+        $this->driver->findElement(WebDriverBy::xpath('//input[@name="daterangepicker_start"]'))->clear()->sendKeys($startDate->format('m/d/Y'));
     }
 
     /**
@@ -49,7 +50,7 @@ class DateSelectWidget extends AbstractWidget {
      */
     protected function setEndDate(DateTime $endDate)
     {
-        $this->driver->findElement(WebDriverBy::xpath('//div[@class="range_inputs"]/div[2]/input'))->clear()->sendKeys($endDate->format('m-d-Y'));
+        $this->driver->findElement(WebDriverBy::xpath('//input[@name="daterangepicker_end"]'))->clear()->sendKeys($endDate->format('m/d/Y'));
     }
 
     protected function apply()
