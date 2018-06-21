@@ -69,7 +69,7 @@ class FileStorageService implements FileStorageServiceInterface
         }
 
         if (!is_dir($downloadPath)) {
-            mkdir($downloadPath, 0777, true);
+            $this->mkdir($downloadPath, $mode = 0777);
         }
 
         if (!empty($fileName)) {
@@ -88,6 +88,18 @@ class FileStorageService implements FileStorageServiceInterface
         }
 
         return $path;
+    }
+
+    public function mkdir($path, $mode = 0777)
+    {
+        if (true !== @mkdir($path, $mode, true)) {
+
+            if (!is_dir($path)) {
+                // The directory was not created by a concurrent process. Let's throw an exception with a developer friendly error message
+                $this->mkdir($path, $mode = 0777);
+            }
+        }
+
     }
 
     /**

@@ -160,6 +160,7 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
                 $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
 
                 $countHead++;
+                $dataRows = [];
             }
 
             $this->restClient->updateIntegrationWhenDownloadSuccess(new PartnerParams($config));
@@ -226,7 +227,7 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
 
         $bodyArr = \GuzzleHttp\json_decode(\GuzzleHttp\json_encode($body));
         $returnArr = array(
-            self::URL_DATE =>  isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->date) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->date : "",
+            self::URL_DATE => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->date) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->date : "",
             self::URL_IMPRESSIONS => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->impressions) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->impressions : "",
             self::URL_REVENUE => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->estimatedRevenue) ? $bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->estimatedRevenue : "",
             self::URL_RPM => isset($bodyArr->statsData->reportItem->{self::RESPONSE_ATTRIBUTES}->rpm) ? $bodyArr->pageTotal->{self::RESPONSE_ATTRIBUTES}->rpm : "",
@@ -238,7 +239,7 @@ class MediaDotNetApi extends IntegrationAbstract implements IntegrationInterface
         $headLine = [];
         $dataLine = [];
         foreach ($returnArr as $key => $item) {
-            $headLine[] = $key ;
+            $headLine[] = $key;
             $dataLine[] = $item;
         }
 
