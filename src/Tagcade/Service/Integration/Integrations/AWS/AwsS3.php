@@ -24,7 +24,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 {
     /*
      * Command to create:
-     * php app/console ur:integration:create aws-s3 "Amazon S3" -a -p "bucket,pattern:regex,awsKey:secure,awsSecret:secure,awsRegion,dateRange:dynamicDateRange" -vv
+     * php app/console ur:integration:create aws-s3 "Amazon S3" -a -p "bucket,pattern:regex,awsKey:secure,awsSecret:secure,awsRegion,dateRange:dynamicDateRange,dateFormatInFilename" -vv
      */
 
     const INTEGRATION_C_NAME = 'aws-s3';
@@ -38,6 +38,7 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
     const PARAM_START_DATE = 'startDate';
     const PARAM_END_DATE = 'endDate';
     const PARAM_DATE_RANGE = 'dateRange';
+    const PARAM_DATE_FORMAT = 'dateFormat';
 
     const VALUE_VERSION_DEFAULT = 'latest';
 
@@ -78,6 +79,9 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
         $awsKey = $config->getParamValue(self::PARAM_AWS_KEY, null);
         $awsSecret = $config->getParamValue(self::PARAM_AWS_SECRET, null);
         $awsRegion = $config->getParamValue(self::PARAM_AWS_REGION, null);
+        $dateFormat = $config->getParamValue(self::PARAM_DATE_FORMAT, null);
+
+        if (!$dateFormat) $dateFormat = '*test*';
 
         //// important: try get startDate, endDate by backFill
         if ($config->isNeedRunBackFill()) {
@@ -142,7 +146,9 @@ class AwsS3 extends IntegrationAbstract implements IntegrationInterface
 
                 /** @var DateTimeResult $lastModified */
                 $lastModified = $object['LastModified'];
-                if (!$this->isNewFile($startDate, $endDate, $lastModified)) {
+                $startDateStr = $startDate->format($dateFormat);
+
+                if (!$this->isNewFile($startDate, $endDate, $lastModified) && preg_match($startDateStr, $fileName) == 0) {
                     continue;
                 }
 
