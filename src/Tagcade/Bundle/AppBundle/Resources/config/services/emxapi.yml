@@ -1,0 +1,9 @@
+services:
+    tagcade.service.integration.integrations.demand_partner.emxapi:
+        class: Tagcade\Service\Integration\Integrations\DemandPartner\EmxApi\EmxApi
+        arguments:
+            - '@logger'
+            - '@tagcade.service.download_file_helper'
+            - '@tagcade.service.file_storage_service'
+            - '@tagcade_app.rest_client'
+            - '@curl'
