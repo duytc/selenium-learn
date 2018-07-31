@@ -172,6 +172,8 @@ class EmxApi extends IntegrationAbstract implements IntegrationInterface
                 $f = fopen($path, 'w');
                 fwrite($f, $responseData);
                 fclose($f);
+
+                $this->downloadFileHelper->saveMetaDataFile($params, $downloadFolderPath);
             }
 
             // reset endDate
